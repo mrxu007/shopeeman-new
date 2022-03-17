@@ -135,7 +135,6 @@ export default class GoodsDiscount {
         }
       })
       const data = JSON.parse(res)
-      console.log('111', data)
       if (data.status === 200) {
         if (JSON.parse(data.data).success) {
           return { code: 200, data: true }
@@ -470,7 +469,6 @@ export default class GoodsDiscount {
   }
   // 用户是否登录
   async isLogin(val) {
-    console.log('111');
     const item = val
     try {
       const params = {}

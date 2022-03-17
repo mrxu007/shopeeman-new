@@ -85,11 +85,16 @@
           <el-button size="mini" @click="checkLog">查看日志</el-button>
         </div>
       </li>
-      <el-button type="primary" size="mini" style="flex:1;margin-left:200px;width:100px;" @click="save()">保存</el-button>
+      <el-button size="mini" style="flex:1;margin-left:200px;width:100px;" @click="save()">保存</el-button>
     </ul>
-    <el-dialog title="日志" :visible.sync="logVisible" width="400px" :close-on-click-modal="false" :close-on-press-escape="false">
+    <el-dialog title="日志" 
+    :visible.sync="logVisible" 
+    width="600px" 
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    append-to-body>
       <el-table
-        max-height="590px"
+        max-height="400px"
         :data="logList"
         tooltip-effect="dark"
         style="width: 100%"
@@ -100,8 +105,8 @@
         :cell-style="{ textAlign: 'center' }"
         :row-style="{ height: '80px' }"
       >
-        <el-table-column label="操作" min-width="180px" prop=""></el-table-column>
-        <el-table-column label="日期" min-width="300px" prop=""></el-table-column>
+        <el-table-column label="操作" min-width="320px" prop="option" show-overflow-tooltip></el-table-column>
+        <el-table-column label="时间" min-width="180px" prop="activeTime"></el-table-column>
       </el-table>
     </el-dialog>
 
@@ -146,15 +151,25 @@ export default {
       return this.userInfo && this.userInfo.id
     })
     await this.getUserinfo() // 用户信息
-
-    this.initLog() // 初始化加载日志
   },
   methods: {
     //
     async checkLog() {
       this.logVisible = true
-      const res = await window.BaseUtilBridgeService.getTopGoodsHistory('')
-      console.log('log', res)
+      const siteList = ['MY', 'TW', 'VN', 'ID', 'PH', 'TH', 'SG', 'BR', 'MX', 'CO', 'CL', 'PL']
+    for (const site of siteList) {
+       const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(site)
+      // 检测时间-执行任务
+      if (mallTest.length) {
+        const res = await window.BaseUtilBridgeService.getAttentionUserLog(mallTest[0].id)
+        console.log('log', res)
+        if (res) {
+          this.logList=JSON.parse(res[0].log_message)
+        }else{
+        this.$message.warning('日志请求失败')
+        }
+      }
+      }
     },
     getUserinfo() {
       if (this.userInfo && this.userInfo.auto_attention_set) {
@@ -187,16 +202,6 @@ export default {
       var mm = time.getMinutes()
       var s = time.getSeconds()
       return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this.add0(s)
-    },
-    // 定时任务日志加载
-    async initLog() {
-      if (this.userInfo.auto_attention_set?.IsOpenTimerBrushFans) {
-        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
-        const logList = await window.BaseUtilBridgeService.getAttentionUserLog(mallTest.taskId)
-        logList.forEach(el => {
-          this.$refs.Logs.writeLog(`${el}`, true)
-        })
-      }
     },
     // 自动刷粉--------------
     async autoAddFence() {
@@ -281,16 +286,6 @@ export default {
       var mm = time.getMinutes()
       var s = time.getSeconds()
       return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this.add0(s)
-    },
-    // 定时任务日志加载
-    async initLog() {
-      if (this.userInfo.auto_attention_set.IsOpenTimerBrushFans) {
-        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
-        const logList = await window.BaseUtilBridgeService.getAttentionUserLog(mallTest.taskId)
-        logList.forEach(el => {
-          this.$refs.Logs.writeLog(`${el}`, true)
-        })
-      }
     },
     async save() {
       // 自动刷粉

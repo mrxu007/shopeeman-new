@@ -6,7 +6,7 @@
         <storeChoose style="margin-left:-2px" @changeMallList="changeMallList" />
         <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
         <el-button type="primary" size="mini" @click="setQurey">参数设置</el-button>
-        <el-button @click="test">aa</el-button>
+        <!-- <el-button @click="test">aa</el-button> -->
         <el-checkbox v-model="showlog" style="margin-top:5px;margin-left:5px">隐藏日志</el-checkbox>
       </li>
       <!-- row2 -->
@@ -228,6 +228,8 @@ export default {
     }
   },
   created() {
+  },
+  mounted(){
     this.getUserinfo()
   },
   methods: {
@@ -1165,7 +1167,21 @@ export default {
         return []
       }
     },
-    // 获取用户数据
+   
+    // 参数设置保存
+    setSave(val) {
+      //用户成功保存了信息
+      this.dialog_userInfo = false
+      // 更新userinfo
+      this.getUserinfo()
+    },
+    // 参数设置
+    async setQurey() {
+      this.dialog_userInfo = true
+      // this.getUserinfo()
+
+    },
+     // 获取用户数据
     async getUserinfo() {
       this.showlog = true
       const res = await this.$api.userSet()
@@ -1194,29 +1210,6 @@ export default {
       if (!this.userInfo.auto_attention_set) {
         this.$message.warning(`请先设置参数`)
       }
-    },
-    // 参数设置保存
-    setSave(val) {
-      // this.tableList = []
-      // console.log('199', this.selmallList)
-      // if (val) {
-      //   this.selmallList.forEach(el => {
-      //     const obj = { ...el }
-      //     obj['following'] = 0
-      //     obj['fence'] = 0
-      //     obj['newFollow'] = 0
-      //     obj['cancerFollow'] = 0
-      //     obj['state'] = '-'
-      //     this.tableList.push(obj)
-      //   })
-      // }
-      this.dialog_userInfo = false
-      // 更新userinfo
-      this.getUserinfo()
-    },
-    // 参数设置
-    async setQurey() {
-      this.dialog_userInfo = true
     },
     // 清除日志
     clearLog() {

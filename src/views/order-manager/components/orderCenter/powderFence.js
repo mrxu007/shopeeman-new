@@ -1,7 +1,7 @@
 import MallManagerAPI from '@/module-api/market-activity-api/ai-addFence'
 import { batchOperation, sleep } from '@/util/util'
 import Vue from 'vue'
-// let _this = new AutoAddFence()
+// let __this = new AutoAddFence()
 let _this = null
 export class AutoAddFence {
   mallTest = '' // 任务
@@ -16,9 +16,9 @@ export class AutoAddFence {
       storeLog['country'] = site
       storeLog['log_message'] = []
       const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(site)
-      // console.log(mallTest)
       // 检测时间-执行任务
       if (mallTest.length) {
+        console.log(mallTest)
         const curTime = new Date().getTime()
         const runTime = Number(mallTest[0].exec_time)
         this.runTesk(curTime - runTime, mallTest)
@@ -33,10 +33,10 @@ export class AutoAddFence {
     getTime = getTime > 0 ? 0 : 0 - getTime
     if (!getTime) {
       console.log('任务即将执行', mallTest[0].country, mallTest[0])
-      this.storeLogList[`${mallTest[0].country}`].log_message.push({ option: '任务即将执行....', activeTime: this.formatTime(new Date().getTime()) })
+      this.storeLogList[`${mallTest[0].country}`].log_message.push({ option: `【${mallTest[0].country}】任务即将执行....`, activeTime: this.formatTime(new Date().getTime()) })
     } else {
       console.log('该任务还未到执行时间', mallTest[0].country, mallTest[0])
-      this.storeLogList[`${mallTest[0].country}`].log_message.push({ option: '该任务还未到执行时间', activeTime: this.formatTime(new Date().getTime()) })
+      this.storeLogList[`${mallTest[0].country}`].log_message.push({ option: `【${mallTest[0].country}】该任务还未到执行时间`, activeTime: this.formatTime(new Date().getTime()) })
     }
     setTimeout(async () => {
       // 更新任务时间 --日志
@@ -70,8 +70,8 @@ export class AutoAddFence {
       this.storeLogList[`${mallTest[0].country}`].country = addTest_ofTest[0].country
       this.storeLogList[`${mallTest[0].country}`].created_at = this.formatTime(new Date().getTime())
       this.storeLogList[`${mallTest[0].country}`].log_message = JSON.stringify(this.storeLogList[`${mallTest[0].country}`].log_message)
-      const aa = this.storeLogList[`${mallTest[0].country}`]
       const resLog = await window.BaseUtilBridgeService.saveAttentionUserLog(this.storeLogList[`${mallTest[0].country}`])
+      console.log('日志存储',resLog);
     }, getTime)
   }
   /**
@@ -99,7 +99,7 @@ export class AutoAddFence {
     let AllgoodsMalllist = []
     // 查询店铺
     console.log('正在查询关注店铺')
-    this.storeLogList[`${mallTest.country}`].log_message.push({ option: '正在查询关注店铺....', activeTime: this.formatTime(new Date().getTime()) })
+    this.storeLogList[`${mallTest.country}`].log_message.push({ option: `正在查询【${mallTest.key_word}】相关店铺....`, activeTime: this.formatTime(new Date().getTime()) })
     for (let i = 0; i < maxPage; i++) {
       const params = {}
       params['country'] = mallTest.country
@@ -116,7 +116,6 @@ export class AutoAddFence {
       }
       // 店铺条件过滤
       const fansMallsList = await this.filterList(goodsMalllist, mallTest)
-      console.log(fansMallsList);
       if (fansMallsList.length) {
         AllgoodsMalllist.push(...fansMallsList)
         // 根据配置信息截取所需
@@ -208,8 +207,8 @@ export class AutoAddFence {
     //   this.$refs.Logs.writeLog(`数据正在处理......`, true)
     if (this.mallSearchList.length<=0) {
       // 当前关键词暂无数据
-      console.log(mallTest.country + '当前关键词暂无数据')
-      this.storeLogList[`${mallTest.country}`].log_message.push({ option: `当前关键词暂无数据`, activeTime: this.formatTime(new Date().getTime()) })
+      console.log(mallTest.country + `当前关键词【${mallTest.key_word}】暂无数据`)
+      this.storeLogList[`${mallTest.country}`].log_message.push({ option: `当前关键词【${mallTest.key_word}】暂无数据`, activeTime: this.formatTime(new Date().getTime()) })
       return
     }
     // 组装tablelist
@@ -234,11 +233,10 @@ export class AutoAddFence {
     // log 数据正在处理
     console.log('开始处理关注店铺数据......')
     _this = this
-    console.log('---this--',this);
     this.storeLogList[`${mallTest.country}`].log_message.push({ option: `开始处理关注店铺数据......`, activeTime: this.formatTime(new Date().getTime()) })
     await batchOperation(tableList, this.getFllowerInfo)
-    this.storeLogList[`${mallTest.country}`].log_message.push({ option: `数据处理结束`, activeTime: this.formatTime(new Date().getTime()) })
-    console.log('数据处理结束')
+    this.storeLogList[`${mallTest.country}`].log_message.push({ option: `【${mallTest.country}】数据处理结束`, activeTime: this.formatTime(new Date().getTime()) })
+    console.log(`【${mallTest.country}】数据处理结束`)
     // log 数据处理结束
   }
   // 开始关注---筛选粉丝
@@ -258,20 +256,18 @@ export class AutoAddFence {
       // this.$set(mall, 'state', '-')
       // this.$refs.Logs.writeLog(`正在查询【${mall.mall_alias_name || mall.platform_mall_name}】店铺关注信息`)
       // 判断HOME店铺未登录（方法里已打印了日志）
-      console.log('111',this,_this);
       const islogined = await _this.isLoginFun(mall)
-      console.log('222');
       console.log();
       if (!islogined) {
         return
       }
       // 获取HOME店铺数据
-      const resMall = await that.getHomeMallData(mall)
-      that.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
-      that.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
+      const resMall = await _this.getHomeMallData(mall)
+      // _this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
+      // _this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
       if (!resMall) {
         console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`)
-        that.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`, activeTime: that.formatTime(new Date().getTime()) })
+        _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`, activeTime: _this.formatTime(new Date().getTime()) })
         return
       }
       // 获取HOME店铺关注数据
@@ -282,9 +278,9 @@ export class AutoAddFence {
       // console.log('621', allhomeFollowringList)
 
       // 遍历关注店铺
-      let totalMallFollow = Number(mall.newFollow)
+      let totalMallFollow = mall.newFollow
       for (const followermallID of followermallIDList) {
-        if (that.isStop) {
+        if (_this.isStop) {
           return
         }
         // 接口请求擦参数
@@ -295,24 +291,24 @@ export class AutoAddFence {
         if (mall.followed_type === '0') {
           // 关注店铺粉丝
           console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】正在获取${followermallID}店铺粉丝信息`)
-          that.storeLogList[`${mall.country}`].log_message.push({
+          _this.storeLogList[`${mall.country}`].log_message.push({
             option: `【${mall.mall_alias_name || mall.platform_mall_name}】正在获取${followermallID}店铺粉丝信息`,
-            activeTime: that.formatTime(new Date().getTime())
+            activeTime: _this.formatTime(new Date().getTime())
           })
           let flag = true
           // 关注第一页粉丝
           params['offset'] = 0
-          let ALLshopDatas = await that.GetShopLikes(params) // 获取粉丝信息
+          let ALLshopDatas = await _this.GetShopLikes(params) // 获取粉丝信息
           console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】获取第${params.offset / 20 + 1}页粉丝`)
-          that.storeLogList[`${mall.country}`].log_message.push({
+          _this.storeLogList[`${mall.country}`].log_message.push({
             option: `【${mall.mall_alias_name || mall.platform_mall_name}】获取第${params.offset / 20 + 1}页粉丝`,
-            activeTime: that.formatTime(new Date().getTime())
+            activeTime: _this.formatTime(new Date().getTime())
           })
           for (const shop of ALLshopDatas) {
-            if (that.isStop) {
+            if (_this.isStop) {
               return
             }
-            const lineUser = await that.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
+            const lineUser = await _this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
             if (!lineUser) {
               continue
             }
@@ -327,7 +323,7 @@ export class AutoAddFence {
             if (isFollowed.attention_shop_id) {
               continue
             }
-            const isFollow = await that.runAttention(shop, mall, followermallID) // 开始关注
+            const isFollow = await _this.runAttention(shop, mall, followermallID) // 开始关注
             if (isFollow) {
               totalMallFollow++
               //存储数据到壳内
@@ -336,9 +332,9 @@ export class AutoAddFence {
               // this.$set(mall, 'newFollow', totalMallFollow)
               // this.$set(mall, 'state', '关注失败')
               console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败`)
-              that.storeLogList[`${mall.country}`].log_message.push({
+              _this.storeLogList[`${mall.country}`].log_message.push({
                 option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败`,
-                activeTime: that.formatTime(new Date().getTime())
+                activeTime: _this.formatTime(new Date().getTime())
               })
               flag = false
               continue
@@ -353,36 +349,36 @@ export class AutoAddFence {
             } else {
               if (mall.following + totalMallFollow >= 3000) {
                 console.log('关注已达上限')
-                that.storeLogList[`${mall.country}`].log_message.push({ option: `新增关注${totalMallFollow}个`, activeTime: that.formatTime(new Date().getTime()) })
-                that.storeLogList[`${mall.country}`].log_message.push({ option: `关注已达上限`, activeTime: that.formatTime(new Date().getTime()) })
+                _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】新增关注${totalMallFollow}个`, activeTime: _this.formatTime(new Date().getTime()) })
+                _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限`, activeTime: _this.formatTime(new Date().getTime()) })
                 return
               }
             }
           }
-          console.log(`新增关注${totalMallFollow}个`)
-          that.storeLogList[`${mall.country}`].log_message.push({ option: `新增关注${totalMallFollow}个`, activeTime: that.formatTime(new Date().getTime()) })
+          console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】新增关注${totalMallFollow}个`)
+          _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】新增关注${totalMallFollow}个`, activeTime: _this.formatTime(new Date().getTime()) })
 
           // this.$set(mall, 'newFollow', totalMallFollow)
           // 关注更多粉丝
           while (flag) {
-            if (that.isStop) {
+            if (_this.isStop) {
               return
             }
             params['offset'] += 20
-            ALLshopDatas = await that.GetShopLikes(params)
+            ALLshopDatas = await _this.GetShopLikes(params)
             console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】获取第${params.offset / 20 + 1}页粉丝数据`)
-            that.storeLogList[`${mall.country}`].log_message.push({
+            _this.storeLogList[`${mall.country}`].log_message.push({
               option: `【${mall.mall_alias_name || mall.platform_mall_name}】获取第${params.offset / 20 + 1}页粉丝数据`,
-              activeTime: that.formatTime(new Date().getTime())
+              activeTime: _this.formatTime(new Date().getTime())
             })
             //   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取第${(params.offset / 20) + 1}页粉丝数据`)
             
             for (let index = 0; index < ALLshopDatas.length; index++) {
-              if (that.isStop) {
+              if (_this.isStop) {
                 return
               }
               const shop = ALLshopDatas[index]
-              const lineUser = await that.filterShopDatas(shop, mall.country, mall.platform_mall_id, mall.last_login_day) // 筛选活跃粉丝
+              const lineUser = await _this.filterShopDatas(shop, mall.country, mall.platform_mall_id, mall.last_login_day) // 筛选活跃粉丝
               if (!lineUser) {
                 continue
               }
@@ -397,7 +393,7 @@ export class AutoAddFence {
               if (isFollowed.attention_shop_id) {
                 continue
               }
-              const isFollow = await that.runAttention(shop, mall, followermallID)
+              const isFollow = await _this.runAttention(shop, mall, followermallID)
               if (isFollow) {
                 totalMallFollow++
                 //存储数据到壳内
@@ -407,9 +403,9 @@ export class AutoAddFence {
                 //   this.$set(mall, 'state', '关注失败')
                 //   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,`, false)
                 console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败`)
-                that.storeLogList[`${mall.country}`].log_message.push({
+                _this.storeLogList[`${mall.country}`].log_message.push({
                   option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败`,
-                  activeTime: that.formatTime(new Date().getTime())
+                  activeTime: _this.formatTime(new Date().getTime())
                 })
                 continue
               }
@@ -418,10 +414,17 @@ export class AutoAddFence {
                 if (totalMallFollow >= Number(mall.Tesk_follow_number)) {
                   // this.$set(mall, 'newFollow', totalMallFollow)
                   // this.$set(mall, 'state', '关注成功')
-                  console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败`)
-                  that.storeLogList[`${mall.country}`].log_message.push({
-                    option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}成功`,
-                    activeTime: that.formatTime(new Date().getTime())
+                  // console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}成功`)
+                  // _this.storeLogList[`${mall.country}`].log_message.push({
+                  //   option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}成功`,
+                  //   activeTime: _this.formatTime(new Date().getTime())
+
+                  // })
+                  console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个粉丝`);
+                  _this.storeLogList[`${mall.country}`].log_message.push({
+                    option: `【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个粉丝`,
+                    activeTime: _this.formatTime(new Date().getTime())
+                    
                   })
                   return
                 }
@@ -432,13 +435,13 @@ export class AutoAddFence {
                   console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个`)
                   console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限`)
 
-                  that.storeLogList[`${mall.country}`].log_message.push({
+                  _this.storeLogList[`${mall.country}`].log_message.push({
                     option: `【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个`,
-                    activeTime: that.formatTime(new Date().getTime())
+                    activeTime: _this.formatTime(new Date().getTime())
                   })
-                  that.storeLogList[`${mall.country}`].log_message.push({
+                  _this.storeLogList[`${mall.country}`].log_message.push({
                     option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限`,
-                    activeTime: that.formatTime(new Date().getTime())
+                    activeTime: _this.formatTime(new Date().getTime())
                   })
                   // flag = false
                   // break
@@ -449,14 +452,14 @@ export class AutoAddFence {
             if (ALLshopDatas.length < 20) {
               // this.$refs.Logs.writeLog(`【${followermallID}】查找结束`)
               console.log(`【${followermallID}】查找结束`)
-              that.storeLogList[`${mall.country}`].log_message.push({ option: `【${followermallID}】查找结束`, activeTime: that.formatTime(new Date().getTime()) })
+              _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${followermallID}】查找结束`, activeTime: _this.formatTime(new Date().getTime()) })
               flag = false
             }
             //   this.$set(mall, 'newFollow', totalMallFollow)
             console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个`)
-            that.storeLogList[`${mall.country}`].log_message.push({
+            _this.storeLogList[`${mall.country}`].log_message.push({
               option: `【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个`,
-              activeTime: that.formatTime(new Date().getTime())
+              activeTime: _this.formatTime(new Date().getTime())
             })
             // 任务执行间隔时间
             await sleep(Number(mall.follow_interval) * 1000)
@@ -465,35 +468,35 @@ export class AutoAddFence {
           // this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】成功关注${totalMallFollow}个粉丝`)
           console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】操作结束`)
           console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个`)
-          that.storeLogList[`${mall.country}`].log_message.push({
+          _this.storeLogList[`${mall.country}`].log_message.push({
             option: `【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个`,
-            activeTime: that.formatTime(new Date().getTime())
+            activeTime: _this.formatTime(new Date().getTime())
           })
-          that.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】操作结束`, activeTime: that.formatTime(new Date().getTime()) })
+          _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】操作结束`, activeTime: that.formatTime(new Date().getTime()) })
         } else {
           // this.$refs.Logs.writeLog(`正在获取评价用户信息`, true)
           console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】正在获取评价用户信息`)
-          that.storeLogList[`${mall.country}`].log_message.push({
+          _this.storeLogList[`${mall.country}`].log_message.push({
             option: `【${mall.mall_alias_name || mall.platform_mall_name}】正在获取评价用户信息`,
-            activeTime: that.formatTime(new Date().getTime())
+            activeTime: _this.formatTime(new Date().getTime())
           })
           // 关注评价用户
           let flag2 = true
           let RateCustomList = []
-          const itemIDindex = that.mallSearchList.findIndex(el => {
+          const itemIDindex = _this.mallSearchList.findIndex(el => {
             return el.shopid === Number(followermallID)
           })
-          const itemID = that.mallSearchList[itemIDindex].itemid
+          const itemID = _this.mallSearchList[itemIDindex].itemid
           // 关注第一页评价用户
           let offset = 0
           // this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取${followermallID}第【${(offset / 52) + 1}】页评价用户`)
-          that.storeLogList[`${mall.country}`].log_message.push({
+          _this.storeLogList[`${mall.country}`].log_message.push({
             option: `【${mall.mall_alias_name || mall.platform_mall_name}】获取${followermallID}第【${offset / 52 + 1}】页评价用户`,
-            activeTime: that.formatTime(new Date().getTime())
+            activeTime: _this.formatTime(new Date().getTime())
           })
-          RateCustomList = await that.GetShopComment(itemID, followermallID, mall, offset)
+          RateCustomList = await _this.GetShopComment(itemID, followermallID, mall, offset)
           if (!RateCustomList.length) {
-            that.storeLogList[`${mall.country}`].log_message.push({ option: `${followermallID}暂无用户评价`, activeTime: that.formatTime(new Date().getTime()) })
+            _this.storeLogList[`${mall.country}`].log_message.push({ option: `${followermallID}暂无用户评价`, activeTime: _this.formatTime(new Date().getTime()) })
             continue
           }
           for (let j = 0; j < RateCustomList.length; j++) {
@@ -513,15 +516,15 @@ export class AutoAddFence {
             if (isFollowed.attention_shop_id) {
               continue
             }
-            const isFollow = await that.runAttention(shop, mall, RateCustom.shopid) // 开始关注
+            const isFollow = await _this.runAttention(shop, mall, RateCustom.shopid) // 开始关注
             if (isFollow) {
               totalMallFollow++
               //存储数据到壳内
               const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ country: mall.country, mall_id: mall.platform_mall_id.toString(), attention_shop_id: shop.ShopId })
             } else {
-              that.storeLogList[`${mall.country}`].log_message.push({
+              _this.storeLogList[`${mall.country}`].log_message.push({
                 option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败`,
-                activeTime: that.formatTime(new Date().getTime())
+                activeTime: _this.formatTime(new Date().getTime())
               })
               flag2 = false
               continue
@@ -531,9 +534,9 @@ export class AutoAddFence {
               if (totalMallFollow >= Number(mall.Tesk_follow_number)) {
                 //   this.$set(mall, 'newFollow', totalMallFollow)
                 //   this.$set(mall, 'state', '关注成功')
-                that.storeLogList[`${mall.country}`].log_message.push({
+                _this.storeLogList[`${mall.country}`].log_message.push({
                   option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注成功`,
-                  activeTime: that.formatTime(new Date().getTime())
+                  activeTime: _this.formatTime(new Date().getTime())
                 })
                 return
               }
@@ -541,34 +544,34 @@ export class AutoAddFence {
               if (mall.following + totalMallFollow >= 3000) {
                 //   this.$set(mall, 'newFollow', totalMallFollow)
                 //   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限,`, true)
-                that.storeLogList[`${mall.country}`].log_message.push({
+                _this.storeLogList[`${mall.country}`].log_message.push({
                   option: `【${mall.mall_alias_name || mall.platform_mall_name}】新增${totalMallFollow}个`,
-                  activeTime: that.formatTime(new Date().getTime())
+                  activeTime: _this.formatTime(new Date().getTime())
                 })
-                that.storeLogList[`${mall.country}`].log_message.push({
+                _this.storeLogList[`${mall.country}`].log_message.push({
                   option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限`,
-                  activeTime: that.formatTime(new Date().getTime())
+                  activeTime: _this.formatTime(new Date().getTime())
                 })
                 // flag2 = false
                 return
               }
             }
           }
-          that.$set(mall, 'newFollow', totalMallFollow)
+          _this.$set(mall, 'newFollow', totalMallFollow)
           // 关注更多评价用户
           while (flag2) {
-            if (that.isStop) {
+            if (_this.isStop) {
               return
             }
             offset += 52
             //   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取${followermallID}第【${(offset / 52) + 1}】页评价用户`)
-            that.storeLogList[`${mall.country}`].log_message.push({
+            _this.storeLogList[`${mall.country}`].log_message.push({
               option: `【${mall.mall_alias_name || mall.platform_mall_name}】获取${followermallID}第【${offset / 52 + 1}】页评价用户`,
-              activeTime: that.formatTime(new Date().getTime())
+              activeTime: _this.formatTime(new Date().getTime())
             })
-            RateCustomList = await that.GetShopComment(itemID, followermallID, mall, offset)
+            RateCustomList = await _this.GetShopComment(itemID, followermallID, mall, offset)
             for (let j = 0; j < RateCustomList.length; j++) {
-              if (that.isStop) {
+              if (_this.isStop) {
                 return
               }
               const RateCustom = RateCustomList[j]
@@ -586,15 +589,15 @@ export class AutoAddFence {
               if (isFollowed.attention_shop_id) {
                 continue
               }
-              const isFollow = await that.runAttention(shop, mall, followermallID) // 开始关注
+              const isFollow = await _this.runAttention(shop, mall, followermallID) // 开始关注
               if (isFollow) {
                 totalMallFollow++
                 //存储数据到壳内
                 const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ country: mall.country, mall_id: mall.platform_mall_id.toString(), attention_shop_id: shop.ShopId })
               } else {
-                that.storeLogList[`${mall.country}`].log_message.push({
+                _this.storeLogList[`${mall.country}`].log_message.push({
                   option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败`,
-                  activeTime: that.formatTime(new Date().getTime())
+                  activeTime: _this.formatTime(new Date().getTime())
                 })
                 //   this.$set(mall, 'newFollow', totalMallFollow)
                 //   this.$set(mall, 'state', '关注失败')
@@ -606,9 +609,9 @@ export class AutoAddFence {
                 if (totalMallFollow >= Number(mall.Tesk_follow_number)) {
                   // this.$set(mall, 'newFollow', totalMallFollow)
                   // this.$set(mall, 'state', '关注成功')
-                  that.storeLogList[`${mall.country}`].log_message.push({
+                  _this.storeLogList[`${mall.country}`].log_message.push({
                     option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注成功`,
-                    activeTime: that.formatTime(new Date().getTime())
+                    activeTime: _this.formatTime(new Date().getTime())
                   })
                   return
                 }
@@ -616,9 +619,9 @@ export class AutoAddFence {
                 if (mall.following + totalMallFollow >= 3000) {
                   // this.$set(mall, 'newFollow', totalMallFollow)
                   // this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限,`, true)
-                  that.storeLogList[`${mall.country}`].log_message.push({
+                  _this.storeLogList[`${mall.country}`].log_message.push({
                     option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限`,
-                    activeTime: that.formatTime(new Date().getTime())
+                    activeTime: _this.formatTime(new Date().getTime())
                   })
                   // flag2 = false
                   // break
@@ -628,7 +631,7 @@ export class AutoAddFence {
             }
             if (RateCustomList.length < 52) {
               // this.$refs.Logs.writeLog(`【${followermallID}】查找结束`)
-              that.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】查找结束`, activeTime: that.formatTime(new Date().getTime()) })
+              _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】查找结束`, activeTime: _this.formatTime(new Date().getTime()) })
               flag2 = false
             }
             //   this.$set(mall, 'newFollow', totalMallFollow)
@@ -636,17 +639,17 @@ export class AutoAddFence {
           }
           // this.$set(mall, 'state', '操作结束')
           // this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】成功关注${totalMallFollow}个粉丝`)
-          that.storeLogList[`${mall.country}`].log_message.push({
+          _this.storeLogList[`${mall.country}`].log_message.push({
             option: `【${mall.mall_alias_name || mall.platform_mall_name}】成功关注${totalMallFollow}个粉丝`,
-            activeTime: that.formatTime(new Date().getTime())
+            activeTime: _this.formatTime(new Date().getTime())
           })
-          that.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】操作结束`, activeTime: that.formatTime(new Date().getTime()) })
+          _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】操作结束`, activeTime: _this.formatTime(new Date().getTime()) })
         }
       }
-      that.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注结束`, activeTime: that.formatTime(new Date().getTime()) })
+      _this.storeLogList[`${mall.country}`].log_message.push({ option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注结束`, activeTime: _this.formatTime(new Date().getTime()) })
     } catch (e) {
       console.log(e);
-      that.storeLogList[`${mall.country}`].log_message.push({ option: `用户信息获取失败-line373，${e}`, activeTime: that.formatTime(new Date().getTime()) })
+      _this.storeLogList[`${mall.country}`].log_message.push({ option: `用户信息获取失败-line373，${e}`, activeTime: _this.formatTime(new Date().getTime()) })
     } finally {
       --count.count
     }
@@ -664,15 +667,14 @@ export class AutoAddFence {
     }
   // 获取HOME店铺数据
   async getHomeMallData(mall) {
-    const that=new AutoAddFence()
     const params = {}
     params['country'] = mall.country
     params['mallId'] = mall.platform_mall_id
-    const resUser = await that.MallAPIInstance.UserProfile(params) // 获取userName
+    const resUser = await _this.MallAPIInstance.UserProfile(params) // 获取userName
     if (resUser.code === 200) {
       const userName = resUser.data.username
       params['username'] = userName
-      const resMall = await that.MallAPIInstance.getHomeMallinfo(params)
+      const resMall = await _this.MallAPIInstance.getHomeMallinfo(params)
       if (resMall.code === 200) {
         return resMall.data
       } else {
@@ -706,7 +708,6 @@ export class AutoAddFence {
   }
   // 获取粉丝信息
   async GetShopLikes(item) {
-    const that=new AutoAddFence()
     const params = {}
     params['country'] = item.country
     params['mallId'] = item.mallId
@@ -715,20 +716,19 @@ export class AutoAddFence {
     params['limit'] = 20
     params['offset_of_offset'] = 0
     params['timeStamp'] = new Date().getTime()
-    const res = await that.MallAPIInstance.getFllower(params)
+    const res = await _this.MallAPIInstance.getFllower(params)
     if (res.code === 200) {
       return res.data
     } else {
       // this.$refs.Logs.writeLog(`粉丝获取失败，${res.message}`, false)
-      that.storeLogList[`${item.country}`].log_message.push({ option: `粉丝获取失败`, activeTime: that.formatTime(new Date().getTime()) })
+      _this.storeLogList[`${item.country}`].log_message.push({ option: `粉丝获取失败`, activeTime: _this.formatTime(new Date().getTime()) })
       console.log(`粉丝获取失败，${res.message}`)
       return []
     }
   }
   // 筛选活跃关注()
   async filterShopDatas(shop, country, platform_mall_id, last_login_day) {
-    const that=new AutoAddFence()
-    const activetime = await that.getActiveUser({ country: country, mallId: platform_mall_id, userName: shop.UserName })
+    const activetime = await _this.getActiveUser({ country: country, mallId: platform_mall_id, userName: shop.UserName })
     const nowTime = new Date(new Date().toLocaleDateString()).getTime()
     const setTime = nowTime - nowTime * (Number(last_login_day) - 1)
     if (activetime > setTime) {
@@ -737,35 +737,52 @@ export class AutoAddFence {
       return false
     }
   }
+   // 获取店铺活跃时间
+   async getActiveUser(user) {
+    const params = {}
+    // 获取店铺粉丝
+    params['country'] = user.country
+    params['mallId'] = user.mallId
+    params['username'] = user.userName
+    const res = await _this.MallAPIInstance.getActiveTimeFollower(params)
+    if (res.code === 200) {
+      return Number(res.data.last_active_time) * 1000
+    } else {
+      _this.$refs.Logs.writeLog(`店铺活跃状态获取失败:${res.message}`, false)
+      return ''
+    }
+  }
   // 关注用户
   async runAttention(shop, mall, followermallID) {
-    const that=new AutoAddFence()
     const param = {}
     param['country'] = mall.country
     param['mallId'] = mall.platform_mall_id
     param['userShopid'] = shop.ShopId
     param['followMallID'] = followermallID
-    const res = await that.MallAPIInstance.buyerFollow(param)
+    const res = await _this.MallAPIInstance.buyerFollow(param)
+    console.log('关注',res);
     if (res.code !== 200) {
-      that.storeLogList[`${mall.country}`].log_message.push({
+      console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,${res.message}`);
+      _this.storeLogList[`${mall.country}`].log_message.push({
         option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,${res.message}`,
-        activeTime: that.formatTime(new Date().getTime())
+        activeTime: _this.formatTime(new Date().getTime())
       })
       // this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,${res.message}`, false)
     } else {
       if (res.data) {
         console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}成功`)
-        that.storeLogList[`${mall.country}`].log_message.push({
+        _this.storeLogList[`${mall.country}`].log_message.push({
           option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}成功`,
-          activeTime: that.formatTime(new Date().getTime())
+          activeTime: _this.formatTime(new Date().getTime())
         })
         //   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}成功`, true)
         return true
       } else {
         //   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,${res.message}`, false)
-        that.storeLogList[`${mall.country}`].log_message.push({
+        console.log(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,${res.message}`);
+        _this.storeLogList[`${mall.country}`].log_message.push({
           option: `【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,${res.message}`,
-          activeTime: that.formatTime(new Date().getTime())
+          activeTime: _this.formatTime(new Date().getTime())
         })
       }
     }
@@ -779,7 +796,7 @@ export class AutoAddFence {
     params['itemid'] = itemID
     params['offset'] = offset
     params['shopid'] = followermallID
-    const res = await this.MallAPIInstance.getShoppComment(params)
+    const res = await _this.MallAPIInstance.getShoppComment(params)
     if (res.code === 200) {
       const array = res.data.ratings || []
       // 用户设置的评论星级筛选
@@ -790,9 +807,9 @@ export class AutoAddFence {
       })
       return shopDatas
     } else {
-      // this.$refs.Logs.writeLog(`商品评价获取失败${res.message}`, false)
+      // _this.$refs.Logs.writeLog(`商品评价获取失败${res.message}`, false)
       console.log(`商品评价获取失败${res.message}`)
-      this.storeLogList[`${mall.country}`].log_message.push({ option: `商品评价获取失败${res.message}`, activeTime: that.formatTime(new Date().getTime()) })
+      _this.storeLogList[`${mall.country}`].log_message.push({ option: `商品评价获取失败${res.message}`, activeTime: that.formatTime(new Date().getTime()) })
       return []
     }
   }
