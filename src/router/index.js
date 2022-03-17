@@ -130,7 +130,13 @@ const routes = [
     name: 'encyclopedia',
     component: () =>
       import('../views/encyclopedia/index.vue')
-  } // 百科
+  }, // 百科
+  {
+    path: '/userSet',
+    name: 'userSet',
+    component: () =>
+      import('../views/user-config/usersetConponet.vue')
+  } // 设置
 ]
 const originalPush = VueRouter.prototype.push
 
