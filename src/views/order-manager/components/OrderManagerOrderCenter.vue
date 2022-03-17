@@ -3541,7 +3541,8 @@ export default {
           } else if (item.name === '操作') {
             list[1] = Object.assign(item, itemShow)
           } else if (itemShow && itemShow.sort_number && itemShow.sort_number > 1) {
-            list[itemShow.sort_number] = (Object.assign(item, itemShow))
+            let width = Number(itemShow.width) || item.width
+            list[itemShow.sort_number] = (Object.assign(item, itemShow, { width:width }))
           } else {
             list1.push(Object.assign(item, { is_show: 1 }))
           }
