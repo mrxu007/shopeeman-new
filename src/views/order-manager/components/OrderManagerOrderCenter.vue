@@ -1796,7 +1796,7 @@ export default {
     })
     this.$IpcMain.on('FinishShotOrderMessage', async(response) => {
       console.log('FinishShotOrderMessage', response)
-      // this.getOrderList()
+      this.getOrderList(null,'FinishShotOrderMessage')
     })
     this.$IpcMain.on('updateShopeeCookie', async(response) => {
       // let obj = response && JSON.parse(response) || ''
@@ -3297,8 +3297,7 @@ export default {
       return diff
     },
     // 获取订单列表数据
-    async getOrderList(page) {
-      this.tableData = []
+    async getOrderList(page,isNo) {
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
         if (index === 0) {
@@ -3319,18 +3318,31 @@ export default {
       params['createTime'] = this.createTime && this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
-      this.tableLoading = true
+      let multipleTable = this.$refs.multipleTable
+      console.log(multipleTable)
+      const divData = multipleTable && multipleTable.$el.querySelector('.el-table__body-wrapper')
+      let scrollTop = divData && divData.scrollTop || 0
+      if(!isNo){
+        this.tableData = []
+        this.tableLoading = true
+      }
       const res = await this.$api.getOrderList(params)
       this.tableLoading = false
       try {
         if (res.data.code && res.data.code === 200) {
           this.tableData = res.data.data.data
-          this.total = res.data.data.total
-          this.$nextTick(() => {
-            this.isSecondSale()
-            this.dealWithTableList()
-            this.getSkuRelation()
-          })
+          if(isNo && scrollTop > 0){
+            setTimeout(()=>{
+              divData.scrollTop = scrollTop
+            },200)
+          }else{
+            this.total = res.data.data.total
+            this.$nextTick(() => {
+              this.isSecondSale()
+              this.dealWithTableList()
+              this.getSkuRelation()
+            })
+          }
         } else {
           this.$message.warning(`${res.data.message ? res.data.message : '获取订单列表失败'}`)
         }
