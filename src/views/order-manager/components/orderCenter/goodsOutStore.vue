@@ -315,8 +315,7 @@ export default {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        })
-            .then(() => {
+        }).then(() => {
               if (this.outStoreType === '4') {
                 this.homePlaceOrder()
               } else if (this.outStoreType === '3') {

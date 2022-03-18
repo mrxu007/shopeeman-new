@@ -1298,6 +1298,7 @@ export default {
           rowColor: 'changeOrderStatus_color',
           rowShow: 'changeOrderStatus',
           prop: 'order_status',
+          sortable: true,
           showType: 4
         }, {
           key: 8,
@@ -1341,6 +1342,7 @@ export default {
           iCopy: 'goods_info.goods_id',
           prop: 'goods_info.goods_id',
           rowClick: 'openUrl_product',
+          sortable: true,
           showType: 0
         }, {
           key: 15,
@@ -1420,6 +1422,7 @@ export default {
           rowShow: 'replace_=|=',
           prop: 'goods_info.variation_sku',
           showOverflowTooltip: true,
+          sortable: true,
           showType: 4
         }, {
           key: 25,
@@ -1517,6 +1520,7 @@ export default {
           rowColor: 'changeShotStatus_color',
           rowShow: 'changeShotStatus',
           prop: 'shot_order_info.shot_status',
+          sortable: true,
           showType: 4
         }, {
           key: 37,
@@ -1643,6 +1647,7 @@ export default {
           align: '',
           filter: changeDeliveryStatus,
           prop: 'delivery_status',
+          sortable: true,
           showType: 0
         }, {
           key: 52,
@@ -1663,6 +1668,7 @@ export default {
           name: '本地备注',
           width: '120',
           align: '',
+          prop: 'remark',
           showOverflowTooltip: true,
           sortable: true,
           showType: 23
@@ -1790,7 +1796,7 @@ export default {
     })
     this.$IpcMain.on('FinishShotOrderMessage', async(response) => {
       console.log('FinishShotOrderMessage', response)
-      this.getOrderList()
+      this.getOrderList(null,'FinishShotOrderMessage')
     })
     this.$IpcMain.on('updateShopeeCookie', async(response) => {
       // let obj = response && JSON.parse(response) || ''
@@ -2953,7 +2959,8 @@ export default {
       let shopeeAccount = null
       let crossBorderAccount = null
       console.log('accountCrossBorder', this.accountCrossBorder, this.buyerAccountListGlobal, this.buyerAccountList)
-      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688, this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
+      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688,
+          this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
       for (const key in purchasesId) {
         console.log(key)
         if (!account[key]) {
@@ -3290,8 +3297,7 @@ export default {
       return diff
     },
     // 获取订单列表数据
-    async getOrderList(page) {
-      this.tableData = []
+    async getOrderList(page,isNo) {
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
         if (index === 0) {
@@ -3312,18 +3318,31 @@ export default {
       params['createTime'] = this.createTime && this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
-      this.tableLoading = true
+      let multipleTable = this.$refs.multipleTable
+      console.log(multipleTable)
+      const divData = multipleTable && multipleTable.$el.querySelector('.el-table__body-wrapper')
+      let scrollTop = divData && divData.scrollTop || 0
+      if(!isNo){
+        this.tableData = []
+        this.tableLoading = true
+      }
       const res = await this.$api.getOrderList(params)
       this.tableLoading = false
       try {
         if (res.data.code && res.data.code === 200) {
           this.tableData = res.data.data.data
-          this.total = res.data.data.total
-          this.$nextTick(() => {
-            this.isSecondSale()
-            this.dealWithTableList()
-            this.getSkuRelation()
-          })
+          if(isNo && scrollTop > 0){
+            setTimeout(()=>{
+              divData.scrollTop = scrollTop
+            },200)
+          }else{
+            this.total = res.data.data.total
+            this.$nextTick(() => {
+              this.isSecondSale()
+              this.dealWithTableList()
+              this.getSkuRelation()
+            })
+          }
         } else {
           this.$message.warning(`${res.data.message ? res.data.message : '获取订单列表失败'}`)
         }
@@ -3522,7 +3541,8 @@ export default {
           } else if (item.name === '操作') {
             list[1] = Object.assign(item, itemShow)
           } else if (itemShow && itemShow.sort_number && itemShow.sort_number > 1) {
-            list[itemShow.sort_number] = (Object.assign(item, itemShow))
+            let width = Number(itemShow.width) || item.width
+            list[itemShow.sort_number] = (Object.assign(item, itemShow, { width:width }))
           } else {
             list1.push(Object.assign(item, { is_show: 1 }))
           }
@@ -3562,7 +3582,11 @@ export default {
       }
     },
     setTableData(item,name,value){
-
+      console.log('setTableData - set',item, name, value)
+      let list = this.tableData.filter(son=>son.main_order_sn === item)
+      list.forEach(son=>{
+        this.$set(son,name,value)
+      })
     }
   }
 }

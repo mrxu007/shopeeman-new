@@ -62,7 +62,7 @@ export default {
     console.log("00000000000000000",this.$appConfig)
     this.$appConfig.primaryColor().then(res => {
       console.log("res-appvue",res)
-      document.body.style.setProperty('--themeColor', 'red')
+      document.body.style.setProperty('--themeColor', res)
     })
   }
 }
