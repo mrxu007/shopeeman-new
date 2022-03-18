@@ -289,6 +289,7 @@
         </div>
       </transition>
       <div class="showBtn">
+        <p @click="updateTableColumnShow" style="margin-right: 10px;">适配表格高度<i class="el-icon-refresh"/></p>
         <p v-if="isShow" @click="isShow = false">收起<i class="el-icon-caret-top"/></p>
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom"/></p>
       </div>
@@ -298,21 +299,14 @@
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
       </p>
-      <u-table
-          ref="multipleTable"
-          v-loading="tableLoading"
-          style=""
-          use-virtual
-          :row-height="60"
-          :border="false"
-          :data="tableData"
-          tooltip-effect="dark"
-          :height="isShow && 420 || 730"
-          :cell-style="{ padding: '0' }"
-          :header-cell-style="{backgroundColor: '#f5f7fa'}"
-          :resizable="true"
-          @selection-change="handleSelectionChange"
-      >
+      <u-table ref="multipleTable" v-loading="tableLoading"
+               v-if="tableColumnShow" use-virtual
+               :row-height="60" tooltip-effect="dark"
+               :border="false" :data="tableData"
+               :height="isShow && tableHeight || (tableHeight + 290)"
+               :cell-style="{ padding: '0' }"
+               :header-cell-style="{backgroundColor: '#f5f7fa'}"
+               :resizable="true" @selection-change="handleSelectionChange">
         <u-table-column v-if="tableColumnShow" align="center" type="selection" width="50" fixed="left"/>
         <u-table-column v-if="tableColumnShow" align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -584,12 +578,25 @@
     <Logs ref="Logs" v-model="showConsole" clear/>
     <el-dialog
         v-if="columnVisible"
-        title="配置订单列表显示列"
         :visible.sync="columnVisible"
         width="800px"
         top="5vh"
-        :close-on-click-modal="false"
-    >
+        :close-on-click-modal="false">
+      <template slot="title">
+        <div style="display: flex;align-items: center">
+          <div style="margin-right: 25px;color: #000; font-weight: 700">配置订单列表显示列</div>
+          <div style="display: flex;align-items: center;margin-bottom: -15px">
+            列表名定位：
+            <el-input size="mini" v-model="column_search" style="width: 150px"></el-input>
+            <el-tooltip effect="dark" placement="bottom">
+              <div slot="content">
+                用于定位对应订单列所处位置，方便您进行自定义设置（会以红色加粗标注）<br>
+              </div>
+              <i class="el-icon-question" style="font-size: 16px!important;margin-left: 5px;"/>
+            </el-tooltip>
+          </div>
+        </div>
+      </template>
       <div class="column-style">
         <draggable
             v-model="columnConfigShowList"
@@ -599,20 +606,27 @@
             @update="datadragEnd"
         >
           <transition-group>
-            <div
-                v-for="(item, index) in columnConfigShowList"
-                :key="index"
-                :class="index < 2 &&'forbid column-item' || 'column-item'"
-            >
-              <span class="mover">{{ item.column_header }}</span>
-              <el-switch
-                  v-model="item.is_show"
-                  style="display: block"
-                  active-color="#13ce66"
-                  inactive-color="#a9a9a9"
-                  :active-value="1"
-                  :inactive-value="-1"
-              />
+            <div v-for="(item, index) in columnConfigShowList"
+                 :key="index"
+                 :class="index < 2 &&'forbid column-item' || 'column-item'">
+              <div class="column-top">
+                <span
+                    :class="column_search && item.column_header.includes(column_search) && 'mover_search mover' || 'mover'">
+                  {{ item.column_header }}</span>
+                <el-switch
+                    v-model="item.is_show"
+                    style="display: block"
+                    active-color="#13ce66"
+                    inactive-color="#a9a9a9"
+                    :active-value="1"
+                    :inactive-value="-1"/>
+              </div>
+              <div class="column-bottom">
+                宽度：
+                <el-input v-model="item.width" size="mini" oninput="value=value.replace(/[^\d]/g,'')"
+                          style="width: 80px;margin: 0 5px;"></el-input>
+                PX
+              </div>
             </div>
           </transition-group>
         </draggable>
@@ -761,11 +775,9 @@
         :visible.sync="goodsOutStoreVisible"
         width="1400px"
         top="5vh"
-        :close-on-click-modal="false"
-        @close="closeDialog"
-    >
+        :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @close="closeDialog"/>
+      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType"  @dynamicSet="setTableData"/>
     </el-dialog>
     <el-dialog
         v-if="addBuyLinkVisible"
@@ -1286,6 +1298,7 @@ export default {
           rowColor: 'changeOrderStatus_color',
           rowShow: 'changeOrderStatus',
           prop: 'order_status',
+          sortable: true,
           showType: 4
         }, {
           key: 8,
@@ -1329,6 +1342,7 @@ export default {
           iCopy: 'goods_info.goods_id',
           prop: 'goods_info.goods_id',
           rowClick: 'openUrl_product',
+          sortable: true,
           showType: 0
         }, {
           key: 15,
@@ -1408,6 +1422,7 @@ export default {
           rowShow: 'replace_=|=',
           prop: 'goods_info.variation_sku',
           showOverflowTooltip: true,
+          sortable: true,
           showType: 4
         }, {
           key: 25,
@@ -1505,6 +1520,7 @@ export default {
           rowColor: 'changeShotStatus_color',
           rowShow: 'changeShotStatus',
           prop: 'shot_order_info.shot_status',
+          sortable: true,
           showType: 4
         }, {
           key: 37,
@@ -1600,6 +1616,14 @@ export default {
           showOverflowTooltip: true,
           showType: 0
         }, {
+          key: 48,
+          name: '买家备注',
+          width: '140',
+          align: '',
+          prop: 'message_to_seller',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
           key: 49,
           name: '虾皮物流轨迹',
           width: '130',
@@ -1623,6 +1647,7 @@ export default {
           align: '',
           filter: changeDeliveryStatus,
           prop: 'delivery_status',
+          sortable: true,
           showType: 0
         }, {
           key: 52,
@@ -1643,6 +1668,7 @@ export default {
           name: '本地备注',
           width: '120',
           align: '',
+          prop: 'remark',
           showOverflowTooltip: true,
           sortable: true,
           showType: 23
@@ -1710,7 +1736,9 @@ export default {
           prop: 'goods_info.is_overseas_goods',
           showType: 4
         }],
-      columnConfigShowList: []
+      columnConfigShowList: [],
+      column_search: '',
+      tableHeight: 430,
     }
   },
   computed: {
@@ -1732,6 +1760,13 @@ export default {
         this.tableColumnList.forEach(item => {
           this.columnConfigShowList.push({ ...item })
         })
+      }
+    },
+    tableColumnShow(val){
+      if(val){
+        let height = document.body.offsetHeight
+        height = height - 410
+        this.tableHeight = height > 200 && height || 200
       }
     }
   },
@@ -1761,7 +1796,7 @@ export default {
     })
     this.$IpcMain.on('FinishShotOrderMessage', async(response) => {
       console.log('FinishShotOrderMessage', response)
-      this.getOrderList()
+      this.getOrderList(null,'FinishShotOrderMessage')
     })
     this.$IpcMain.on('updateShopeeCookie', async(response) => {
       // let obj = response && JSON.parse(response) || ''
@@ -2554,7 +2589,7 @@ export default {
       this.$BaseUtilService.openUrl(url)
     },
     // 关弹窗
-    closeDialog(refresh) {
+    closeDialog(refresh,data) {
       this.colorVisible = false
       this.uploadStoreShipAmountVisible = false
       this.purchaseInfoVisible = false
@@ -2571,14 +2606,10 @@ export default {
       this.shipCompany = ''
       this.shipBindStore = ''
       this.shipInfoVisible = false
-      //
       this.trackingNumberList = []
-
       this.multipleSelection = []
-
       this.isAbroadGood = 0
-
-      this.$refs.multipleTable.clearSelection()
+      this.$refs.multipleTable && this.$refs.multipleTable.clearSelection()
       if (!refresh) {
         this.getOrderList()
       }
@@ -2928,7 +2959,8 @@ export default {
       let shopeeAccount = null
       let crossBorderAccount = null
       console.log('accountCrossBorder', this.accountCrossBorder, this.buyerAccountListGlobal, this.buyerAccountList)
-      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688, this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
+      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688,
+          this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
       for (const key in purchasesId) {
         console.log(key)
         if (!account[key]) {
@@ -3175,6 +3207,7 @@ export default {
         arr.push({
           columnHeader: item.column_header,
           isShow: item.is_show,
+          width: item.width,
           sortNumber: index
         })
       })
@@ -3264,8 +3297,7 @@ export default {
       return diff
     },
     // 获取订单列表数据
-    async getOrderList(page) {
-      this.tableData = []
+    async getOrderList(page,isNo) {
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
         if (index === 0) {
@@ -3286,18 +3318,31 @@ export default {
       params['createTime'] = this.createTime && this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
-      this.tableLoading = true
+      let multipleTable = this.$refs.multipleTable
+      console.log(multipleTable)
+      const divData = multipleTable && multipleTable.$el.querySelector('.el-table__body-wrapper')
+      let scrollTop = divData && divData.scrollTop || 0
+      if(!isNo){
+        this.tableData = []
+        this.tableLoading = true
+      }
       const res = await this.$api.getOrderList(params)
       this.tableLoading = false
       try {
         if (res.data.code && res.data.code === 200) {
           this.tableData = res.data.data.data
-          this.total = res.data.data.total
-          this.$nextTick(() => {
-            this.isSecondSale()
-            this.dealWithTableList()
-            this.getSkuRelation()
-          })
+          if(isNo && scrollTop > 0){
+            setTimeout(()=>{
+              divData.scrollTop = scrollTop
+            },200)
+          }else{
+            this.total = res.data.data.total
+            this.$nextTick(() => {
+              this.isSecondSale()
+              this.dealWithTableList()
+              this.getSkuRelation()
+            })
+          }
         } else {
           this.$message.warning(`${res.data.message ? res.data.message : '获取订单列表失败'}`)
         }
@@ -3495,8 +3540,9 @@ export default {
             list[0] = Object.assign(item, itemShow)
           } else if (item.name === '操作') {
             list[1] = Object.assign(item, itemShow)
-          } else if (itemShow && itemShow.sort_number&&itemShow.sort_number>1) {
-            list[itemShow.sort_number] = (Object.assign(item, itemShow))
+          } else if (itemShow && itemShow.sort_number && itemShow.sort_number > 1) {
+            let width = Number(itemShow.width) || item.width
+            list[itemShow.sort_number] = (Object.assign(item, itemShow, { width:width }))
           } else {
             list1.push(Object.assign(item, { is_show: 1 }))
           }
@@ -3523,6 +3569,24 @@ export default {
         console.log(e)
         this.$message.error('表格列表获取失败，请至【配置自定义列】中修正')
       }
+    },
+    updateTableColumnShow(){
+      if (this.tableColumnShow){
+        this.tableColumnShow = false
+        this.tableLoading = true
+        setTimeout(()=>{
+          this.tableLoading = false
+          this.tableColumnShow = true
+          this.$message.success('表格高度自适配已完成')
+        },200)
+      }
+    },
+    setTableData(item,name,value){
+      console.log('setTableData - set',item, name, value)
+      let list = this.tableData.filter(son=>son.main_order_sn === item)
+      list.forEach(son=>{
+        this.$set(son,name,value)
+      })
     }
   }
 }
@@ -3719,7 +3783,7 @@ export default {
   .column-item {
     span {
       display: inline-block;
-      width: 120px;
+      width: 115px;
       height: 30px;
       line-height: 30px;
       text-align: center;
@@ -3727,13 +3791,35 @@ export default {
       margin-right: 5px;
     }
 
+    .mover_search {
+      color: red;
+      font-weight: 700;
+    }
+
     user-select: none;
     display: flex;
+    flex-flow: column;
     margin: 10px;
     align-items: center;
-    min-width: 160px;
+    min-width: 154px;
     float: left;
     cursor: all-scroll;
+    padding: 2px;
+    box-shadow: 0 0 1px #ABABAB;
+    overflow: hidden;
+    border-radius: 2px;
+
+    .column-top {
+      display: flex;
+    }
+
+    .column-bottom {
+      cursor: initial;
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+      user-select: auto;
+    }
   }
 
   .forbid {
@@ -3884,6 +3970,16 @@ export default {
     margin-bottom: 10px;
   }
 }
+
+/deep/ .el-table tbody tr:hover > td,
+/deep/ .el-table__fixed .el-table__body tbody tr.hover-row td {
+  background-color: #DDEEFF !important;
+}
+
+/deep/ .el-table__header thead tr th .cell {
+  overflow: hidden;
+  white-space: nowrap;
+}
 </style>
 <style lang="less">
 .timeFormat {
@@ -3900,8 +3996,10 @@ export default {
   border-radius: 4px;
   height: 28px;
   line-height: 26px;
-  color: #C0C4CC;
+  color: #333;
+  font-weight: 700;
   padding: 0 10px !important;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

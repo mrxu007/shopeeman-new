@@ -216,7 +216,7 @@ export default class {
       //1.上家平台为国内平台（拼多多、京喜、淘宝、天猫、1688、货老板、天猫淘宝海外平台）使用国内仓（仓库信息里的type为0则为国内仓）
       //2.上家平台为国外平台（Lazada、Shopee）使用国外仓
       let warehouseInfo = null
-      console.log(warehouseList, "warehouseInfo")
+      // console.log(warehouseList, "warehouseInfo",Number(itemOrder.goods_info.ori_platform_id))
       if ([1, 10, 2, 3, 8, 13, 15].indexOf(Number(itemOrder.goods_info.ori_platform_id)) > -1) {
         warehouseInfo = warehouseList.find(item => {
           return item.type == 0
@@ -537,6 +537,7 @@ export default class {
     addressUserInfo["postCode"] = warehouseInfo.post_code
 
     ////处理拍单姓名、地址、手机号
+    console.log(warehouseInfo,"0000000000")
     let namePhoneAddress = this.dealWithBuyName(warehouseInfo, itemOrder, configInfo, nickInfo)
     console.log(namePhoneAddress, "namePhoneAddress")
     addressUserInfo['buyerName'] = namePhoneAddress['buyerName']
@@ -587,9 +588,11 @@ export default class {
       let buyerName = ''
       if (itemOrder.country == "PH") {
         //菲律宾站点名称不能包含#字符，且必须使用空格分隔，直接使用买家姓名
-        buyerName = nickInfo.Nickname + " " + warehouseInfo.receiving_name + "-" + "SPM";
+        console.log("-------------------")
+        // buyerName = nickInfo.Nickname + " " + warehouseInfo.receiving_name + "-" + "SPM";
+        buyerName =  warehouseInfo.receiving_name + "-" + "SPM";
       }
-      addressUserInfo['buyerName'] = buyerName.replace("#", "-");
+      addressUserInfo['buyerName'] = buyerName.replaceAll("#", "-");
     } else if (itemOrder.goods_info.ori_platform_id == 11) {
       if (warehouseInfo.country !== 'SG' && warehouseInfo.type === 3) {
         console.log('50009', warehouseInfo, warehouseInfo.shopee_map_id)
@@ -628,8 +631,8 @@ export default class {
         if (addressUserInfo["provinceText"].includes('~')) {
           addressUserInfo["provinceText"] = addressUserInfo["provinceText"].split('~')[0];
         }
-        let postCode = resInfo.Post
-        addressUserInfo["postCode"] = typeof postCode === 'number' ? postCode : warehouseInfo.post_code
+        let postCode = Number(resInfo.Post)
+        addressUserInfo["postCode"] = !isNaN(postCode) && postCode !== 0 ? postCode : warehouseInfo.post_code
         addressUserInfo["country"] = warehouseInfo.country
         // addressUserInfo["postCode"] = res.Post
       }

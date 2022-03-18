@@ -10,8 +10,13 @@
   <div class="out-store">
     <div class="out-header">
       <span>{{ clickNum }}/{{ chooseData.length }}</span>
-      <el-button type="primary" size="mini" @click="goNext">{{ clickNum == chooseData.length ? '关闭' : '匹配下一单' }}</el-button>
-      <el-button v-if="outStoreType === '3' || outStoreType === '4'" type="primary" size="mini" @click="getSheetInfo">获取面单信息</el-button>
+      <el-button type="primary" size="mini" @click="goNext">{{
+          clickNum == chooseData.length ? '关闭' : '匹配下一单'
+        }}
+      </el-button>
+      <el-button v-if="outStoreType === '3' || outStoreType === '4'" type="primary" size="mini" @click="getSheetInfo">
+        获取面单信息
+      </el-button>
       <span class="warning-style">{{ flagText }}</span>
       <p>温馨提示: 1、请确保该主订单下所有子订单商品在海外仓都有库存，如果只有部分订单有库存商品，请不要出库，否则会导致没有库存的商品无法发货；</p>
       <p>温馨提示: 2、商品出库前，请确保平台物流和面单已申请</p>
@@ -23,24 +28,28 @@
           <span class="order-title">订单商品信息</span>
           <div class="order-item">
             <el-table ref="muliTbale" :data="orderList" tooltip-effect="dark" style="width: 100%" height="200">
-              <el-table-column align="center" type="index" label="序号" min-width="50px" />
-              <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center" />
+              <el-table-column align="center" type="index" label="序号" min-width="50px"/>
+              <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center"/>
               <el-table-column width="80px" label="订单状态" prop="order_status" align="center">
-                <template v-if="scope.row.order_status" slot-scope="scope">{{ changeOrderStatus(scope.row.order_status) }}</template>
+                <template v-if="scope.row.order_status" slot-scope="scope">{{
+                    changeOrderStatus(scope.row.order_status)
+                  }}
+                </template>
               </el-table-column>
-              <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
-              <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip />
+              <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip/>
+              <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip/>
               <el-table-column min-width="120px" label="商品规格" prop="variation_sku" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">{{ scope.row.variation_sku || scope.row.variation_name }}</template>
               </el-table-column>
-              <el-table-column align="center" prop="goods_count" label="商品数量" width="80" />
+              <el-table-column align="center" prop="goods_count" label="商品数量" width="80"/>
               <el-table-column align="center" prop="ori_platform_id" label="商品图片" width="80">
                 <template slot-scope="scope">
-                  <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+                  <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
+                              style="width: 56px; height: 56px; display: inline-block">
                     <div slot="content">
-                      <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                      <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px"/>
                     </div>
-                    <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+                    <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px"/>
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -51,27 +60,29 @@
                 <template slot-scope="scope">
                   <div style="display: flex; justify-content: center">
                     <el-button
-                      type="primary"
-                      size="mini"
-                      @click="
+                        type="primary"
+                        size="mini"
+                        @click="
                         isGift = false
                         selfGoodsStoreVisible = true
                         addGiftAbroad = ''
                         clickRow = scope.row
                         country = scope.row.country
                       "
-                    >匹配商品</el-button>
+                    >匹配商品
+                    </el-button>
                     <el-button
-                      v-if="outStoreType == '3' || outStoreType == '4'"
-                      type="primary"
-                      size="mini"
-                      @click="
+                        v-if="outStoreType == '3' || outStoreType == '4'"
+                        type="primary"
+                        size="mini"
+                        @click="
                         isGift = true
                         selfGoodsStoreVisible = true
                         addGiftAbroad = 'gift'
                         clickRow = scope.row
                       "
-                    >添加赠品</el-button>
+                    >添加赠品
+                    </el-button>
                   </div>
                 </template>
               </el-table-column>
@@ -82,21 +93,21 @@
           <span class="order-title">匹配商品信息</span>
           <div class="order-item">
             <el-table ref="muliTbale2" :data="matchOrderList" tooltip-effect="dark" style="width: 100%" height="300">
-              <el-table-column align="center" type="index" label="序号" min-width="50px" />
-              <el-table-column width="140px" label="匹配订单号" prop="orderSn" align="center" />
-              <el-table-column width="120px" label="商品编号" prop="sku_id" align="center" show-overflow-tooltip />
-              <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
-              <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
-              <el-table-column align="center" prop="stock_num" label="可用库存" width="80" />
+              <el-table-column align="center" type="index" label="序号" min-width="50px"/>
+              <el-table-column width="140px" label="匹配订单号" prop="orderSn" align="center"/>
+              <el-table-column width="120px" label="商品编号" prop="sku_id" align="center" show-overflow-tooltip/>
+              <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip/>
+              <el-table-column width="80px" label="商品规格" prop="sku_name" align="center"/>
+              <el-table-column align="center" prop="stock_num" label="可用库存" width="80"/>
               <el-table-column align="center" prop="outStock" label="出库数量" min-width="80">
                 <template slot-scope="scope">
-                  <el-input v-model="outStock[scope.$index]" size="mini" @input="setOutStock(scope.row, scope.$index)" />
+                  <el-input v-model="outStock[scope.$index]" size="mini" @input="setOutStock(scope.row, scope.$index)"/>
                 </template>
               </el-table-column>
-              <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center" />
+              <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center"/>
               <el-table-column label="商品图片" width="80">
                 <template slot-scope="scope">
-                  <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
+                  <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px"/>
                 </template>
               </el-table-column>
               <el-table-column align="center" prop="ori_platform_id" label="是否赠品" width="80">
@@ -117,7 +128,10 @@
           <span class="mar-right activeColor">{{ outTotalPriceRmb }}</span>
           <span class="mar-right">出库总价</span>
           <span class="mar-right activeColor">{{ outTotalPrice }}</span>
-          <el-button size="mini" type="primary" :disabled="!matchOrderList.length || (clickNum === chooseData.length && flagText === '出库成功')" @click="outStore">立即下单</el-button>
+          <el-button size="mini" type="primary"
+                     :disabled="!matchOrderList.length || (clickNum === chooseData.length && flagText === '出库成功')"
+                     @click="outStore">立即下单
+          </el-button>
         </div>
       </div>
       <div class="content-right">
@@ -155,7 +169,8 @@
               </div>
               <div class="item">
                 <span>订单收入</span>
-                <p v-if="income" class="content">{{ income.toFixed(2) }}{{ orderInfo.country | siteCoin }} ({{ incomeRmb.toFixed(2) }}元)</p>
+                <p v-if="income" class="content">{{ income.toFixed(2) }}{{ orderInfo.country | siteCoin }}
+                  ({{ incomeRmb.toFixed(2) }}元)</p>
               </div>
             </div>
           </div>
@@ -170,13 +185,15 @@
         </div>
       </div>
     </div>
-    <el-dialog v-if="selfGoodsStoreVisible" :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body top="5vh">
+    <el-dialog v-if="selfGoodsStoreVisible" :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body
+               top="5vh">
       <div slot="title">{{ title[Number(outStoreType)] }}</div>
       <div class="go-out-store">
-        <self-goods-store v-if="outStoreType === '1'" @getChooseData="getChooseData" />
-        <product-goods-store v-if="outStoreType === '2'" @getChooseData="getChooseData" />
-        <abroad-goods-store v-if="outStoreType === '3'" :add-gift-abroad="addGiftAbroad" @getChooseData="getChooseData" />
-        <inLand-goods-store v-if="outStoreType === '4'" @getChooseData="getChooseData" />
+        <self-goods-store v-if="outStoreType === '1'" @getChooseData="getChooseData"/>
+        <product-goods-store v-if="outStoreType === '2'" @getChooseData="getChooseData"/>
+        <abroad-goods-store v-if="outStoreType === '3'" :add-gift-abroad="addGiftAbroad"
+                            @getChooseData="getChooseData"/>
+        <inLand-goods-store v-if="outStoreType === '4'" @getChooseData="getChooseData"/>
       </div>
     </el-dialog>
   </div>
@@ -188,6 +205,7 @@ import ProductGoodsStore from './productGoodsStore'
 import InLandGoodsStore from './inLandGoodsStore.vue'
 import AbroadGoodsStore from './abroadGoodsStore'
 import { changeOrderStatus } from './orderCenter'
+
 export default {
   name: 'GoodsOutStore',
   components: {
@@ -297,23 +315,22 @@ export default {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        })
-          .then(() => {
-            if (this.outStoreType === '4') {
-              this.homePlaceOrder()
-            } else if (this.outStoreType === '3') {
-              this.abroadPlaceOrder()
-            } else if (this.outStoreType === '1') {
-              this.selfPlaceOrder()
-            } else {
-              this.placeOrder()
-            }
-          }).catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消出库'
-            })
+        }).then(() => {
+              if (this.outStoreType === '4') {
+                this.homePlaceOrder()
+              } else if (this.outStoreType === '3') {
+                this.abroadPlaceOrder()
+              } else if (this.outStoreType === '1') {
+                this.selfPlaceOrder()
+              } else {
+                this.placeOrder()
+              }
+            }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消出库'
           })
+        })
       } else {
         if (this.outStoreType === '4') {
           await this.homePlaceOrder()
@@ -336,7 +353,7 @@ export default {
       }
       const list = []
       const widInfo = {}
-      console.log('zzz',arr)
+      console.log('zzz', arr)
       arr.forEach((item) => {
         widInfo[item.wid] = item.wid
         const obj = {
@@ -372,6 +389,7 @@ export default {
       if (res.data.code === 200) {
         this.$message.success('下单成功')
         this.flagText = '出库成功'
+        this.$emit('setTableData', this.orderInfo.main_order_sn, 'order_status', 3)
         this.matchOrderList = []
         this.totalPrice()
       } else {
@@ -432,6 +450,7 @@ export default {
       if (res.data.code === 200) {
         this.$message.success('下单成功')
         this.flagText = '出库成功'
+        this.$emit('setTableData', this.orderInfo.main_order_sn, 'order_status', 3)
         this.matchOrderList = []
         this.totalPrice()
       } else {
@@ -463,6 +482,7 @@ export default {
       if (res.data.code === 200) {
         this.$message.success('出库成功')
         this.flagText = '出库成功'
+        this.$emit('setTableData', this.orderInfo.main_order_sn, 'order_status', 3)
       } else {
         this.flagText = `出库失败，${res.data.message}`
         this.$message.error(`出库失败，${res.data.message}`)
@@ -492,6 +512,7 @@ export default {
       if (res.data.code === 200) {
         this.$message.success('出库成功')
         this.flagText = '出库成功'
+        this.$emit('setTableData', this.orderInfo.main_order_sn, 'order_status', 3)
         arr.forEach(async(item) => {
           const res = await this.$commodityService.updateSkuStock(item.sku_id, item.stock_num - item.outStock)
           console.log(res, 'updateSkuStock', item.stock_num - item.outStock)
@@ -563,10 +584,10 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         })
-          .then(() => {
-            this.$emit('close')
-          })
-          .catch(() => {})
+        // .then(() => {
+        //   this.$emit('close')
+        // })
+        // .catch(() => {})
         return
       }
       console.log(this.orderInfo, 'pp')
@@ -628,44 +649,54 @@ export default {
 
 <style lang="less" scoped>
 .out-store {
-  /deep/.el-dialog__body {
+  /deep/ .el-dialog__body {
     padding: 10px 20px;
   }
+
   .out-header {
     height: 80px;
     color: red;
+
     .warning-style {
       color: blue;
       font-size: 16px !important;
       margin-left: 20px;
     }
+
     span {
       margin-right: 10px;
     }
+
     p {
       height: 20px;
     }
   }
 }
+
 .mar-top {
   margin-top: 10px;
 }
+
 .mar-right {
   margin-right: 10px;
 }
+
 .activeColor {
   color: red;
   font-weight: 900;
   font-size: 16px !important;
 }
+
 .order-content {
   margin-top: 10px;
   display: flex;
+
   .content-left {
     // flex: 6;
     width: 80%;
     display: flex;
     flex-direction: column;
+
     .order-btn {
       display: flex;
       justify-content: center;
@@ -673,10 +704,12 @@ export default {
       margin-top: 10px;
     }
   }
+
   .content-right {
     // flex: 4;
     width: 20%;
     margin-left: 10px;
+
     .item {
       margin-top: 10px;
       display: flex;
@@ -684,29 +717,34 @@ export default {
       justify-content: center;
       margin-bottom: 10px;
       margin-left: -26px;
+
       span {
         display: inline-block;
         width: 80px;
         text-align: right;
         margin-right: 10px;
       }
+
       .content {
         width: 200px;
         border: 1px solid #dcdcdc;
         padding: 5px;
         min-height: 26px;
       }
+
       .color {
         color: red;
       }
     }
   }
 }
+
 .order-box {
   border: 1px solid #dcdcdc;
   border-radius: 4px;
   padding: 16px;
   position: relative;
+
   .order-title {
     padding: 0 5px;
     display: inline-block;
@@ -718,22 +756,26 @@ export default {
     left: 10px;
     top: -10px;
   }
+
   .order-item {
     .order-content-right {
       display: flex;
       flex-direction: column;
+
       .item {
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 10px;
         margin-left: -26px;
+
         span {
           display: inline-block;
           width: 80px;
           text-align: right;
           margin-right: 10px;
         }
+
         .content {
           width: 200px;
           border: 1px solid #dcdcdc;
@@ -744,8 +786,9 @@ export default {
     }
   }
 }
+
 .go-out-store {
-  /deep/.el-dialog__body {
+  /deep/ .el-dialog__body {
     padding: 10px 20px;
   }
 }

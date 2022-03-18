@@ -15,7 +15,18 @@
           <el-option :label="item.label" :value="item.value" v-for="(item, index) in goodsSourceListLink" :key="index"></el-option>
         </el-select> -->
         <span>采购地址{{ index + 1 }}</span>
-        <el-input v-model="item.purchase_url" size="mini" clearable style="width: 600px" class="mar-right" @change="((val)=>{changeLink(val,index)})"/>
+        <el-input
+          v-model="item.purchase_url"
+          size="mini"
+          clearable
+          style="width: 600px"
+          class="mar-right"
+          @change="
+            (val) => {
+              changeLink(val, index)
+            }
+          "
+        />
         <el-button size="mini" type="primary" @click="openUrl(item.purchase_url)">浏览</el-button>
         <el-button
           size="mini"
@@ -25,7 +36,8 @@
             createUrlByIdVisible = true
             indexLink = index
           "
-        >使用商品ID生成</el-button>
+          >使用商品ID生成</el-button
+        >
         <span>备注:</span>
         <el-input v-model="item.note" size="mini" clearable style="width: 300px" class="mar-right" />
         <el-radio v-model="item.is_default" label="1" @change="changeDefault(index)">默认</el-radio>
@@ -55,14 +67,14 @@
 </template>
 
 <script>
-import { goodsSourceListLink, platformLinkList, lazadaBuyLinkList } from './orderCenter'
+import { goodsSourceListLink, platformLinkList, lazadaBuyLinkList, lazadaBuyLinkObj } from './orderCenter'
 export default {
   name: 'BuyLink',
   props: {
     linkRow: {
       type: Object,
-      default: {}
-    }
+      default: {},
+    },
   },
   data() {
     return {
@@ -73,7 +85,8 @@ export default {
       sourceType: '1',
       goodsSourceListLink: goodsSourceListLink,
       indexLink: -1,
-      platformLinkList: platformLinkList
+      platformLinkList: platformLinkList,
+      lazadaBuyLinkObj: lazadaBuyLinkObj,
     }
   },
   mounted() {
@@ -84,18 +97,40 @@ export default {
       if (!val) {
         return
       }
-      const execPlatform = /(lazada)/g
+      const execPlatform = /(lazada)|(shopee)/g
       const platform = val.match(execPlatform)
+      console.log(platform, 'platform')
       if (!platform) {
         return
       }
-      const lazadaReg = /(http|https):\/\/?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}/
-      const lazadaMatch = val.match(lazadaReg)
-      console.log(lazadaMatch, lazadaBuyLinkList.includes(lazadaMatch[0]))
-      if (lazadaMatch) {
-        if (!lazadaBuyLinkList.includes(lazadaMatch[0])) {
+      if (platform && platform[0] === 'lazada') {
+        const lazadaReg = /(http|https):\/\/?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}/
+        const lazadaMatch = val.match(lazadaReg)
+        console.log(lazadaMatch, lazadaBuyLinkList.includes(lazadaMatch[0]))
+        if (lazadaMatch && lazadaMatch[0]) {
+          if (!lazadaBuyLinkList.includes(lazadaMatch[0])) {
+            this.rowBuyLinks[index].purchase_url = ''
+            return this.$message.warning('改地址无法采购请更换！')
+          }
+          let preUrl = lazadaMatch[0]
+          console.log(preUrl, preUrl.indexOf(this.linkRow.country.toLowerCase()), this.linkRow.country.toLowerCase(), '0000')
+          if (preUrl.indexOf(this.linkRow.country.toLowerCase()) < 0) {
+            this.rowBuyLinks[index].purchase_url = ''
+            return this.$message.warning('请填写正确站点的采购地址！')
+          }
+        } else {
           this.rowBuyLinks[index].purchase_url = ''
-          return this.$message.warning('该地址无法采购请更换')
+          return this.$message.warning('改地址无法采购请更换')
+        }
+      }else if(platform && platform[0] === 'shopee'){
+        const shopeeReg = /(http|https):\/\/?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}/
+        const shopeeMatch = val.match(shopeeReg)
+        if(shopeeMatch && shopeeMatch[0]){
+          let preUrl = shopeeMatch[0]
+          if (preUrl.indexOf(this.linkRow.country.toLowerCase()) < 0) {
+            this.rowBuyLinks[index].purchase_url = ''
+            return this.$message.warning('请填写正确站点的采购地址！')
+          }
         }
       }
     },
@@ -114,18 +149,22 @@ export default {
       this.rowBuyLinks[index].purchase_url = res.purchase_url_all
     },
     creatLink() {
+      console.log('linkRow', this.linkRow)
       const res = this.platformLinkList.find((item) => {
         return item.purchase_platform_id == this.sourceType
       })
       let url = res ? res.purchase_url + this.goodID : ''
-      if (this.sourceType == 8 || this.sourceType == 9) {
+      if (this.sourceType == 8) {
         url = res ? res.purchase_url + this.goodID + '.html' : ''
+      }
+      if (this.sourceType == 9) {
+        url = this.lazadaBuyLinkObj[this.linkRow.country.toLowerCase()] ? this.lazadaBuyLinkObj[this.linkRow.country.toLowerCase()] + '/products/i' + this.goodID + '.html' : ''
       }
       this.rowBuyLinks[this.indexLink].purchase_url = url
       this.rowBuyLinks[this.indexLink].purchase_platform_id = res ? res.purchase_platform_id : ''
       this.createUrlByIdVisible = false
       //默认勾选
-      this.rowBuyLinks[this.indexLink].is_default ='1'
+      this.rowBuyLinks[this.indexLink].is_default = '1'
       this.changeDefault(this.indexLink)
     },
     deleteLink(index) {
@@ -142,13 +181,14 @@ export default {
         purchase_url: '',
         purchase_goods_id: '',
         purchase_platform_id: '',
-        is_default: ''
+        is_default: '',
       }
       this.rowBuyLinks.push(params)
     },
     // 保存添加采购链接
     async saveAddLink() {
-      this.rowBuyLinks.forEach((item, index) => {
+      for(let index=0;index<this.rowBuyLinks.length;index++){
+        let item = this.rowBuyLinks[index]
         const execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapibuy.com)|(taobao.global)|(lazada.com)|(lazada)|(shopee)/g
         const execGoods = /goods_id=([0-9]*)/
         const pddGoods = /goodsId=(\d+)/
@@ -160,12 +200,13 @@ export default {
         const platform = item.purchase_url.match(execPlatform)
 
         if (!platform) {
+          console.log(index,"000000")
           return this.$message.error(`采购链接错误，请检查！`)
         }
         if (!item.purchase_url.length) {
           return this.$message.error(`采购链接不能为空,请检查采购链接`)
         }
-        console.log(platform, '4646546554')
+        console.log(platform, '4646546554',item.purchase_url.match(shopeeIDs))
         if (item.purchase_url.match(execGoods)) {
           item.purchase_goods_id = item.purchase_url.match(execGoods)[1]
         } else if (item.purchase_url.match(execIDs)) {
@@ -206,13 +247,13 @@ export default {
             item.purchase_platform_id = '8'
             break
           case 'lazada':
-             case 'lazada.com':
+          case 'lazada.com':
             item.purchase_platform_id = '9'
             break
           case 'shopee':
             item.purchase_platform_id = '11'
             break
-          case 'xiapi.xiapibuy.com':
+          case 'xiapibuy.com':
             item.purchase_platform_id = '11'
             break
           case 'taobao.global':
@@ -222,10 +263,10 @@ export default {
             item.purchase_platform_id = '0'
             break
         }
-      })
+      }
       const params = {
         goods_id: this.linkRow.goods_info.goods_id,
-        purchase_list: this.rowBuyLinks
+        purchase_list: this.rowBuyLinks,
       }
       const res = await this.$api.savePurchase(params)
       if (res.data.code === 200) {
@@ -238,7 +279,7 @@ export default {
     },
     async addPurchaseLink() {
       const params = {
-        goodsIdLists: this.linkRow.goods_info.goods_id
+        goodsIdLists: this.linkRow.goods_info.goods_id,
       }
       const res = await this.$api.getPurchaseLists(params)
       if (res.data.code === 200) {
@@ -247,7 +288,7 @@ export default {
           purchase_url: '',
           purchase_platform_id: '',
           purchase_goods_id: '',
-          is_default: ''
+          is_default: '',
         }
         if (res.data.data[0].purchase_detail.length > 0) {
           this.rowBuyLinks = res.data.data[0].purchase_detail
@@ -277,8 +318,8 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
-    }
-  }
+    },
+  },
 }
 </script>
 
