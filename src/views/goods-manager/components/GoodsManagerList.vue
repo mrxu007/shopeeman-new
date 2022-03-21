@@ -1039,7 +1039,7 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, waitStart, imageCompressionUpload, delay } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, waitStart, imageCompressionUpload, delay, sleep } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
 export default {
@@ -1273,8 +1273,8 @@ export default {
         { value: 8, label: '1688' },
         { value: 9, label: 'lazada' }
       ],
-      statusObjName: ''
-
+      statusObjName: '',
+      isResTime: true // 限流时间
     }
   },
   computed: {
@@ -3178,6 +3178,11 @@ export default {
     },
     // 查询数据
     async queryData() {
+      // 限流
+      if (!this.isResTime) {
+        this.$message.warning('请勿操作频繁,稍后查询')
+        return
+      }
       if (!this.selectMallList.length) return this.$message('请选择店铺')
       if (!this.goodsStatus?.length) return this.$message('请选择商品状态')
       if (!this.source?.length) return this.$message('请选择上家来源')
@@ -3238,9 +3243,13 @@ export default {
           this.batchDelete()
         }
       }
+      // 限流
+      this.isResTime = false
+      setTimeout(() => { this.isResTime = true }, 10000)
     },
     // 获取数据
     async getTableData(mItem, count = { count: 1 }) {
+      await sleep(8000)
       if (this.flag) {
         this.stop()
         return
@@ -3308,7 +3317,7 @@ export default {
             console.log('tableData', res.data.list)
           }
         } else {
-          this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
+          this.$refs.Logs.writeLog(`line3319-店铺【${mallName}】${res.data}`, false)
         }
       } catch (error) {
         console.log(error)
@@ -3391,7 +3400,7 @@ export default {
           }
           console.log('list', res.data.list)
         } else {
-          this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
+          this.$refs.Logs.writeLog(`3403店铺【${mallName}】${res.data}`, false)
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
