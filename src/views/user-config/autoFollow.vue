@@ -61,10 +61,10 @@
         <div>
           <el-tooltip class="item" effect="dark" placement="top-start">
             <div slot="content">
-              开启任务请前往【爆粉神器】添加执行任务的店铺，随后进行参数设置<br />
-              注意：1.关键词不能为空<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.一个站点只能执行一条任务<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.同一个站点的任务保存会替换原来的任务<br />
+              开启任务请前往【爆粉神器】添加执行任务的店铺，随后进行参数设置<br>
+              注意：1.关键词不能为空<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.一个站点只能执行一条任务<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.同一个站点的任务保存会替换原来的任务<br>
             </div>
             <el-checkbox v-model="startAddFence">开启定时刷粉</el-checkbox>
           </el-tooltip>
@@ -87,12 +87,14 @@
       </li>
       <el-button size="mini" style="flex:1;margin-left:200px;width:100px;" @click="save()">保存</el-button>
     </ul>
-    <el-dialog title="日志" 
-    :visible.sync="logVisible" 
-    width="600px" 
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    append-to-body>
+    <el-dialog
+      title="日志"
+      :visible.sync="logVisible"
+      width="600px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      append-to-body
+    >
       <el-table
         max-height="400px"
         :data="logList"
@@ -105,8 +107,8 @@
         :cell-style="{ textAlign: 'center' }"
         :row-style="{ height: '80px' }"
       >
-        <el-table-column label="操作" min-width="320px" prop="option" show-overflow-tooltip></el-table-column>
-        <el-table-column label="时间" min-width="180px" prop="activeTime"></el-table-column>
+        <el-table-column label="操作" min-width="320px" prop="option" show-overflow-tooltip />
+        <el-table-column label="时间" min-width="180px" prop="activeTime" />
       </el-table>
     </el-dialog>
 
@@ -121,7 +123,7 @@ export default {
   props: ['userInfo', 'mall'],
   data() {
     return {
-      //日志
+      // 日志
       logVisible: false,
       logList: [],
 
@@ -157,18 +159,18 @@ export default {
     async checkLog() {
       this.logVisible = true
       const siteList = ['MY', 'TW', 'VN', 'ID', 'PH', 'TH', 'SG', 'BR', 'MX', 'CO', 'CL', 'PL']
-    for (const site of siteList) {
-       const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(site)
-      // 检测时间-执行任务
-      if (mallTest.length) {
-        const res = await window.BaseUtilBridgeService.getAttentionUserLog(mallTest[0].id)
-        console.log('log', res)
-        if (res) {
-          this.logList=JSON.parse(res[0].log_message)
-        }else{
-        this.$message.warning('日志请求失败')
+      for (const site of siteList) {
+        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(site)
+        // 检测时间-执行任务
+        if (mallTest.length) {
+          const res = await window.BaseUtilBridgeService.getAttentionUserLog(mallTest[0].id)
+          console.log('log', res)
+          if (res) {
+            this.logList = JSON.parse(res[0].log_message)
+          } else {
+            this.$message.warning('日志请求失败')
+          }
         }
-      }
       }
     },
     getUserinfo() {
@@ -375,6 +377,8 @@ export default {
         const res = await this.$api.setUserinfo(JSON.stringify(param))
         if (res.data.code === 200) {
           this.$message.success('信息修改成功！')
+          // 上报服务
+          await window.ConfigBridgeService.updateConfig(JSON.stringify(param))
         } else {
           this.$message.warning(`信息修改失败！${res.data.message}`)
         }
