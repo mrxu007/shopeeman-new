@@ -590,7 +590,7 @@ export default class {
         //菲律宾站点名称不能包含#字符，且必须使用空格分隔，直接使用买家姓名
         console.log("-------------------")
         // buyerName = nickInfo.Nickname + " " + warehouseInfo.receiving_name + "-" + "SPM";
-        buyerName =  warehouseInfo.receiving_name + "-" + "SPM";
+        buyerName =  warehouseInfo.receiving_name + " " + "SPM";
       }
       addressUserInfo['buyerName'] = buyerName.replaceAll("#", "-");
     } else if (itemOrder.goods_info.ori_platform_id == 11) {
