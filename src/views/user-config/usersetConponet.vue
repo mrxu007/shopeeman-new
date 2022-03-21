@@ -41,7 +41,6 @@ export default {
   methods: {
     async ishiddenBtn() {
       const res = await window.BaseUtilBridgeService.getVersionAndAppCode()
-      console.log(res)
       const app_code = res.app_code || ''
       if (app_code !== 'shopeemain' && app_code !== ('shopeeman') && app_code !== ('shopeeke')) {
         this.showCustomBtn = false
