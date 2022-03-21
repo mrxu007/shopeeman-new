@@ -3263,28 +3263,29 @@ export default {
             (this.goodsMin > 0 && this.goodsMin < 99999999) ||
             (this.soldMin > 0 && this.soldMin < 99999999) ||
             (this.soldMax < 99999999 && this.soldMax >= 0) ||
-            this.categoryName) {
-          if (!(this.queryType === 100 || this.queryType === 200)) {
-            if (this.keyword) {
-              params['searchType'] = this.searchType
-              params['keyword'] = this.keyword.trim()
-            }
-            if (this.categoryName) {
-              params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
-            }
-            // 商品数量
-            params['goodsMin'] = this.goodsMin
-            params['goodsMax'] = this.goodsMax
+            this.categoryName ||
+            this.queryType === 1) {
+          // if (!(this.queryType === 100 || this.queryType === 200)) {
+          if (this.keyword) {
+            params['searchType'] = this.searchType
+            params['keyword'] = this.keyword.trim()
           }
+          if (this.categoryName) {
+            params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
+          }
+          // 商品数量
+          params['goodsMin'] = this.goodsMin
+          params['goodsMax'] = this.goodsMax
+          // }
           // 销售量
           params['soldMin'] = this.soldMin
           params['soldMax'] = this.soldMax
           if (mItem.cursor) {
             params['cursor'] = mItem.cursor
           }
-          res = await this.GoodsList.searchProductList(params)
+          res = await this.GoodsList.searchProductList(params) // 有条件搜索
         } else {
-          res = await this.GoodsList.getMpskuList(params)
+          res = await this.GoodsList.getMpskuList(params) // 无条件搜索
         }
         if (res.code === 200) {
           mItem.cursor = res.data.page_info.cursor
@@ -3538,27 +3539,13 @@ export default {
         }
         // 过滤无流量商品
         if (this.queryType === 100) {
-          // if (((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
-          //   continue
-          // }
-          if (Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
+          if (((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
             continue
-          } else {
-            if ((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) {
-              continue
-            }
           }
         }
         if (this.queryType === 200) {
-          // if (((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
-          //   continue
-          // }
-          if (Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
+          if (((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
             continue
-          } else {
-            if ((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) {
-              continue
-            }
           }
         }
         // 同商品去重
