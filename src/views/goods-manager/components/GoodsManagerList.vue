@@ -1273,7 +1273,7 @@ export default {
         { value: 8, label: '1688' },
         { value: 9, label: 'lazada' }
       ],
-      statusObjName:'',
+      statusObjName: ''
 
     }
   },
@@ -2913,8 +2913,8 @@ export default {
           }
           this.successNum++
           this.batchStatus(item, `删除成功`, true)
-          let mall = this.selectMallList.find(son=> son.platform_mall_id == item.platform_mall_id)
-          let temp = {}
+          const mall = this.selectMallList.find(son => son.platform_mall_id == item.platform_mall_id)
+          const temp = {}
           temp[mall.id] = item.productId
           this.deleteId.push(temp) // 云端的商品记录
           this.rowSelection([], false, item)
@@ -2949,18 +2949,18 @@ export default {
         let deleteList = [...this.deleteId]
         let delL = deleteList.splice(0, 100)
         while (delL.length) {
-          console.log('delCloudItems - params',delL)
+          console.log('delCloudItems - params', delL)
           const tes = await this.$commodityService.delCloudItems(JSON.stringify(delL))
-          console.log('delCloudItems',tes)
+          console.log('delCloudItems', tes)
           const jsontes = JSON.parse(tes)
           if (jsontes.code === 200) {
           } else {
             return
           }
           if (deleteList.length < 100) {
-            if(deleteList.length === 0){
+            if (deleteList.length === 0) {
               delL = []
-            }else{
+            } else {
               delL = deleteList
               deleteList = []
             }
@@ -3158,6 +3158,7 @@ export default {
         shopId: row.platform_mall_id,
         id: row.id
       }
+      console.log(row.platform_mall_id, JSON.stringify(reqStr))
       this.$BaseUtilService.getOrderDetailInfo(row.platform_mall_id, JSON.stringify(reqStr))
     },
     // 获取物流
@@ -3231,7 +3232,7 @@ export default {
       this.operationBut = false
       this.showConsole = true
       this.$refs.Logs.writeLog(`查询完成`, true)
-      console.log('tableData',this.tableData)
+      console.log('tableData', this.tableData)
       if (this.queryType === 100 || this.queryType === 200) {
         if (this.tableData?.length > 0) {
           this.batchDelete()
@@ -3251,18 +3252,18 @@ export default {
         params['mItem'] = mItem
         params['pageSize'] = this.pageSize
         params['listType'] = this.goodsStatusName ? this.goodsStatusName : 'all'
-        if (params['listType'] === 'deboosted'){
+        if (params['listType'] === 'deboosted') {
           if (mItem.cursor) {
             params['cursor'] = mItem.cursor
           }
           params['listOrderType'] = 'list_time_asc'
         }
-        if ((this.searchType !== 'originId' && this.keyword)
-            || (this.goodsMax < 99999999 && this.goodsMax >= 0)
-            || (this.goodsMin > 0 && this.goodsMin < 99999999)
-            || (this.soldMin > 0 && this.soldMin < 99999999)
-            || (this.soldMax < 99999999 && this.soldMax >= 0)
-            || this.categoryName) {
+        if ((this.searchType !== 'originId' && this.keyword) ||
+            (this.goodsMax < 99999999 && this.goodsMax >= 0) ||
+            (this.goodsMin > 0 && this.goodsMin < 99999999) ||
+            (this.soldMin > 0 && this.soldMin < 99999999) ||
+            (this.soldMax < 99999999 && this.soldMax >= 0) ||
+            this.categoryName) {
           if (!(this.queryType === 100 || this.queryType === 200)) {
             if (this.keyword) {
               params['searchType'] = this.searchType
@@ -3300,7 +3301,7 @@ export default {
               mItem.mylist = fData
             }
             console.log(this.tableData)
-            let statusObjName = this.statusObjName && (this.statusObjName + '商品的') || ''
+            const statusObjName = this.statusObjName && (this.statusObjName + '商品的') || ''
             this.$refs.Logs.writeLog(`查询店铺【${mallName}】${statusObjName}第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
             if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】${statusObjName}第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
             console.log('tableData', res.data.list)
@@ -3537,18 +3538,32 @@ export default {
         }
         // 过滤无流量商品
         if (this.queryType === 100) {
-          if (((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
+          // if (((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
+          //   continue
+          // }
+          if (Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
             continue
+          } else {
+            if ((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) {
+              continue
+            }
           }
         }
         if (this.queryType === 200) {
-          if (((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
+          // if (((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
+          //   continue
+          // }
+          if (Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
             continue
+          } else {
+            if ((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) {
+              continue
+            }
           }
         }
         // 同商品去重
-        let index = this.tableData.findIndex(son=> son.id === item.id && son.productId === item.productId)
-        if(index >= 0){
+        const index = this.tableData.findIndex(son => son.id === item.id && son.productId === item.productId)
+        if (index >= 0) {
           continue
         }
         fData.push(item)
