@@ -238,8 +238,8 @@ export default {
     async DerivedData() {
       if (this.total === 0) return this.$message('暂无导出数据')
       this.Loading2 = true
-      let resData = []
-      const returnCreateTime = this.form.returnCreateTime ? `${this.$dayjs(this.form.returnCreateTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.returnCreateTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
+      const resData = []
+      const returnCreateTime = this.form.returnCreateTime ? `${this.$dayjs(this.form.returnCreateTime[0]).format('YYYY-MM-DD 00:00:00')}/${this.$dayjs(this.form.returnCreateTime[1]).format('YYYY-MM-DD 23:23:23')}` : ''
       const parmas = {
         orderSn: this.form.returnMainOrderNum,
         platformTrackingNumber: this.form.returnLogisticsDocNum,
@@ -255,7 +255,8 @@ export default {
         try {
           const { data } = await this.$api.getsecondStroelist(parmas)
           if (data.code === 200) {
-            resData = resData.concat(data.data.data)
+            console.log(data.data.data)
+            resData.push(...data.data.data)
             parmas.page++
           } else {
             this.$message.error('导出数据错误', data.message)
@@ -268,6 +269,7 @@ export default {
           break
         }
       }
+      console.log(resData)
       let msg = `<tr>
         <td>站点</td>
         <td>发货仓库</td>
@@ -288,7 +290,6 @@ export default {
         <td>包裹创建时间</td>
       </tr>`
       resData.forEach((item) => {
-        console.log(item)
         msg += `
         <tr>
           <td>${this.$filters.chineseSite(item.country) || ''}</td>

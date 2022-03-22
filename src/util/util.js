@@ -602,10 +602,10 @@ export function getDaysBetween(startDate, endDate) {
 export function getGoodsUrl(platform, data) {
   try {
     const platformData = {}
-    let site = data['site'] || data['goodsExtraInfo'] && data['goodsExtraInfo']['site'] || ''
-    let productId = data['productId'] || data['goods_id']
-    let shopId = data['shopId'] || ''
-    console.log(site, productId, shopId)
+    const site = data['site'] || data['goodsExtraInfo'] && data['goodsExtraInfo']['site'] || ''
+    const productId = data['productId'] || data['goods_id']
+    const shopId = data['shopId'] || ''
+    // console.log(site, productId, shopId)
     switch (platform) {
       case 1:
         platformData['url'] = `http://mobile.yangkeduo.com/goods.html?goods_id=${productId}`
@@ -1027,7 +1027,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
   return new Promise(async(resolve) => {
     const params = []
     imageList.forEach(item => {
-      if(item){
+      if (item) {
         params.push(Object.assign({ url: item }, mall))
       }
     })
