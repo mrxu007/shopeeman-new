@@ -3536,7 +3536,7 @@ export default {
       try {
         this.tableColumnList.forEach(item => {
           const itemShow = this.columnConfigList.find(son => item.name === (son && son.column_header || ''))
-          let width = Number(itemShow.width) || item.width
+          let width =itemShow && Number(itemShow.width) || item.width
           if (item.name === '订单编号') {
             list[0] = Object.assign(item, itemShow, { width:width })
           } else if (item.name === '操作') {
