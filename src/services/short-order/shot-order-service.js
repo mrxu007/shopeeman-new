@@ -510,10 +510,6 @@ export default class {
       if (configInfo.shot_order_address_label.includes('3')) {
         detailAddress += '-SPM'
       }
-      //configInfo.shot_order_address_label
-      // detailAddress
-      // detailAddress = configInfo.IsAutoAddBuyerDate ? detailAddress + "-" + dateFormat(new Date().getTime(), 'Md') : detailAddress;
-      // detailAddress = configInfo.IsAutoAddBuyerSPM ? detailAddress + "-SPM" : detailAddress;
     }
     addressUserInfo["buyerAddress"] = detailAddress;
     return addressUserInfo
@@ -581,14 +577,13 @@ export default class {
           data: `【用户昵称含有特殊字符，Lazada平台不支持使用特殊字符创建收件人，请联系客服修改`
         }
       }
-      let buyerName = ''
+      let buyerName = addressUserInfo['buyerName']
       if (itemOrder.country == "PH") {
         //菲律宾站点名称不能包含#字符，且必须使用空格分隔，直接使用买家姓名
-        console.log("-------------------")
-        // buyerName = nickInfo.Nickname + " " + warehouseInfo.receiving_name + "-" + "SPM";
         buyerName =  warehouseInfo.receiving_name + " " + "SPM";
       }
       addressUserInfo['buyerName'] = buyerName.replaceAll("#", "-");
+      console.log(addressUserInfo,"1111111111111111111")
     } else if (itemOrder.goods_info.ori_platform_id == 11) {
       if (warehouseInfo.country !== 'SG' && warehouseInfo.type === 3) {
         console.log('50009', warehouseInfo, warehouseInfo.shopee_map_id)
