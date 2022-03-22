@@ -196,10 +196,6 @@ export default class {
   async getShortOrders(buyerMap, payAccount, configInfo, nickInfo) {
     let info = await window['ConfigBridgeService'].getUserInfo()
     this.rateList = info.ExchangeRates || {}
-    // const data = await this.$api.exchangeRateList()
-    // if (data.data.code === 200) {
-    //   this.rateList = data.data.data
-    // }
     const shorOrders = []
     for (let index = 0; index < this.orders.length; index++) {
       const itemOrder = this.orders[index]
@@ -753,25 +749,6 @@ export default class {
     }
     return params
   }
-  // conver2BuyerAccount(buyerAccount) {
-  //   if (!buyerAccount.loginCookies) {
-  //     buyerAccount.loginCookies = this.converterCookies(buyerAccount.login_info)
-  //   }
-  //   let cachePath = buyerAccount.cache_path
-  //   cachePath = cachePath.replace('Cache\\', '')
-  //   const loginCookies = buyerAccount.loginCookies.find(n => n.Name == 'PDDAccessToken')
-  //   return {
-  //     UserName: buyerAccount.name,
-  //     UserNameCache: cachePath,
-  //     Password: '',
-  //     shotOrderPlatform: this.getShortOrderBuyerAccountPlatform(buyerAccount.type),
-  //     AccountType: buyerAccount.type,
-  //     LoginedCookies: buyerAccount.type === 3 || buyerAccount.type === 2 || buyerAccount.type === 10 || buyerAccount.type === 8 ? buyerAccount.loginCookies : [loginCookies],
-  //     Cookiestr: this.getCookieStr(buyerAccount.loginCookies, buyerAccount.type),
-  //     Ua: buyerAccount.ua ? buyerAccount.ua : '',
-  //     Country: buyerAccount.site || '',
-  //   }
-  // }
   converterCookies(cookies) {
     try {
       const result = JSON.parse(cookies)
@@ -821,121 +798,6 @@ export default class {
     }
     return null
   }
-  /**
-   * 转换为拍单系统订单模型
-   */
-  // convert2ShortOrder(order) {
-  //   console.log(order, 'origin order info')
-  //   const skuId = parseInt(order.goods_info.platform_goods_id)
-  //   const purchaselist = []
-  //   const data = this.purchaseList.find(item => {
-  //     return item.goods_id == skuId
-  //   })
-  //   console.log('convert2ShortOrder', data)
-  //   if (data && data.purchase_info) {
-  //     data.purchase_info.forEach(item => {
-  //       if (item.purchaseUr) {
-  //         item.purchaseUr = item.purchaseUr.replace(/\/\/yangkeduo/, '//mobile.yangkeduo')
-  //       }
-  //       const obj = {
-  //         Note: item.remark,
-  //         Url: item.purchaseUr,
-  //         RedirectUrl: item.purchaseUr,
-  //         PurchaseGoodsId: this.getGoodsIdByLink(item.purchaseUr, item.purchasePlatform)
-  //       }
-  //       purchaselist.push(obj)
-  //     })
-  //   }
-  //   console.log('purchaselist', purchaselist)
-
-  //   let mainImage = order.goods_info.goods_img
-  //   if (!_.startsWith(mainImage, 'http')) {
-  //     const suffix = _.startsWith(mainImage, '//') ? 'https' : 'https://'
-  //     mainImage = `${suffix}${mainImage}`
-  //   }
-  //   // 京喜拍单地址过长会导致支付失败需要截取部分字符串
-  //   if (order.purchases.purchase_platform_id == 10) {
-  //     const str = order.receiver_info.detail_address
-  //     const num = this.find(str, '，', 2)
-  //     order.receiver_info.detail_address = str.substring(num + 1)
-  //   }
-  //   const result = {
-  //     payAccount: {
-  //       UserName: '',
-  //       Password: '',
-  //       PayPassword: ''
-  //     },
-  //     receiveUserInfo: {
-  //       UserName: order.receiver_info.buyer_name,
-  //       UserPhone: order.receiver_info.phone,
-  //       Provice: order.receiver_info.state,
-  //       City: order.receiver_info.city,
-  //       Town: order.receiver_info.town,
-  //       Street: '',
-  //       PostCode: '',
-  //       Address: order.receiver_info.detail_address.split('，').slice(2, -1).join(),
-  //       Remark: '' // 拼多多设置备注
-  //       // ProviceId: order.receiver_info.province_id,
-  //       // CityId: order.receiver_info.city_id,
-  //       // TownId: order.receiver_info.town_id
-  //     },
-  //     goodsInfo: {
-  //       UrlAddress: order.purchases.purchase_url,
-  //       GoodsTitle: order.goods_info.goods_title,
-  //       GoodsMainImage: order.goods_info.sku_img,
-  //       SkuId: order.goods_info.platform_goods_id,
-  //       // OriSkuId: order ? .OriGoodsSkuId || '', // new（传入映射的OriGoodsSkuId）
-  //       SkuName: this.goodsSize(order.goods_info.sku_name),
-  //       OriSkuName: this.goodsSize(order.goods_info.sku_name), // new字段
-  //       ShotNumber: Number.parseInt(order.goods_info.goods_count),
-  //       BuyNum: Number.parseInt(order.goods_info.goods_count), // new字段
-  //       // OriBuyNum: order ? .OriGoodsNum || Number.parseInt(order.goods_info.goods_count), // new （传入映射的OriGoodsNum）
-  //       Price: Number.parseFloat(order.total_amount),
-  //       RedirectUrl: order.purchases.purchase_url,
-  //       PddReamrk: order.platform_remark,
-  //       LocalReamrk: order.local_remark ? order.local_remark : '',
-  //       oritype: this.getShotOrderPlatform(order.purchases.purchase_platform_id),
-  //       GoodsId: this.getGoodsIdByLink(order.purchases.purchase_url, order.purchases.purchase_platform_id),
-  //       OriGoodsId: this.getGoodsIdByLink(order.purchases.purchase_url, order.purchases.purchase_platform_id), // new字段
-  //       OwnGoodsId: order.purchases.goods_id ? order.purchases.goods_id : '',
-  //       Purchaselist: purchaselist
-  //     },
-  //     shotOrderInfo: {
-  //       OrderNumber: `${order.order_sn}_${skuId}`,
-  //       OrderPriceCnt: Number.parseFloat(order.total_amount), // 支付金额
-  //       Tag: order,
-  //       MallName: order.mall_info.platform_mall_name
-  //     }
-  //   }
-  //   // 1688拍单需要替换省市区的ID
-  //   if (order.purchases.purchase_platform_id == 8) {
-  //     var promise = new Promise(function (resolve, reject) {
-  //       const AliBaBaService = new BaseUtilService()
-  //       AliBaBaService.getTbAddressModel(
-  //         order.receiver_info.state
-  //       ).then(res => {
-  //         console.log(1)
-  //         result.receiveUserInfo.ProviceId = res.RegionId
-  //         AliBaBaService.getTbAddressModel(
-  //           order.receiver_info.city
-  //         ).then(res => {
-  //           console.log(2)
-  //           result.receiveUserInfo.CityId = res.RegionId
-  //           AliBaBaService.getTbAddressModel(
-  //             order.receiver_info.town
-  //           ).then(res => {
-  //             console.log(3)
-  //             result.receiveUserInfo.TownId = res.RegionId
-  //           })
-  //         })
-  //       })
-  //       resolve()
-  //     })
-  //     promise.then(() => console.log('1688拍单'))
-  //   }
-  //   return result
-  // }
-
   /**
    * 查询某个字符出现的位置
    * @param {*} str  字符串
