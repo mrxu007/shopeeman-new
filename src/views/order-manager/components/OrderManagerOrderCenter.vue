@@ -859,7 +859,7 @@
             <span style="width: 80px">物流公司{{ index + 1 }}</span>
             <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right" />
           </div>
-          <el-button type="primary" size="mini" class="item-box mar-right" @click="deleteTraNumber(index)">删除
+          <el-button type="primary" size="mini" class="item-box mar-right" @click="deleteTraNumber(index,item)">删除
           </el-button>
           <el-button
             v-if="index === trackingNumberList.length - 1"
@@ -2699,7 +2699,20 @@ export default {
       }
     },
     // 删除多物流
-    deleteTraNumber(index) {
+    deleteTraNumber(index, item) {
+      this.$confirm('确定要删除此物流单号吗?', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        const res = await this.$api.deleteOrderTrackingNumber({ id: item.id })
+        if (res.data.code === 200) {
+          this.$message.success('删除成功')
+        } else {
+          this.$message.warning(`删除失败：res.data.message`)
+        }
+      }).catch(() => {
+      })
       this.trackingNumberList.splice(index, 1)
     },
     // 添加多物流

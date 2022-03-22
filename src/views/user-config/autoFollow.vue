@@ -377,8 +377,8 @@ export default {
         const res = await this.$api.setUserinfo(JSON.stringify(param))
         if (res.data.code === 200) {
           this.$message.success('信息修改成功！')
-          // 上报服务
-          await window.ConfigBridgeService.updateConfig(JSON.stringify(param))
+          // // 上报服务 [后端处理]
+          // await window.ConfigBridgeService.updateConfig(JSON.stringify(param))
         } else {
           this.$message.warning(`信息修改失败！${res.data.message}`)
         }
