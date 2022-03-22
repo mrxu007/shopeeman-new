@@ -86,7 +86,7 @@
                   :picker-options="pickerOptions"
                   @change="changeTime($event, 'createTime')"
                 />
-              </div>
+              </div> 
             </el-row>
             <el-row class="row-style">
               <div class="tool-item mar-right">
@@ -101,7 +101,7 @@
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
               <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
-              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p>
+              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p> 
             </el-row>
           </div>
         </div>
