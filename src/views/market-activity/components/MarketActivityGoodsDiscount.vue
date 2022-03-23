@@ -531,23 +531,29 @@ export default {
       if (!this.editMultipleSelection.length) {
         return this.$message.warning('请先勾选数据！')
       }
-      this.editMultipleSelection.forEach((item) => {
+      this.$message.success('正在修改信息....')
+      // this.editMultipleSelection.forEach((item) => {
+      for (const item of this.editMultipleSelection) {
+        this.$delete(item, 'discount')
         this.$set(item, 'discount', (1 - this.activeDiscount / 100).toFixed(2))
+        this.$delete(item, 'promotion_price')
         this.$set(item, 'promotion_price', Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)))
+        this.$delete(item, 'user_item_limit')
         this.$set(item, 'user_item_limit', this.limitNum)
         const index = this.editTableData.findIndex((n) => n.modelid === item.modelid)
         const indexC = this.editTableDataCopy.findIndex((n) => n.modelid === item.modelid)
         if (index > -1) {
-          this.$set(this.editTableData[index], 'discount', (1 - this.activeDiscount / 100).toFixed(2))
-          this.$set(this.editTableData[index], 'promotion_price', Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)))
-          this.$set(this.editTableData[index], 'user_item_limit', this.limitNum)
+          // this.$set(this.editTableData[index], 'discount', (1 - this.activeDiscount / 100).toFixed(2))
+          // this.$set(this.editTableData[index], 'promotion_price', Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)))
+          // this.$set(this.editTableData[index], 'user_item_limit', this.limitNum)
         }
         if (indexC > -1) {
           this.editTableDataCopy[indexC].discount = (1 - this.activeDiscount / 100).toFixed(2)
           this.editTableDataCopy[indexC].promotion_price = Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1))
           this.editTableDataCopy[indexC].user_item_limit = this.limitNum
         }
-      })
+      }
+      this.$message.success('修改完成')
     },
     async updateDiscount() {
       if (!this.editMultipleSelection.length) {
