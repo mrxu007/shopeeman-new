@@ -170,7 +170,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo)
+      const trackInfo = this.checkTrackInfo(orderInfo,country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -240,7 +240,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo)
+      const trackInfo = this.checkTrackInfo(orderInfo,country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -284,8 +284,21 @@ export default class {
       console.log(error)
     }
   }
+  //获取30015物流单号
+  async getForderLogistics(orderId,mallId,country){
+    const params = {
+      order_id: orderId,
+      shop_id: mallId
+    }
+    const res = await this.$shopeemanService.getForderLogistics(country, params)
+    if(res && res.code === 0 && res.data && res.data.list && res.data.list.length){
+      return res.data.list[0].thirdparty_tracking_number
+    }else{
+      return ''
+    }
+  }
   // 检查是否有物流信息
-  checkTrackInfo(orderInfo) {
+  async checkTrackInfo(orderInfo,country) {
     const trackInfo = {}
     trackInfo['orderId'] = orderInfo.order_id
     let trackNo = orderInfo.shipping_traceno
@@ -297,6 +310,9 @@ export default class {
     }
     trackInfo['trackingNo'] = trackNo
     trackInfo['logistics_channel'] = orderInfo.logistics_channel || ''
+    if(orderInfo.logistics_channel == 30015){
+      trackInfo['trackingNo'] = await this.getForderLogistics(orderInfo.order_id,orderInfo.shop_id,country)
+    }
     return trackInfo
   }
   // 判断默认物流
@@ -612,7 +628,21 @@ export default class {
         return null
       }
       // 1、获取面单类型
-      const fileType = order.logistics_channel == '30012' ? 'THERMAL_PDF' : 'C2C_SHIPPING_LABEL_HTML'
+      // const fileType = order.logistics_channel == '30012' ? 'THERMAL_PDF' : 'C2C_SHIPPING_LABEL_HTML'
+      let fileType = 'C2C_SHIPPING_LABEL_HTML'
+      switch(Number(order.logistics_channel)){
+        case  30012:
+          fileType = 'THERMAL_PDF'
+          break
+        case 30014:
+          case 30008:
+            case 30015:
+            fileType = 'NORMAL_PDF'
+            break
+        default:
+          fileType = 'C2C_SHIPPING_LABEL_HTML'
+        break
+      }
       // 2、获取包裹号
       const packParams = [{
         'order_id': Number(order.order_id),
@@ -629,7 +659,10 @@ export default class {
       let schemaType = null
       if (order.logistics_channel == '30012') {
         schemaType = 3
-      } else {
+      }else if(order.logistics_channel == '30014' || order.logistics_channel == '30008' || order.logistics_channel == '30015'){
+        schemaType = 13
+      } 
+      else {
         schemaType = await this.getSdConfig(order.shop_id, country)
         console.log(schemaType, 'schemaType')
       }
@@ -644,6 +677,9 @@ export default class {
         'region_id': country,
         'shop_id': Number(order.shop_id)
       }]
+      if(order.logistics_channel == '30014' || order.logistics_channel == '30008' || order.logistics_channel == '30015'){
+        packList[0]['channel_id'] = order.logistics_channel
+      }
       const res4 = await this.createSdJobsMultiShop(packList, order.shop_id, country, fileType, '寄件单' + order.actual_carrier, schemaType)
       console.log('res4', res4)
       if (!(res4.code === 200 && res4.data.list && res4.data.list.length && res4.data.list[0].job_id)) {

@@ -1023,7 +1023,7 @@ export default class NetMessageBridgeService {
     } else {
       return {
         code: resObj.status,
-        data: `获取详情失败${resObj.statusText.includes('ConnectionRefused') ? '请检查网络是否可用' : resObj.statusText}`
+        data: `获取详情失败${resObj.statusText && resObj.statusText.includes('ConnectionRefused') ? '请检查网络是否可用' : resObj.statusText}`
       }
     }
   }
