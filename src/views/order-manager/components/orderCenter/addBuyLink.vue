@@ -198,6 +198,7 @@ export default {
         const jdlazada1688IDs = /(\d+)\.html/
         const shopeeIDs = /[^\/]+(?!.*\/)/
         const platform = item.purchase_url.match(execPlatform)
+
         if (!platform) {
           console.log(index,"000000")
           return this.$message.error(`采购链接错误，请检查！`)
