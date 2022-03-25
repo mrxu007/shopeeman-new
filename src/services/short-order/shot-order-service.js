@@ -300,7 +300,7 @@ export default class {
         Street: buyerInfo['streetText'],
         PostCode: buyerInfo['postCode'] ? buyerInfo['postCode'].toString() : '000000',
         Address: buyerInfo["buyerAddress"],
-        Remark: itemOrder.node || '', //itemOrderinfo.buyer_memo
+        Remark: itemOrder.message_to_seller  || '', //itemOrderinfo.buyer_memo
         ProviceId: buyerInfo["provId"],
         CityId: buyerInfo["cityId"],
         TownId: buyerInfo["distId"],
