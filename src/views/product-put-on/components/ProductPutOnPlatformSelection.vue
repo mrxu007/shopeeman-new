@@ -5,8 +5,13 @@
         <el-tab-pane label="关键词采集" name="keyPage">
           <div class="keyword-container">
             <div class="keyword-banner-bar">
-              <div v-for="item in keyworBar" :key="item.value" class="barChilren"
-                   :class="{ active: currentKeywordPlatform === item.value }" @click="switchPlatform(item)">
+              <div
+                v-for="item in keyworBar"
+                :key="item.value"
+                class="barChilren"
+                :class="{ active: currentKeywordPlatform === item.value }"
+                @click="switchPlatform(item)"
+              >
                 {{ item.label }}
               </div>
             </div>
@@ -19,112 +24,178 @@
                 </li>
                 <li v-show="isShowPage">
                   <p>开始页码：</p>
-                  <el-input v-model="commonAttr.StartPage" :disabled="buttonStatus.start" size="mini"/>
+                  <el-input v-model="commonAttr.StartPage" :disabled="buttonStatus.start" size="mini" />
                   <p>总页码：</p>
-                  <el-input v-model="commonAttr.EndPage" :disabled="buttonStatus.start" size="mini" style="width:85px"/>
+                  <el-input v-model="commonAttr.EndPage" :disabled="buttonStatus.start" size="mini" style="width:85px" />
                   <el-tooltip v-show="isShowPageSize20 || isShowPageSize50" placement="top">
                     <div v-show="isShowPageSize20" slot="content" class="tip">20条/页</div>
                     <div v-show="isShowPageSize50" slot="content" class="tip">50条/页,最多50页</div>
                     <div class="size-icon">
-                      <i class="el-icon-question" style=""/>
+                      <i class="el-icon-question" style="" />
                     </div>
                   </el-tooltip>
                 </li>
                 <li v-show="isShowTaobao">
                   <p>排序方式：</p>
-                  <el-select v-model="commonAttr.shopeeSortTypeVal" :disabled="buttonStatus.start" placeholder=""
-                             size="mini">
-                    <el-option v-for="(item, index) in commonAttr.shopeeSortType" :key="index" :label="item.label"
-                               :value="item.value"/>
+                  <el-select
+                    v-model="commonAttr.shopeeSortTypeVal"
+                    :disabled="buttonStatus.start"
+                    placeholder=""
+                    size="mini"
+                  >
+                    <el-option
+                      v-for="(item, index) in commonAttr.shopeeSortType"
+                      :key="index"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                   </el-select>
                 </li>
                 <li v-show="isShowTaobao">
                   <p>单词最大：</p>
-                  <el-input v-model="commonAttr.wordLimit" :disabled="buttonStatus.start" placeholder="" size="mini"/>
+                  <el-input v-model="commonAttr.wordLimit" :disabled="buttonStatus.start" placeholder="" size="mini" />
                 </li>
 
                 <li v-show="isShowSales">
                   <p>销量区间：</p>
-                  <el-input v-model="commonAttr.StartSales" :disabled="buttonStatus.start" size="mini"/>
+                  <el-input v-model="commonAttr.StartSales" :disabled="buttonStatus.start" size="mini" />
                   <span class="slot">-</span>
-                  <el-input v-model="commonAttr.EndSales" :disabled="buttonStatus.start" size="mini"/>
+                  <el-input v-model="commonAttr.EndSales" :disabled="buttonStatus.start" size="mini" />
                 </li>
                 <li v-show="isShowPrice">
                   <p>价格区间：</p>
-                  <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini"/>
+                  <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini" />
                   <span class="slot">-</span>
-                  <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini"/>
+                  <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini" />
                 </li>
 
                 <!-- 虾皮 -->
                 <li v-show="isShowShopeeSite" class="li-shopee">
                   <p>站点：</p>
-                  <el-select v-model="commonAttr.shopeeSiteCode" :disabled="buttonStatus.start" placeholder=""
-                             size="mini" @change="getShopeeGoodsPlace">
-                    <el-option v-for="(item, index) in commonAttr.shopeeSite" :key="index" :label="item.label"
-                               :value="item.value"/>
+                  <el-select
+                    v-model="commonAttr.shopeeSiteCode"
+                    :disabled="buttonStatus.start"
+                    placeholder=""
+                    size="mini"
+                    @change="getShopeeGoodsPlace"
+                  >
+                    <el-option
+                      v-for="(item, index) in commonAttr.shopeeSite"
+                      :key="index"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                   </el-select>
                   <p class="li-shopee-spec">排序方式：</p>
-                  <el-select v-model="commonAttr.shopeeSortTypeVal" :disabled="buttonStatus.start" placeholder=""
-                             size="mini">
-                    <el-option v-for="(item, index) in commonAttr.shopeeSortType" :key="index" :label="item.label"
-                               :value="item.value"/>
+                  <el-select
+                    v-model="commonAttr.shopeeSortTypeVal"
+                    :disabled="buttonStatus.start"
+                    placeholder=""
+                    size="mini"
+                  >
+                    <el-option
+                      v-for="(item, index) in commonAttr.shopeeSortType"
+                      :key="index"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                   </el-select>
                 </li>
                 <li v-show="isShowShopeeSite" class="li-shopee">
                   <p>出货地点：</p>
-                  <el-select v-model="commonAttr.shopeePlaceVal" :disabled="buttonStatus.start" placeholder=""
-                             size="mini">
-                    <el-option :label="'全部'" :value="'-1,-2'"/>
-                    <el-option v-for="(item, index) in commonAttr.shopeePlaceOrigin" :key="index" :label="item.label"
-                               :value="item.value"/>
+                  <el-select
+                    v-model="commonAttr.shopeePlaceVal"
+                    :disabled="buttonStatus.start"
+                    placeholder=""
+                    size="mini"
+                  >
+                    <el-option :label="'全部'" :value="'-1,-2'" />
+                    <el-option
+                      v-for="(item, index) in commonAttr.shopeePlaceOrigin"
+                      :key="index"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                   </el-select>
-                  <el-checkbox v-model="commonAttr.isShopeeOffice" :disabled="buttonStatus.start" class="li-shopee-spec"
-                               label="全部">过滤虾皮官方店铺商品
+                  <el-checkbox
+                    v-model="commonAttr.isShopeeOffice"
+                    :disabled="buttonStatus.start"
+                    class="li-shopee-spec"
+                    label="全部"
+                  >过滤虾皮官方店铺商品
                   </el-checkbox>
                 </li>
                 <!-- lazada -->
                 <li v-show="isShowLazadaSite">
                   <p style="min-width: 128px">站点：</p>
-                  <el-select v-model="commonAttr.lazadaSiteCode" style="width:140px" :disabled="buttonStatus.start"
-                             placeholder="" size="mini" @change="getLazadaGoodsPlace">
-                    <el-option v-for="(item, index) in commonAttr.lazadaSite" :key="index" :label="item.label"
-                               :value="item.value"/>
+                  <el-select
+                    v-model="commonAttr.lazadaSiteCode"
+                    style="width:140px"
+                    :disabled="buttonStatus.start"
+                    placeholder=""
+                    size="mini"
+                    @change="getLazadaGoodsPlace"
+                  >
+                    <el-option
+                      v-for="(item, index) in commonAttr.lazadaSite"
+                      :key="index"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                   </el-select>
                 </li>
                 <li v-show="isShowLazadaSite" class="li-lazada">
                   <div v-for="(item, itemKey, index) in commonAttr.lazadaPlaceOrigin" :key="index">
                     <p style="min-width: 128px">{{ itemKey }}</p>
-                    <el-select v-model="commonAttr[`lazadaPlaceVal${index}`]" style="width:140px"
-                               :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags
-                               @change="changeSelect($event, `${commonAttr[`lazadaPlaceVal${index}`]}`,2)">
-                      <el-option :value="0" label="全部" @click.native="selectAll(`lazadaPlaceVal${index}`, item,2)"/>
-                      <el-option v-for="(subItem, subIndex) in item" :key="subIndex" :label="subItem.label"
-                                 :value="subItem.value"/>
+                    <el-select
+                      v-model="commonAttr[`lazadaPlaceVal${index}`]"
+                      style="width:140px"
+                      :disabled="buttonStatus.start"
+                      placeholder=""
+                      size="mini"
+                      multiple
+                      collapse-tags
+                      @change="changeSelect($event, `${commonAttr[`lazadaPlaceVal${index}`]}`,2)"
+                    >
+                      <el-option :value="0" label="全部" @click.native="selectAll(`lazadaPlaceVal${index}`, item,2)" />
+                      <el-option
+                        v-for="(subItem, subIndex) in item"
+                        :key="subIndex"
+                        :label="subItem.label"
+                        :value="subItem.value"
+                      />
                     </el-select>
                   </div>
                 </li>
                 <li v-show="isShowSort">
                   <p>排序方式：</p>
-                  <el-select v-model="commonAttr.alibabaSortTypeVal" :disabled="buttonStatus.start" placeholder=""
-                             size="mini">
-                    <el-option v-for="(item, index) in commonAttr.alibabaSortType" :key="index" :label="item.label"
-                               :value="item.value"/>
+                  <el-select
+                    v-model="commonAttr.alibabaSortTypeVal"
+                    :disabled="buttonStatus.start"
+                    placeholder=""
+                    size="mini"
+                  >
+                    <el-option
+                      v-for="(item, index) in commonAttr.alibabaSortType"
+                      :key="index"
+                      :label="item.label"
+                      :value="item.value"
+                    />
                   </el-select>
                 </li>
                 <li v-show="isShowCreateAt">
                   <p>创建时间：</p>
                   <el-date-picker
-                      v-model="commonAttr.value2"
-                      :disabled="buttonStatus.start"
-                      type="daterange"
-                      align="right"
-                      unlink-panels
-                      range-separator="-"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                      :picker-options="commonAttr.pickerOptions"
-                      size="mini"
+                    v-model="commonAttr.value2"
+                    :disabled="buttonStatus.start"
+                    type="daterange"
+                    align="right"
+                    unlink-panels
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    :picker-options="commonAttr.pickerOptions"
+                    size="mini"
                   />
                 </li>
               </ul>
@@ -132,29 +203,34 @@
                 <div class="size-icon" :style="isShowKeyTip?'margin-top: 3px;':'margin-top: 5px;'">关键词(一行一个)
                   <el-tooltip v-show="isShowKeyTip" placement="top">
                     <div slot="content" class="tip">采集请使用对应的站点语言搜索</div>
-                    <i class="el-icon-question" style=""/>
+                    <i class="el-icon-question" style="" />
                   </el-tooltip>
                 </div>
-                <el-input v-model="key" size="mini" type="textarea" :rows="8" resize="none"/>
+                <el-input v-model="key" size="mini" type="textarea" :rows="8" resize="none" />
               </div>
               <div class="item con-sub-3">
                 <p class="text">过滤关键词(一行一个)</p>
-                <el-input v-model="commonAttr.keyFilter" size="mini" type="textarea" :rows="8" resize="none"/>
+                <el-input v-model="commonAttr.keyFilter" size="mini" type="textarea" :rows="8" resize="none" />
               </div>
               <!--操作按钮 -->
               <ul class="item con-sub-2">
                 <li>
                   <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="isCollection">开始采集
                   </el-button>
-                  <el-button type="primary" size="mini" :disabled="!buttonStatus.start" :loading="flag"
-                             @click="flag = true">取消采集
+                  <el-button
+                    type="primary"
+                    size="mini"
+                    :disabled="!buttonStatus.start"
+                    :loading="flag"
+                    @click="flag = true"
+                  >取消采集
                   </el-button>
                 </li>
                 <li class="li-item-2">
                   <p>起：</p>
-                  <el-input v-model="start" size="mini" placeholder=""/>
+                  <el-input v-model="start" size="mini" placeholder="" />
                   <p>止：</p>
-                  <el-input v-model="end" size="mini" placeholder=""/>
+                  <el-input v-model="end" size="mini" placeholder="" />
                 </li>
                 <li>
                   <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品
@@ -170,8 +246,12 @@
                 <li>
                   <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据
                   </el-button>
-                  <el-button type="primary" size="mini" :disabled="buttonStatus.start"
-                             @click="batchTableDelete(goodsList,multipleSelection)">批量删除
+                  <el-button
+                    type="primary"
+                    size="mini"
+                    :disabled="buttonStatus.start"
+                    @click="batchTableDelete(goodsList,multipleSelection)"
+                  >批量删除
                   </el-button>
                 </li>
               </ul>
@@ -190,7 +270,7 @@
               <div class="item">
                 <p class="text">执行日志</p>
                 <div class="con-sub-5">
-                  <div class="con-sub-5-log" v-html="consoleMsg"/>
+                  <div class="con-sub-5-log" v-html="consoleMsg" />
                 </div>
               </div>
             </div>
@@ -200,7 +280,7 @@
           <div class="link-container">
             <div class="item linkcon-sub-1">
               <p class="text">商品链接: 一行一个</p>
-              <el-input v-model="linkKey" size="mini" type="textarea" :rows="8" resize="none"/>
+              <el-input v-model="linkKey" size="mini" type="textarea" :rows="8" resize="none" />
             </div>
             <ul class="item linkcon-sub-2">
               <li>
@@ -211,9 +291,9 @@
               </li>
               <li class="li-item-2">
                 <p>起：</p>
-                <el-input v-model="start" size="mini" placeholder=""/>
+                <el-input v-model="start" size="mini" placeholder="" />
                 <p>止：</p>
-                <el-input v-model="end" size="mini" placeholder=""/>
+                <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品
@@ -226,9 +306,16 @@
               </li>
               <li>
                 <el-button type="primary" size="mini" @click="downloadTemplate"> 下载模板</el-button>
-                <el-upload ref="importRef" :disabled="buttonStatus.start" style="margin-left:10px;" accept=".xls,.xlsx"
-                           action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate"
-                           :show-file-list="false" :auto-upload="false">
+                <el-upload
+                  ref="importRef"
+                  :disabled="buttonStatus.start"
+                  style="margin-left:10px;"
+                  accept=".xls,.xlsx"
+                  action="https://jsonplaceholder.typicode.com/posts/"
+                  :on-change="importTemplate"
+                  :show-file-list="false"
+                  :auto-upload="false"
+                >
                   <el-button :disabled="buttonStatus.start" style="width:96px" size="mini" type="primary">链接导入
                   </el-button>
                 </el-upload>
@@ -236,8 +323,12 @@
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据
                 </el-button>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start"
-                           @click="batchTableDelete(goodsList,multipleSelection)">批量删除
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :disabled="buttonStatus.start"
+                  @click="batchTableDelete(goodsList,multipleSelection)"
+                >批量删除
                 </el-button>
               </li>
             </ul>
@@ -256,7 +347,7 @@
             <div class="item">
               <p class="text">执行日志</p>
               <div class="linkcon-sub-4">
-                <div class="linkcon-sub-4-log" v-html="consoleMsg"/>
+                <div class="linkcon-sub-4-log" v-html="consoleMsg" />
               </div>
             </div>
           </div>
@@ -266,15 +357,15 @@
             <ul class="item con-sub-1">
               <li v-show="isShowSales">
                 <p>销量区间：</p>
-                <el-input v-model="commonAttr.StartSales" :disabled="buttonStatus.start" size="mini"/>
+                <el-input v-model="commonAttr.StartSales" :disabled="buttonStatus.start" size="mini" />
                 <span class="slot">-</span>
-                <el-input v-model="commonAttr.EndSales" :disabled="buttonStatus.start" size="mini"/>
+                <el-input v-model="commonAttr.EndSales" :disabled="buttonStatus.start" size="mini" />
               </li>
               <li v-show="isShowPrice">
                 <p>价格区间：</p>
-                <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini"/>
+                <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini" />
                 <span class="slot">-</span>
-                <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini"/>
+                <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini" />
               </li>
             </ul>
             <div class="item con-sub-3">
@@ -282,14 +373,14 @@
                 <el-tooltip placement="top">
                   <div slot="content">目前仅支持淘宝/Shopee/Lazada/1688/拼多多整店采集<br><br>1688店铺链接：进入1688店铺->点击首页->复制链接<br><br>店铺链接：进入shopee店铺->点击所有商品(AllProduct)
                   </div>
-                  <i class="el-icon-question" style=""/>
+                  <i class="el-icon-question" style="" />
                 </el-tooltip>
               </div>
-              <el-input v-model="mallLinkKey" size="mini" type="textarea" :rows="8" resize="none"/>
+              <el-input v-model="mallLinkKey" size="mini" type="textarea" :rows="8" resize="none" />
             </div>
             <div class="item con-sub-3">
               <p class="text">过滤违规词：一行一个</p>
-              <el-input v-model="commonAttr.keyFilter" size="mini" type="textarea" :rows="8" resize="none"/>
+              <el-input v-model="commonAttr.keyFilter" size="mini" type="textarea" :rows="8" resize="none" />
             </div>
             <!--操作按钮 -->
             <ul class="item con-sub-2">
@@ -301,9 +392,9 @@
               </li>
               <li class="li-item-2">
                 <p>起：</p>
-                <el-input v-model="start" size="mini" placeholder=""/>
+                <el-input v-model="start" size="mini" placeholder="" />
                 <p>止：</p>
-                <el-input v-model="end" size="mini" placeholder=""/>
+                <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品
@@ -317,8 +408,12 @@
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据
                 </el-button>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start"
-                           @click="batchTableDelete(goodsList,multipleSelection)">批量删除
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :disabled="buttonStatus.start"
+                  @click="batchTableDelete(goodsList,multipleSelection)"
+                >批量删除
                 </el-button>
               </li>
             </ul>
@@ -337,7 +432,7 @@
             <div class="item">
               <p class="text">执行日志</p>
               <div class="con-sub-5">
-                <div class="con-sub-5-log" v-html="consoleMsg"/>
+                <div class="con-sub-5-log" v-html="consoleMsg" />
               </div>
             </div>
           </div>
@@ -347,19 +442,32 @@
             <ul class="item con-sub-1">
               <li>
                 <p>价格：</p>
-                <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini"/>
+                <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini" />
                 <span class="slot">-</span>
-                <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini"/>
+                <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini" />
               </li>
               <li>
                 <p>平台：</p>
-                <el-select v-model="commonAttr.pictureSearchPlatformId" :disabled="buttonStatus.start" placeholder=""
-                           size="mini">
-                  <el-option v-for="(item, index) in pictureSearchOrigin" :key="index" :label="item.label"
-                             :value="item.value"/>
+                <el-select
+                  v-model="commonAttr.pictureSearchPlatformId"
+                  :disabled="buttonStatus.start"
+                  placeholder=""
+                  size="mini"
+                >
+                  <el-option
+                    v-for="(item, index) in pictureSearchOrigin"
+                    :key="index"
+                    :label="item.label"
+                    :value="item.value"
+                  />
                 </el-select>
-                <el-upload :disabled="buttonStatus.start" class="avatar-uploader" action="#" :show-file-list="false"
-                           :on-error="imgSaveToUrl">
+                <el-upload
+                  :disabled="buttonStatus.start"
+                  class="avatar-uploader"
+                  action="#"
+                  :show-file-list="false"
+                  :on-error="imgSaveToUrl"
+                >
                   <el-button :disabled="buttonStatus.start" style="margin-left:25px" type="primary" size="mini">选择图片
                   </el-button>
                 </el-upload>
@@ -378,9 +486,9 @@
               </li>
               <li class="li-item-2">
                 <p>起：</p>
-                <el-input v-model="start" size="mini" placeholder=""/>
+                <el-input v-model="start" size="mini" placeholder="" />
                 <p>止：</p>
-                <el-input v-model="end" size="mini" placeholder=""/>
+                <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品
@@ -394,8 +502,12 @@
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据
                 </el-button>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start"
-                           @click="batchTableDelete(goodsList,multipleSelection)">批量删除
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :disabled="buttonStatus.start"
+                  @click="batchTableDelete(goodsList,multipleSelection)"
+                >批量删除
                 </el-button>
               </li>
             </ul>
@@ -414,7 +526,7 @@
             <div class="item">
               <p class="text">执行日志</p>
               <div class="con-sub-5">
-                <div class="con-sub-5-log" v-html="consoleMsg"/>
+                <div class="con-sub-5-log" v-html="consoleMsg" />
               </div>
             </div>
           </div>
@@ -424,28 +536,42 @@
             <ul class="item con-sub-1">
               <li>
                 <p>选择账号：</p>
-                <el-select v-model="TaobaoAbroadAccountId" style="width: 140px;" :disabled="buttonStatus.start"
-                           placeholder="" size="mini" multiple collapse-tags
-                           @change="changeSelect($event, 'TaobaoAbroadAccountId',1)">
-                  <el-option :value="0" label="全部"
-                             @click.native="selectAll('TaobaoAbroadAccountId', TaobaoAbroadAccount,1)"/>
-                  <el-option v-for="(item, index) in TaobaoAbroadAccount" :key="index" :label="item.account_alias_name"
-                             :value="item.id"/>
+                <el-select
+                  v-model="TaobaoAbroadAccountId"
+                  style="width: 140px;"
+                  :disabled="buttonStatus.start"
+                  placeholder=""
+                  size="mini"
+                  multiple
+                  collapse-tags
+                  @change="changeSelect($event, 'TaobaoAbroadAccountId',1)"
+                >
+                  <el-option
+                    :value="0"
+                    label="全部"
+                    @click.native="selectAll('TaobaoAbroadAccountId', TaobaoAbroadAccount,1)"
+                  />
+                  <el-option
+                    v-for="(item, index) in TaobaoAbroadAccount"
+                    :key="index"
+                    :label="item.account_alias_name"
+                    :value="item.id"
+                  />
                 </el-select>
               </li>
               <li>
                 <p>起始时间：</p>
                 <el-date-picker
-                    v-model="taobaoTimeAt"
-                    :disabled="buttonStatus.start"
-                    type="daterange"
-                    align="right"
-                    unlink-panels
-                    range-separator="-"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    value-format="timestamp"
-                    size="mini"
+                  v-model="taobaoTimeAt"
+                  :disabled="buttonStatus.start"
+                  type="daterange"
+                  align="right"
+                  unlink-panels
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  value-format="timestamp"
+                  size="mini"
                 />
               </li>
               <li>
@@ -462,9 +588,9 @@
               </li>
               <li class="li-item-2">
                 <p>起：</p>
-                <el-input v-model="start" size="mini" placeholder=""/>
+                <el-input v-model="start" size="mini" placeholder="" />
                 <p>止：</p>
-                <el-input v-model="end" size="mini" placeholder=""/>
+                <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品
@@ -478,8 +604,12 @@
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据
                 </el-button>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start"
-                           @click="batchTableDelete(goodsList,multipleSelection)">批量删除
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :disabled="buttonStatus.start"
+                  @click="batchTableDelete(goodsList,multipleSelection)"
+                >批量删除
                 </el-button>
               </li>
             </ul>
@@ -498,7 +628,7 @@
             <div class="item">
               <p class="text">执行日志</p>
               <div class="con-sub-5">
-                <div class="con-sub-5-log" v-html="consoleMsg"/>
+                <div class="con-sub-5-log" v-html="consoleMsg" />
               </div>
             </div>
           </div>
@@ -512,37 +642,41 @@
                 <p class="tip">（开启买手号，可提高收藏收藏率）</p>
               </li> -->
               <li>
-                <el-checkbox v-model="IsDefaultFilterSkuCount" label="过滤多余的SKU"/>
+                <el-checkbox v-model="IsDefaultFilterSkuCount" label="过滤多余的SKU" />
                 <p class="tip">（勾选多余的SKU，删除所有sku图）</p>
               </li>
               <li>
-                <el-checkbox v-model="IsDeleteRepeatSkuImg" label="规格图重复时，删除所有sku图"/>
+                <el-checkbox v-model="IsDeleteRepeatSkuImg" label="规格图重复时，删除所有sku图" />
               </li>
               <li>
-                <el-checkbox v-model="IsFilterLazadaDeliveryDay" label="启动lazada发货天数过滤商品"/>
+                <el-checkbox v-model="IsFilterLazadaDeliveryDay" label="启动lazada发货天数过滤商品" />
                 <p class="tip2">lazada发货天数：</p>
-                <el-input v-model="MinLazadaDeliveryDay" placeholder="" size="mini"/>
+                <el-input v-model="MinLazadaDeliveryDay" placeholder="" size="mini" />
                 <span>--</span>
-                <el-input v-model="MaxLazadaDeliveryDay" placeholder="" size="mini"/>
+                <el-input v-model="MaxLazadaDeliveryDay" placeholder="" size="mini" />
               </li>
               <li>
-                <el-checkbox v-model="IsFilterShopeeDeliveryDay" label="启动虾皮发货天数过滤商品"/>
+                <el-checkbox v-model="IsFilterShopeeDeliveryDay" label="启动虾皮发货天数过滤商品" />
                 <p class="tip2">虾皮发货天数：</p>
-                <el-input v-model="MinShoppeDeliveryDay" placeholder="" size="mini"/>
+                <el-input v-model="MinShoppeDeliveryDay" placeholder="" size="mini" />
                 <span>--</span>
-                <el-input v-model="MaxShoppeDeliveryDay" placeholder="" size="mini"/>
+                <el-input v-model="MaxShoppeDeliveryDay" placeholder="" size="mini" />
               </li>
               <li>
                 <p class="tip">收藏时过滤掉不在此发货天数区间的商品</p>
               </li>
               <li>
-                <el-checkbox v-model="IsCollectDescriptionIsNull " label="采集描述为空的数据"/>
+                <el-checkbox v-model="IsCollectDescriptionIsNull " label="采集描述为空的数据" />
               </li>
               <li>
                 <p>收藏时过滤商品发货地址（仅Shopee可用）：</p>
                 <el-select v-model="GoodsDeliveryAddress" placeholder="" size="mini">
-                  <el-option v-for="(item,index) in GoodsDeliveryAddressList" :key="index" :value="item.value"
-                             :label="item.label"/>
+                  <el-option
+                    v-for="(item,index) in GoodsDeliveryAddressList"
+                    :key="index"
+                    :value="item.value"
+                    :label="item.label"
+                  />
                 </el-select>
               </li>
             </ul>
@@ -551,15 +685,15 @@
               <li>
                 <p>翻译缓存时间：</p>
                 <el-date-picker
-                    v-model="commonAttr.cacheTime"
-                    type="daterange"
-                    align="right"
-                    unlink-panels
-                    range-separator="-"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    size="mini"
-                    style="margin-right:10px"
+                  v-model="commonAttr.cacheTime"
+                  type="daterange"
+                  align="right"
+                  unlink-panels
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  size="mini"
+                  style="margin-right:10px"
                 />
                 <el-button type="primary" size="mini" @click="clearTranslate">清 理</el-button>
               </li>
@@ -574,46 +708,46 @@
     <article v-show="activeName !== 'sixth'">
       <div style="color:red;padding-bottom: 10px;">温馨提示：拼多多产品加载不出来，收藏或者组装数据慢，请切换本地IP</div>
       <u-table
-          ref="plTable"
-          use-virtual
-          :height="activeName==='keyPage'?500:540"
-          :data="goodsList"
-          :data-changes-scroll-top="false"
-          :header-cell-style="{
+        ref="plTable"
+        use-virtual
+        :height="activeName==='keyPage'?500:540"
+        :data="goodsList"
+        :data-changes-scroll-top="false"
+        :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
-          :big-data-checkbox="true"
-          :border="false"
-          @selection-change="handleSelectionChange"
+        :big-data-checkbox="true"
+        :border="false"
+        @selection-change="handleSelectionChange"
       >
-        <u-table-column align="center" type="selection"/>
-        <u-table-column align="center" type="index" label="序号"/>
+        <u-table-column align="center" type="selection" />
+        <u-table-column align="center" type="index" label="序号" />
         <u-table-column align="center" label="主图">
           <template v-slot="{row}">
             <el-tooltip
-                v-if="row.Image"
-                effect="light"
-                placement="right-end"
-                :visible-arrow="false"
-                :enterable="false"
-                style="width: 50px; height: 50px"
+              v-if="row.Image"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 50px; height: 50px"
             >
               <div slot="content">
                 <el-image
-                    :src="row.Image"
-                    style="width: 400px; height: 400px"
+                  :src="row.Image"
+                  style="width: 400px; height: 400px"
                 >
-                  <div slot="error" class="image-slot"/>
+                  <div slot="error" class="image-slot" />
                   <div slot="placeholder" class="image-slot">
                     加载中<span class="dot">...</span>
                   </div>
                 </el-image>
               </div>
               <el-image
-                  style="width: 40px; height: 40px"
-                  :src="row.Image"
+                style="width: 40px; height: 40px"
+                :src="row.Image"
               >
-                <div slot="error" class="image-slot"/>
+                <div slot="error" class="image-slot" />
                 <div slot="placeholder" class="image-slot">
                   加载中<span class="dot">...</span>
                 </div>
@@ -624,10 +758,10 @@
         <u-table-column align="center" min-width="150" label="上家ID" prop="GoodsId" show-overflow-tooltip>
           <template v-slot="{row}">
             <span
-                v-if="row.GoodsId"
-                class="copyIcon"
-                @click="copy(row.GoodsId)"
-            ><i class="el-icon-document-copy"/></span>
+              v-if="row.GoodsId"
+              class="copyIcon"
+              @click="copy(row.GoodsId)"
+            ><i class="el-icon-document-copy" /></span>
             <span style="cursor: pointer;color:blue" @click="openUrl(row.Url)">
               {{ row.GoodsId }}
             </span>
@@ -643,20 +777,20 @@
             <p style="white-space: normal">{{ row.CategoryName }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="价格" prop="Price" sortable/>
+        <u-table-column align="center" label="价格" prop="Price" sortable />
         <u-table-column align="center" label="销量" prop="Sales" sortable>
           <template v-slot="{ row }">
             {{ isNaN(row.Sales) ? 0 : row.Sales }}
           </template>
         </u-table-column>
-        <u-table-column align="center" label="发货地" prop="Location"/>
-        <u-table-column align="center" min-width="150" label="来源" prop="Origin" show-overflow-tooltip/>
+        <u-table-column align="center" label="发货地" prop="Location" />
+        <u-table-column align="center" min-width="150" label="来源" prop="Origin" show-overflow-tooltip />
         <u-table-column align="center" min-width="80" label="操作">
           <template slot-scope="scope">
             <el-button
-                size="mini"
-                type="primary"
-                @click="tableDelete(scope.row,scope.$index)"
+              size="mini"
+              type="primary"
+              @click="tableDelete(scope.row,scope.$index)"
             >
               删除
             </el-button>
@@ -671,23 +805,29 @@
     </article>
     <!-- 插件采集弹窗 -->
     <el-dialog
-        v-if="plugVisible"
-        class="plug-dialog"
-        title="插件采集"
-        :visible.sync="plugVisible"
-        width="600px"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      v-if="plugVisible"
+      class="plug-dialog"
+      title="插件采集"
+      :visible.sync="plugVisible"
+      width="600px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <p>1：请先下载插件程序安装至浏览器，方可使用此功能
-        <el-button type="primary" size="mini"
-                   @click="$BaseUtilService.openUrl(`https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220106/2022010616473761d6aca9e310d.docx`)">
+        <el-button
+          type="primary"
+          size="mini"
+          @click="$BaseUtilService.openUrl(`https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220106/2022010616473761d6aca9e310d.docx`)"
+        >
           下载教程
         </el-button>
       </p>
       <p>2：由于推送地址端口号随时生成，重启软件后，请务必重新复制推送地址
-        <el-button type="primary" size="mini"
-                   @click="$BaseUtilService.openUrl(`https://shopeeppxia.oss-cn-shenzhen.aliyuncs.com/desktop/plugin/CollectPligin.zip`)">
+        <el-button
+          type="primary"
+          size="mini"
+          @click="$BaseUtilService.openUrl(`https://shopeeppxia.oss-cn-shenzhen.aliyuncs.com/desktop/plugin/CollectPligin.zip`)"
+        >
           下载插件
         </el-button>
       </p>
@@ -720,8 +860,14 @@
     </el-dialog>
 
     <div class="on_new_dialog">
-      <el-dialog width="1313px" :close-on-click-modal="false" top="0.5vh" :visible.sync="isEditorVisible" :modal="false"
-                 @close="closeEditor">
+      <el-dialog
+        width="1313px"
+        :close-on-click-modal="false"
+        top="0.5vh"
+        :visible.sync="isEditorVisible"
+        :modal="false"
+        @close="closeEditor"
+      >
         <template slot="title">
           <div style="display: flex;align-items: center">
             <div style="margin-right: 25px;">上新编辑</div>
@@ -730,8 +876,12 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="editorSelection"
-                             :is-collect="isCollect"/>
+        <editor-on-new-goods
+          v-if="isEditorVisible"
+          ref="editor_on_new_goods"
+          :mall-table="editorSelection"
+          :is-collect="isCollect"
+        />
       </el-dialog>
     </div>
   </div>
@@ -932,13 +1082,6 @@ export default {
       editorSelection: []
     }
   },
-  watch:{
-    flag(val){
-      if (val){
-        terminateThread()
-      }
-    }
-  },
   computed: {
     keyworBar() {
       return getPlatform(this.baseConfig.keywordConfig)
@@ -998,6 +1141,13 @@ export default {
     //   const supportPlarm = [1, 11, 8, 10, 12, 9]
     //   return supportPlarm.includes(this.currentKeywordPlatform)
     // }
+  },
+  watch: {
+    flag(val) {
+      if (val) {
+        terminateThread()
+      }
+    }
   },
   async mounted() {
     this.commonAttr.shopeeSite = shopeeSite
@@ -1085,7 +1235,9 @@ export default {
       if (!this.multipleSelection.length) return this.$message.error('请选择需要编辑的数据')
       console.log('multipleSelection', this.multipleSelection)
       this.editorSelection = []
-      this.multipleSelection.forEach(item => {
+      // this.multipleSelection.forEach(item => {
+      for (let index = 0; index < this.multipleSelection.length; index++) {
+        const item = this.multipleSelection[index]
         this.editorSelection.push(Object.assign(item, {
           title: item.Title,
           image: item.Image,
@@ -1094,7 +1246,11 @@ export default {
           goods_id: item.GoodsId,
           source: item.Platform
         }))
-      })
+        if (index >= Number(this.end) - 1) { // 止
+          break
+        }
+      }
+      console.log(this.editorSelection)
       this.isEditorVisible = true
       // this.saveGoodsInfo()
     },
@@ -1244,9 +1400,9 @@ export default {
           terminateThread()
           return
         }
-        console.log('getGoodsDeail - param',item)
+        console.log('getGoodsDeail - param', item)
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
-        console.log('getGoodsDeail',res2)
+        console.log('getGoodsDeail', res2)
         if (res2.code !== 200) {
           this.writeLog(`商品ID: ${item.GoodsId} 采集失败: ${res2.data}`, false)
         } else {
@@ -1404,7 +1560,7 @@ export default {
         } else {
           console.log('详情数据', res2.data)
           res = await this.CollectPublicApInstance.setGoodsData(item, res2.data)
-          console.log('CollectPublicApInstance',res)
+          console.log('CollectPublicApInstance', res)
           if (res.code === 200) {
             res.data.operation_type = '收藏成功'
             this.StatusName(item, `收藏成功`, true)
@@ -1414,20 +1570,20 @@ export default {
             })
           } else {
             let errorStr = ''
-            if(res.msg){
+            if (res.msg) {
               errorStr = res.msg
-            }else {
-              errorStr = '收藏失败：'+res.data
+            } else {
+              errorStr = '收藏失败：' + res.data
             }
             this.StatusName(item, `${errorStr}`, false)
             this.failNum++
           }
         }
       } catch (error) {
-        if(res.msg){
+        if (res.msg) {
           error = res.msg
-        }else {
-          error = '收藏失败：'+res.data
+        } else {
+          error = '收藏失败：' + res.data
         }
         this.StatusName(item, `${error}`, false)
         this.failNum++
@@ -1473,8 +1629,8 @@ export default {
       const fData = []
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
-        let oldItem = this.goodsList.find(son=>son.GoodsId === item.GoodsId)
-        if(oldItem){
+        const oldItem = this.goodsList.find(son => son.GoodsId === item.GoodsId)
+        if (oldItem) {
           continue
         }
         item.Sales = Number(item.Sales)
@@ -1604,13 +1760,13 @@ export default {
         return this.$message.error('请选择要删除的选项')
       }
       selectData
-          .map(n => n.__ob__.dep.id)
-          .forEach(n => {
-            tableData.splice(
-                tableData.findIndex(j => j.__ob__.dep.id === n),
-                1
-            )
-          })
+        .map(n => n.__ob__.dep.id)
+        .forEach(n => {
+          tableData.splice(
+            tableData.findIndex(j => j.__ob__.dep.id === n),
+            1
+          )
+        })
       selectData.forEach(row => {
         this.$refs.plTable.toggleRowSelection([
           { row, selected: false }

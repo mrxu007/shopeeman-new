@@ -232,6 +232,7 @@ export default {
               <td>编号</td>
               <td>站点</td>
               <td>店铺名</td>
+              <td>店铺别名</td>
               <td>交易流水号</td>
               <td>银行</td>
               <td>持卡人</td>
@@ -247,6 +248,7 @@ export default {
         str += `<tr><td>${num++}</td>
                     <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
+                    <td>${item.mall_alias_name ? item.mall_alias_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.transaction_id && item.transaction_id + '\t'}</td>
                     <td>${item.bank_name ? item.bank_name : '' + '\t'}</td>
                     <td>${item.bank_account_name ? item.bank_account_name : '' + '\t'}</td>
