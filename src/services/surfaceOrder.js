@@ -170,7 +170,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo,country)
+      const trackInfo = this.checkTrackInfo(orderInfo, country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -204,7 +204,7 @@ export default class {
       console.log(order)
       await this.handleMainFlow(order)
     }
-    this.writeLog('面单同步已完成', true)
+    this.writeLog('操作结束', true)
   }
   // 手动同步
   async handleMainFlow(order) {
@@ -240,7 +240,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo,country)
+      const trackInfo = this.checkTrackInfo(orderInfo, country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -285,20 +285,20 @@ export default class {
     }
   }
   //获取30015物流单号
-  async getForderLogistics(orderId,mallId,country){
+  async getForderLogistics(orderId, mallId, country) {
     const params = {
       order_id: orderId,
       shop_id: mallId
     }
     const res = await this.$shopeemanService.getForderLogistics(country, params)
-    if(res && res.code === 0 && res.data && res.data.list && res.data.list.length){
+    if (res && res.code === 0 && res.data && res.data.list && res.data.list.length) {
       return res.data.list[0].thirdparty_tracking_number
-    }else{
+    } else {
       return ''
     }
   }
   // 检查是否有物流信息
-  async checkTrackInfo(orderInfo,country) {
+  async checkTrackInfo(orderInfo, country) {
     const trackInfo = {}
     trackInfo['orderId'] = orderInfo.order_id
     let trackNo = orderInfo.shipping_traceno
@@ -310,8 +310,8 @@ export default class {
     }
     trackInfo['trackingNo'] = trackNo
     trackInfo['logistics_channel'] = orderInfo.logistics_channel || ''
-    if(orderInfo.logistics_channel == 30015){
-      trackInfo['trackingNo'] = await this.getForderLogistics(orderInfo.order_id,orderInfo.shop_id,country)
+    if (orderInfo.logistics_channel == 30015) {
+      trackInfo['trackingNo'] = await this.getForderLogistics(orderInfo.order_id, orderInfo.shop_id, country)
     }
     return trackInfo
   }
@@ -347,7 +347,7 @@ export default class {
     const logisDefault = this.checkIsAutoApplyTrackingNumber(logisticsChannel)
     if (!logisDefault) {
       // 非默认物流 获取下运输单号
-      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn, `不支持自动申请虾皮运输单号功能`) // 获取shopee运输单号
+      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn, `不支持自动申请虾皮运输单号功能`,logisticsChannel) // 获取shopee运输单号
     }
     try {
       if (country === 'TW') {
@@ -428,7 +428,7 @@ export default class {
         const applyResult = await this.$shopeemanService.handleOutOrder(country, params)
         console.log('applyResult33', applyResult)
       }
-      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn) // 获取shopee运输单号
+      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn, '', logisticsChannel) // 获取shopee运输单号
     } catch (error) {
       console.log(error)
       return {
@@ -457,7 +457,7 @@ export default class {
     }
   }
   // 获取物流单号
-  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType) {
+  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType, logisticsChannel) {
     try {
       let trackNo = ''
       let channelId = ''
@@ -465,21 +465,26 @@ export default class {
         order_id: orderId,
         shop_id: mallId
       }
-      for (let i = 0; i < 3; i++) {
-        const res = await this.$shopeemanService.getDropOff(country, params)
-        if (!res || !res.code === 200 || !res.data) {
-          continue
-        }
-        let third_party_tn = res.data && res.data.list && res.data.list[0] && res.data.list[0].forders[0].third_party_tn || ''
-        if (third_party_tn == null || third_party_tn == '') {
-          third_party_tn = res.data.consignment_no || ''
-        }
-        channelId = res.data && res.data.channel_id || ''
-        trackNo = third_party_tn || ''
-        if (trackNo === '') {
-          continue
-        } else {
-          break
+      if (logisticsChannel && logisticsChannel == 30015) {
+        channelId = logisticsChannel
+        trackNo = await this.getForderLogistics(orderId, mallId, country)
+      } else {
+        for (let i = 0; i < 3; i++) {
+          const res = await this.$shopeemanService.getDropOff(country, params)
+          if (!res || !res.code === 200 || !res.data) {
+            continue
+          }
+          let third_party_tn = res.data && res.data.list && res.data.list[0] && res.data.list[0].forders[0].third_party_tn || ''
+          if (third_party_tn == null || third_party_tn == '') {
+            third_party_tn = res.data.consignment_no || ''
+          }
+          channelId = res.data && res.data.channel_id || ''
+          trackNo = third_party_tn || ''
+          if (trackNo === '') {
+            continue
+          } else {
+            break
+          }
         }
       }
       if (trackNo) {
@@ -630,18 +635,18 @@ export default class {
       // 1、获取面单类型
       // const fileType = order.logistics_channel == '30012' ? 'THERMAL_PDF' : 'C2C_SHIPPING_LABEL_HTML'
       let fileType = 'C2C_SHIPPING_LABEL_HTML'
-      switch(Number(order.logistics_channel)){
-        case  30012:
+      switch (Number(order.logistics_channel)) {
+        case 30012:
           fileType = 'THERMAL_PDF'
           break
         case 30014:
-          case 30008:
-            case 30015:
-            fileType = 'NORMAL_PDF'
-            break
+        case 30008:
+        case 30015:
+          fileType = 'NORMAL_PDF'
+          break
         default:
           fileType = 'C2C_SHIPPING_LABEL_HTML'
-        break
+          break
       }
       // 2、获取包裹号
       const packParams = [{
@@ -659,10 +664,9 @@ export default class {
       let schemaType = null
       if (order.logistics_channel == '30012') {
         schemaType = 3
-      }else if(order.logistics_channel == '30014' || order.logistics_channel == '30008' || order.logistics_channel == '30015'){
+      } else if (order.logistics_channel == '30014' || order.logistics_channel == '30008' || order.logistics_channel == '30015') {
         schemaType = 13
-      } 
-      else {
+      } else {
         schemaType = await this.getSdConfig(order.shop_id, country)
         console.log(schemaType, 'schemaType')
       }
@@ -677,7 +681,7 @@ export default class {
         'region_id': country,
         'shop_id': Number(order.shop_id)
       }]
-      if(order.logistics_channel == '30014' || order.logistics_channel == '30008' || order.logistics_channel == '30015'){
+      if (order.logistics_channel == '30014' || order.logistics_channel == '30008' || order.logistics_channel == '30015') {
         packList[0]['channel_id'] = order.logistics_channel
       }
       const res4 = await this.createSdJobsMultiShop(packList, order.shop_id, country, fileType, '寄件单' + order.actual_carrier, schemaType)
