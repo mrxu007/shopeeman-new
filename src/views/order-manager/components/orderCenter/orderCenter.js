@@ -477,6 +477,22 @@ const site_mall = [{
   'ShipName': '蝦皮宅配'
 },
 {
+  'Country': '台湾站',
+  'CountryCode': 'TW',
+  'IsDeafult': true,
+  'IsSelected': false,
+  'ShipId': '30014',
+  'ShipName': 'OK Mart'
+},
+{
+  'Country': '台湾站',
+  'CountryCode': 'TW',
+  'IsDeafult': true,
+  'IsSelected': false,
+  'ShipId': '30015',
+  'ShipName': '蝦皮店到店'
+},
+{
   'Country': '马来站',
   'CountryCode': 'MY',
   'IsDeafult': true,

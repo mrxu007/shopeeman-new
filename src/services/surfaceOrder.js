@@ -4,7 +4,7 @@ import commodityService from './commodity-service'
 import AppConfig from './application-config'
 import cheerio from 'cheerio'
 import {
-  randomWord
+  randomWord,sleep
 } from '../util/util'
 import {
   site_mall
@@ -297,22 +297,24 @@ export default class {
       return ''
     }
   }
+  async getDropOff(orderId, mallId, country) {
+    const params = {
+      order_id: orderId,
+      shop_id: mallId
+    }
+    const res = await this.$shopeemanService.getDropOff(country, params)
+    let trackNo = res.data && res.data.list && res.data.list[0] && res.data.list[0].forders && res.data.list[0].forders[0] && res.data.list[0].forders[0].third_party_tn || null
+    if (!trackNo) {
+      trackNo = res.data && res.data.consignment_no || ''
+    }
+    return trackNo
+  }
   // 检查是否有物流信息
   async checkTrackInfo(orderInfo, country) {
     const trackInfo = {}
     trackInfo['orderId'] = orderInfo.order_id
-    let trackNo = orderInfo.shipping_traceno
-    if (!trackNo) {
-      const logisticsExtra = JSON.parse(orderInfo.logistics_extra_data)
-      if (logisticsExtra && logisticsExtra.sls_info && logisticsExtra.sls_info.last_mile_tracking_number) {
-        trackNo = logisticsExtra.sls_info.last_mile_tracking_number
-      }
-    }
-    trackInfo['trackingNo'] = trackNo
     trackInfo['logistics_channel'] = orderInfo.logistics_channel || ''
-    if (orderInfo.logistics_channel == 30015) {
-      trackInfo['trackingNo'] = await this.getForderLogistics(orderInfo.order_id, orderInfo.shop_id, country)
-    }
+    trackInfo['trackingNo'] = await this.getDropOff(orderInfo.order_id, orderInfo.shop_id, country)
     return trackInfo
   }
   // 判断默认物流
@@ -347,7 +349,7 @@ export default class {
     const logisDefault = this.checkIsAutoApplyTrackingNumber(logisticsChannel)
     if (!logisDefault) {
       // 非默认物流 获取下运输单号
-      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn, `不支持自动申请虾皮运输单号功能`,logisticsChannel) // 获取shopee运输单号
+      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn, `不支持自动申请虾皮运输单号功能`, logisticsChannel) // 获取shopee运输单号
     }
     try {
       if (country === 'TW') {
@@ -384,8 +386,6 @@ export default class {
           }
           const pickTimeResult = await this.$shopeemanService.getPickupTimeSlots(country, para)
           const pickupTime = pickTimeResult.code === 200 && pickTimeResult.data.time_slots && pickTimeResult.data.time_slots[0].value || null
-          console.log(pickTimeResult, pickupTime, 'pickTimeResult')
-          console.log('ShopInfoResult', ShopInfoResult)
           if (!pickupTime) {
             return {
               code: 50003,
@@ -443,11 +443,6 @@ export default class {
       trackingNo: trackNo,
       logisticsId: logisticsId
     }]
-    const params = {
-      sysMallId: sysMallId,
-      mallId: mallId,
-      logisticsInfos: logisticsInfos
-    }
     const res = await this.$commodityService.saveLogisticsInfo(sysMallId, mallId, logisticsInfos)
     const uploadInfo = JSON.parse(res)
     if (uploadInfo.code === 200) {
@@ -460,31 +455,13 @@ export default class {
   async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType, logisticsChannel) {
     try {
       let trackNo = ''
-      let channelId = ''
-      const params = {
-        order_id: orderId,
-        shop_id: mallId
-      }
-      if (logisticsChannel && logisticsChannel == 30015) {
-        channelId = logisticsChannel
-        trackNo = await this.getForderLogistics(orderId, mallId, country)
-      } else {
-        for (let i = 0; i < 3; i++) {
-          const res = await this.$shopeemanService.getDropOff(country, params)
-          if (!res || !res.code === 200 || !res.data) {
-            continue
-          }
-          let third_party_tn = res.data && res.data.list && res.data.list[0] && res.data.list[0].forders[0].third_party_tn || ''
-          if (third_party_tn == null || third_party_tn == '') {
-            third_party_tn = res.data.consignment_no || ''
-          }
-          channelId = res.data && res.data.channel_id || ''
-          trackNo = third_party_tn || ''
-          if (trackNo === '') {
-            continue
-          } else {
-            break
-          }
+      let channelId = logisticsChannel
+      for (let i = 0; i < 3; i++) {
+        trackNo = await this.getDropOff(orderId, mallId, country)
+        if (trackNo === '') {
+          continue
+        } else {
+          break
         }
       }
       if (trackNo) {
@@ -562,6 +539,7 @@ export default class {
       this.writeLog(`订单【${order.order_sn}】创建打印任务成功`, true)
       const jobId = res4.data.list[0].job_id
       // 5、下载面单信息
+
       const downRes = await this.downloadSdJob(order.shop_id, jobId, country)
       if (downRes.code !== 200) {
         this.writeLog(`订单【${order.order_sn}】同步面单失败，${downRes.message}`, false)
@@ -640,7 +618,6 @@ export default class {
           fileType = 'THERMAL_PDF'
           break
         case 30014:
-        case 30008:
         case 30015:
           fileType = 'NORMAL_PDF'
           break
@@ -664,7 +641,7 @@ export default class {
       let schemaType = null
       if (order.logistics_channel == '30012') {
         schemaType = 3
-      } else if (order.logistics_channel == '30014' || order.logistics_channel == '30008' || order.logistics_channel == '30015') {
+      } else if (order.logistics_channel == '30014'  || order.logistics_channel == '30015') {
         schemaType = 13
       } else {
         schemaType = await this.getSdConfig(order.shop_id, country)
@@ -681,7 +658,7 @@ export default class {
         'region_id': country,
         'shop_id': Number(order.shop_id)
       }]
-      if (order.logistics_channel == '30014' || order.logistics_channel == '30008' || order.logistics_channel == '30015') {
+      if (order.logistics_channel == '30014'  || order.logistics_channel == '30015') {
         packList[0]['channel_id'] = order.logistics_channel
       }
       const res4 = await this.createSdJobsMultiShop(packList, order.shop_id, country, fileType, '寄件单' + order.actual_carrier, schemaType)
@@ -932,6 +909,7 @@ export default class {
       shop_id: shop_id
     }
     const res = await this.$shopeemanService.downloadSdJob(country, params)
+    console.log(res, "111111111111111111")
     try {
       const data = res && JSON.parse(res.data)
       if (data && data.code === 0) {
