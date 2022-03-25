@@ -512,7 +512,7 @@ export default {
               BarCodeHeight: 50
             },
             SkuList: [orderInfo.goodsInfo[0].variation_sku.replace('=|=', ''), orderInfo.goodsInfo[0].goods_count],
-            IsNeedCut: !!(orderInfo.logistics_id == 30007 || orderInfo.logistics_id == 30008),
+            IsNeedCut: !!(orderInfo.logistics_id == 30007 || orderInfo.logistics_id == 30008 || orderInfo.logistics_id == 30015),
             IsUseA4Size: false,
             PdfWidth: 320,
             PdfHeight: 425,
