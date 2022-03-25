@@ -166,7 +166,7 @@
         <u-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="120" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.logistics_name }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150">
+        <u-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.tracking_no }}</template>
         </u-table-column>
         <u-table-column align="center" prop="remark" label="本地备注" min-width="120" show-overflow-tooltip>

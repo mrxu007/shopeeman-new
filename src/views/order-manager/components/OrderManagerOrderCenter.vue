@@ -3579,15 +3579,15 @@ export default {
       try {
         this.tableColumnList.forEach(item => {
           const itemShow = this.columnConfigList.find(son => item.name === (son && son.column_header || ''))
-          let width =itemShow && Number(itemShow.width) || item.width
+          const width = itemShow && Number(itemShow.width) || item.width
           if (item.name === '订单编号') {
-            list[0] = Object.assign(item, itemShow, { width:width })
+            list[0] = Object.assign(item, itemShow, { width: width })
           } else if (item.name === '操作') {
-            list[1] = Object.assign(item, itemShow, { width:width })
+            list[1] = Object.assign(item, itemShow, { width: width })
           } else if (itemShow && itemShow.sort_number && itemShow.sort_number > 1) {
-            list[itemShow.sort_number] = (Object.assign(item, itemShow, { width:width }))
+            list[itemShow.sort_number] = (Object.assign(item, itemShow, { width: width }))
           } else {
-            list1.push(Object.assign(item, { is_show: 1 }, { width:width }))
+            list1.push(Object.assign(item, { is_show: 1 }, { width: width }))
           }
         })
         for (let i = 0; i < list.length; i++) {
