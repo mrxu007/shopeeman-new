@@ -291,7 +291,7 @@ export default class {
       shop_id: mallId
     }
     const res = await this.$shopeemanService.getForderLogistics(country, params)
-    if (res && res.code === 0 && res.data && res.data.list && res.data.list.length) {
+    if (res && res.code === 200 && res.data && res.data.list && res.data.list.length) {
       return res.data.list[0].thirdparty_tracking_number
     } else {
       return ''
