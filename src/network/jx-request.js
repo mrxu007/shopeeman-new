@@ -272,6 +272,8 @@ export default {
   getNotHaveLogisticsInformations: (data) => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations', { params: data }), // 获取仓库需要同步面单的订单
 
   // 订单详情删除--物流单号
-  deleteOrderTrackingNumber: (data) => AppRequest.post('/order/deleteOrderTrackingNumber', data)
+  deleteOrderTrackingNumber: (data) => AppRequest.post('/order/deleteOrderTrackingNumber', data),
+  // 二次销售上下架商品
+  operationReturnPackage: (data) => AppRequest.post('/overseasTansferPackage/operationReturnPackage', data)
 
 }

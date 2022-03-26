@@ -403,7 +403,7 @@ export default {
             for (const good of filterArr) {
               const skuList = await this.searchProductDetail(good.itemid, good.platform_mall_id, good.country)
               if (skuList.length) {
-                const result = this.setModelActive(skuList, mall.platform_mall_id, mall.country, good.itemid, discount_id, mall.platform_mall_name)
+                const result = await this.setModelActive(skuList, mall.platform_mall_id, mall.country, good.itemid, discount_id, mall.platform_mall_name)
                 if (result) {
                   const index = this.editTableData.findIndex((n) => n.itemid === good.itemid)
                   const indexC = this.editTableDataCopy.findIndex((n) => n.itemid === good.itemid)
@@ -433,6 +433,7 @@ export default {
           this.btnLoading = false
         }
       }
+      this.$refs.Logs.writeLog('活动创建结束', true)
       // this.btnLoading = false
     },
     async setModelActive(skuList, mallId, country, goodsId, discount_id, mallName) {

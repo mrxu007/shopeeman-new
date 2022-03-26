@@ -71,19 +71,19 @@ export default class {
       return this.writeLog(`【自动同步物流-面单】，终止-${error}`, false)
     }
   }
-  //仓库中面单
-  async autoStartStore(){
+  // 仓库中面单
+  async autoStartStore() {
     this.isAuto = true
     this.activeType = 'auto'
     try {
       this.isApplyForceFaceInfo = false
       const res = await this.$api.getNotHaveLogisticsInformations()
-      console.log(res,"0000000")
+      console.log(res, '0000000')
       if (res.data.code === 200) {
         const arrList = res.data.data || []
-        let listResult = []
-        arrList.forEach(item=>{
-          item.orders.forEach(sub=>{
+        const listResult = []
+        arrList.forEach(item => {
+          item.orders.forEach(sub => {
             sub.platform_mall_id = item.platform_mall_id
             listResult.push(sub)
           })
@@ -105,19 +105,19 @@ export default class {
       return this.writeLog(`【自动仓库中没有面单】，终止-${error}`, false)
     }
   }
-  //同步订单中没有面单
-  async autoStartNoLogi(){
+  // 同步订单中没有面单
+  async autoStartNoLogi() {
     this.isAuto = true
     this.activeType = 'auto'
     try {
       this.isApplyForceFaceInfo = false
       const res = await this.$api.getNoLogisticsOrders()
-      console.log(res,"0000000")
+      console.log(res, '0000000')
       if (res.data.code === 200) {
         const arrList = res.data.data || []
-        let listResult = []
-        arrList.forEach(item=>{
-          item.orders.forEach(sub=>{
+        const listResult = []
+        arrList.forEach(item => {
+          item.orders.forEach(sub => {
             sub.platform_mall_id = item.platform_mall_id
             listResult.push(sub)
           })
@@ -451,7 +451,7 @@ export default class {
   }
   // 获取物流单号
   async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType) {
-    console.log(orderId, mallId, country, sysMallId, orderSn, warningType,'88888888')
+    console.log(orderId, mallId, country, sysMallId, orderSn, warningType, '88888888')
     try {
       let trackNo = ''
       let channelId = ''
@@ -722,7 +722,7 @@ export default class {
       }
       return this.getQuanJiaFaceInfo(trackingNo, faceData, order.shop_id)
     }
-    let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
+    const faceData = await this.downloadSdJob(order.shop_id, jobId, country)
     // console.log(faceData, "faceData")
     return faceData
   }
@@ -939,60 +939,60 @@ export default class {
         data: '面单大小或平台物流获取异常，请重新同步！'
       }
     }
-      let cutBase64 = base64
-      // cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
-      if (country == 'VN' && trackName == 'J&T Exoress' && schemaType == 2) {
-        const cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
-        if (!(cutRes.code == 200 && cutRes.data)) {
-          return {
-            code: 50001,
-            data: cutRes.msg
-          }
-        }
-        cutBase64 = cutRes.code == 200 && cutRes.data || base64
-      } else if (country == 'VN' && trackName == 'VNPost Nhanh') {
-        const cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 425, -420)
-        if (!(cutRes.code == 200 && cutRes.data)) {
-          return {
-            code: 50001,
-            data: cutRes.msg
-          }
-        }
-        cutBase64 = cutRes.code == 200 && cutRes.data || base64
-      } else if (country == 'ID') {
-        const cutRes = await this.cutFaseSize(base64, orderSn, true, 425, 595, 0)
-        if (!(cutRes.code == 200 && cutRes.data)) {
-          return {
-            code: 50001,
-            data: cutRes.msg
-          }
-        }
-        cutBase64 = cutRes.code == 200 && cutRes.data || base64
-      }
-      // console.log(orderSn, logisticsNumber, "check-check")
-      // 检测面单
-      const checkInfo = await window['BaseUtilBridgeService'].checkFaceInfo(cutBase64, orderSn, logisticsNumber)
-      const checkInfoObj = JSON.parse(checkInfo)
-      console.log(checkInfoObj, 'blobToDataURL')
-      if (checkInfoObj.code === 200) {
-        return {
-          code: 200,
-          data: cutBase64
-        }
-      } else {
+    let cutBase64 = base64
+    // cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
+    if (country == 'VN' && trackName == 'J&T Exoress' && schemaType == 2) {
+      const cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
+      if (!(cutRes.code == 200 && cutRes.data)) {
         return {
           code: 50001,
-          data: `订单【${orderSn}】获取面单异常, ${checkInfoObj.msg}`
+          data: cutRes.msg
         }
-        // if (country == 'VN') {
-        //   return await this.GetFirstMileFaceInfo(order.order_id, order.shop_id)
-        // } else {
-        //   return {
-        //     code: 50001,
-        //     data: `订单【${orderSn}】获取面单异常, ${checkInfoObj.msg}`
-        //   }
-        // }
       }
+      cutBase64 = cutRes.code == 200 && cutRes.data || base64
+    } else if (country == 'VN' && trackName == 'VNPost Nhanh') {
+      const cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 425, -420)
+      if (!(cutRes.code == 200 && cutRes.data)) {
+        return {
+          code: 50001,
+          data: cutRes.msg
+        }
+      }
+      cutBase64 = cutRes.code == 200 && cutRes.data || base64
+    } else if (country == 'ID') {
+      const cutRes = await this.cutFaseSize(base64, orderSn, true, 425, 595, 0)
+      if (!(cutRes.code == 200 && cutRes.data)) {
+        return {
+          code: 50001,
+          data: cutRes.msg
+        }
+      }
+      cutBase64 = cutRes.code == 200 && cutRes.data || base64
+    }
+    // console.log(orderSn, logisticsNumber, "check-check")
+    // 检测面单
+    const checkInfo = await window['BaseUtilBridgeService'].checkFaceInfo(cutBase64, orderSn, logisticsNumber)
+    const checkInfoObj = JSON.parse(checkInfo)
+    console.log(checkInfoObj, 'blobToDataURL')
+    if (checkInfoObj.code === 200) {
+      return {
+        code: 200,
+        data: cutBase64
+      }
+    } else {
+      return {
+        code: 50001,
+        data: `订单【${orderSn}】获取面单异常, ${checkInfoObj.msg}`
+      }
+      // if (country == 'VN') {
+      //   return await this.GetFirstMileFaceInfo(order.order_id, order.shop_id)
+      // } else {
+      //   return {
+      //     code: 50001,
+      //     data: `订单【${orderSn}】获取面单异常, ${checkInfoObj.msg}`
+      //   }
+      // }
+    }
   }
   // 处理越南首公里面单
   // async GetFirstMileFaceInfo(orderId, shopId) {
@@ -1033,6 +1033,86 @@ export default class {
     a.readAsDataURL(blob)
     // return a;
   }
+  // -------------------下载自定义拣货单------------------
+  // async getAutoPickListData(orderArr) {
+  //   try {
+  //     const orderGrop = this.dealWithMallOrderGroup(orderArr)
+  //     // console.log("orderGrop", orderGrop)
+  //     const wayBillType = 'NORMAL'
+  //     for (const key in orderGrop) {
+  //       const orderList = orderGrop[key]
+  //       const country = orderList[0].country
+  //       const mallId = key
+  //       const mallName = orderGrop[key][0].mall_info.platform_mall_name
+  //       // console.log("orderList", orderList, country, mallId)
+  //       for (let i = 0; i < orderList.length; i = i + 50) {
+  //         const orderFifty = orderList.slice(i, i + 50)
+  //         const orderInfolist = []
+  //         orderFifty.forEach(item => {
+  //           if (item.order_id != 0) {
+  //             const obj = {
+  //               'order_id': Number(item.order_id),
+  //               'shop_id': Number(mallId),
+  //               'region_id': country
+  //             }
+  //             orderInfolist.push(obj)
+  //           }
+  //         })
+  //         console.log(orderInfolist, 'orderInfolist')
+  //         const packInfo = await this.checkPackagePrintWaybillMultiShop(orderInfolist, mallId, country)
+  //         console.log(packInfo, 'packInfo')
+  //         if (packInfo.code === 200) {
+  //           if (!packInfo.data.list.length) {
+  //             this.writeLog(`店铺【${mallName}】当前数据没有可下载的拣货单`, false)
+  //             continue
+  //           } else {
+  //             const packNums = packInfo.data.list
+  //             const packList = []
+  //             packNums.forEach(item => {
+  //               const par = {
+  //                 'order_id': Number(item.order_id),
+  //                 'package_number': item.package_number,
+  //                 'region_id': country,
+  //                 'shop_id': Number(mallId)
+  //               }
+  //               packList.push(par)
+  //             })
+  //             debugger
+  //             const creatInfo = await this.createSdJobsMultiShop(packList, mallId, country, wayBillType + '_PDF', 'PickList', 0)
+  //             // console.log(creatInfo)
+  //             if (!(creatInfo.code === 200 && creatInfo.data.list && creatInfo.data.list.length && creatInfo.data.list[0].job_id)) {
+  //               this.writeLog(`创建拣货单失败，${creatInfo.data}`, false)
+  //             } else {
+  //               const jobId = creatInfo.data.list[0].job_id
+  //               const base64 = await this.downloadSdJob(mallId, jobId, country)
+  //               console.log(base64.length, 'base64')
+  //               if (!base64 || base64.length < 500) {
+  //                 this.writeLog(`店铺【${mallName}】下载拣货单失败，稍后请重试`, false)
+  //                 continue
+  //               }
+  //               const res = await window['BaseUtilBridgeService'].downloadPickForm(base64, mallName)
+  //               const resObj = JSON.parse(res)
+  //               if (resObj.code === 200) {
+  //                 this.writeLog(`店铺【${mallName}】下载拣货单成功`, true)
+  //               } else {
+  //                 this.writeLog(`店铺【${mallName}】下载拣货单失败，${resObj.msg}`, false)
+  //               }
+  //             }
+  //           }
+  //         } else if (packInfo.code === 403) {
+  //           this.writeLog(`店铺【${mallName}】下载拣货单失败,店铺未登录`, false)
+  //         } else {
+  //           this.writeLog(`店铺【${mallName}】下载拣货单失败`, false)
+  //         }
+  //         // console.log("packInfo", packInfo)
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log(error, 'error')
+  //   }
+  //   this.writeLog(`下载拣货单完成，请前往桌面【平台拣货单】文件夹查看`, true)
+  // }
+
   // -------------------------------------------------------下载拣货单--------------------------------//
 
   async getPickListData(orderArr) {

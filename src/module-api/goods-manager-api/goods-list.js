@@ -233,19 +233,44 @@ export default class GoodsList {
     params['search_type'] = 'item_id'
     params['keyword'] = val.id
     params['mallId'] = val.platform_mall_id
-    params['promotion_status'] = 'ongoing'
+    // params['promotion_status'] = 'ongoing'
     try {
       const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/discount/standard_search/?', params)
       const jsonData = this.isJsonString(res)
       if (jsonData.status === 200) {
         const data = this.isJsonString(jsonData.data)
-        return { code: 200, data: data.data }
+        // 找到当前进行中的活动
+        const query = {}
+        query['mallId'] = val.platform_mall_id
+        query['discount_id_list'] = data.data.hits.map(x => { return x.promotionid })
+        query['offset'] = 0
+        query['limit'] = 2
+        query['discount_type'] = 'all'
+        const fil_res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/discount/get_by_discountids/?', query)
+        const jsonFilterData = this.isJsonString(fil_res)
+        if (jsonFilterData.status === 200) {
+          const fileDate = this.isJsonString(jsonFilterData.data).data
+          const curTime = new Date().getTime()
+          const fil_res_data = fileDate.discount_list.filter(el => { if ((el.start_time * 1000) < curTime && (el.end_time * 1000) > curTime) return el })
+          return { code: 200, data: fil_res_data }
+        } else {
+          return { code: 201, data: jsonData.statusText }
+        }
       }
       return { code: 201, data: jsonData.statusText }
     } catch (error) {
       return { code: -2, data: `折扣活动异常： ${error}` }
     }
   }
+  // async getfilterMallDiscountID(val) {
+  //   const query = {}
+  //   query['mallId'] = val.platform_mall_id
+  //   query['discount_id_list'] = val.discount_id_list // data.data.hits.map(x => { return x.promotionid })
+  //   query['offset'] = 0
+  //   query['limit'] = 10
+  //   query['discount_type'] = 'all'
+  //   const filres = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/discount/get_by_discountids/?', query)
+  // }
   // 通过id获取类目信息
   async getCategoryName(country, categoryId, isParent, tableType) {
     try {
@@ -304,7 +329,7 @@ export default class GoodsList {
   // 未输入条件时查询
 
   async getMpskuList(val) {
-    const { mItem, pageSize, listType, listOrderType ,cursor} = val
+    const { mItem, pageSize, listType, listOrderType, cursor } = val
     try {
       const params = {
         page_number: mItem.pageNumber,
@@ -320,7 +345,7 @@ export default class GoodsList {
       if (cursor) {
         params['cursor'] = cursor
       }
-      console.log('get_mpsku_list' , params)
+      console.log('get_mpsku_list', params)
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/v3/mpsku/get_mpsku_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})
       const jsonData = this.isJsonString(res)
       console.log(jsonData)

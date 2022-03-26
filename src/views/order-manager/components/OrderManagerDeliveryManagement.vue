@@ -21,6 +21,9 @@
               <el-button size="mini" type="primary" class="btnWidth" @click="downTWface">批量打印台湾虚拟面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="downLoadPickList">批量下载拣货单</el-button>
             </el-row>
+            <!-- <el-row class="row-style">
+              <el-button size="mini" type="primary" class="btnWidth" @click="downLoadPickListAuto">批量下载自定义拣货单</el-button>
+            </el-row> -->
           </div>
         </div>
       </div>
@@ -71,7 +74,7 @@
                   <el-option label="未下载" value="2" />
                 </el-select>
               </div>
-               <!-- <div class="tool-item mar-right">
+              <!-- <div class="tool-item mar-right">
                 <span>截止时间：</span>
                 <el-date-picker
                   v-model="shipByDate"
@@ -116,7 +119,7 @@
               <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p> -->
             </el-row>
             <el-row class="row-style">
-              <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)" style="margin-left: 30px;">搜索</el-button>
+              <el-button size="mini" type="primary" class="mar-right" style="margin-left: 30px;" @click="getOrderList(1)">搜索</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
               <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
@@ -267,10 +270,10 @@ export default {
   components: {
     storeChoose
   },
-  data () {
+  data() {
     return {
       pickerOptions: {
-        disabledDate (time) {
+        disabledDate(time) {
           return time.getTime() > Date.now()
         }
       },
@@ -282,7 +285,7 @@ export default {
         orderSn: '', // 订单号
         isPrint: '', // 是否下载面单
         hasTrackingNo: '2', // 是否申请物流单号
-        originalTrackingNumber: ''//采购物流单号
+        originalTrackingNumber: ''// 采购物流单号
       },
       orderStatusList: orderStatusList, // 订单状态
       trackStatus: ['', '已申请', '未申请'],
@@ -302,11 +305,11 @@ export default {
       localRamark: '', // 本地备注
       activeRemarkID: '', // 本地备注
       orderRemark: '', // 本地备注
-      isDownloadOriginFace711: false,//711原始面单
-      isDownloadOriginFaceQJ: false,//全家原始面单
+      isDownloadOriginFace711: false, // 711原始面单
+      isDownloadOriginFaceQJ: false // 全家原始面单
     }
   },
-  mounted () {
+  mounted() {
     this.createTime = creatDate(15)
     setTimeout(() => {
       this.getOrderList()
@@ -314,7 +317,7 @@ export default {
   },
   methods: {
     // 标记面单已下载
-    async updateOrderPrintStatus (array) {
+    async updateOrderPrintStatus(array) {
       const mainOrderSns = []
       array.forEach(item => {
         mainOrderSns.push(item.MainOrderNo)
@@ -333,7 +336,7 @@ export default {
         })
       }
     },
-    changeTime (val, key, subKey) {
+    changeTime(val, key, subKey) {
       const days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
       if (days > 93) {
         if (subKey) {
@@ -345,7 +348,7 @@ export default {
       }
     },
     // 打印台湾虚拟面单
-    async downTWface () {
+    async downTWface() {
       try {
         const filterArr = this.multipleSelection.filter((n) => n.country == 'TW')
         if (!filterArr.length) {
@@ -375,7 +378,7 @@ export default {
       }
     },
     // 打印面单信息
-    batnchDownLoad (arrList, type) {
+    batnchDownLoad(arrList, type) {
       if (!arrList.length) {
         return this.$message.warning('请选择要操作的数据！')
       }
@@ -405,7 +408,7 @@ export default {
           })
       }
     },
-    async batchPrintOrderSurface (arrList, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
+    async batchPrintOrderSurface(arrList, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
       let country = ''
       const countryId = {}
       let mainOrders = ''
@@ -444,7 +447,7 @@ export default {
       }
     },
     // 打印面单信息
-    async downFace (arrList, OrderList, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
+    async downFace(arrList, OrderList, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       try {
@@ -557,7 +560,7 @@ export default {
         }
         // 3、----------------htmlToPdf
         console.log('333', JSON.stringify(ConvertFaceInfoModel))
-        const convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false,this.isDownloadOriginFace711,this.isDownloadOriginFaceQJ)
+        const convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false, this.isDownloadOriginFace711, this.isDownloadOriginFaceQJ)
         // const convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
         const convertResObj = convertRes && JSON.parse(convertRes)
         console.log(convertResObj, 'convertFaceInfoModel')
@@ -602,7 +605,7 @@ export default {
       }
     },
     // 同步单个面单信息
-    async syncFaceDataSingle (row) {
+    async syncFaceDataSingle(row) {
       // 同步单个，强制开启申请面单
       // if (row.hasLogistics == '1' && row.tracking_no != '') {
       //   return this.$message.warning('订单面单已存在，无需再同步！')
@@ -610,7 +613,7 @@ export default {
       this.syncSurface([row], true)
     },
     // 同步面单信息
-    async syncSurfaceBefore () {
+    async syncSurfaceBefore() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
@@ -647,7 +650,7 @@ export default {
       }
     },
     // 同步面单信息
-    async syncSurface (syncList, isApplyForceFaceInfo) {
+    async syncSurface(syncList, isApplyForceFaceInfo) {
       this.showConsole = false
       if (!syncList.length) {
         this.$refs.Logs.writeLog('没有要同步的订单！', true)
@@ -658,17 +661,28 @@ export default {
       service.handleStart(syncList, isApplyForceFaceInfo)
     },
     // 下载拣货单
-    async downLoadPickList () {
+    async downLoadPickList() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
       this.showConsole = false
       this.$refs.Logs.writeLog('下载拣货单开始，请耐心等待！', true)
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
+      debugger
       service.getPickListData(this.multipleSelection)
     },
+    // 下载自定义拣货单
+    // async downLoadPickListAuto() {
+    //   if (!this.multipleSelection.length) {
+    //     return this.$message.warning('请先选择数据！')
+    //   }
+    //   this.showConsole = false
+    //   this.$refs.Logs.writeLog('下载拣货单开始，请耐心等待！', true)
+    //   const service = new surFaceService(this, this.$refs.Logs.writeLog)
+    //   service.getAutoPickListData(this.multipleSelection)
+    // },
     // 获取导出数据
-    async getExportData () {
+    async getExportData() {
       if (this.multipleSelection.length) {
         this.tableToExcel([this.multipleSelection])
       } else {
@@ -690,7 +704,7 @@ export default {
         let exportData = []
         let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
         while (dataFlag && dataFlag.length) {
-          dataFlag.forEach(async (item) => {
+          dataFlag.forEach(async(item) => {
             item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
           })
           exportData = exportData.concat(dataFlag)
@@ -717,7 +731,7 @@ export default {
       }
     },
     // 导出
-    tableToExcel (exportData) {
+    tableToExcel(exportData) {
       let num = 1
       let str = `<tr>
             <td>编号</td>
@@ -768,7 +782,7 @@ export default {
       exportExcelDataCommon('发货管理订单数据', str)
     },
     // 修改单个备注
-    async changeRemark (id, index) {
+    async changeRemark(id, index) {
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
       if (res.data.code == 200) {
         this.$message.success('设置备注成功')
@@ -779,24 +793,24 @@ export default {
       this.$message.error('设置备注失败')
       this.activeRemarkID = ''
     },
-    editRemark (index, activeRemarkID) {
+    editRemark(index, activeRemarkID) {
       this.activeRemarkID = activeRemarkID
       this.orderRemark = this.tableData[index].remark
     },
-    openBefore () {
+    openBefore() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择需要备注的商品！')
       }
       this.localRamarkVisible = true
     },
     // 批量添加本地备注
-    async batchSetRemark () {
+    async batchSetRemark() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择需要标记的商品！')
       }
       this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
-      this.multipleSelection.forEach(async (item) => {
+      this.multipleSelection.forEach(async(item) => {
         const params = {
           id: item.id,
           remark: this.localRamark
@@ -814,7 +828,7 @@ export default {
       this.getOrderList()
     },
     // 处理订单编号
-    handleKey (key) {
+    handleKey(key) {
       return key
         .split('\n')
         .map((item) => {
@@ -825,13 +839,13 @@ export default {
         })
     },
     // 查看商品详情
-    openGoodsDetail (row) {
+    openGoodsDetail(row) {
       this.clickRow = row
       this.goodsList = row.goodsInfo
       this.goodsListVisible = true
     },
     // 关闭弹窗
-    closeDialog () {
+    closeDialog() {
       this.clickRow = {}
       this.goodsList = []
       this.goodsSearchVisible = false
@@ -840,7 +854,7 @@ export default {
       this.localRamarkVisible = false
     },
     // 获取列表
-    async getOrderList (page, goodsOrderSnStr) {
+    async getOrderList(page, goodsOrderSnStr) {
       try {
         let sysMallId = ''
         this.selectMallList.forEach((item, index) => {
@@ -879,7 +893,7 @@ export default {
         this.tableLoading = false
       }
     },
-    async joinLink (row, goodsId) {
+    async joinLink(row, goodsId) {
       let url = ''
       if (row.mall_info && row.mall_info.platform_mall_id) {
         const params = {
@@ -891,7 +905,7 @@ export default {
       return url
     },
     // 打开外部窗口
-    async openUrl (data, goodsId, type) {
+    async openUrl(data, goodsId, type) {
       let url = data
       if (type === 'product') {
         const params = {
@@ -904,7 +918,7 @@ export default {
       this.$BaseUtilService.openUrl(url)
     },
     // 打开订单页面
-    viewDetails (type, id, shopId) {
+    viewDetails(type, id, shopId) {
       const reqStr = {
         type: type,
         shopId: shopId,
@@ -912,24 +926,24 @@ export default {
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
-    changeMallList (val) {
+    changeMallList(val) {
       this.selectMallList = val.mallList
     },
-    handleCurrentChange (val) {
+    handleCurrentChange(val) {
       this.currentPage = val
       this.getOrderList()
     },
-    handleSizeChange (size) {
+    handleSizeChange(size) {
       this.currentPage = 1
       this.pageSize = size
       this.getOrderList()
     },
     //   表格选择
-    handleSelectionChange (val) {
+    handleSelectionChange(val) {
       this.multipleSelection = val
     },
     // 点击复制
-    copyItem (attr) {
+    copyItem(attr) {
       const target = document.createElement('div')
       target.id = 'tempTarget'
       target.style.opacity = '0'
