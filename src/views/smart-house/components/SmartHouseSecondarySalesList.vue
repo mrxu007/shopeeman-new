@@ -134,8 +134,29 @@
         </el-table-column>
         <el-table-column prop="return_create_time" label="包裹创建时间" min-width="150px" align="center" />
         <el-table-column prop="expired_at" label="过期时间" min-width="180px" align="center" />
+        <el-table-column prop="expired_tip" label="过期提醒" min-width="180px" align="center">
+          <template v-slot="{row}">
+            <span :style="{'color':row.expired_tip==='即将过期'?'red':''}">{{ row.expired_tip }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="ext.free_storage_days" label="免租天数" min-width="100px" align="center" />
         <el-table-column prop="resale_order_sn" label="二次销售订单号" min-width="150px" align="center" />
+        <el-table-column prop="operation_type" label="操作状态" min-width="150px" align="center">
+          <template v-slot="{row}">
+            <span v-if="row.operation_type===-1">-</span>
+            <span v-else-if="row.operation_type===0">上架</span>
+            <span v-else>申请下架</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="operation_time" label="操作时间" min-width="150px" align="center">
+          <template v-solt="{row}" />
+        </el-table-column>
+        <el-table-column prop="resale_order_sn" label="操作" min-width="150px" align="center">
+          <template v-slot="{row}">
+            <el-button v-if="row.status===2 || row.status===3 || row.status===4" type="primary" size="mini" :loading="Loading2" @click="publishGoods(row,0)">上架</el-button>
+            <el-button v-if="row.status===0 || row.status===1 || row.status===3 || row.status===4" type="primary" size="mini" :loading="Loading2" @click="publishGoods(row,1)">下架</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -192,6 +213,15 @@ export default {
     this.getSencondSales()
   },
   methods: {
+    // 上架|| 下架
+    async publishGoods(row, type) {
+      const res = await this.$api.operationReturnPackage({ id: row.id, operationType: type })
+      if (res.data.code === 200) {
+        this.$message.success('操作成功，已通知操作人员进行包裹上架\下架')
+      } else {
+        this.$message.warning('操作失败:' + res.data.message)
+      }
+    },
     // 打开网页
     open(row) {
       const url = this.$filters.countryShopeebuyCom(row.country)
@@ -222,6 +252,15 @@ export default {
           for (let i = 0; i < this.tableData.length; i++) {
             if (this.tableData[i].ext && this.tableData[i].ext !== undefined) {
               this.tableData[i].ext = JSON.parse(this.tableData[i].ext)
+            }
+            const expirtime = new Date(this.tableData[i].expired_at).getTime()
+            const currtime = new Date().getTime()
+            if ((expirtime - currtime) > 3600 * 24 * 1000 * 3) {
+              this.tableData[i].expired_tip = '-'
+            } else if ((expirtime - currtime) < 3600 * 24 * 1000 * 3 && (expirtime - currtime) > 0) {
+              this.tableData[i].expired_tip = '即将过期'
+            } else {
+              this.tableData[i].expired_tip = '已过期'
             }
           }
           this.total = data.data.total
@@ -288,6 +327,7 @@ export default {
         <td>商品名称</td>
         <td>二次销售订单号</td>
         <td>包裹创建时间</td>
+        <td>过期提醒</td>
       </tr>`
       resData.forEach((item) => {
         msg += `
@@ -309,6 +349,7 @@ export default {
           <td>${item.goods_name || ''}</td>
           <td>${item.resale_order_sn || ''}</td>
           <td>${item.return_create_time || ''}</td>
+           <td>${item.expired_tip || ''}</td>
         </tr>
         `
       })

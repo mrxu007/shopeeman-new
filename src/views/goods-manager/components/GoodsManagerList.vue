@@ -1486,6 +1486,25 @@ export default {
                 }, 60 * 60 * 1000)
                 // 组装上新数据
                 const parmas = this.setCreateData(productInfo)
+                const model_list = []
+                productInfo.model_list.forEach(item => {
+                  const model = {}
+                  model['stock'] = item.stock
+                  model['sku'] = item.sku
+                  model['input_normal_price'] = null
+                  model['input_promotion_price'] = null
+                  if (Number(item.price_before_discount) > 0) {
+                    item.price = item.price_before_discount.toString()
+                  }
+                  model['price'] = item.price
+                  model['id'] = 0
+                  model['name'] = ''
+                  model['tier_index'] = item.tier_index
+                  model['is_default'] = item.is_default
+                  model['item_price'] = ''
+                  model_list.push(model)
+                })
+                parmas.model_list = model_list
                 const createRes = await this.$shopeemanService.createProduct(mall.country, data, [parmas])
                 if (createRes.code === 200) {
                   setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
@@ -2734,7 +2753,8 @@ export default {
             // 获取该商品参加的折扣活动ID
             const res = await this.GoodsList.getMallDiscountsIdByKeyword(item)
             if (res.code !== 200) return { batchStatus: `获取该商品参加的折扣活动ID失败：${res.data}`, color: false, code: res.code }
-            activityid = res.data?.hits[0]?.promotionid
+            // activityid = res.data?.hits[0]?.promotionid
+            activityid = res.data[0].discount_id
             if (activityid) {
               this.discountId = activityid // 商品一键翻新时，该商品有折扣活动，储存折扣活动id
               // 删除
