@@ -180,7 +180,9 @@
             <u-table-column align="center" label="商品规格" min-width="150" prop="skuName" show-overflow-tooltip />
             <u-table-column align="center" label="原价" width="120" prop="normal_price" />
             <u-table-column align="center" label="售价" width="120" prop="promotion_price" />
-            <u-table-column align="center" label="折扣" width="120" prop="discount" />
+            <u-table-column align="center" label="折扣" width="120" prop="discount">
+              <template v-slot="{row}"> <span>{{ Number(row.discount).toFixed(2) }}</span> </template>
+            </u-table-column>
             <u-table-column align="center" label="购买限制" min-width="150" prop="user_item_limit" />
             <u-table-column align="center" label="操作" min-width="150">
               <template slot-scope="scope">
