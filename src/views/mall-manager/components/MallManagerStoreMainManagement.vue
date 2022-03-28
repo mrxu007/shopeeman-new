@@ -1220,7 +1220,7 @@ export default {
       this.query_person.uid = userInfo.muid
       // const ipAlias = this.randomWord(true, 10, 32)
       // this.query_person.ip_alias = ipAlias
-      this.query_person.uuid = 0
+      this.query_person.uuid = userInfo.child_id
       // 新增
       this.loading = true
       const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
@@ -1267,6 +1267,7 @@ export default {
       } else {
         this.loading = true
         const userInfo = await this.$appConfig.getUserInfo()
+        debugger
         var list = []
         this.mulSelect.forEach(item => {
           // if (item.target_mall_info != null) {
@@ -1280,7 +1281,7 @@ export default {
         })
         const targetId = list.toString() || ''
         const uid = String(userInfo.muid)
-        const uuid = '0'
+        const uuid = String(userInfo.child_id)
 
         const res = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
         this.loading = false
@@ -1343,7 +1344,7 @@ export default {
       // this.$message.warning('数据请求中.......')
       const userInfo = await this.$appConfig.getUserInfo()
       this.ipMaster_params.uid = userInfo.muid
-      this.ipMaster_params.uuid = 0
+      this.ipMaster_params.uuid = userInfo.child_id
       const params = this.ipMaster_params
       this.loading = true
       try {
@@ -1486,7 +1487,7 @@ export default {
       const params = {}
       const userInfo = await this.$appConfig.getUserInfo()
       params.uid = userInfo.muid
-      params.uuid = '0'
+      params.uuid = userInfo.child_id
       params.ip_id = ''
       params.ip_alias = this.query.ip_alias
       params.source = this.query.source

@@ -77,9 +77,10 @@ export default class {
     try {
       this.isApplyForceFaceInfo = false
       const res = await this.$api.getNotHaveLogisticsInformations()
+      console.log(res, '0000000')
       if (res.data.code === 200) {
         const arrList = res.data.data || []
-        let listResult = []
+        const listResult = []
         arrList.forEach(item => {
           item.orders.forEach(sub => {
             sub.platform_mall_id = item.platform_mall_id
@@ -109,9 +110,10 @@ export default class {
     try {
       this.isApplyForceFaceInfo = false
       const res = await this.$api.getNoLogisticsOrders()
+      console.log(res, '0000000')
       if (res.data.code === 200) {
         const arrList = res.data.data || []
-        let listResult = []
+        const listResult = []
         arrList.forEach(item => {
           item.orders.forEach(sub => {
             sub.platform_mall_id = item.platform_mall_id
@@ -1053,6 +1055,86 @@ export default class {
     a.readAsDataURL(blob)
     // return a;
   }
+  // -------------------下载自定义拣货单------------------
+  // async getAutoPickListData(orderArr) {
+  //   try {
+  //     const orderGrop = this.dealWithMallOrderGroup(orderArr)
+  //     // console.log("orderGrop", orderGrop)
+  //     const wayBillType = 'NORMAL'
+  //     for (const key in orderGrop) {
+  //       const orderList = orderGrop[key]
+  //       const country = orderList[0].country
+  //       const mallId = key
+  //       const mallName = orderGrop[key][0].mall_info.platform_mall_name
+  //       // console.log("orderList", orderList, country, mallId)
+  //       for (let i = 0; i < orderList.length; i = i + 50) {
+  //         const orderFifty = orderList.slice(i, i + 50)
+  //         const orderInfolist = []
+  //         orderFifty.forEach(item => {
+  //           if (item.order_id != 0) {
+  //             const obj = {
+  //               'order_id': Number(item.order_id),
+  //               'shop_id': Number(mallId),
+  //               'region_id': country
+  //             }
+  //             orderInfolist.push(obj)
+  //           }
+  //         })
+  //         console.log(orderInfolist, 'orderInfolist')
+  //         const packInfo = await this.checkPackagePrintWaybillMultiShop(orderInfolist, mallId, country)
+  //         console.log(packInfo, 'packInfo')
+  //         if (packInfo.code === 200) {
+  //           if (!packInfo.data.list.length) {
+  //             this.writeLog(`店铺【${mallName}】当前数据没有可下载的拣货单`, false)
+  //             continue
+  //           } else {
+  //             const packNums = packInfo.data.list
+  //             const packList = []
+  //             packNums.forEach(item => {
+  //               const par = {
+  //                 'order_id': Number(item.order_id),
+  //                 'package_number': item.package_number,
+  //                 'region_id': country,
+  //                 'shop_id': Number(mallId)
+  //               }
+  //               packList.push(par)
+  //             })
+  //             debugger
+  //             const creatInfo = await this.createSdJobsMultiShop(packList, mallId, country, wayBillType + '_PDF', 'PickList', 0)
+  //             // console.log(creatInfo)
+  //             if (!(creatInfo.code === 200 && creatInfo.data.list && creatInfo.data.list.length && creatInfo.data.list[0].job_id)) {
+  //               this.writeLog(`创建拣货单失败，${creatInfo.data}`, false)
+  //             } else {
+  //               const jobId = creatInfo.data.list[0].job_id
+  //               const base64 = await this.downloadSdJob(mallId, jobId, country)
+  //               console.log(base64.length, 'base64')
+  //               if (!base64 || base64.length < 500) {
+  //                 this.writeLog(`店铺【${mallName}】下载拣货单失败，稍后请重试`, false)
+  //                 continue
+  //               }
+  //               const res = await window['BaseUtilBridgeService'].downloadPickForm(base64, mallName)
+  //               const resObj = JSON.parse(res)
+  //               if (resObj.code === 200) {
+  //                 this.writeLog(`店铺【${mallName}】下载拣货单成功`, true)
+  //               } else {
+  //                 this.writeLog(`店铺【${mallName}】下载拣货单失败，${resObj.msg}`, false)
+  //               }
+  //             }
+  //           }
+  //         } else if (packInfo.code === 403) {
+  //           this.writeLog(`店铺【${mallName}】下载拣货单失败,店铺未登录`, false)
+  //         } else {
+  //           this.writeLog(`店铺【${mallName}】下载拣货单失败`, false)
+  //         }
+  //         // console.log("packInfo", packInfo)
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log(error, 'error')
+  //   }
+  //   this.writeLog(`下载拣货单完成，请前往桌面【平台拣货单】文件夹查看`, true)
+  // }
+
   // -------------------------------------------------------下载拣货单--------------------------------//
   async getPickListData(orderArr) {
     try {

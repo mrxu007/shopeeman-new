@@ -21,6 +21,9 @@
               <el-button size="mini" type="primary" class="btnWidth" @click="beforeVirtual">批量打印台湾虚拟面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="downLoadPickList">批量下载拣货单</el-button>
             </el-row>
+            <!-- <el-row class="row-style">
+              <el-button size="mini" type="primary" class="btnWidth" @click="downLoadPickListAuto">批量下载自定义拣货单</el-button>
+            </el-row> -->
           </div>
         </div>
       </div>
@@ -101,7 +104,14 @@
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
               <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
-              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p> 
+              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p> -->
+            </el-row>
+            <el-row class="row-style">
+              <el-button size="mini" type="primary" class="mar-right" style="margin-left: 30px;" @click="getOrderList(1)">搜索</el-button>
+              <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
+              <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
+              <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
+              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p>
             </el-row>
           </div>
         </div>
@@ -281,7 +291,7 @@ export default {
       activeRemarkID: '', // 本地备注
       orderRemark: '', // 本地备注
       isDownloadOriginFace711: false,//711原始面单
-      isDownloadOriginFaceQJ: false,//全家原始面单
+      isDownloadOriginFaceQJ: false // 全家原始面单
     }
   },
   mounted () {
@@ -701,8 +711,19 @@ export default {
       this.showConsole = false
       this.$refs.Logs.writeLog('下载拣货单开始，请耐心等待！', true)
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
+      debugger
       service.getPickListData(this.multipleSelection)
     },
+    // 下载自定义拣货单
+    // async downLoadPickListAuto() {
+    //   if (!this.multipleSelection.length) {
+    //     return this.$message.warning('请先选择数据！')
+    //   }
+    //   this.showConsole = false
+    //   this.$refs.Logs.writeLog('下载拣货单开始，请耐心等待！', true)
+    //   const service = new surFaceService(this, this.$refs.Logs.writeLog)
+    //   service.getAutoPickListData(this.multipleSelection)
+    // },
     // 获取导出数据
     async getExportData () {
       if (this.multipleSelection.length) {
