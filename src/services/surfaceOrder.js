@@ -4,7 +4,8 @@ import commodityService from './commodity-service'
 import AppConfig from './application-config'
 import cheerio from 'cheerio'
 import {
-  randomWord,sleep
+  randomWord,
+  sleep
 } from '../util/util'
 import {
   site_mall
@@ -305,7 +306,7 @@ export default class {
       shop_id: mallId
     }
     const res = await this.$shopeemanService.getDropOff(country, params)
-    console.log(res,"000000")
+    console.log(res, "000000")
     let trackNo = res.data && res.data.list && res.data.list[0] && res.data.list[0].forders && res.data.list[0].forders[0] && res.data.list[0].forders[0].third_party_tn || null
     if (!trackNo) {
       trackNo = res.data && res.data.consignment_no || ''
@@ -408,7 +409,7 @@ export default class {
           // 申请Shopee物流单号
           const applyResult = await this.$shopeemanService.handleOutOrder(country, pa)
           console.log('applyResult11', applyResult)
-        }else if(logisticsChannel == '30014' || logisticsChannel == '30015'){
+        } else if (logisticsChannel == '30014' || logisticsChannel == '30015') {
           const params = {
             order_id: orderId,
             seller_real_name: sellerUserName,
@@ -418,8 +419,7 @@ export default class {
           }
           const applyResult = await this.$shopeemanService.handleOutOrder(country, params)
           console.log('applyResult55', applyResult)
-        }
-         else {
+        } else {
           const params = {
             order_id: orderId,
             channel_id: logisticsChannel,
@@ -554,11 +554,17 @@ export default class {
       this.writeLog(`订单【${order.order_sn}】创建打印任务成功`, true)
       const jobId = res4.data.list[0].job_id
       // 5、下载面单信息
-
-      const downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+      await sleep(2000)
+      let downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+      console.log(downRes, "1111111111111111")
       if (downRes.code !== 200) {
-        this.writeLog(`订单【${order.order_sn}】同步面单失败，${downRes.message}`, false)
-        return
+        if (downRes.code === 120510475) {
+          console.log("重试")
+          downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+        } else {
+          this.writeLog(`订单【${order.order_sn}】同步面单失败，${downRes.message}`, false)
+          return
+        }
       }
       const bytes = downRes.data
       if (!bytes) {
@@ -630,14 +636,17 @@ export default class {
       let fileType = 'C2C_SHIPPING_LABEL_HTML'
       switch (Number(order.logistics_channel)) {
         case 30012:
-          fileType = 'THERMAL_PDF'
-          break
-        case 30014: 
-          fileType = 'THERMAL_PDF'
-          break
+        case 30014:
         case 30015:
-          fileType = 'NORMAL_PDF'
+          fileType = 'THERMAL_PDF'
           break
+          // case 30014: 
+          // case 30015:
+          //   fileType = 'THERMAL_PDF'
+          //   break
+          // case 30015:
+          //   fileType = 'NORMAL_PDF'
+          //   break
         default:
           fileType = 'C2C_SHIPPING_LABEL_HTML'
           break
@@ -658,12 +667,9 @@ export default class {
       let schemaType = null
       if (order.logistics_channel == '30012') {
         schemaType = 3
-      } else if (order.logistics_channel == '30015') {
-        schemaType = 13
-      } else if (order.logistics_channel == '30014' ){
+      } else if (order.logistics_channel == '30014' || order.logistics_channel == '30015') {
         schemaType = 14
-      }
-      else {
+      } else {
         schemaType = await this.getSdConfig(order.shop_id, country)
         console.log(schemaType, 'schemaType')
       }
@@ -678,7 +684,7 @@ export default class {
         'region_id': country,
         'shop_id': Number(order.shop_id)
       }]
-      if (order.logistics_channel == '30014'  || order.logistics_channel == '30015') {
+      if (order.logistics_channel == '30014' || order.logistics_channel == '30015') {
         packList[0]['channel_id'] = order.logistics_channel
       }
       const res4 = await this.createSdJobsMultiShop(packList, order.shop_id, country, fileType, '寄件单' + order.actual_carrier, schemaType)
@@ -736,10 +742,16 @@ export default class {
       }
       return this.getQuanJiaFaceInfo(trackingNo, faceData, order.shop_id)
     }
-    const downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+    let downRes = await this.downloadSdJob(order.shop_id, jobId, country)
     if (downRes.code !== 200) {
-      this.writeLog(`订单【${order.order_sn}】同步面单失败,下载失败,${downRes.message}`, false)
-      return null
+      if (downRes.code === 120510475) {
+        console.log("重试")
+        downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+      } else{
+        this.writeLog(`订单【${order.order_sn}】同步面单失败,下载失败,${downRes.message}`, false)
+        return null
+      }
+     
     }
     return downRes.data
   }
@@ -940,7 +952,7 @@ export default class {
         }
       } else {
         return {
-          code: 50001,
+          code: data.code || 50001,
           message: data.message || ''
         }
       }
