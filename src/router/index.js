@@ -136,7 +136,12 @@ const routes = [
     name: 'userSet',
     component: () =>
       import('../views/user-config/usersetConponet.vue')
-  } // 设置
+  }, // 设置
+  {
+    path: '/customSetDownload',
+    name: 'customSetDownload',
+    component: () => import('../views/order-manager/components/customSetDownload.vue')
+  } // 用户自定义下载面单
 ]
 const originalPush = VueRouter.prototype.push
 

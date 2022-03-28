@@ -34,12 +34,12 @@ export default {
   props: {
     isInit: {
       type: Boolean,
-      default: false,
+      default: false
     },
     country: {
       type: String,
-      default: '',
-    },
+      default: ''
+    }
   },
   data() {
     return {
@@ -56,14 +56,14 @@ export default {
 
       addressData: {},
 
-      flag: false,
+      flag: false
     }
   },
   watch: {
     country: {
       handler(n, o) {
         this.getPddAddressModel('0', 'provinceList', 'province')
-      },
+      }
     },
     province: {
       handler(n, o) {
@@ -76,7 +76,7 @@ export default {
         })
         this.sendData()
       },
-      deep: true,
+      deep: true
     },
     city: {
       handler(n, o) {
@@ -89,7 +89,7 @@ export default {
         })
         this.sendData()
       },
-      deep: true,
+      deep: true
     },
     distinct: {
       handler(n, o) {
@@ -101,8 +101,8 @@ export default {
         })
         this.sendData()
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   mounted() {
     if (this.isInit) {
@@ -137,9 +137,9 @@ export default {
           twId = '0'
         }
         if (id === '0') {
-          let obj = {
+          const obj = {
             RegionName: '台湾',
-            RegionId: 'tw',
+            RegionId: 'tw'
           }
           resTw = [obj]
         } else {
@@ -161,8 +161,8 @@ export default {
     },
     sendData() {
       this.$emit('sendData', this.addressData)
-    },
-  },
+    }
+  }
 }
 </script>
 

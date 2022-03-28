@@ -21,9 +21,9 @@
               <el-button size="mini" type="primary" class="btnWidth" @click="beforeVirtual">批量打印台湾虚拟面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="downLoadPickList">批量下载拣货单</el-button>
             </el-row>
-            <!-- <el-row class="row-style">
-              <el-button size="mini" type="primary" class="btnWidth" @click="downLoadPickListAuto">批量下载自定义拣货单</el-button>
-            </el-row> -->
+            <el-row class="row-style">
+              <el-button size="mini" type="primary" class="btnWidth" @click="downloadSetVisible = true">批量下载自定义拣货单</el-button>
+            </el-row>
           </div>
         </div>
       </div>
@@ -212,19 +212,21 @@
     <Logs ref="Logs" v-model="showConsole" clear />
     <el-dialog title="商品详情" :visible.sync="goodsListVisible" width="800px" :close-on-click-modal="false" @close="closeDialog">
       <el-table ref="goodsTable" :data="goodsList" tooltip-effect="dark" height="400px">
+        <el-table-column align="center" prop="goods_name" label="商品名称" min-width="180" show-overflow-tooltip fixed />
         <el-table-column align="center" prop="order_sn" label="订单编号" min-width="120" />
         <el-table-column align="center" label="商品图片" min-width="80">
           <template slot-scope="scope">
             <el-image :src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="goods_id" label="商品ID" min-width="100">
+        <el-table-column align="center" prop="goods_id" label="商品ID" min-width="120">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="openUrl(clickRow, scope.row.goods_id, 'product')">{{ scope.row.goods_id }}</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="goods_count" label="商品数量" min-width="120" />
-        <el-table-column align="center" prop="variation_name" label="商品规格" min-width="120" />
+        <el-table-column align="center" prop="outer_goods_id" label="parentSKU" min-width="120" show-overflow-tooltip />
+        <el-table-column align="center" prop="variation_name" label="商品规格" min-width="120" fixed="right" />
       </el-table>
     </el-dialog>
     <el-dialog title="订单号批量查询" :visible.sync="goodsSearchVisible" width="500px" :close-on-click-modal="false" @close="closeDialog">
@@ -243,6 +245,51 @@
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
+    <!-- 自定义拣货单 -->
+    <el-dialog title="自定义拣货单" :visible.sync="downloadSetVisible" width="400px" :close-on-click-modal="false">
+      <div class="downloadSetContent">
+        <el-checkbox-group v-model="downloadSetList" class="downloadSetDetail">
+          <el-row> <h3> 请选择导出选项：</h3></el-row>
+          <el-row>
+            <el-checkbox label="country">站点</el-checkbox>
+            <el-checkbox label="platform_mall_name" class="mall">店铺名称</el-checkbox>
+            <el-checkbox label="goods_name">商品名称</el-checkbox>
+          </el-row>
+
+          <el-row>
+            <el-checkbox label="order_sn">订单编号</el-checkbox>
+            <el-checkbox label="outer_goods_id">parentSKU</el-checkbox>
+            <el-checkbox label="goods_count">商品数量</el-checkbox>
+          </el-row>
+
+          <el-row>
+            <el-checkbox label="variation_name">商品规格</el-checkbox>
+            <el-checkbox label="goodsLink">商品链接</el-checkbox>
+            <el-checkbox label="goods_img">商品图片</el-checkbox>
+          </el-row>
+
+          <el-row>
+            <el-checkbox label="order_status">发货状态</el-checkbox>
+            <el-checkbox label="ship_by_date">截止发货时间</el-checkbox>
+            <el-checkbox label="created_time">订单创建时间</el-checkbox>
+          </el-row>
+
+          <el-row>
+            <el-checkbox label="logistics_name">虾皮物流</el-checkbox>
+            <el-checkbox label="tracking_no">虾皮物流单号</el-checkbox>
+          </el-row>
+
+          <el-row>
+            <el-checkbox label="is_apply_tracking_no">是否已申请物流单号</el-checkbox>
+            <el-checkbox label="hasLogistics">是否同步面单信息</el-checkbox>
+          </el-row>
+
+        </el-checkbox-group>
+      </div>
+      <span slot="footer">
+        <el-button type="primary" size="mini" @click="downloadSetSave">生成</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -257,6 +304,8 @@ export default {
   },
   data() {
     return {
+      downloadSetVisible: false, // 下载设置弹窗
+      downloadSetList: [], // 下载设置选项
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
@@ -715,14 +764,68 @@ export default {
       service.getPickListData(this.multipleSelection)
     },
     // 下载自定义拣货单
+    async  downloadSetSave() {
+      if (!this.downloadSetList.length) {
+        this.$message.warning('请选择需要导出的选项')
+      }
+      console.log(this.downloadSetList)
+      if (this.multipleSelection.length) {
+        this.tableToExcel([this.multipleSelection])
+      } else {
+        let sysMallId = ''
+        this.selectMallList.forEach((item, index) => {
+          if (index === 0) {
+            sysMallId = item.id
+          } else {
+            sysMallId = sysMallId + ',' + item.id
+          }
+        })
+        const params = JSON.parse(JSON.stringify(this.selectForm))
+        params['page'] = 1
+        params['pageSize'] = 200
+        params['sysMallId'] = sysMallId
+        params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+        this.tableLoading = true
+        const { data } = await this.$api.getDeliveryList(params)
+        let exportData = []
+        let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
+        while (dataFlag && dataFlag.length) {
+          dataFlag.forEach(async(item) => {
+            item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
+          })
+          exportData = exportData.concat(dataFlag)
+          params.page++
+          const { data } = await this.$api.getDeliveryList(params)
+          dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
+        }
+        this.tableLoading = false
+        if (!exportData.length) {
+          return this.$message.warning('没有可导出的数据！')
+        }
+        const subExportData = []
+        const dataCopy = JSON.parse(JSON.stringify(exportData))
+        if (dataCopy.length > 7000) {
+          let i = 0
+          while (dataCopy.length) {
+            subExportData[i] = dataCopy.splice(0, 7000)
+            i++
+          }
+        } else {
+          subExportData[0] = dataCopy
+        }
+        const exporGoodsList = subExportData.forEach(item => {
+          // Object.assign=
+        })
+        // subExportData
+        console.log('1111', subExportData)
+        // 筛选数据
+        // this.downloadSetList=
+
+        // this.$router.push({ path: '/customSetDownload', query: { goodsProps: [], goodsList: [] }})
+      }
+    },
     // async downLoadPickListAuto() {
-    //   if (!this.multipleSelection.length) {
-    //     return this.$message.warning('请先选择数据！')
-    //   }
-    //   this.showConsole = false
-    //   this.$refs.Logs.writeLog('下载拣货单开始，请耐心等待！', true)
-    //   const service = new surFaceService(this, this.$refs.Logs.writeLog)
-    //   service.getAutoPickListData(this.multipleSelection)
+    //   this.downloadSetVisible = true
     // },
     // 获取导出数据
     async getExportData() {
@@ -780,6 +883,8 @@ export default {
             <td>编号</td>
             <td>站点</td>
             <td>店铺名称</td>
+            <td>商品名称</td>
+            <td>parentSKU</td>
             <td>订单编号</td>
             <td>商品数量</td>
             <td>商品规格</td>
@@ -803,6 +908,8 @@ export default {
             str += `<tr><td>${num++}</td>
                 <td>${item.mall_info && item.mall_info.country ? this.$filters.chineseSite(item.mall_info.country) : '' + '\t'}</td>
                 <td>${item.mall_info && item.mall_info.platform_mall_name ? item.mall_info.platform_mall_name : '' + '\t'}</td>
+                <td>${goodsInfo.goods_name ? goodsInfo.goods_name : '' + '\t'}</td>
+                <td>${goodsInfo.outer_goods_id ? goodsInfo.outer_goods_id : '' + '\t'}</td>
                 <td style="mso-number-format:'\@';">${goodsInfo.order_sn ? goodsInfo.order_sn : '' + '\t'}</td>
                 <td>${goodsInfo.goods_count ? goodsInfo.goods_count : '' + '\t'}</td>
                 <td>${goodsInfo ? goodsInfo.variation_name : '' + '\t'}</td>
@@ -1114,5 +1221,33 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.downloadSetContent{
+  .downloadSetDetail{
+    .el-row{
+      margin-bottom: 10px;
+    }
+    .el-row:first-child{
+      margin-bottom: 10px;
+    }
+    .el-row:nth-child(2){
+      /deep/.el-checkbox:nth-child(2){
+        margin-left: 24px;
+      }
+      .el-checkbox:nth-child(3){
+        margin-left: 24px;
+      }
+    }
+     .el-row:nth-child(3){
+      .el-checkbox:nth-child(3){
+        margin-left: 11px;
+      }
+    }
+     .el-row:nth-child(4){
+      .el-checkbox:nth-child(3){
+        margin-left: 24px;
+      }
+    }
+  }
 }
 </style>
