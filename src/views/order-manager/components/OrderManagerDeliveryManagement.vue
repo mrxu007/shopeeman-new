@@ -10,15 +10,15 @@
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="syncSurfaceBefore">批量同步面单信息</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="batnchDownLoad(multipleSelection, 'down')">批量下载平台面单</el-button>
-              <el-checkbox v-model="isDownloadOriginFace711" size="mini" style="margin-left:10px;">台湾站711原始面单</el-checkbox>
+              <el-checkbox v-model="isDownloadOriginFace711" size="mini" style="margin-left: 10px">台湾站711原始面单</el-checkbox>
             </el-row>
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="batnchDownLoad(multipleSelection, 'view')">批量预览打印平台面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="getExportData">导出数据</el-button>
-              <el-checkbox v-model="isDownloadOriginFaceQJ" size="mini" style="margin-left:10px;">台湾站全家原始面单</el-checkbox>
+              <el-checkbox v-model="isDownloadOriginFaceQJ" size="mini" style="margin-left: 10px">台湾站全家原始面单</el-checkbox>
             </el-row>
             <el-row class="row-style">
-              <el-button size="mini" type="primary" class="btnWidth" @click="downTWface">批量打印台湾虚拟面单</el-button>
+              <el-button size="mini" type="primary" class="btnWidth" @click="beforeVirtual">批量打印台湾虚拟面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="downLoadPickList">批量下载拣货单</el-button>
             </el-row>
             <!-- <el-row class="row-style">
@@ -34,60 +34,6 @@
           <div class="base-item">
             <el-row class="row-style">
               <storeChoose :is-all="true" :span-width="'90px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
-              <div class="tool-item">
-                <span>创建时间：</span>
-                <el-date-picker
-                  v-model="createTime"
-                  size="mini"
-                  value-format="yyyy-MM-dd"
-                  type="daterange"
-                  style="width: 300px"
-                  range-separator="-"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  :picker-options="pickerOptions"
-                  @change="changeTime($event, 'createTime')"
-                />
-              </div>
-            </el-row>
-            <el-row class="row-style">
-              <div class="tool-item mar-right">
-                <span>发货状态：</span>
-                <el-select v-model="selectForm.orderStatus" placeholder="" size="mini" 　class="inputBox">
-                  <el-option label="全部" :value="''" />
-                  <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label" :value="item.value" />
-                </el-select>
-              </div>
-              <div class="tool-item mar-right">
-                <span>物流单号：</span>
-                <el-select v-model="selectForm.hasTrackingNo" placeholder="" size="mini" 　class="inputBox">
-                  <el-option label="全部" :value="''" />
-                  <el-option label="已申请" value="1" />
-                  <el-option label="未申请" value="2" />
-                </el-select>
-              </div>
-              <div class="tool-item mar-right">
-                <span>面单下载状态：</span>
-                <el-select v-model="selectForm.isPrint" placeholder="" size="mini" class="inputBox">
-                  <el-option label="全部" :value="''" />
-                  <el-option label="已下载" value="1" />
-                  <el-option label="未下载" value="2" />
-                </el-select>
-              </div>
-              <!-- <div class="tool-item mar-right">
-                <span>截止时间：</span>
-                <el-date-picker
-                  v-model="shipByDate"
-                  size="mini"
-                  value-format="yyyy-MM-dd"
-                  type="daterange"
-                  style="width: 300px"
-                  range-separator="-"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  @change="changeTime($event, 'shipByDate')"
-                />
-              </div> -->
             </el-row>
             <el-row class="row-style">
               <div class="tool-item mar-right">
@@ -112,7 +58,49 @@
                   @change="changeTime($event, 'shipByDate')"
                 />
               </div>
-              <!-- <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)">搜索</el-button>
+            </el-row>
+            <el-row class="row-style">
+              <div class="tool-item mar-right">
+                <span>发货状态：</span>
+                <el-select v-model="selectForm.orderStatus" placeholder="" size="mini" 　class="inputBox">
+                  <el-option label="全部" :value="''" />
+                  <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label" :value="item.value" />
+                </el-select>
+              </div>
+              <div class="tool-item mar-right">
+                <span>面单下载状态：</span>
+                <el-select v-model="selectForm.isPrint" placeholder="" size="mini" class="inputBox">
+                  <el-option label="全部" :value="''" />
+                  <el-option label="已下载" value="1" />
+                  <el-option label="未下载" value="2" />
+                </el-select>
+              </div>
+              <div class="tool-item">
+                <span>创建时间：</span>
+                <el-date-picker
+                  v-model="createTime"
+                  size="mini"
+                  value-format="yyyy-MM-dd"
+                  type="daterange"
+                  style="width: 300px"
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  :picker-options="pickerOptions"
+                  @change="changeTime($event, 'createTime')"
+                />
+              </div>
+            </el-row>
+            <el-row class="row-style">
+              <div class="tool-item mar-right">
+                <span>物流单号：</span>
+                <el-select v-model="selectForm.hasTrackingNo" placeholder="" size="mini" 　class="inputBox">
+                  <el-option label="全部" :value="''" />
+                  <el-option label="已申请" value="1" />
+                  <el-option label="未申请" value="2" />
+                </el-select>
+              </div>
+              <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)">搜索</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
               <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
@@ -188,7 +176,7 @@
         <u-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="120" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.logistics_name }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150">
+        <u-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.tracking_no }}</template>
         </u-table-column>
         <u-table-column align="center" prop="remark" label="本地备注" min-width="120" show-overflow-tooltip>
@@ -204,9 +192,6 @@
         <u-table-column align="center" prop="note" label="shopee备注" min-width="100" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.note }}</template>
         </u-table-column>
-        <!-- <u-table-column align="center" prop="note" label="买家备注" min-width="80">
-          <template slot-scope="scope">{{}}</template>
-        </u-table-column> -->
         <u-table-column align="center" prop="note" label="是否已下载面单" min-width="120">
           <template slot-scope="scope">{{ scope.row.is_print == '1' ? '已下载' : '未下载' }}</template>
         </u-table-column>
@@ -316,6 +301,64 @@ export default {
     }, 2000)
   },
   methods: {
+    beforeVirtual() {
+      const filterArr = this.multipleSelection.filter((n) => n.country == 'TW')
+      if (!filterArr.length) {
+        return this.$message.warning('请选择台湾站订单数据')
+      }
+      this.$confirm('是否需要生成商品信息', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      })
+        .then(() => {
+          this.downLoadVirtualTW(filterArr, true)
+        })
+        .catch(() => {
+          this.downLoadVirtualTW(filterArr, false)
+        })
+    },
+    // 下载虚拟面单 --指台湾站
+    async downLoadVirtualTW(filterArr, isNeedGoodsInfo) {
+      try {
+        const pdfModelList = []
+        for (let i = 0; i < filterArr.length; i++) {
+          const order = filterArr[i]
+          const padModel = {
+            PDFUrl: '',
+            OrderNo: order.order_sn,
+            MainOrderNo: order.main_order_sn,
+            PlatformLogisticsId: order.tracking_no,
+            PlatformLogisticsName: '',
+            CreateTime: order.created_at,
+            BuyerName: order.name,
+            BuyerPhone: order.phone,
+            BuyerAddress: order.address,
+            BuyerNote: '',
+            BarInfo: {
+              BarCode: order.order_sn,
+              BarCodeWidth: 200,
+              BarCodeHeight: 50
+            },
+            SkuList: [order.goodsInfo[0].variation_sku.replace('=|=', ''), order.goodsInfo[0].goods_count],
+            IsNeedCut: !!(order.logistics_id == 30007 || order.logistics_id == 30008),
+            IsUseA4Size: false,
+            PdfWidth: 320,
+            PdfHeight: 425,
+            LocationY: -420,
+            PrintStatus: '0',
+            MallId: order.mall_info.platform_mall_id,
+            MallName: order.mall_info.mall_alias_name || order.mall_info.platform_mall_name
+          }
+          pdfModelList.push(padModel)
+        }
+        await window['BaseUtilBridgeService'].getVirtualFace(pdfModelList, isNeedGoodsInfo)
+        this.showConsole = false
+        this.$refs.Logs.writeLog(`虚拟面单下载完成,请前往软件所在文件夹查看`, true)
+      } catch (error) {
+
+      }
+    },
     // 标记面单已下载
     async updateOrderPrintStatus(array) {
       const mainOrderSns = []
@@ -479,7 +522,7 @@ export default {
               BarCodeHeight: 50
             },
             SkuList: [orderInfo.goodsInfo[0].variation_sku.replace('=|=', ''), orderInfo.goodsInfo[0].goods_count],
-            IsNeedCut: !!(orderInfo.logistics_id == 30007 || orderInfo.logistics_id == 30008),
+            IsNeedCut: !!(orderInfo.logistics_id == 30007 || orderInfo.logistics_id == 30008 || orderInfo.logistics_id == 30015),
             IsUseA4Size: false,
             PdfWidth: 320,
             PdfHeight: 425,
@@ -1041,8 +1084,8 @@ export default {
   display: flex;
   padding-bottom: 8px;
   align-items: center;
-  /deep/.storeChooseUL{
-        flex-wrap: nowrap;
+  /deep/.storeChooseUL {
+    flex-wrap: nowrap;
   }
   .tool-item {
     display: flex;

@@ -14,7 +14,7 @@
 
 <style lang="less">
 body {
-  --themeColor: #f97c28;
+  --themeColor: #f53245;
 }
 * {
   font-family: Microsoft YaHei;
