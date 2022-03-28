@@ -5,7 +5,7 @@ import AppConfig from './application-config'
 import cheerio from 'cheerio'
 import {
   randomWord,
-  batchOperation
+  sleep
 } from '../util/util'
 import {
   site_mall
@@ -293,6 +293,32 @@ export default class {
       console.log(error)
     }
   }
+  // 获取30015物流单号
+  async getForderLogistics(orderId, mallId, country) {
+    const params = {
+      order_id: orderId,
+      shop_id: mallId
+    }
+    const res = await this.$shopeemanService.getForderLogistics(country, params)
+    if (res && res.code === 200 && res.data && res.data.list && res.data.list.length) {
+      return res.data.list[0].thirdparty_tracking_number
+    } else {
+      return ''
+    }
+  }
+  async getDropOff(orderId, mallId, country) {
+    const params = {
+      order_id: orderId,
+      shop_id: mallId
+    }
+    const res = await this.$shopeemanService.getDropOff(country, params)
+    console.log(res, '000000')
+    let trackNo = res.data && res.data.list && res.data.list[0] && res.data.list[0].forders && res.data.list[0].forders[0] && res.data.list[0].forders[0].third_party_tn || null
+    if (!trackNo) {
+      trackNo = res.data && res.data.consignment_no || ''
+    }
+    return trackNo
+  }
   // 检查是否有物流信息
   checkTrackInfo(orderInfo) {
     const trackInfo = {}
@@ -396,6 +422,16 @@ export default class {
           // 申请Shopee物流单号
           const applyResult = await this.$shopeemanService.handleOutOrder(country, pa)
           console.log('applyResult11', applyResult)
+        } else if (logisticsChannel == '30014' || logisticsChannel == '30015') {
+          const params = {
+            order_id: orderId,
+            seller_real_name: sellerUserName,
+            slug: logisticsChannel == '30014' ? 'SLTW003' : 'SLTW001',
+            shipping_mode: 'dropoff',
+            shop_id: shopId
+          }
+          const applyResult = await this.$shopeemanService.handleOutOrder(country, params)
+          console.log('applyResult55', applyResult)
         } else {
           const params = {
             order_id: orderId,
@@ -419,7 +455,8 @@ export default class {
         const applyResult = await this.$shopeemanService.handleOutOrder(country, params)
         console.log('applyResult33', applyResult)
       }
-      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn) // 获取shopee运输单号
+      await sleep(2000)
+      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn, '', logisticsChannel) // 获取shopee运输单号
     } catch (error) {
       console.log(error)
       return {
@@ -553,7 +590,19 @@ export default class {
       this.writeLog(`订单【${order.order_sn}】创建打印任务成功`, true)
       const jobId = res4.data.list[0].job_id
       // 5、下载面单信息
-      const bytes = await this.downloadSdJob(order.shop_id, jobId, country)
+      await sleep(2000)
+      let downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+      console.log(downRes, '1111111111111111')
+      if (downRes.code !== 200) {
+        if (downRes.code === 120510475) {
+          console.log('重试')
+          downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+        } else {
+          this.writeLog(`订单【${order.order_sn}】同步面单失败，${downRes.message}`, false)
+          return
+        }
+      }
+      const bytes = downRes.data
       if (!bytes) {
         this.writeLog(`订单【${order.order_sn}】同步面单失败,下载失败[505]`, false)
         return
@@ -634,7 +683,25 @@ export default class {
         return null
       }
       // 1、获取面单类型
-      const fileType = order.logistics_channel == '30012' ? 'THERMAL_PDF' : 'C2C_SHIPPING_LABEL_HTML'
+      // const fileType = order.logistics_channel == '30012' ? 'THERMAL_PDF' : 'C2C_SHIPPING_LABEL_HTML'
+      let fileType = 'C2C_SHIPPING_LABEL_HTML'
+      switch (Number(order.logistics_channel)) {
+        case 30012:
+        case 30014:
+        case 30015:
+          fileType = 'THERMAL_PDF'
+          break
+          // case 30014:
+          // case 30015:
+          //   fileType = 'THERMAL_PDF'
+          //   break
+          // case 30015:
+          //   fileType = 'NORMAL_PDF'
+          //   break
+        default:
+          fileType = 'C2C_SHIPPING_LABEL_HTML'
+          break
+      }
       // 2、获取包裹号
       const packParams = [{
         'order_id': Number(order.order_id),
@@ -651,6 +718,8 @@ export default class {
       let schemaType = null
       if (order.logistics_channel == '30012') {
         schemaType = 3
+      } else if (order.logistics_channel == '30014' || order.logistics_channel == '30015') {
+        schemaType = 14
       } else {
         schemaType = await this.getSdConfig(order.shop_id, country)
         console.log(schemaType, 'schemaType')
@@ -666,6 +735,9 @@ export default class {
         'region_id': country,
         'shop_id': Number(order.shop_id)
       }]
+      if (order.logistics_channel == '30014' || order.logistics_channel == '30015') {
+        packList[0]['channel_id'] = order.logistics_channel
+      }
       const res4 = await this.createSdJobsMultiShop(packList, order.shop_id, country, fileType, '寄件单' + order.actual_carrier, schemaType)
       console.log('res4', res4)
       if (!(res4.code === 200 && res4.data.list && res4.data.list.length && res4.data.list[0].job_id)) {
@@ -673,6 +745,7 @@ export default class {
         return
       }
       const jobId = res4.data.list[0].job_id
+      await sleep(3000)
       const base64 = await this.downloadTwFace(order, jobId, country, trackingNo)
       // console.log("base64",base64)
       if (base64) {
@@ -722,9 +795,17 @@ export default class {
       }
       return this.getQuanJiaFaceInfo(trackingNo, faceData, order.shop_id)
     }
-    const faceData = await this.downloadSdJob(order.shop_id, jobId, country)
-    // console.log(faceData, "faceData")
-    return faceData
+    let downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+    if (downRes.code !== 200) {
+      if (downRes.code === 120510475) {
+        console.log('重试')
+        downRes = await this.downloadSdJob(order.shop_id, jobId, country)
+      } else {
+        this.writeLog(`订单【${order.order_sn}】同步面单失败,下载失败,${downRes.message}`, false)
+        return null
+      }
+    }
+    return downRes.data
   }
   // 莱尔富经济包的面单信息
   async getLaiErFuFace(orderId, shopId) {
@@ -916,8 +997,26 @@ export default class {
       shop_id: shop_id
     }
     const res = await this.$shopeemanService.downloadSdJob(country, params)
-    console.log(res, '下载面单信息')
-    return res.rawBytes || ''
+    console.log(res, '111111111111111111')
+    try {
+      const data = res && JSON.parse(res.data)
+      if (data && data.code === 0) {
+        return {
+          code: 200,
+          data: res.rawBytes
+        }
+      } else {
+        return {
+          code: data.code || 50001,
+          message: data.message || ''
+        }
+      }
+    } catch (error) {
+      return {
+        code: 200,
+        data: res.rawBytes
+      }
+    }
   }
   // 下载台湾面单信息
   async downloadSdJobTW(shop_id, job_id, country) {
