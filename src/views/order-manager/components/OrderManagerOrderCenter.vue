@@ -3101,7 +3101,7 @@ export default {
       this.multipleSelection = [row]
 
       this.colorVisible = true
-      this.colorRadio = ''
+      // this.colorRadio = ''
       await this.getColorList()
     },
     // 设置颜色
@@ -3154,10 +3154,6 @@ export default {
         }
         this.colorList.unshift(obj)
       }
-      // // 默认选择
-      // if (this.colorRow) {
-      //   this.colorRadio = this.colorList.indexOf(el => { return el.id === this.colorRow.id })
-      // }
     },
     // 颜色标识
     getCurrentRow(row) {
