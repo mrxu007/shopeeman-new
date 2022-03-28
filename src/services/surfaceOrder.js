@@ -303,6 +303,7 @@ export default class {
       shop_id: mallId
     }
     const res = await this.$shopeemanService.getDropOff(country, params)
+    console.log(res,"000000")
     let trackNo = res.data && res.data.list && res.data.list[0] && res.data.list[0].forders && res.data.list[0].forders[0] && res.data.list[0].forders[0].third_party_tn || null
     if (!trackNo) {
       trackNo = res.data && res.data.consignment_no || ''
@@ -405,7 +406,18 @@ export default class {
           // 申请Shopee物流单号
           const applyResult = await this.$shopeemanService.handleOutOrder(country, pa)
           console.log('applyResult11', applyResult)
-        } else {
+        }else if(logisticsChannel == '30014' || logisticsChannel == '30015'){
+          const params = {
+            order_id: orderId,
+            seller_real_name: sellerUserName,
+            slug: logisticsChannel == '30014' ? 'SLTW003' : 'SLTW001',
+            shipping_mode: 'dropoff',
+            shop_id: shopId
+          }
+          const applyResult = await this.$shopeemanService.handleOutOrder(country, params)
+          console.log('applyResult55', applyResult)
+        }
+         else {
           const params = {
             order_id: orderId,
             channel_id: logisticsChannel,
@@ -428,6 +440,7 @@ export default class {
         const applyResult = await this.$shopeemanService.handleOutOrder(country, params)
         console.log('applyResult33', applyResult)
       }
+      await sleep(2000)
       return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn, '', logisticsChannel) // 获取shopee运输单号
     } catch (error) {
       console.log(error)
@@ -617,7 +630,9 @@ export default class {
         case 30012:
           fileType = 'THERMAL_PDF'
           break
-        case 30014:
+        case 30014: 
+          fileType = 'THERMAL_PDF'
+          break
         case 30015:
           fileType = 'NORMAL_PDF'
           break
@@ -641,9 +656,12 @@ export default class {
       let schemaType = null
       if (order.logistics_channel == '30012') {
         schemaType = 3
-      } else if (order.logistics_channel == '30014'  || order.logistics_channel == '30015') {
+      } else if (order.logistics_channel == '30015') {
         schemaType = 13
-      } else {
+      } else if (order.logistics_channel == '30014' ){
+        schemaType = 14
+      }
+      else {
         schemaType = await this.getSdConfig(order.shop_id, country)
         console.log(schemaType, 'schemaType')
       }
@@ -668,6 +686,7 @@ export default class {
         return
       }
       const jobId = res4.data.list[0].job_id
+      await sleep(3000)
       const base64 = await this.downloadTwFace(order, jobId, country, trackingNo)
       // console.log("base64",base64)
       if (base64) {
