@@ -1,1 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d222753"],{cf60:function(e,n,s){"use strict";s.r(n);var t=function(){var e=this,n=e.$createElement,s=e._self._c||n;return s("div")},a=[],c={name:"BusinessAnalyseSales"},u=c,l=s("2877"),i=Object(l["a"])(u,t,a,!1,null,"95376446",null);n["default"]=i.exports}}]);
