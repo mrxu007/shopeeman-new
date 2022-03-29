@@ -177,7 +177,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo)
+      const trackInfo = this.checkTrackInfo(orderInfo,country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -249,7 +249,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo)
+      const trackInfo = this.checkTrackInfo(orderInfo,country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -320,16 +320,11 @@ export default class {
     return trackNo
   }
   // 检查是否有物流信息
-  checkTrackInfo(orderInfo) {
+  async checkTrackInfo(orderInfo,country) {
     const trackInfo = {}
     trackInfo['orderId'] = orderInfo.order_id
-    let trackNo = orderInfo.shipping_traceno
-    if (!trackNo) {
-      const logisticsExtra = JSON.parse(orderInfo.logistics_extra_data)
-      if (logisticsExtra && logisticsExtra.sls_info && logisticsExtra.sls_info.last_mile_tracking_number) { trackNo = logisticsExtra.sls_info.last_mile_tracking_number }
-    }
-    trackInfo['trackingNo'] = trackNo
     trackInfo['logistics_channel'] = orderInfo.logistics_channel || ''
+    trackInfo['trackingNo'] = await this.getDropOff(orderInfo.order_id, orderInfo.shop_id, country)
     return trackInfo
   }
   // 判断默认物流
@@ -480,25 +475,12 @@ export default class {
     }
   }
   // 获取物流单号
-  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType) {
+  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType,logisticsChannel) {
     try {
       let trackNo = ''
-      let channelId = ''
-      const params = {
-        order_id: orderId,
-        shop_id: mallId
-      }
+      let channelId = logisticsChannel
       for (let i = 0; i < 3; i++) {
-        const res = await this.$shopeemanService.getDropOff(country, params)
-        if (!res || !res.code === 200 || !res.data) {
-          continue
-        }
-        let third_party_tn = res.data && res.data.list && res.data.list[0] && res.data.list[0].forders[0].third_party_tn || ''
-        if (third_party_tn == null || third_party_tn == '') {
-          third_party_tn = res.data.consignment_no || ''
-        }
-        channelId = res.data && res.data.channel_id || ''
-        trackNo = third_party_tn || ''
+        trackNo = await this.getDropOff(orderId, mallId, country)
         if (trackNo === '') {
           continue
         } else {
