@@ -629,7 +629,8 @@ export default {
       }
     },
     itselfUpdate(type) {
-      this.itselfUpdateType = type
+      console.log(this.flag4,"-----------")
+      this.itselfUpdateType = type 
       let arr = {}
       if (!this.itselfWarehouseName) return this.$message('仓库名称不能为空')
       if (!this.itselfDetailAddress) return this.$message('详细地址不能为空')
@@ -734,11 +735,11 @@ export default {
         params['address']['receiving_name'] = this.itselfReceivingName
         params['address']['receiving_tel'] = this.itselfReceivingTel
         params['address']['type'] = this.flag4 ? 0 : 3 // 国内/海外
-        if (!this.flag4) {
+        if (!this.flag4 && !this.isSG) {
           this.abroadAddressParams = params
           return
         }
-        if (this.flag4) {
+        if (this.flag4 || this.isSG) {
           switch (type) {
             case 1:
               this.adduserStore(params)
