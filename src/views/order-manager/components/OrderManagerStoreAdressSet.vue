@@ -283,7 +283,7 @@
             </el-select>
           </el-form-item>
           <el-form-item v-if="itselfCountry==='MY'" label="邮编：">
-            <el-input v-model="sPDistinctInput" size="mini" />
+            <el-input v-model="sPDistinctInput" size="mini" style="width:178px;" />
           </el-form-item>
           <el-form-item v-else label="收货区：">
             <el-select v-model="sPDistinct" :disabled="sCity ? false : true" placeholder="请选择" size="mini" @change="handlerChange6()">
@@ -294,6 +294,9 @@
             <el-select v-model="sStreet" :disabled="sCity ? false : true" placeholder="请选择" size="mini">
               <el-option v-for="(item, index) in sStreetList" :key="index" :value="item.id" :label="item.division_name" />
             </el-select>
+          </el-form-item>
+          <el-form-item v-if="itselfCountry==='PH'" label="邮编：">
+            <el-input v-model="sPDistinctInput" size="mini" style="width:178px;" />
           </el-form-item>
         </el-form>
         <div class="footer">
@@ -475,6 +478,7 @@ export default {
     },
     // 修改仓库
     async updateWarehouse() {
+      console.log(this.itemData,"this.itemData")
       if (!this.warehouseName) return this.$message('仓库名不能为空')
       if (!this.receivingName) return this.$message('收件人不能为空')
       if (!this.wareHouseTel) return this.$message('电话号码不能为空')
@@ -499,6 +503,7 @@ export default {
       params['address']['province_text'] = this.itemData.province_text
       params['address']['receiving_name'] = this.receivingName
       params['address']['receiving_tel'] = this.wareHouseTel
+      params['shopeeMapId'] = this.itemData.shopee_map_id
       this.multipleSelection.forEach((item) => {
         params['mallId'].push(item.sysMallId)
       })
@@ -750,7 +755,7 @@ export default {
       // params['address']['shopee_map_id'] = this.itselfShopeeMapId
       if (this.isSG) {
         params['address']['post_code'] = this.itselfPostCode
-      } else if (this.itselfCountry == 'MY') {
+      } else if (this.itselfCountry == 'MY' || this.itselfCountry == 'PH') {
         params['address']['post_code'] = this.sPDistinctInput
       } else {
         params['address']['post_code'] = this.flag4 ? 0 : this.addressData['post_code']

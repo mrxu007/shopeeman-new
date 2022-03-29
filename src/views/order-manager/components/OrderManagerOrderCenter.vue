@@ -2885,7 +2885,6 @@ export default {
               trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || ''
             }
             const trackRes = await this.$api.uploadTrackingNumber(params)
-            console.log(trackRes, 'trackRes')
             if (trackRes.data.code === 200) {
               this.$refs.Logs.writeLog(`订单编号【${order.order_sn}】获取成功`, true)
             } else {
@@ -2900,7 +2899,6 @@ export default {
         console.log(resObj, 'getCrossBorderOrderInfo')
       }
       this.$refs.Logs.writeLog(`获取天猫淘宝海外平台订单信息结束`, true)
-      console.log(this.buyerAccountListGlobal, 'this.buyerAccountListGlobal', orderFilter)
     },
     // 批量天猫淘宝海外平台拍单
     async purchaseGlobalOrder() {
@@ -2929,7 +2927,6 @@ export default {
       if (!this.multipleSelection.length) {
         return this.$message.warning(`请选择要操作的订单`)
       }
-      console.log('4544656')
       const waitOrders = JSON.parse(JSON.stringify(this.multipleSelection))
       const purchasesIdTb = {}
       const abroadShopeeCountry = {}
@@ -2964,10 +2961,10 @@ export default {
       }
       // 3.若上家类型为11:shopee、9:lazada，并且同时存在不同的站点订单提示  “目前只支持单个站点的Shopee/lazada批量拍单,请区分站点”  goods_info.ori_country
       if (Object.keys(abroadLazadaCountry).length > 1) {
-        return this.$message.error(`目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！`)
+        return this.$message.error(`目前只支持单个站点的lazada批量拍单,请区分站点！`)
       }
       if (Object.keys(abroadShopeeCountry).length > 1) {
-        return this.$message.error(`目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！`)
+        return this.$message.error(`目前只支持单个站点的Shopee批量拍单,请区分站点！`)
       }
       // 4.若上家类型为shopee、lazada  判断选择的买手号是否与选择的订单的站点是否一致，若不一致则提示 “请登录并选择对应站点的Shopee/Lazada拍单账号”
       // 5.都需要判断是否登录并选择拍单号，若有某个上家平台的订单但是，单业务未选择买手号则提示  “请登录并选择1688（相应平台（淘宝天猫、拼多多等））拍单账号”
@@ -2981,14 +2978,6 @@ export default {
       account[9] = this.accountlazada
       account[11] = this.accountshopee
       account[13] = this.accountCrossBorder
-      // const pddAccount = this.getAccountById(this.accountpdd)
-      // const taobaoAccount = this.getAccountById(this.accounttaobao)
-      // const jdAccount = this.getAccountById(this.accountjd)
-      // const jxAccount = this.getAccountById(this.accountjx)
-      // const AlibabaAccount = this.getAccountById(this.account1688)
-      // const lazadaAccount = this.getAccountById(this.accountlazada)
-      // const shopeeAccount = this.getAccountById(this.accountshopee)
-      // const crossBorderAccount = this.getAccountGlobalById(this.accountCrossBorder)
       let pddAccount = null
       let taobaoAccount = null
       const jdAccount = null
@@ -2997,9 +2986,6 @@ export default {
       let lazadaAccount = null
       let shopeeAccount = null
       let crossBorderAccount = null
-      console.log('accountCrossBorder', this.accountCrossBorder, this.buyerAccountListGlobal, this.buyerAccountList)
-      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688,
-        this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
       for (const key in purchasesId) {
         console.log(key)
         if (!account[key]) {
@@ -3049,7 +3035,6 @@ export default {
       })
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
-      console.log(buyerAccount, 'buyerAccount')
       const service = new ShotOrderService(waitOrders, buyerAccount, this)
       service.start(this.$refs.Logs.writeLog)
     },
@@ -3101,7 +3086,6 @@ export default {
       this.multipleSelection = [row]
 
       this.colorVisible = true
-      // this.colorRadio = ''
       await this.getColorList()
     },
     // 设置颜色
@@ -3130,10 +3114,7 @@ export default {
           }
         })
         this.colorVisible = false
-        // this.colorRow = {}
-        // this.colorRadio = ''
         this.$message.success('设置成功')
-        // this.closeDialog()
       } else {
         this.$message.error(`设置失败-${res.data.message}`)
       }
@@ -3171,7 +3152,6 @@ export default {
         return this.$message.warning('请先选择需要标记的商品！')
       }
       this.showConsole = false
-      // this.$refs.Logs.consoleMsg = ''
       this.multipleSelection.forEach(async(item) => {
         const params = {
           id: item.id,
@@ -3182,14 +3162,12 @@ export default {
           const index = this.tableData.findIndex((n) => n.id === item.id)
           console.log(index, 'index')
           this.$set(this.tableData[index], 'remark', this.localRamark)
-          // this.$refs.multipleTable.toggleRowSelection(item, false)
           this.$refs.Logs.writeLog(`订单编号【${item.order_sn}】备注成功`, true)
         } else {
           this.$refs.Logs.writeLog(`订单编号【${item.order_sn}】备注失败-${res.data.message}`, false)
         }
         console.log(res)
       })
-      // this.localRamark = ''
       this.localRamarkVisible = false
       this.closeDialog('noRefresh')
     },
@@ -3205,7 +3183,6 @@ export default {
       if (this.isAbroadGood === 0) {
         return this.$message.warning('请选择标记类型！')
       }
-      // this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       array.forEach(async(item) => {
         const params = {
@@ -3226,7 +3203,6 @@ export default {
           this.$refs.Logs.writeLog(`商品ID【${item.goods_info.goods_id}】标记失败-${error}`, false)
         }
       })
-      // this.closeDialog()
       this.isAbroadGood = 0
       this.abroadVisible = false
     },
@@ -3319,9 +3295,7 @@ export default {
       params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
-      console.log(params, 'params')
       const res = await this.$api.applyAsyncExportOrder(params)
-      console.log(res, 'applyAsyncExportOrder')
       if (res.data.code === 200) {
         return this.$message.success(`导出数据请求成功，可点击【导出数据报表】按钮查看导出状态`)
       } else {
@@ -3423,8 +3397,6 @@ export default {
         if (row.shot_order_info.shot_order_sn) {
           const diff = Number(row.escrow_amount - row.shot_order_info.shot_amount).toFixed(2)
           if (diff !== Number(row.gross_profit).toFixed(2)) {
-            // console.log(i, diff - Number(row.gross_profit).toFixed(2), diff, Number(row.gross_profit).toFixed(2), 'uploadGressProfit')
-            // console.log(i, Number(row.gross_profit).toFixed(2))
             row.gross_profit = diff
             const obj = {
               sys_order_id: row.id
@@ -3439,7 +3411,6 @@ export default {
           row.real_gross_profit = diff
         }
         if (Number(row.warehouse_ship_amount) > 0 || [3, 4, 8].indexOf(Number(row.order_status)) > -1) {
-          // console.log("计算最终毛利",Number(row.real_gross_profit)>0,Number(row.real_gross_profit))
           // 收入-采购价-仓库发货金额
           const diff = (row.escrow_amount - row.shot_order_info.shot_amount - Number(row.warehouse_ship_amount) / Number(this.rateList[row.country])).toFixed(2)
           row.real_gross_profit = diff
@@ -3449,8 +3420,6 @@ export default {
         } else {
           sysOrders = sysOrders + ',' + row.id
         }
-        // const categoryName = await this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
-        // this.$set(row, 'categoryName', categoryName)
         this.isSecondSale(row, i)
       })
       if (grossAmountRequest.length > 0) {

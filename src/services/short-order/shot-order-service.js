@@ -64,7 +64,7 @@ export default class {
     if (res.code === 200) {
       orders = res.data
     } else {
-      this.writeLog(`拍单中止${res.data}-${res.code}`, false)
+      this.writeLog(`拍单中止${res.data}`, false)
       return false
     }
     const shortGlobalInfo = {
@@ -273,6 +273,13 @@ export default class {
           return {
             code: 50008,
             data: `店铺【${itemOrder.mall_info.platform_mall_name}】为国内仓，无法对Lazada/Shopee订单进行拍单操作。`
+          }
+        }
+        //上家为shopee但为映射地址
+        if(itemOrder.goods_info.ori_platform_id == 11 && !warehouseInfo.shopee_map_id){
+          return {
+            code: 50001,
+            data: `仓库未映射shopee地址，请重新映射`
           }
         }
       }
