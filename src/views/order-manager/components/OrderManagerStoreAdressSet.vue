@@ -452,6 +452,9 @@ export default {
       if (this.isSG) {
         params['address']['post_code'] = this.itselfPostCode
       }
+      if(this.itselfCountry === 'PH'){
+        params['address']['post_code'] = this.sPDistinctInput
+      }
       await this.updateData(params)
       this.itselfAddressVisible = false
     },
@@ -765,6 +768,7 @@ export default {
       }
       const res = await this.AddressSet.adduserStore(params)
       if (res.code === 200) {
+        await this.$appConfig.updateWarehouseInfo()
         this.$message.success('添加自有仓库成功')
         this.getUserWarehouse()
         this.itselfAddressVisible = false
@@ -881,7 +885,7 @@ export default {
       this.isShowLoading = false
     },
     addAbroadAddress() {
-      console.log(this.sCity, this.sPDistinct, this.sStreet, 'sPDistinct')
+      console.log(this.sCity, this.sPDistinct, this.sStreet, 'sPDistinct',this.itselfUpdateType)
       if (!this.sPDistinct && (!this.sCity) && !this.sStreet) {
         return this.$message.warning('请先进行shopee地址设置')
       }

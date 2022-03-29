@@ -1,9 +1,6 @@
 import shotOrderPlatform from './shot-order-platform'
 import applicationConfig from '../application-config'
-import BaseUtilService from '../BaseUtilService'
-import {
-  dateFormat
-} from '../../util/util'
+import { dateFormat } from '../../util/util'
 import jxRequest from '../../network/jx-request'
 export default class {
   orders = undefined;
@@ -276,7 +273,7 @@ export default class {
           }
         }
         //上家为shopee但为映射地址
-        if(itemOrder.goods_info.ori_platform_id == 11 && !warehouseInfo.shopee_map_id){
+        if (itemOrder.goods_info.ori_platform_id == 11 && !warehouseInfo.shopee_map_id) {
           return {
             code: 50001,
             data: `仓库未映射shopee地址，请重新映射`
@@ -300,14 +297,14 @@ export default class {
       //receiveUserInfo：收货信息
       let receiveUserInfo = {
         UserName: buyerInfo["buyerName"],
-        UserPhone: buyerInfo["buyerPhone"],
+        UserPhone: buyerInfo["buyerPhone"].replaceAll('-',''),
         Provice: buyerInfo["provinceText"],
         City: buyerInfo["cityText"],
         Town: buyerInfo["distinctText"],
         Street: buyerInfo['streetText'],
         PostCode: buyerInfo['postCode'] ? buyerInfo['postCode'].toString() : '000000',
         Address: buyerInfo["buyerAddress"],
-        Remark: itemOrder.message_to_seller  || '', //itemOrderinfo.buyer_memo
+        Remark: itemOrder.message_to_seller || '', //itemOrderinfo.buyer_memo
         ProviceId: buyerInfo["provId"],
         CityId: buyerInfo["cityId"],
         TownId: buyerInfo["distId"],
@@ -315,7 +312,7 @@ export default class {
         Country: buyerInfo["country"] ? buyerInfo["country"] : '',
       }
       //处理goodsInfo
-      console.log(itemOrder, itemOrder.goods_info.ori_url, "处理goodsInfo")
+      console.log(itemOrder, itemOrder.goods_info.ori_url, "处理goodsInfo", this.rateList)
       let goodsInfo = {
         "OwnGoodsId": itemOrder.goods_info.goods_id,
         UrlAddress: itemOrder.goods_info.ori_url,
@@ -536,7 +533,7 @@ export default class {
     addressUserInfo["postCode"] = warehouseInfo.post_code
 
     ////处理拍单姓名、地址、手机号
-    console.log(warehouseInfo,"0000000000")
+    console.log(warehouseInfo, "0000000000")
     let namePhoneAddress = this.dealWithBuyName(warehouseInfo, itemOrder, configInfo, nickInfo)
     console.log(namePhoneAddress, "namePhoneAddress")
     addressUserInfo['buyerName'] = namePhoneAddress['buyerName']
@@ -587,10 +584,10 @@ export default class {
       let buyerName = addressUserInfo['buyerName']
       if (itemOrder.country == "PH") {
         //菲律宾站点名称不能包含#字符，且必须使用空格分隔，直接使用买家姓名
-        buyerName =  warehouseInfo.receiving_name + " " + "SPM";
+        buyerName = warehouseInfo.receiving_name + " " + "SPM";
       }
       addressUserInfo['buyerName'] = buyerName.replaceAll("#", "-");
-      console.log(addressUserInfo,"1111111111111111111")
+      console.log(addressUserInfo, "1111111111111111111")
     } else if (itemOrder.goods_info.ori_platform_id == 11) {
       if (warehouseInfo.country !== 'SG' && warehouseInfo.type === 3) {
         console.log('50009', warehouseInfo, warehouseInfo.shopee_map_id)
