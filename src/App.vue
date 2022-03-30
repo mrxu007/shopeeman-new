@@ -58,10 +58,10 @@ import './assets/css/reset.css'
 import './assets/css/base.less'
 export default {
   name: 'App',
- async mounted() {
-    console.log("00000000000000000",this.$appConfig)
+  async mounted() {
+    console.log('00000000000000000', this.$appConfig)
     this.$appConfig.primaryColor().then(res => {
-      console.log("res-appvue",res)
+      console.log('res-appvue', res)
       document.body.style.setProperty('--themeColor', res)
     })
   }

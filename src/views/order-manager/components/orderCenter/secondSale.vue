@@ -12,15 +12,15 @@
       <div class="btn-header">
         <div class="item mar-right">
           <span>商品ID：</span>
-          <el-input v-model="goodsId" size="mini"></el-input>
+          <el-input v-model="goodsId" size="mini" />
         </div>
         <div class="item mar-right">
           <span>规格编号：</span>
-          <el-input v-model="skuId" size="mini"></el-input>
+          <el-input v-model="skuId" size="mini" />
         </div>
         <div class="item mar-right">
           <span>商品货号：</span>
-          <el-input v-model="goodsNum" size="mini"></el-input>
+          <el-input v-model="goodsNum" size="mini" />
         </div>
         <el-button type="primary" size="mini" @click="getSecondSaleList">搜 索</el-button>
       </div>
@@ -44,19 +44,19 @@
           >
             <el-table-column min-width="130px" label="订单编号" prop="order_sn" align="center" />
             <el-table-column width="80px" label="采购状态" align="center">
-              <template slot-scope="scope" v-if="scope.row.order_status">{{ changeShotStatus(scope.row.shot_order_info.shot_status) }}</template>
+              <template v-if="scope.row.order_status" slot-scope="scope">{{ changeShotStatus(scope.row.shot_order_info.shot_status) }}</template>
             </el-table-column>
             <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">{{ scope.row.goods_info.goods_name }}</template>
+              <template slot-scope="scope">{{ scope.row.goods_info.goods_name || '' }}</template>
             </el-table-column>
             <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">{{ scope.row.goods_info.variation_id }}</template>
+              <template slot-scope="scope">{{ scope.row.goods_info.variation_id || '' }}</template>
             </el-table-column>
             <el-table-column min-width="120px" label="商品规格" prop="variation_sku" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">{{ scope.row.goods_info.goods_spec }}</template>
+              <template slot-scope="scope">{{ scope.row.goods_info.variation_name || '' }}</template>
             </el-table-column>
             <el-table-column align="center" label="商品货号" min-width="120">
-              <template slot-scope="scope">{{ scope.row.goods_info.variation_id }}</template>
+              <template slot-scope="scope">{{ scope.row.goods_info.variation_sku || '' }}</template>
             </el-table-column>
             <el-table-column align="center" label="商品ID" min-width="120">
               <template slot-scope="scope">
@@ -77,11 +77,11 @@
               </template>
             </el-table-column>
             <el-table-column align="center" prop="escrow_amount" label="订单收入" min-width="80">
-              <template slot-scope="scope"
-                ><p>
-                  {{ scope.row.escrow_amount }}<span>{{ scope.row.country | siteCoin }}</span>
-                </p></template
-              >
+              <template
+                slot-scope="scope"
+              ><p>
+                {{ scope.row.escrow_amount }}<span>{{ scope.row.country | siteCoin }}</span>
+              </p></template>
             </el-table-column>
           </el-table>
         </div>
@@ -92,8 +92,8 @@
         <span class="order-title">二次销售海外商品信息</span>
         <div class="order-item">
           <el-table
-            v-loading="tableLoading"
             ref="muliTbale"
+            v-loading="tableLoading"
             :data="secondOrderList"
             tooltip-effect="dark"
             style="width: 100%"
@@ -115,12 +115,14 @@
               <template slot-scope="scope">{{ returnStatus[Number(scope.row.id)] }}</template>
             </el-table-column>
             <el-table-column align="center" label="规格编号" min-width="120" prop="variation_id" />
-            <el-table-column align="center" label="商品货号" min-width="120" prop="goods_id" />
+            <el-table-column align="center" label="商品货号" min-width="120" prop="">
+              <template v-slot="{row}">{{ row.goods_info.variation_sku || '' }}</template>
+            </el-table-column>
             <el-table-column align="center" label="商品ID" min-width="120" prop="goods_id" />
             <el-table-column align="center" label="商品数量" min-width="80" prop="goods_count" />
             <el-table-column align="center" label="商品图片" min-width="80">
               <template slot-scope="scope">
-                <el-image v-bind:src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px"></el-image>
+                <el-image :src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
               </template>
             </el-table-column>
             <el-table-column align="center" prop="goods_price" label="商品价格" min-width="80" />
@@ -140,6 +142,16 @@
 import { changeShotStatus } from './orderCenter'
 export default {
   name: 'SecondSale',
+  props: {
+    chooseData: {
+      type: Object,
+      default: {}
+    },
+    secondOrderData: {
+      type: Array,
+      default: []
+    }
+  },
   data() {
     return {
       goodsId: '',
@@ -149,67 +161,58 @@ export default {
       secondOrderList: [],
       returnType: ['未知', '跨境', '本土预售', '本土拍单', '采购物流单号', '备货暂存'],
       returnStatus: ['已收货或上架', '已匹配订单', '已下架'],
-      tableLoading: false,
+      tableLoading: false
     }
-  },
-  props: {
-    chooseData: {
-      type: Object,
-      default: {},
-    },
-    secondOrderData: {
-      type: Array,
-      default: [],
-    },
   },
   mounted() {
     this.orderList = [this.chooseData]
-    if(this.chooseData.secondType === 'skuID'){
-        this.skuId = this.chooseData.goods_info.variation_id
-    }else if(this.chooseData.secondType === 'goodsId'){
-        this.goodsId = this.chooseData.goods_info.goods_id
-    }else if(this.chooseData.secondType === 'skuName'){
-        this.goodsNum = this.chooseData.goods_info.goods_spec
+    console.log('111', this.orderList)
+    if (this.chooseData.secondType === 'skuID') {
+      this.skuId = this.chooseData.goods_info.variation_id
+    } else if (this.chooseData.secondType === 'goodsId') {
+      this.goodsId = this.chooseData.goods_info.goods_id
+    } else if (this.chooseData.secondType === 'skuName') {
+      this.goodsNum = this.chooseData.goods_info.goods_spec
     }
     this.secondOrderList = this.secondOrderData
     console.log(this.chooseData)
   },
   methods: {
-    //二次销售出库
+    // 二次销售出库
     async matchAndOut(row) {
-        if(row.country !== this.chooseData.country){
+      if (row.country !== this.chooseData.country) {
         return this.$message.warning('必须为相同站点才能进行商品二次销售')
-        }
-        let params = {
-            id:row.id,
-            sysOrderId:this.chooseData.id
-        }
-        let res = await this.$api.uploadSecondSale(params)
-        console.log(res,"res")
-        if(res.data.code === 200){
-            this.$message.success(`匹配出库成功！`)
-            this.$emit('close');
-        }else{
-            this.$message.error(`匹配出库失败，${res.data.message}`)
-        }
+      }
+      const params = {
+        id: row.id,
+        sysOrderId: this.chooseData.id
+      }
+      const res = await this.$api.uploadSecondSale(params)
+      console.log(res, 'res')
+      if (res.data.code === 200) {
+        this.$message.success(`匹配出库成功！`)
+        this.$emit('close')
+      } else {
+        this.$message.error(`匹配出库失败，${res.data.message}`)
+      }
     },
-    //搜索
+    // 搜索
     async getSecondSaleList() {
-      let params = {
+      const params = {
         goodsId: this.goodsId,
         variationId: this.skuId,
-        goodsSpec: this.goodsNum,
+        goodsSpec: this.goodsNum
       }
       this.tableLoading = true
-      let res = await this.$api.getsecondlist(params)
+      const res = await this.$api.getsecondlist(params)
       if (res.data.code === 200) {
         this.secondOrderList = res.data.data
       }
       this.tableLoading = false
       console.log('getSecondSaleList', this.secondOrderList)
     },
-    changeShotStatus,
-  },
+    changeShotStatus
+  }
 }
 </script>
 

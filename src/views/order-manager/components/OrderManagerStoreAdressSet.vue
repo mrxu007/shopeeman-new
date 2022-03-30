@@ -34,7 +34,8 @@
           height="640"
           tooltip-effect="dark"
           :header-cell-style="{
-            backgroundColor: '#f5f7fa'}">
+            backgroundColor: '#f5f7fa'}"
+        >
           <u-table-column type="index" label="序号" min-width="50px" align="center" fixed />
           <u-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
           <u-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip>
@@ -224,13 +225,16 @@
         </div>
         <u-table
           ref="bindMallDataRef"
-          height="420"
           v-loading="warehouseLoading"
+          height="420"
           :data="bindMallData"
-          stripe use-virtual :row-key="getRowKey"
-          @selection-change="handleSelectionChange"
+          stripe
+          use-virtual
+          :row-key="getRowKey"
           :header-cell-style="{
-            backgroundColor: '#f5f7fa'}">
+            backgroundColor: '#f5f7fa'}"
+          @selection-change="handleSelectionChange"
+        >
           <u-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
           <u-table-column prop="country" align="center" label="站点" min-width="90">
             <template slot-scope="{ row }">
@@ -473,7 +477,10 @@ export default {
         this.bindMallData.forEach((item1) => {
           row.mallInfo.forEach((item2) => {
             if (item2.id === item1.sysMallId) {
-              this.$refs.bindMallDataRef.toggleRowSelection(item1)
+              this.$refs.bindMallDataRef.toggleRowSelection([{
+                row: item1,
+                selected: true
+              }])
             }
           })
         })
@@ -481,7 +488,7 @@ export default {
     },
     // 修改仓库
     async updateWarehouse() {
-      console.log(this.itemData,"this.itemData")
+      console.log(this.itemData, 'this.itemData')
       if (!this.warehouseName) return this.$message('仓库名不能为空')
       if (!this.receivingName) return this.$message('收件人不能为空')
       if (!this.wareHouseTel) return this.$message('电话号码不能为空')

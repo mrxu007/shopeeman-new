@@ -594,7 +594,7 @@ export default {
         // 查询该店铺是否存在任务
         const oldtesk = await window.BaseUtilBridgeService.getTopGoodsTask(mall.platform_mall_id)
         const teskType = oldtesk ? 2 : 1
-
+        debugger
         let top_total_count = 0
         if (this.otherConditon === '1') { // 自定义商品
           top_total_count = this.couponGoodslist.length

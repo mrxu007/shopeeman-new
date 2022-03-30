@@ -104,7 +104,7 @@
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
               <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
-              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p> 
+              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p>
             </el-row>
           </div>
         </div>
@@ -285,11 +285,11 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
 import { orderStatusList, changeOrderStatus, syncStatusFirst } from '../components/orderCenter/orderCenter'
 import storeChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, creatDate, getDaysBetween } from '../../../util/util'
+import md5 from 'js-md5'
 import surFaceService from '../../../services/surfaceOrder'
 export default {
   components: {
@@ -337,6 +337,7 @@ export default {
     }
   },
   mounted() {
+    console.log('ces')
     this.createTime = creatDate(15)
     setTimeout(() => {
       this.getOrderList()
@@ -761,9 +762,10 @@ export default {
       if (!this.downloadSetList.length) {
         this.$message.warning('请选择需要导出的选项')
       }
-      console.log(this.downloadSetList)
+      let subExportData = []
       if (this.multipleSelection.length) {
-        this.tableToExcel([this.multipleSelection])
+        // this.tableToExcel([this.multipleSelection])
+        subExportData = [this.multipleSelection]
       } else {
         let sysMallId = ''
         this.selectMallList.forEach((item, index) => {
@@ -795,7 +797,7 @@ export default {
         if (!exportData.length) {
           return this.$message.warning('没有可导出的数据！')
         }
-        const subExportData = []
+        // const subExportData = []
         const dataCopy = JSON.parse(JSON.stringify(exportData))
         if (dataCopy.length > 7000) {
           let i = 0
@@ -806,16 +808,122 @@ export default {
         } else {
           subExportData[0] = dataCopy
         }
-        const exporGoodsList = subExportData.forEach(item => {
-          // Object.assign=
-        })
-        // subExportData
-        console.log('1111', subExportData)
+
         // 筛选数据
         // this.downloadSetList=
-
-        // this.$router.push({ path: '/customSetDownload', query: { goodsProps: [], goodsList: [] }})
       }
+      // 数据组装
+      const exporGoodsList = []
+      let num = 0
+      for (let index = 0; index < subExportData.length; index++) {
+        const jsonData = subExportData[index]
+        for (let j = 0; j < jsonData.length; j++) {
+          const item = jsonData[j]
+          // let goodsArr = item.goodsInfo.length || []
+          for (let m = 0; m < item.goodsInfo.length; m++) {
+            const goodsInfo = item.goodsInfo[m]
+            const obj = {}
+            obj['SerialNumber'] = num++
+            this.downloadSetList.map(el => {
+              if (el === 'country') {
+                obj[el] = item.mall_info && item.mall_info.country ? this.$filters.chineseSite(item.mall_info.country) : ''
+              } else if (el === 'platform_mall_name') {
+                obj[el] = item.mall_info && item.mall_info.platform_mall_name ? item.mall_info.platform_mall_name : ''
+              } else if (el === 'goods_name') {
+                obj[el] = goodsInfo.goods_name ? goodsInfo.goods_name : ''
+              } else if (el === 'outer_goods_id') {
+                obj[el] = goodsInfo.outer_goods_id ? goodsInfo.outer_goods_id : ''
+              } else if (el === 'order_sn') {
+                obj[el] = goodsInfo.order_sn ? goodsInfo.order_sn : ''
+              } else if (el === 'goods_count') {
+                obj[el] = goodsInfo.goods_count ? goodsInfo.goods_count : ''
+              } else if (el === 'variation_name') {
+                obj[el] = goodsInfo ? goodsInfo.variation_name : ''
+              } else if (el === 'goodsLink') {
+                obj[el] = item.goodsLink ? item.goodsLink : ''
+              } else if (el === 'goods_img') {
+                obj[el] = goodsInfo ? this.$filters.imageRender([goodsInfo.goods_img]) : ''
+              } else if (el === 'created_time') {
+                obj[el] = item.created_time ? item.created_time : ''
+              } else if (el === 'ship_by_date') {
+                obj[el] = item.ship_by_date ? item.ship_by_date : ''
+              } else if (el === 'is_apply_tracking_no') {
+                obj[el] = item.is_apply_tracking_no ? this.trackStatus[item.is_apply_tracking_no] : ''
+              } else if (el === 'hasLogistics') {
+                obj[el] = item.hasLogistics == 0 ? '否' : '是'
+              } else if (el === 'order_status') {
+                obj[el] = item.order_status ? changeOrderStatus(item.order_status) : ''
+              } else if (el === 'logistics_name') {
+                obj[el] = item.logistics_name ? item.logistics_name : ''
+              } else if (el === 'tracking_no') {
+                obj[el] = item.tracking_no ? item.tracking_no : ''
+              } else {
+                //
+              }
+            })
+            exporGoodsList.push(obj)
+          }
+        }
+      }
+      const exporGoodsProp = this.downloadSetList.map(el => {
+        const pop = {}
+        pop.propName = el
+        if (el === 'country') {
+          pop.label = '站点'
+          pop.width = 60
+        } else if (el === 'platform_mall_name') {
+          pop.label = '店铺名称'
+          pop.width = 120
+        } else if (el === 'goods_name') {
+          pop.label = '商品名称'
+          pop.width = 180
+        } else if (el === 'outer_goods_id') {
+          pop.label = 'parentSKU'
+          pop.width = 120
+        } else if (el === 'order_sn') {
+          pop.label = '订单编号'
+          pop.width = 150
+        } else if (el === 'goods_count') {
+          pop.label = '商品数量'
+          pop.width = 100
+        } else if (el === 'variation_name') {
+          pop.label = '商品规格'
+          pop.width = 150
+        } else if (el === 'goodsLink') {
+          pop.label = '商品链接'
+          pop.width = 180
+        } else if (el === 'goods_img') {
+          pop.label = '商品图片'
+          pop.width = 80
+        } else if (el === 'created_time') {
+          pop.label = '订单创建时间'
+          pop.width = 180
+        } else if (el === 'ship_by_date') {
+          pop.label = '截止发货时间'
+          pop.width = 180
+        } else if (el === 'is_apply_tracking_no') {
+          pop.label = '是否已申请物流单号'
+          pop.width = 60
+        } else if (el === 'hasLogistics') {
+          pop.label = '是否同步面单信息'
+          pop.width = 60
+        } else if (el === 'order_status') {
+          pop.label = '发货状态'
+          pop.width = 60
+        } else if (el === 'logistics_name') {
+          pop.label = '虾皮物流'
+          pop.width = 180
+        } else {
+          //
+        }
+        return pop
+      })
+      const Base64 = require('js-base64').Base64
+      // this.$router.push({ name: 'customSetDownload', params: { goodsProps: exporGoodsProp, goodsList: exporGoodsList }})
+      this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${JSON.stringify(exporGoodsProp)}&&goodsList=${JSON.stringify(exporGoodsList)}`)
+      // this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${md5(exporGoodsProp)}&&goodsList=${md5(exporGoodsList)}`)
+
+      // this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${Base64.encode(JSON.stringify(exporGoodsProp))}&&goodsList=${Base64.encode(JSON.stringify(exporGoodsList))}`)
     },
     // async downLoadPickListAuto() {
     //   this.downloadSetVisible = true

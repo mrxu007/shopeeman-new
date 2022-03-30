@@ -21,7 +21,9 @@
     <!-- <main v-if="activeVal === '2'"><OrderManagerReceivingAddress /></main> -->
 
     <!--发货管理 -->
-    <main v-if="activeVal === '3'"><OrderManagerDeliveryManagement /></main>
+    <keep-alive>
+      <main v-if="activeVal === '3'"><OrderManagerDeliveryManagement /></main>
+    </keep-alive>
 
     <!--丢件信息查询 -->
     <main v-if="activeVal === '4'"><OrderManagerLostInfoQuery /></main>

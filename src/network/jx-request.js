@@ -2,7 +2,7 @@ import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 
-const baseURL = window.appInfo.route
+const baseURL = window.appInfo && window.appInfo.route
 // const baseURL = 'http://release.shopeeman.com/api'
 // const baseURL = 'http://www-lyj.shopee-native.com/api'
 const AppRequest = axios.create({ // 壳内转发请求

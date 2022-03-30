@@ -299,7 +299,9 @@ export default {
         page_number: pageNumber,
         page_size: this.mallPageSize,
         cursor: 0,
-        shop_id: mall.platform_mall_id
+        // shop_id: mall.platform_mall_id,
+        mallId: mall.platform_mall_id,
+        from_page_number: pageNumber
       }
       if (this.assessTime.length) {
         params.ctime_start = Math.round(new Date(this.assessTime[0]).getTime() / 1000)
@@ -396,7 +398,7 @@ export default {
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.order_sn && item.order_sn + '\t'}</td>
                     <td>${item.productUrl ? item.productUrl : '' + '\t'}</td>
-                    <td>${item.product_cover ? this.$filters.imageRender([ item.product_cover]) : '' + '\t'}</td>
+                    <td>${item.product_cover ? this.$filters.imageRender([item.product_cover]) : '' + '\t'}</td>
                     <td>${(item.product_name || '111') + '\t'}</td>
                     <td>${item.user_name ? item.user_name : '' + '\t'}</td>
                     <td>${item.rating_star ? item.rating_star : '' + '\t'}</td>
