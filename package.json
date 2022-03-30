@@ -9,7 +9,6 @@
         "svg": "vsvg -s ./src/assets/svg-icons -t ./src/icons"
     },
     "dependencies": {
-        "64": "^0.2.0",
         "@gaoding/editor-sdk": "^2.1.0",
         "awe-dnd": "^0.3.4",
         "axios": "^0.21.1",
@@ -25,8 +24,6 @@
         "error-capture-handle": "^1.1.9",
         "file-saver": "^2.0.5",
         "html2canvas": "^1.4.1",
-        "js-base": "0.0.1-beta",
-        "js-base64": "^3.7.2",
         "js-md5": "^0.7.3",
         "js-sha256": "^0.9.0",
         "jsencrypt": "^3.2.0",
