@@ -156,10 +156,10 @@ const inputTypeList = [{
   value: 'orderSn',
   label: '订单编号'
 },
-  {
-    value: 'variationName',
-    label: '规格编号'
-  },
+  // {
+  //   value: 'variationName',
+  //   label: '规格编号'
+  // },
   {
     value: 'originalTrackingNumber',
     label: '采购物流单号'
