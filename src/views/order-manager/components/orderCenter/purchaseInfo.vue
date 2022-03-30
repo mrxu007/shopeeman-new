@@ -260,7 +260,9 @@ export default {
           for (let i = 0; i < this.chooseData.length; i++) {
             const order = this.chooseData[i]
             this.form.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
-            const params = this.form
+            const params = JSON.parse(JSON.stringify(this.form))
+            // params.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
+            // console.log(params, '-----------')
             params.sysOrderId = order.id
             params.platformId = params.platformId.toString()
             params.shotStatus = params.shotStatus.toString()
@@ -286,6 +288,7 @@ export default {
               params.warehouseUserId = this.warehouse.id || ''
             }
             this.loading = true
+            console.log(params, '11111111111111')
             const res = await this.$api.updateShotOrder(params)
             console.log(res, 'saveBatchSetting')
             if (res.data.code === 200) {

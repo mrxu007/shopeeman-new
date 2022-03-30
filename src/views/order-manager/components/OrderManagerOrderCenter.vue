@@ -321,7 +321,9 @@
         :cell-style="{ padding: '0' }"
         :header-cell-style="{backgroundColor: '#f5f7fa'}"
         :resizable="true"
+        :default-sort="sortRule"
         @selection-change="handleSelectionChange"
+        @sort-change="sortChange"
       >
         <u-table-column v-if="tableColumnShow" align="center" type="selection" width="50" fixed="left" />
         <u-table-column v-if="tableColumnShow" align="center" type="index" label="序号" width="50" fixed="left">
@@ -1764,7 +1766,9 @@ export default {
         }],
       columnConfigShowList: [],
       column_search: '',
-      tableHeight: 430
+      tableHeight: 430,
+      sortRule: { prop: null, order: null }, // 记录排序规则
+      tabData: '' // 排序前的数据
     }
   },
   computed: {
@@ -1830,6 +1834,25 @@ export default {
     })
   },
   methods: {
+    // 排序
+    sortChange(cloumn) {
+      if (cloumn.order !== null && cloumn.prop === 'ship_by_date') {
+        var data = []
+        for (let i = 0; i < this.tableData.length; i++) {
+          if (!this.tableData[i].ship_by_date) {
+            data.push(this.tableData[i])
+          } else {
+            data.unshift(this.tableData[i])
+          }
+        }
+        this.tableData = data
+      }
+      if (cloumn.order === null) {
+        this.tableData = this.tabData
+      }
+      this.sortRule.order = cloumn.order
+      this.sortRule.prop = cloumn.prop
+    },
     tableRowBound(methodName, row, index, item) {
       if (methodName === 'viewDetails_orderDetail') {
         this.viewDetails('orderDetail', row.order_id, row.mall_info.platform_mall_id)
@@ -3344,6 +3367,12 @@ export default {
       try {
         if (res.data.code && res.data.code === 200) {
           this.tableData = res.data.data.data
+          // 排序规则
+          this.tabData = res.data.data.data
+          if (this.sortRule.order !== null && this.sortRule.prop === 'ship_by_date') {
+            this.sortChange(this.sortRule)
+          }
+          //
           if (isNo && scrollTop > 0) {
             setTimeout(() => {
               divData.scrollTop = scrollTop
