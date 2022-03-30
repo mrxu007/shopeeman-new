@@ -31,9 +31,8 @@
               <el-table-column align="center" type="index" label="序号" min-width="50px"/>
               <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center"/>
               <el-table-column width="80px" label="订单状态" prop="order_status" align="center">
-                <template v-if="scope.row.order_status" slot-scope="scope">{{
-                    changeOrderStatus(scope.row.order_status)
-                  }}
+                <template v-if="scope.row.order_status" slot-scope="scope">
+                  {{changeOrderStatus(scope.row.order_status)}}
                 </template>
               </el-table-column>
               <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip/>
@@ -323,7 +322,7 @@ export default {
               } else if (this.outStoreType === '1') {
                 this.selfPlaceOrder()
               } else {
-                this.placeOrder()
+                this.productPlaceOrder()
               }
             }).catch(() => {
           this.$message({
@@ -353,7 +352,6 @@ export default {
       }
       const list = []
       const widInfo = {}
-      console.log('zzz', arr)
       arr.forEach((item) => {
         widInfo[item.wid] = item.wid
         const obj = {
@@ -386,12 +384,14 @@ export default {
       }
       const res = await this.$api.outOfStockAbroad(params)
       await this.saveStockSkuId()
-      if (res.data.code === 200) {
+      if (true || res.data.code === 200) {
+        let main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('下单成功')
         this.flagText = '出库成功'
-        this.$emit('setTableData', this.orderInfo.main_order_sn, 'order_status', 3)
         this.matchOrderList = []
         this.totalPrice()
+        this.$emit('setTableData',main_order_sn , 'order_status', 3)
+        this.goNext()
       } else {
         this.flagText = `出库失败，${res.data.message}`
         return this.$message.error(`出库失败，${res.data.message}`)
@@ -448,11 +448,13 @@ export default {
       }
       const res = await this.$api.homeOutStockOrder(params)
       if (res.data.code === 200) {
+        let main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('下单成功')
         this.flagText = '出库成功'
-        this.$emit('setTableData', this.orderInfo.main_order_sn, 'order_status', 3)
         this.matchOrderList = []
         this.totalPrice()
+        this.$emit('setTableData', main_order_sn, 'order_status', 3)
+        this.goNext()
       } else {
         this.flagText = `出库失败，${res.data.message}`
         return this.$message.error(`出库失败，${res.data.message}`)
@@ -480,9 +482,11 @@ export default {
       })
       const res = await this.$api.selfOutStock({ lists: paramsList })
       if (res.data.code === 200) {
+        let main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('出库成功')
         this.flagText = '出库成功'
-        this.$emit('setTableData', this.orderInfo.main_order_sn, 'order_status', 3)
+        this.$emit('setTableData',main_order_sn , 'order_status', 3)
+        this.goNext()
       } else {
         this.flagText = `出库失败，${res.data.message}`
         this.$message.error(`出库失败，${res.data.message}`)
@@ -510,13 +514,15 @@ export default {
       })
       const res = await this.$api.productOutStock({ lists: paramsList })
       if (res.data.code === 200) {
+        let main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('出库成功')
         this.flagText = '出库成功'
-        this.$emit('setTableData', this.orderInfo.main_order_sn, 'order_status', 3)
-        arr.forEach(async(item) => {
+        this.$emit('setTableData', main_order_sn, 'order_status', 3)
+        for (const item of arr) {
           const res = await this.$commodityService.updateSkuStock(item.sku_id, item.stock_num - item.outStock)
           console.log(res, 'updateSkuStock', item.stock_num - item.outStock)
-        })
+        }
+        this.goNext()
       } else {
         this.flagText = `出库失败，${res.data.message}`
         this.$message.error(`出库失败，${res.data.message}`)

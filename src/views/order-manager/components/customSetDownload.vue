@@ -1,23 +1,30 @@
 <template>
-  <div>
+  <div style="padding:10px">
     <!-- <el-button style="margin: 10px;" size="mini" type="primary" @click="point">打印</el-button> -->
-    <div id="faceId" :style="`width:${table_width}px;`">
+    <div id="faceId" :style="`width:${table_width+60}px;`">
       <el-table v-if="table_width>0" :data="goodsList" tooltip-effect="dark" class="tableContent">
         <el-table-column :label="headTitle" align="center">
-          <div v-for="(gPros,index) in goodsProps" :key="index">
-            <el-table-column
-              v-if="gPros.propName!=='goods_img'"
-              align="center"
-              :prop="gPros.propName"
-              :label="gPros.label"
-              :width="gPros.width"
-            />
-            <el-table-column v-else align="center" :prop="gPros.propName" :label="gPros.label" :width="gPros.width">
-              <template slot-scope="scope">
-                <el-image :src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
-              </template>
-            </el-table-column>
-          </div>
+          <el-table-column
+            align="center"
+            label="序号"
+            width="60"
+            type="index"
+          />
+          <el-table-column
+            v-for="(gPros,index) in goodsProps"
+            v-if="gPros.propName!=='goods_img'"
+            :key="index"
+            align="center"
+            :prop="gPros.propName"
+            :label="gPros.label"
+            :width="gPros.width"
+          />
+          <el-table-column v-else align="center" :prop="gPros.propName" :label="gPros.label" :width="gPros.width">
+            <template slot-scope="scope">
+              <el-image :src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
+            </template>
+          </el-table-column>
+
         </el-table-column>
       </el-table>
     </div>
@@ -126,6 +133,7 @@ export default {
      .cell{
          font-weight: bold;
          font-size: 20px !important;
+         color: #222222;
      }
  }
 </style>

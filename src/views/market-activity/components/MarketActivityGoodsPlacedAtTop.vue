@@ -293,8 +293,7 @@ export default {
       this.showlog = false
       this.$refs.Logs.writeLog(`正在获取列表信息......`, true)
       const params = this.selectMalllist.map(item => item['platform_mall_id']).toString()
-      const alltest = await window.BaseUtilBridgeService.getTopGoodsTask(params)
-      debugger
+      const alltest = await this.$BaseUtilBridgeService.getTopGoodsTask(params)
       if (!alltest.length) {
         this.$refs.Logs.writeLog(`当前暂无置顶任务`, true)
       }
@@ -304,7 +303,7 @@ export default {
     async getTopTest() {
       this.showlog = false
       this.$refs.Logs.writeLog(`正在获取置顶任务......`)
-      const res = await this.$api.topTask()
+      const res = await this.$BaseUtilBridgeService.getTopGoodsTask()
       if (res.data.code === 200) {
         this.$refs.Logs.writeLog(`获取置顶任务成功`, true)
         this.page = res.data.data.current_page
@@ -380,7 +379,7 @@ export default {
       if (mall.top_type === '6') {
         params.listOrderType = 'price_dsc'
       }
-      const getGoods = []
+      let getGoods = []
       let flag = true
       while (flag) {
         mItem['pageNumber']++
@@ -391,18 +390,22 @@ export default {
             break
           }
           const resgoodsList = res.data.list
-          for (const goods of resgoodsList) {
-            if (topedlist.length) {
-              const index = topedlist.indexOf(el => { return goods.id === el })
-              if (index >= 0) {
-                continue
-              }
-            }
-            getGoods.push(goods.id)
-            if (getGoods.length >= 5) {
-              flag = false
-            }
+          getGoods += resgoodsList
+          if (getGoods.length > 5) {
+            break
           }
+          // for (const goods of resgoodsList) {
+          //   if (topedlist.length) {
+          //     const index = topedlist.indexOf(el => { return goods.id === el })
+          //     if (index >= 0) {
+          //       continue
+          //     }
+          //   }
+          //   getGoods.push(goods.id)
+          //   if (getGoods.length >= 5) {
+          //     flag = false
+          //   }
+          // }
         } else {
           flag = false
         }
@@ -590,36 +593,38 @@ export default {
     // 5.上报置顶商品
     // 6.上报置顶记录
     async createTesk(mall, count = { count: 1 }) {
+      debugger
       try {
         // 查询该店铺是否存在任务
-        const oldtesk = await window.BaseUtilBridgeService.getTopGoodsTask(mall.platform_mall_id)
-        const teskType = oldtesk ? 2 : 1
+        const gettesk = await this.$BaseUtilBridgeService.getTopGoodsTask(mall.platform_mall_id)
+        const isCreatedtesk = gettesk ? 0 : 1
         debugger
-        let top_total_count = 0
+        let top_total_count = 0 // 需要置顶商品数
         if (this.otherConditon === '1') { // 自定义商品
           top_total_count = this.couponGoodslist.length
         } else {
-          top_total_count = this.loopGoodsNum
+          top_total_count = this.loopGoodsNum // 接口获取
         }
-        // 获取置顶商品
-        let topGoods = []
-        if (this.otherConditon === '1') { // 自定义商品
-          topGoods = this.couponGoodslist
-        } else {
-          const topedlist = await window.BaseUtilBridgeService.getTopGoods(mall.platform_mall_id, null, true)
-          topGoods = await this.getMallTopGoods(mall, topedlist)
-        }
+        // // 获取置顶商品
+        // let topGoods = []
+        // if (this.otherConditon === '1') { // 自定义商品
+        //   topGoods = this.couponGoodslist
+        // } else {
+        //   mall['top_type'] = this.saleType
+        //   // const topedlist = await window.BaseUtilBridgeService.getTopGoods(mall.platform_mall_id, null, true)
+        //   topGoods = await this.getMallTopGoods(mall, top_total_count)
+        // }
         const currentTime = new Date().getTime()
         // 创建
         const param = {
           'country': mall.country,
           'mall_name': mall.mall_alias_name || mall.platform_mall_name,
           'mall_id': mall.platform_mall_id,
-          'top_task_type': teskType, // 1 新建 2 重建
+          'top_task_type': isCreatedtesk, // 1 新建 2 重建
           'top_total_count': top_total_count,
-          'toped_count': oldtesk.toped_count || 0,
+          'toped_count': gettesk.toped_count || 0,
           'next_top_time': this.formatTime(currentTime + 3600 * 1000 * 4),
-          'topping_goods_ids': topGoods,
+          'topping_goods_ids': top_total_count,
           'message': '任务创建成功',
           'created_at': this.formatTime(currentTime),
           'updated_at': this.formatTime(currentTime)

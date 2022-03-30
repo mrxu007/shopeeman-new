@@ -224,9 +224,6 @@ export default {
       }
       const param = {
         content: {
-          // id: this.userInfo.id,
-          // uid: this.userInfo.uid,
-          // uuid: 0,
           oriLogisticsIntervalTime: this.interTime, // 获取物流单号间隔时间
           isAutoOriLogistics: this.isAutoToken, // 是否自定获取
           payAccount: this.accountZFB, // 支付宝账号

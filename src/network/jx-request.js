@@ -275,5 +275,5 @@ export default {
   deleteOrderTrackingNumber: (data) => AppRequest.post('/order/deleteOrderTrackingNumber', data),
   // 二次销售上下架商品
   operationReturnPackage: (data) => AppRequest.post('/overseasTansferPackage/operationReturnPackage', data)
-
+  // 商品置顶
 }

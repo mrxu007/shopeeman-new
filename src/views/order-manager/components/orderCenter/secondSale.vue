@@ -47,16 +47,16 @@
               <template v-if="scope.row.order_status" slot-scope="scope">{{ changeShotStatus(scope.row.shot_order_info.shot_status) }}</template>
             </el-table-column>
             <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">{{ scope.row.goods_info.goods_name || '' }}</template>
+              <template slot-scope="scope">{{ scope.row.goods_info && scope.row.goods_info.goods_name }}</template>
             </el-table-column>
             <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">{{ scope.row.goods_info.variation_id || '' }}</template>
+              <template slot-scope="scope">{{ scope.row.goods_info && scope.row.goods_info.variation_id }}</template>
             </el-table-column>
             <el-table-column min-width="120px" label="商品规格" prop="variation_sku" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">{{ scope.row.goods_info.variation_name || '' }}</template>
+              <template slot-scope="scope">{{ scope.row.goods_info && scope.row.goods_info.variation_name }}</template>
             </el-table-column>
             <el-table-column align="center" label="商品货号" min-width="120">
-              <template slot-scope="scope">{{ scope.row.goods_info.variation_sku || '' }}</template>
+              <template slot-scope="scope">{{ scope.row.goods_info && scope.row.goods_info.variation_sku }}</template>
             </el-table-column>
             <el-table-column align="center" label="商品ID" min-width="120">
               <template slot-scope="scope">
@@ -116,7 +116,7 @@
             </el-table-column>
             <el-table-column align="center" label="规格编号" min-width="120" prop="variation_id" />
             <el-table-column align="center" label="商品货号" min-width="120" prop="">
-              <template v-slot="{row}">{{ row.goods_info.variation_sku || '' }}</template>
+              <template v-slot="{row}">{{ row.variation_sku }}</template>
             </el-table-column>
             <el-table-column align="center" label="商品ID" min-width="120" prop="goods_id" />
             <el-table-column align="center" label="商品数量" min-width="80" prop="goods_count" />
@@ -166,7 +166,6 @@ export default {
   },
   mounted() {
     this.orderList = [this.chooseData]
-    console.log('111', this.orderList)
     if (this.chooseData.secondType === 'skuID') {
       this.skuId = this.chooseData.goods_info.variation_id
     } else if (this.chooseData.secondType === 'goodsId') {

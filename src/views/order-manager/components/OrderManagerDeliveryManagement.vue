@@ -814,7 +814,7 @@ export default {
       }
       // 数据组装
       const exporGoodsList = []
-      let num = 0
+      const num = 1
       for (let index = 0; index < subExportData.length; index++) {
         const jsonData = subExportData[index]
         for (let j = 0; j < jsonData.length; j++) {
@@ -823,7 +823,7 @@ export default {
           for (let m = 0; m < item.goodsInfo.length; m++) {
             const goodsInfo = item.goodsInfo[m]
             const obj = {}
-            obj['SerialNumber'] = num++
+            // obj['SerialNumber'] = num++
             this.downloadSetList.map(el => {
               if (el === 'country') {
                 obj[el] = item.mall_info && item.mall_info.country ? this.$filters.chineseSite(item.mall_info.country) : ''
@@ -876,7 +876,7 @@ export default {
           pop.width = 120
         } else if (el === 'goods_name') {
           pop.label = '商品名称'
-          pop.width = 180
+          pop.width = 350
         } else if (el === 'outer_goods_id') {
           pop.label = 'parentSKU'
           pop.width = 120
@@ -913,9 +913,7 @@ export default {
         } else if (el === 'logistics_name') {
           pop.label = '虾皮物流'
           pop.width = 180
-        } else {
-          //
-        }
+        } else {}
         return pop
       })
       // this.$router.push({ name: 'customSetDownload', params: { goodsProps: exporGoodsProp, goodsList: exporGoodsList }})

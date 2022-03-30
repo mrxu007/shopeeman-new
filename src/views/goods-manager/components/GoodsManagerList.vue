@@ -3294,25 +3294,28 @@ export default {
             (this.soldMax < 99999999 && this.soldMax >= 0) ||
             this.categoryName ||
             this.queryType === 1) {
-          // if (!(this.queryType === 100 || this.queryType === 200)) {
-          if (this.keyword) {
-            params['searchType'] = this.searchType
-            params['keyword'] = this.keyword.trim()
+          if ((this.queryType === 100 || this.queryType === 200)) {
+            res = await this.GoodsList.getMpskuList(params) // 无条件搜索
+          } else {
+            if (this.keyword) {
+              params['searchType'] = this.searchType
+              params['keyword'] = this.keyword.trim()
+            }
+            if (this.categoryName) {
+              params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
+            }
+            // 商品数量
+            params['goodsMin'] = this.goodsMin
+            params['goodsMax'] = this.goodsMax
+            // }
+            // 销售量
+            params['soldMin'] = this.soldMin
+            params['soldMax'] = this.soldMax
+            if (mItem.cursor) {
+              params['cursor'] = mItem.cursor
+            }
+            res = await this.GoodsList.searchProductList(params) // 有条件搜索
           }
-          if (this.categoryName) {
-            params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
-          }
-          // 商品数量
-          params['goodsMin'] = this.goodsMin
-          params['goodsMax'] = this.goodsMax
-          // }
-          // 销售量
-          params['soldMin'] = this.soldMin
-          params['soldMax'] = this.soldMax
-          if (mItem.cursor) {
-            params['cursor'] = mItem.cursor
-          }
-          res = await this.GoodsList.searchProductList(params) // 有条件搜索
         } else {
           res = await this.GoodsList.getMpskuList(params) // 无条件搜索
         }
@@ -3526,45 +3529,45 @@ export default {
           if (Number(this.sellStatus) === 2 && Number(item.stock) === 0) {
             continue
           }
-        }
-        // 过滤上家来源
-        if (this.source[0] !== 0 && !(this.source.includes(item.platformTypeStr))) {
-          continue
-        }
-        // 过滤更新时间
-        if (this.modifyTime?.length && item.modify_time < this.modifyTime[0]) {
-          continue
-        }
-        if (this.modifyTime?.length && item.modify_time > new Date(this.modifyTime[1]).getTime()) {
-          continue
-        }
-        // 过滤创建时间
-        if (this.createTime?.length && item.create_time < this.createTime[0]) {
-          continue
-        }
-        if (this.createTime?.length && item.create_time > new Date(this.createTime[1]).getTime()) {
-          continue
-        }
-        // 过滤价格
-        if (!(Number(item.price) >= Number(this.priceMin))) {
-          continue
-        }
-        if (!(Number(item.price) <= Number(this.priceMax))) {
-          continue
-        }
-        // 过滤访客量
-        if (!(Number(item.view_count) >= Number(this.viewMin))) {
-          continue
-        }
-        if (!(Number(item.view_count) <= Number(this.viewMax))) {
-          continue
-        }
-        // 过滤粉丝量
-        if (!(Number(item.like_count) >= Number(this.likeMin))) {
-          continue
-        }
-        if (!(Number(item.like_count) <= Number(this.likeMax))) {
-          continue
+          // 过滤上家来源
+          if (this.source[0] !== 0 && !(this.source.includes(item.platformTypeStr))) {
+            continue
+          }
+          // 过滤更新时间
+          if (this.modifyTime?.length && item.modify_time < this.modifyTime[0]) {
+            continue
+          }
+          if (this.modifyTime?.length && item.modify_time > new Date(this.modifyTime[1]).getTime()) {
+            continue
+          }
+          // 过滤创建时间
+          if (this.createTime?.length && item.create_time < this.createTime[0]) {
+            continue
+          }
+          if (this.createTime?.length && item.create_time > new Date(this.createTime[1]).getTime()) {
+            continue
+          }
+          // 过滤价格
+          if (!(Number(item.price) >= Number(this.priceMin))) {
+            continue
+          }
+          if (!(Number(item.price) <= Number(this.priceMax))) {
+            continue
+          }
+          // 过滤访客量
+          if (!(Number(item.view_count) >= Number(this.viewMin))) {
+            continue
+          }
+          if (!(Number(item.view_count) <= Number(this.viewMax))) {
+            continue
+          }
+          // 过滤粉丝量
+          if (!(Number(item.like_count) >= Number(this.likeMin))) {
+            continue
+          }
+          if (!(Number(item.like_count) <= Number(this.likeMax))) {
+            continue
+          }
         }
         // 过滤无流量商品
         if (this.queryType === 100) {
