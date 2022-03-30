@@ -367,8 +367,24 @@ export default class MallListAPI {
 
   // 根据站点获取分组
   async getGroup(params) {
+    Array.prototype.zzSort = function(name) {
+      var newarr = this;
+      for (let i = 0; i < newarr.length; i++) {
+        for (let j = 0; j < newarr.length; j++) {
+          let front = newarr[j] && newarr[j][name] || newarr[j]
+          let after = newarr[j+1] && newarr[j+1][name] || newarr[j+1]
+          if (Number(front) > Number(after)) {
+            let pre = newarr[j];
+            newarr[j] = newarr[j+1];
+            newarr[j+1] = pre;
+          }
+        }
+      }
+      return newarr;
+    }
     try {
       const res = await this._this.$api.getMallGroupList(params)
+      console.log('getMallGroupList',res)
       if (res.data.code === 200) {
         const groupList = []
         res.data.data.map(item => {
@@ -377,12 +393,15 @@ export default class MallListAPI {
             value: item.group_id
           })
         })
+        groupList.zzSort('value')
         return { code: 200, data: groupList }
       }
       return { code: res.status, data: '获取店铺分组失败' }
     } catch (error) {
+      console.log(error)
       return { code: -2, data: `getGroup-catch: ${error}` }
     }
+
   }
 
   // 根据 店铺频台id 找到店铺系统id

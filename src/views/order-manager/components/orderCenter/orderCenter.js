@@ -4,56 +4,56 @@ const orderStatusList = [{
   label: '待支付',
   color: '#000'
 },
-{
-  value: 2,
-  label: '待发货',
-  color: '#FF0000'
-},
-{
-  value: 3,
-  label: '已发货',
-  color: '#32CD32'
-},
-{
-  value: 4,
-  label: '已完成',
-  color: '#32CD32'
-},
-{
-  value: 5,
-  label: '取消中',
-  color: '#000'
-},
-{
-  value: 6,
-  label: '已取消',
-  color: '#000'
-},
-{
-  value: 7,
-  label: '退款/退货',
-  color: '#FF0000'
-},
-{
-  value: 8,
-  label: '确认签收',
-  color: '#000'
-},
-{
-  value: 9,
-  label: '退款成功',
-  color: '#32CD32'
-},
-{
-  value: 10,
-  label: '退款失败',
-  color: '#FF0000'
-},
-{
-  value: 20,
-  label: '无售后订单',
-  color: '#000'
-}
+  {
+    value: 2,
+    label: '待发货',
+    color: '#FF0000'
+  },
+  {
+    value: 3,
+    label: '已发货',
+    color: '#32CD32'
+  },
+  {
+    value: 4,
+    label: '已完成',
+    color: '#32CD32'
+  },
+  {
+    value: 5,
+    label: '取消中',
+    color: '#000'
+  },
+  {
+    value: 6,
+    label: '已取消',
+    color: '#000'
+  },
+  {
+    value: 7,
+    label: '退款/退货',
+    color: '#FF0000'
+  },
+  {
+    value: 8,
+    label: '确认签收',
+    color: '#000'
+  },
+  {
+    value: 9,
+    label: '退款成功',
+    color: '#32CD32'
+  },
+  {
+    value: 10,
+    label: '退款失败',
+    color: '#FF0000'
+  },
+  {
+    value: 20,
+    label: '无售后订单',
+    color: '#000'
+  }
 ]
 
 function changeOrderStatus(val, type) {
@@ -63,47 +63,48 @@ function changeOrderStatus(val, type) {
   }
   return obj && obj.label || ''
 }
+
 // 采购状态  1:待采购  3:采购成功  4:上家已发货 5:待支付 6:已完成  7:已取消 8:已申请退款 9:退款成功
 const shotStatusList = [{
   value: 1,
   label: '待采购',
   color: '#FF0000'
 },
-{
-  value: 3,
-  label: '采购成功',
-  color: '#32CD32'
-},
-{
-  value: 4,
-  label: '上家已发货',
-  color: '#000'
-},
-{
-  value: 5,
-  label: '待支付',
-  color: '#000'
-},
-{
-  value: 6,
-  label: '已完成',
-  color: '#32CD32'
-},
-{
-  value: 7,
-  label: '已取消',
-  color: '#000'
-},
-{
-  value: 8,
-  label: '已申请退款',
-  color: '#FF0000'
-},
-{
-  value: 9,
-  label: '退款成功',
-  color: '#000'
-}
+  {
+    value: 3,
+    label: '采购成功',
+    color: '#32CD32'
+  },
+  {
+    value: 4,
+    label: '上家已发货',
+    color: '#000'
+  },
+  {
+    value: 5,
+    label: '待支付',
+    color: '#000'
+  },
+  {
+    value: 6,
+    label: '已完成',
+    color: '#32CD32'
+  },
+  {
+    value: 7,
+    label: '已取消',
+    color: '#000'
+  },
+  {
+    value: 8,
+    label: '已申请退款',
+    color: '#FF0000'
+  },
+  {
+    value: 9,
+    label: '退款成功',
+    color: '#000'
+  }
 ]
 
 function changeShotStatus(val, type) {
@@ -113,40 +114,41 @@ function changeShotStatus(val, type) {
   }
   return obj && obj.label || ''
 }
+
 const shotStatuForEdit = [{
   value: 1,
   label: '待采购'
 },
-{
-  value: 3,
-  label: '采购成功'
-},
-{
-  value: 4,
-  label: '上家已发货'
-},
-{
-  value: 6,
-  label: '已完成'
-}
+  {
+    value: 3,
+    label: '采购成功'
+  },
+  {
+    value: 4,
+    label: '上家已发货'
+  },
+  {
+    value: 6,
+    label: '已完成'
+  }
 ]
 // 时间类型  timeType : 订单支付时间  shopeeDeliveryTime: 发货时间  sourceShippingTime:采购发货时间   shipByDate: 订单截止发货时间
 const timeTypeList = [{
   value: 'payTime',
   label: '订单支付时间'
 },
-{
-  value: 'shopeeDeliveryTime',
-  label: '发货时间'
-},
-{
-  value: 'sourceShippingTime',
-  label: '采购发货时间'
-},
-{
-  value: 'shipByDate',
-  label: '订单截止发货时间'
-}
+  {
+    value: 'shopeeDeliveryTime',
+    label: '发货时间'
+  },
+  {
+    value: 'sourceShippingTime',
+    label: '采购发货时间'
+  },
+  {
+    value: 'shipByDate',
+    label: '订单截止发货时间'
+  }
 ]
 // 查询类型  订单编号：orderSn ，采购物流单号：originalTrackingNumber，采购单号：patOrderSn，平台物流单号：trackingNo，
 // 备注：remark，商品货号：variationSku，买手号：buyAccount，支付账号:payAccount
@@ -154,142 +156,146 @@ const inputTypeList = [{
   value: 'orderSn',
   label: '订单编号'
 },
-{
-  value: 'originalTrackingNumber',
-  label: '采购物流单号'
-},
-{
-  value: 'patOrderSn',
-  label: '采购单号'
-},
-{
-  value: 'trackingNo',
-  label: '平台物流单号'
-},
-{
-  value: 'remark',
-  label: '备注'
-},
-{
-  value: 'variationSku',
-  label: '商品货号'
-},
-{
-  value: 'buyAccount',
-  label: '买手号'
-},
-{
-  value: 'payAccount',
-  label: '支付账号'
-}
+  {
+    value: 'variationName',
+    label: '规格编号'
+  },
+  {
+    value: 'originalTrackingNumber',
+    label: '采购物流单号'
+  },
+  {
+    value: 'patOrderSn',
+    label: '采购单号'
+  },
+  {
+    value: 'trackingNo',
+    label: '平台物流单号'
+  },
+  {
+    value: 'remark',
+    label: '备注'
+  },
+  {
+    value: 'variationSku',
+    label: '商品货号'
+  },
+  {
+    value: 'buyAccount',
+    label: '买手号'
+  },
+  {
+    value: 'payAccount',
+    label: '支付账号'
+  }
 ]
 // 商品来源  1:拼多多 2:淘宝 3:天猫 5:自有 8:1688  9: Lazada   10:京喜  11:shopee  12:ALIEXPRESS 15:货老板海外  13: 天猫淘宝海外平台
 const goodsSourceList = [{
   value: 1,
   label: '拼多多'
 },
-{
-  value: 2,
-  label: '淘宝'
-},
-{
-  value: 3,
-  label: '天猫'
-},
-{
-  value: 5,
-  label: '自有'
-},
-{
-  value: 8,
-  label: '1688'
-},
-{
-  value: 9,
-  label: 'Lazada'
-},
-{
-  value: 10,
-  label: '京喜'
-},
-{
-  value: 11,
-  label: 'shopee'
-},
-{
-  value: 12,
-  label: 'ALIEXPRESS'
-},
-{
-  value: 13,
-  label: '天猫淘宝海外平台'
-},
-{
-  value: 15,
-  label: '货老板海外'
-}
+  {
+    value: 2,
+    label: '淘宝'
+  },
+  {
+    value: 3,
+    label: '天猫'
+  },
+  {
+    value: 5,
+    label: '自有'
+  },
+  {
+    value: 8,
+    label: '1688'
+  },
+  {
+    value: 9,
+    label: 'Lazada'
+  },
+  {
+    value: 10,
+    label: '京喜'
+  },
+  {
+    value: 11,
+    label: 'shopee'
+  },
+  {
+    value: 12,
+    label: 'ALIEXPRESS'
+  },
+  {
+    value: 13,
+    label: '天猫淘宝海外平台'
+  },
+  {
+    value: 15,
+    label: '货老板海外'
+  }
 ]
 const goodsSourceListLink = [{
   value: '1',
   label: '拼多多'
 },
-{
-  value: '2',
-  label: '淘宝'
-},
-{
-  value: '3',
-  label: '天猫'
-},
-{
-  value: '8',
-  label: '1688'
-},
-{
-  value: '9',
-  label: 'Lazada'
-},
-{
-  value: '10',
-  label: '京喜'
-},
-{
-  value: '11',
-  label: 'shopee'
-},
-{
-  value: '13',
-  label: '天猫淘宝海外平台'
-}
+  {
+    value: '2',
+    label: '淘宝'
+  },
+  {
+    value: '3',
+    label: '天猫'
+  },
+  {
+    value: '8',
+    label: '1688'
+  },
+  {
+    value: '9',
+    label: 'Lazada'
+  },
+  {
+    value: '10',
+    label: '京喜'
+  },
+  {
+    value: '11',
+    label: 'shopee'
+  },
+  {
+    value: '13',
+    label: '天猫淘宝海外平台'
+  }
 ]
 const goodsSourceListPurchase = [{
   value: '1',
   label: '拼多多'
 },
-{
-  value: '2',
-  label: '淘宝'
-},
-{
-  value: '8',
-  label: '1688'
-},
-{
-  value: '9',
-  label: 'Lazada'
-},
-{
-  value: '10',
-  label: '京喜'
-},
-{
-  value: '11',
-  label: 'shopee'
-},
-{
-  value: '13',
-  label: '天猫淘宝海外平台'
-}
+  {
+    value: '2',
+    label: '淘宝'
+  },
+  {
+    value: '8',
+    label: '1688'
+  },
+  {
+    value: '9',
+    label: 'Lazada'
+  },
+  {
+    value: '10',
+    label: '京喜'
+  },
+  {
+    value: '11',
+    label: 'shopee'
+  },
+  {
+    value: '13',
+    label: '天猫淘宝海外平台'
+  }
 ]
 // 各站点物流
 const site_mall = [{
@@ -300,516 +306,516 @@ const site_mall = [{
   'ShipId': '7000',
   'ShipName': 'Standard Delivery - ส่งธรรมดาในประเทศ'
 },
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '7001',
-  'ShipName': 'Standard Delivery Bulky - ส่งสินค้าขนาดใหญ่'
-},
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '70021',
-  'ShipName': 'Kerry'
-},
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '70023',
-  'ShipName': 'Best Express'
-},
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '70022',
-  'ShipName': 'J&T Express'
-},
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '70020',
-  'ShipName': 'DHL Domestic'
-},
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '70024',
-  'ShipName': 'DHL Bulky'
-},
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '70016',
-  'ShipName': 'Thailand Post - Registered Mail'
-},
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '70015',
-  'ShipName': 'Thailand Post - EMS'
-},
-{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '79003',
-  'ShipName': 'Seller Own Fleet'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '30005',
-  'ShipName': '7-11'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '30013',
-  'ShipName': '蝦皮店到店'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '30007',
-  'ShipName': '萊爾富'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '30006',
-  'ShipName': '全家'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '30001',
-  'ShipName': '黑貓宅急配'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '30008',
-  'ShipName': 'OK Mart'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '30010',
-  'ShipName': '萊爾富-經濟包'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '39303',
-  'ShipName': '中華郵政'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '39304',
-  'ShipName': '賣家宅配'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '39312',
-  'ShipName': '賣家宅配：大型/超重物品運送'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '39308',
-  'ShipName': '賣家宅配：箱購'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '39013',
-  'ShipName': '賣家宅配：虛擬物品'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '30012',
-  'ShipName': '蝦皮宅配'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '30014',
-  'ShipName': 'OK Mart'
-},
-{
-  'Country': '台湾站',
-  'CountryCode': 'TW',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '30015',
-  'ShipName': '蝦皮店到店'
-},
-{
-  'Country': '马来站',
-  'CountryCode': 'MY',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '20021',
-  'ShipName': 'Ninja Van'
-},
-{
-  'Country': '马来站',
-  'CountryCode': 'MY',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '20010',
-  'ShipName': 'DHL eCommerce'
-},
-{
-  'Country': '马来站',
-  'CountryCode': 'MY',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '20011',
-  'ShipName': 'J&T Express'
-},
-{
-  'Country': '马来站',
-  'CountryCode': 'MY',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '20007',
-  'ShipName': 'Poslaju'
-},
-{
-  'Country': '马来站',
-  'CountryCode': 'MY',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '2000',
-  'ShipName': 'Standard Delivery'
-},
-{
-  'Country': '马来站',
-  'CountryCode': 'MY',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '20023',
-  'ShipName': 'City-Link Express'
-},
-{
-  'Country': '马来站',
-  'CountryCode': 'MY',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '29910',
-  'ShipName': 'Others (West Malaysia)'
-},
-{
-  'Country': '马来站',
-  'CountryCode': 'MY',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '29911',
-  'ShipName': 'Others (East Malaysia)'
-},
-{
-  'Country': '菲律宾站',
-  'CountryCode': 'PH',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '40018',
-  'ShipName': 'J&T Express'
-},
-{
-  'Country': '菲律宾站',
-  'CountryCode': 'PH',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '40012',
-  'ShipName': 'XPost Integrated'
-},
-{
-  'Country': '菲律宾站',
-  'CountryCode': 'PH',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '40017',
-  'ShipName': 'Ninja Van Own Packaging'
-},
-{
-  'Country': '菲律宾站',
-  'CountryCode': 'PH',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '40066',
-  'ShipName': 'Standard Delivery'
-},
-{
-  'Country': '菲律宾站',
-  'CountryCode': 'PH',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '40021',
-  'ShipName': 'GoGo Xpress'
-},
-{
-  'Country': '菲律宾站',
-  'CountryCode': 'PH',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '4000',
-  'ShipName': 'Standard Local'
-},
-{
-  'Country': '菲律宾站',
-  'CountryCode': 'PH',
-  'ShipId': '49900',
-  'ShipName': 'Other Logistics Provider'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50016',
-  'ShipName': 'VNPost Tiết Kiệm'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50018',
-  'ShipName': 'J&T Express'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50020',
-  'ShipName': 'GrabExpress'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50022',
-  'ShipName': 'NowShip'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50023',
-  'ShipName': 'Ninja Van'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50024',
-  'ShipName': 'BEST Express'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50010',
-  'ShipName': 'Viettel Post'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50011',
-  'ShipName': 'Giao Hàng Nhanh'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50012',
-  'ShipName': 'Giao Hàng Tiết Kiệm'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '50015',
-  'ShipName': 'VNPost Nhanh'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '5001',
-  'ShipName': 'Nhanh'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '5002',
-  'ShipName': 'Tiết kiệm'
-},
-{
-  'Country': '越南站',
-  'CountryCode': 'VN',
-  'IsDeafult': true,
-  'IsSelected': false,
-  'ShipId': '5000',
-  'ShipName': 'Hoả Tốc'
-},
-{
-  'Country': '新加坡站',
-  'CountryCode': 'SG',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '18035',
-  'ShipName': 'SpeedPost Economy'
-},
-{
-  'Country': '新加坡站',
-  'CountryCode': 'SG',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '10014',
-  'ShipName': 'J&T Express'
-},
-{
-  'Country': '新加坡站',
-  'CountryCode': 'SG',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '10007',
-  'ShipName': 'Ninja Van (Home Delivery)'
-},
-{
-  'Country': '新加坡站',
-  'CountryCode': 'SG',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '19100',
-  'ShipName': 'Singpost - Normal Mail'
-},
-{
-  'Country': '印尼站',
-  'CountryCode': 'ID',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '8003',
-  'ShipName': 'Reguler (Cashless)'
-},
-{
-  'Country': '印尼站',
-  'CountryCode': 'ID',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '8005',
-  'ShipName': 'Hemat'
-},
-{
-  'Country': '印尼站',
-  'CountryCode': 'ID',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '8001',
-  'ShipName': 'Same Day'
-},
-{
-  'Country': '印尼站',
-  'CountryCode': 'ID',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '8000',
-  'ShipName': 'Instant'
-},
-{
-  'Country': '印尼站',
-  'CountryCode': 'ID',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '8002',
-  'ShipName': 'Next Day'
-},
-{
-  'Country': '印尼站',
-  'CountryCode': 'ID',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '80008',
-  'ShipName': 'JNE Trucking (JTR)'
-},
-{
-  'Country': '印尼站',
-  'CountryCode': 'ID',
-  'IsDeafult': false,
-  'IsSelected': false,
-  'ShipId': '80031',
-  'ShipName': 'Sicepat Gokil'
-},
-{
-  'Country': '印尼站',
-  'CountryCode': 'ID',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '80024',
-  'ShipName': 'J&T Jemari'
-}
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '7001',
+    'ShipName': 'Standard Delivery Bulky - ส่งสินค้าขนาดใหญ่'
+  },
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '70021',
+    'ShipName': 'Kerry'
+  },
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '70023',
+    'ShipName': 'Best Express'
+  },
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '70022',
+    'ShipName': 'J&T Express'
+  },
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '70020',
+    'ShipName': 'DHL Domestic'
+  },
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '70024',
+    'ShipName': 'DHL Bulky'
+  },
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '70016',
+    'ShipName': 'Thailand Post - Registered Mail'
+  },
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '70015',
+    'ShipName': 'Thailand Post - EMS'
+  },
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '79003',
+    'ShipName': 'Seller Own Fleet'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '30005',
+    'ShipName': '7-11'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '30013',
+    'ShipName': '蝦皮店到店'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '30007',
+    'ShipName': '萊爾富'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '30006',
+    'ShipName': '全家'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '30001',
+    'ShipName': '黑貓宅急配'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '30008',
+    'ShipName': 'OK Mart'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '30010',
+    'ShipName': '萊爾富-經濟包'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '39303',
+    'ShipName': '中華郵政'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '39304',
+    'ShipName': '賣家宅配'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '39312',
+    'ShipName': '賣家宅配：大型/超重物品運送'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '39308',
+    'ShipName': '賣家宅配：箱購'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '39013',
+    'ShipName': '賣家宅配：虛擬物品'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '30012',
+    'ShipName': '蝦皮宅配'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '30014',
+    'ShipName': 'OK Mart'
+  },
+  {
+    'Country': '台湾站',
+    'CountryCode': 'TW',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '30015',
+    'ShipName': '蝦皮店到店'
+  },
+  {
+    'Country': '马来站',
+    'CountryCode': 'MY',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '20021',
+    'ShipName': 'Ninja Van'
+  },
+  {
+    'Country': '马来站',
+    'CountryCode': 'MY',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '20010',
+    'ShipName': 'DHL eCommerce'
+  },
+  {
+    'Country': '马来站',
+    'CountryCode': 'MY',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '20011',
+    'ShipName': 'J&T Express'
+  },
+  {
+    'Country': '马来站',
+    'CountryCode': 'MY',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '20007',
+    'ShipName': 'Poslaju'
+  },
+  {
+    'Country': '马来站',
+    'CountryCode': 'MY',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '2000',
+    'ShipName': 'Standard Delivery'
+  },
+  {
+    'Country': '马来站',
+    'CountryCode': 'MY',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '20023',
+    'ShipName': 'City-Link Express'
+  },
+  {
+    'Country': '马来站',
+    'CountryCode': 'MY',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '29910',
+    'ShipName': 'Others (West Malaysia)'
+  },
+  {
+    'Country': '马来站',
+    'CountryCode': 'MY',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '29911',
+    'ShipName': 'Others (East Malaysia)'
+  },
+  {
+    'Country': '菲律宾站',
+    'CountryCode': 'PH',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '40018',
+    'ShipName': 'J&T Express'
+  },
+  {
+    'Country': '菲律宾站',
+    'CountryCode': 'PH',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '40012',
+    'ShipName': 'XPost Integrated'
+  },
+  {
+    'Country': '菲律宾站',
+    'CountryCode': 'PH',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '40017',
+    'ShipName': 'Ninja Van Own Packaging'
+  },
+  {
+    'Country': '菲律宾站',
+    'CountryCode': 'PH',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '40066',
+    'ShipName': 'Standard Delivery'
+  },
+  {
+    'Country': '菲律宾站',
+    'CountryCode': 'PH',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '40021',
+    'ShipName': 'GoGo Xpress'
+  },
+  {
+    'Country': '菲律宾站',
+    'CountryCode': 'PH',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '4000',
+    'ShipName': 'Standard Local'
+  },
+  {
+    'Country': '菲律宾站',
+    'CountryCode': 'PH',
+    'ShipId': '49900',
+    'ShipName': 'Other Logistics Provider'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50016',
+    'ShipName': 'VNPost Tiết Kiệm'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50018',
+    'ShipName': 'J&T Express'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50020',
+    'ShipName': 'GrabExpress'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50022',
+    'ShipName': 'NowShip'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50023',
+    'ShipName': 'Ninja Van'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50024',
+    'ShipName': 'BEST Express'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50010',
+    'ShipName': 'Viettel Post'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50011',
+    'ShipName': 'Giao Hàng Nhanh'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50012',
+    'ShipName': 'Giao Hàng Tiết Kiệm'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50015',
+    'ShipName': 'VNPost Nhanh'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '5001',
+    'ShipName': 'Nhanh'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '5002',
+    'ShipName': 'Tiết kiệm'
+  },
+  {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '5000',
+    'ShipName': 'Hoả Tốc'
+  },
+  {
+    'Country': '新加坡站',
+    'CountryCode': 'SG',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '18035',
+    'ShipName': 'SpeedPost Economy'
+  },
+  {
+    'Country': '新加坡站',
+    'CountryCode': 'SG',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '10014',
+    'ShipName': 'J&T Express'
+  },
+  {
+    'Country': '新加坡站',
+    'CountryCode': 'SG',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '10007',
+    'ShipName': 'Ninja Van (Home Delivery)'
+  },
+  {
+    'Country': '新加坡站',
+    'CountryCode': 'SG',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '19100',
+    'ShipName': 'Singpost - Normal Mail'
+  },
+  {
+    'Country': '印尼站',
+    'CountryCode': 'ID',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '8003',
+    'ShipName': 'Reguler (Cashless)'
+  },
+  {
+    'Country': '印尼站',
+    'CountryCode': 'ID',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '8005',
+    'ShipName': 'Hemat'
+  },
+  {
+    'Country': '印尼站',
+    'CountryCode': 'ID',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '8001',
+    'ShipName': 'Same Day'
+  },
+  {
+    'Country': '印尼站',
+    'CountryCode': 'ID',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '8000',
+    'ShipName': 'Instant'
+  },
+  {
+    'Country': '印尼站',
+    'CountryCode': 'ID',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '8002',
+    'ShipName': 'Next Day'
+  },
+  {
+    'Country': '印尼站',
+    'CountryCode': 'ID',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '80008',
+    'ShipName': 'JNE Trucking (JTR)'
+  },
+  {
+    'Country': '印尼站',
+    'CountryCode': 'ID',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '80031',
+    'ShipName': 'Sicepat Gokil'
+  },
+  {
+    'Country': '印尼站',
+    'CountryCode': 'ID',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '80024',
+    'ShipName': 'J&T Jemari'
+  }
 ]
 
 // 同步状态列表 unpaid：未支付、toship：待发货、shipping：运送中、completed：已完成、cancelled：取消中、refund：退款中
@@ -865,57 +871,58 @@ const packageType = [{
   label: '普货',
   value: 1
 },
-{
-  label: '敏感货',
-  value: 2
-},
-{
-  label: '商检货',
-  value: 3
-}
+  {
+    label: '敏感货',
+    value: 2
+  },
+  {
+    label: '商检货',
+    value: 3
+  }
 ]
 
 function changePackageType(val) {
   const obj = packageType.find(item => item.value == val)
   return obj && obj.label || '普货'
 }
+
 // 仓库发货状态 //1：待入库 2：等待包裹  3: 紧急入库  4: 待出库 5: 已出库 6: 已完成 7:订单作废 8:暂停发货 9:异常
 const deliveryStatus = [{
   label: '待入库',
   value: 1
 },
-{
-  label: '等待包裹',
-  value: 2
-},
-{
-  label: '紧急入库',
-  value: 3
-},
-{
-  label: '待出库',
-  value: 4
-},
-{
-  label: '已出库',
-  value: 5
-},
-{
-  label: '已完成',
-  value: 6
-},
-{
-  label: '订单作废',
-  value: 7
-},
-{
-  label: '暂停发货',
-  value: 8
-},
-{
-  label: '异常',
-  value: 9
-}
+  {
+    label: '等待包裹',
+    value: 2
+  },
+  {
+    label: '紧急入库',
+    value: 3
+  },
+  {
+    label: '待出库',
+    value: 4
+  },
+  {
+    label: '已出库',
+    value: 5
+  },
+  {
+    label: '已完成',
+    value: 6
+  },
+  {
+    label: '订单作废',
+    value: 7
+  },
+  {
+    label: '暂停发货',
+    value: 8
+  },
+  {
+    label: '异常',
+    value: 9
+  }
 ]
 
 function changeDeliveryStatus(val) {
@@ -928,14 +935,14 @@ const statusListSecond = [{
   label: '待发货',
   value: 'toship'
 },
-{
-  label: '取消中',
-  value: 'cancelled'
-},
-{
-  label: '退款中',
-  value: 'refund'
-}
+  {
+    label: '取消中',
+    value: 'cancelled'
+  },
+  {
+    label: '退款中',
+    value: 'refund'
+  }
 ]
 
 // 每隔60分钟同步一次
@@ -943,20 +950,21 @@ const statusListThird = [{
   label: '已发货',
   value: 'shipping'
 },
-{
-  label: '已完成',
-  value: 'completed'
-}
+  {
+    label: '已完成',
+    value: 'completed'
+  }
 ]
 const statusAfterList = [{
   label: '取消中',
   value: 'cancelled'
 },
-{
-  label: '退款中',
-  value: 'refund'
-}
+  {
+    label: '退款中',
+    value: 'refund'
+  }
 ]
+
 // 物流方式
 function siteShip(country) {
   const arr = site_mall.filter(item => {
@@ -964,6 +972,7 @@ function siteShip(country) {
   })
   return arr
 }
+
 // 采购平台
 function sourceName(val) {
   let name = ''
@@ -973,6 +982,7 @@ function sourceName(val) {
   name = info ? info.label : ''
   return name
 }
+
 // 发货状态
 function orderStatusName(val) {
   let name = ''
@@ -988,14 +998,14 @@ const upLoadType = [{
   label: '自动',
   value: 'auto'
 },
-{
-  label: '手动同步',
-  value: 'manual'
-},
-{
-  label: '单个同步',
-  value: 'single'
-}
+  {
+    label: '手动同步',
+    value: 'manual'
+  },
+  {
+    label: '单个同步',
+    value: 'single'
+  }
 ]
 const buyPayMethod = {
   0: '',
@@ -1013,30 +1023,30 @@ const platformPayMethod = {
     label: '全部',
     value: ''
   },
-  {
-    label: 'Credit/Debit Card',
-    value: '1'
-  }, {
-    label: 'Indomaret',
-    value: '13'
-  }, {
-    label: 'Bank Transfer',
-    value: '2'
-  }, {
-    label: 'SPayLater',
-    value: '24'
-  },
-  {
-    label: 'ShopeePay',
-    value: '27'
-  },
-  {
-    label: 'Online Payment',
-    value: '41'
-  }, {
-    label: 'COD',
-    value: '6'
-  }
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    }, {
+      label: 'Indomaret',
+      value: '13'
+    }, {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'SPayLater',
+      value: '24'
+    },
+    {
+      label: 'ShopeePay',
+      value: '27'
+    },
+    {
+      label: 'Online Payment',
+      value: '41'
+    }, {
+      label: 'COD',
+      value: '6'
+    }
   ],
   'MY': [{
     label: '全部',
@@ -1067,42 +1077,42 @@ const platformPayMethod = {
     label: '全部',
     value: ''
   },
-  {
-    label: 'Credit',
-    value: '1'
-  },
-  {
-    label: 'Bank Transfer',
-    value: '2'
-  }, {
-    label: 'ShopeePay',
-    value: '27'
-  }, {
-    label: 'Debit Card',
-    value: '4'
-  }, {
-    label: 'COD',
-    value: '6'
-  }
+    {
+      label: 'Credit',
+      value: '1'
+    },
+    {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'ShopeePay',
+      value: '27'
+    }, {
+      label: 'Debit Card',
+      value: '4'
+    }, {
+      label: 'COD',
+      value: '6'
+    }
   ],
   'SG': [{
     label: '全部',
     value: ''
   },
-  {
-    label: 'Credit/Debit Card',
-    value: '1'
-  },
-  {
-    label: 'Bank Transfer',
-    value: '2'
-  }, {
-    label: 'ShopeePay',
-    value: '27'
-  }, {
-    label: 'Online Payment',
-    value: '49'
-  }
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    },
+    {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'ShopeePay',
+      value: '27'
+    }, {
+      label: 'Online Payment',
+      value: '49'
+    }
   ],
   'TH': [{
     label: '全部',
@@ -1129,14 +1139,14 @@ const platformPayMethod = {
     label: 'free with promotion',
     value: '5'
   },
-  {
-    label: 'Online Payment',
-    value: '50'
-  },
-  {
-    label: 'COD',
-    value: '6'
-  }
+    {
+      label: 'Online Payment',
+      value: '50'
+    },
+    {
+      label: 'COD',
+      value: '6'
+    }
   ],
   'TW': [{
     label: '全部',
@@ -1163,38 +1173,39 @@ const platformPayMethod = {
     label: '接口支付Cross',
     value: '36'
   },
-  {
-    label: '撤销的款项',
-    value: '5'
-  },
-  {
-    label: '货到付款',
-    value: '6'
-  }
+    {
+      label: '撤销的款项',
+      value: '5'
+    },
+    {
+      label: '货到付款',
+      value: '6'
+    }
   ],
   'VN': [{
     label: '全部',
     value: ''
   },
-  {
-    label: 'Credit/Debit Card',
-    value: '1'
-  },
-  {
-    label: 'Seller Balance',
-    value: '20'
-  }, {
-    label: 'AirPay',
-    value: '28'
-  }, {
-    label: 'airpay_giro',
-    value: '30'
-  }, {
-    label: 'COD',
-    value: '6'
-  }
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    },
+    {
+      label: 'Seller Balance',
+      value: '20'
+    }, {
+      label: 'AirPay',
+      value: '28'
+    }, {
+      label: 'airpay_giro',
+      value: '30'
+    }, {
+      label: 'COD',
+      value: '6'
+    }
   ]
 }
+
 function changePlatformPayMethod(country, key) {
   let str = ''
   const arr = platformPayMethod[country] || []
@@ -1204,272 +1215,273 @@ function changePlatformPayMethod(country, key) {
   }
   return str
 }
+
 // 配置列表
 const columnData = [{
   column_header: '站点',
   is_show: 1,
   first_column_is_checkbox: -1
 },
-{
-  column_header: '店铺分组',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '店铺名称',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购绑定仓库',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '颜色标识',
-  is_show: 1,
-  first_column_is_checkbox: -1
-},
+  {
+    column_header: '店铺分组',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '店铺名称',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购绑定仓库',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '颜色标识',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  },
 // {
 //   column_header: '标识名称',
 //   is_show: 1,
 //   first_column_is_checkbox: -1
 // },
-{
-  column_header: '订单编号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '订单创建时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '发货状态',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '发货时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购类型',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '查看采购地址',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '是否可二次销售',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '商品ID',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '商品创建时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '商品图片',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '商品单价',
-  is_show: 1,
-  first_column_is_checkbox: -1
-},
-{
-  column_header: '商品数量',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '商品标题',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '搜同款',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '商品类目',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '规格编号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '商品规格',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '商品货号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '是否为海外仓商品',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '买家付款金额',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '订单收入',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '实际总邮费',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '卖家补贴邮费',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购价',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '仓库发货金额',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '含邮费毛利',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '最终毛利',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '付款账号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购账号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-},
-{
-  column_header: '拍单',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购状态',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购订单号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购付款方式',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '平台付款方式',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购物流公司',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购物流单号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '采购发货时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-},
+  {
+    column_header: '订单编号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单创建时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '发货状态',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '发货时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购类型',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '查看采购地址',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '是否可二次销售',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品ID',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品创建时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品图片',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品单价',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  },
+  {
+    column_header: '商品数量',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品标题',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '搜同款',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品类目',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '规格编号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品规格',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品货号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '是否为海外仓商品',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '买家付款金额',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单收入',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '实际总邮费',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '卖家补贴邮费',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购价',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '仓库发货金额',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '含邮费毛利',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '最终毛利',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '付款账号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购账号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  },
+  {
+    column_header: '拍单',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购状态',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购订单号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购付款方式',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '平台付款方式',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购物流公司',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购物流单号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购发货时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  },
 //  {
 //   column_header: '采购物流轨迹',
 //   is_show: 1,
 //   first_column_is_checkbox: -1
 // },
-{
-  column_header: '商户订单号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '运输方式',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '货物类型',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '虾皮物流',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '虾皮物流单号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '虾皮物流轨迹',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '截止发货时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '仓库发货状态',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '入库时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '出库时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '本地备注',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: 'shopee备注',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: 'shopee备注更新时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '买家姓名',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '买家地址',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '手机号',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '订单支付时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-},
-{
-  column_header: '订单更新时间',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}, {
-  column_header: '操作',
-  is_show: 1,
-  first_column_is_checkbox: -1
-}
+  {
+    column_header: '商户订单号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '运输方式',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '货物类型',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '虾皮物流',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '虾皮物流单号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '虾皮物流轨迹',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '截止发货时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '仓库发货状态',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '入库时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '出库时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '本地备注',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: 'shopee备注',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: 'shopee备注更新时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '买家姓名',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '买家地址',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '手机号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单支付时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  },
+  {
+    column_header: '订单更新时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '操作',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }
 ]
 
 const platformLinkList = [{
@@ -1478,65 +1490,65 @@ const platformLinkList = [{
   purchase_url_all: 'http://mobile.yangkeduo.com/goods.html?goods_id=2459375892',
   label: '拼多多'
 },
-{
-  purchase_platform_id: 2,
-  purchase_url: 'https://item.taobao.com/item.htm?id=',
-  purchase_url_all: 'https://item.taobao.com/item.htm?id=561870475654',
-  label: '淘宝'
-},
-{
-  purchase_platform_id: 3,
-  purchase_url: 'https://detail.tmall.com/item.htm?id=',
-  purchase_url_all: 'https://detail.tmall.com/item.htm?id=20601016004',
-  label: '天猫'
-},
-{
-  purchase_platform_id: 8,
-  purchase_url: 'https://detail.1688.com/offer/',
-  purchase_url_all: 'https://detail.1688.com/offer/635819118296.html',
-  label: '1688'
-},
-{
-  purchase_platform_id: 10,
-  purchase_url: 'https://m.jingxi.com/item/view?sku=',
-  purchase_url_all: 'https://m.jingxi.com/item/view?sku=20601016004',
-  label: '京喜'
-},
-{
-  purchase_platform_id: 9,
-  purchase_url: 'https://www.lazada.com.my/products/i',
-  purchase_url_all: 'https://www.lazada.com.my/products/i1143594827.html',
-  label: 'lazada'
-},
-{
-  purchase_platform_id: 11,
-  purchase_url: 'https://xiapi.xiapibuy.com/product/60119183/',
-  purchase_url_all: 'https://xiapi.xiapibuy.com/product/60119183/2677842767',
-  label: 'shopee'
-},
-{
-  purchase_platform_id: 13,
-  purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
-  purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
-  label: '天猫淘宝海外平台'
-}
+  {
+    purchase_platform_id: 2,
+    purchase_url: 'https://item.taobao.com/item.htm?id=',
+    purchase_url_all: 'https://item.taobao.com/item.htm?id=561870475654',
+    label: '淘宝'
+  },
+  {
+    purchase_platform_id: 3,
+    purchase_url: 'https://detail.tmall.com/item.htm?id=',
+    purchase_url_all: 'https://detail.tmall.com/item.htm?id=20601016004',
+    label: '天猫'
+  },
+  {
+    purchase_platform_id: 8,
+    purchase_url: 'https://detail.1688.com/offer/',
+    purchase_url_all: 'https://detail.1688.com/offer/635819118296.html',
+    label: '1688'
+  },
+  {
+    purchase_platform_id: 10,
+    purchase_url: 'https://m.jingxi.com/item/view?sku=',
+    purchase_url_all: 'https://m.jingxi.com/item/view?sku=20601016004',
+    label: '京喜'
+  },
+  {
+    purchase_platform_id: 9,
+    purchase_url: 'https://www.lazada.com.my/products/i',
+    purchase_url_all: 'https://www.lazada.com.my/products/i1143594827.html',
+    label: 'lazada'
+  },
+  {
+    purchase_platform_id: 11,
+    purchase_url: 'https://xiapi.xiapibuy.com/product/60119183/',
+    purchase_url_all: 'https://xiapi.xiapibuy.com/product/60119183/2677842767',
+    label: 'shopee'
+  },
+  {
+    purchase_platform_id: 13,
+    purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
+    purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
+    label: '天猫淘宝海外平台'
+  }
 ]
 const warehouseType = [{
   label: '国内中转仓',
   value: 0
 },
-{
-  label: '存储转运仓',
-  value: 1
-},
-{
-  label: '海外存储仓',
-  value: 2
-},
-{
-  label: '海外中转仓',
-  value: 3
-}
+  {
+    label: '存储转运仓',
+    value: 1
+  },
+  {
+    label: '海外存储仓',
+    value: 2
+  },
+  {
+    label: '海外中转仓',
+    value: 3
+  }
 ]
 const lazadaUrlList = {
   'TH': 'https://acs-m.lazada.co.th',
@@ -1554,13 +1566,13 @@ const lazadaBuyLinkList = [
   'http://www.lazada.co.th',
   'https://www.lazada.sg'
 ]
-const lazadaBuyLinkObj= {
-  'my':'https://www.lazada.com.my',
-  'vn':'https://www.lazada.vn',
-  'id':'https://www.lazada.co.id',
-  'ph':'https://www.lazada.com.ph',
-  'th':'http://www.lazada.co.th',
-  'sg':'https://www.lazada.sg'
+const lazadaBuyLinkObj = {
+  'my': 'https://www.lazada.com.my',
+  'vn': 'https://www.lazada.vn',
+  'id': 'https://www.lazada.co.id',
+  'ph': 'https://www.lazada.com.ph',
+  'th': 'http://www.lazada.co.th',
+  'sg': 'https://www.lazada.sg'
 }
 const forbidData = [
   '爆炸性、易燃性、腐蚀性、放射性和毒性等危险物品',

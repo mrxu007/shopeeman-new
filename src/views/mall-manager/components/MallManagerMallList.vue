@@ -1545,6 +1545,7 @@ export default {
       const params = {}
       this.countryVal ? params['country'] = this.countryVal : ''
       const res = await this.mallListAPIInstance.getGroup(params)
+      console.log('getGroup',res)
       if (res.code !== 200) {
         this.$message.error('获取店铺分组失败')
         return

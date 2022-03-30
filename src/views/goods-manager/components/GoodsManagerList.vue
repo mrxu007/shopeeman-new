@@ -1761,7 +1761,7 @@ export default {
     },
     // 同步上家库存
     async syncOriginGoodsNum() {
-      this.initData()
+      await this.initData()
       this.updateNum = this.multipleSelection.length
       await batchOperation(this.multipleSelection, this.syncOriginGoods)
       this.operationBut = false

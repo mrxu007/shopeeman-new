@@ -678,6 +678,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
   let msg = ''
   let flag = false
   const _that = that
+  console.log('dealwithOriginGoodsNum ',oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country)
   try {
     // 1、同步shopee库存
     const params = {
@@ -743,12 +744,12 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
                 is_default: item.is_default,
                 name: item.name,
                 item_price: '',
-                stock: CollectGoodsData.TotalQuantity
+                stock: item.stock
               }
               dealWithSkuList.push(subItem)
             })
             // totalStock = CollectGoodsData.TotalQuantity
-            totalStock = CollectGoodsData.TotalQuantity
+            // totalStock = CollectGoodsData.TotalQuantity
           } else {
             if (orderSn) {
               return writeLog(`订单【${orderSn}】同步库存失败，获取到上家规格为空，未匹配到相同的规格信息！`, false)
@@ -772,18 +773,15 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
                 skuName = ''
               }
             } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
-              if (skuInfo.originProps.length === 1) {
-                skuName = skuInfo.originProps[0].name
-              } else if (skuInfo.originProps.length >= 2) {
-                skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
-              } else {
-                skuName = ''
-              }
+              let originPropsArray = skuInfo.originProps.map(son=>son.name)
+              skuName = originPropsArray.splice(0,2).toString()
             } else {
               skuName = ''
             }
             // ----------------------------------------------------------------//
-            const spIndex = shopeeSkuList.findIndex((n) => n.sku.replace('=|=', ',') == skuName)
+            const spIndex = shopeeSkuList.findIndex((n) => {
+              return n.sku.replace('=|=', ',') === skuName || n.name.replace('=|=', ',') ===skuName
+            })
             if (spIndex > -1) {
               flag = true
               shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
@@ -857,8 +855,10 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
         const data = {
           mallId: shopMallId
         }
+        console.log(country, data, [editParams])
         const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
         if (editRes.code === 200) {
+          _that.$set(shopeeItem,'stock',totalStock)
           if (orderSn) {
             return writeLog(`同步库存成功，订单【${orderSn}】同步库存成功！`, true)
           } else {
