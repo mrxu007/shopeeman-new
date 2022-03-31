@@ -259,6 +259,7 @@ export default {
         try {
           for (let i = 0; i < this.chooseData.length; i++) {
             const order = this.chooseData[i]
+            console.log(order, i, this.chooseData, '000')
             this.form.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
             const params = JSON.parse(JSON.stringify(this.form))
             // params.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)

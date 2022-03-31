@@ -52,6 +52,7 @@ export default {
   created() {
     console.log(this.$route, '测试')
     if (this.$route.query) {
+      const Base64 = require('js-base64').Base64
       this.goodsProps = JSON.parse(this.$route.query.goodsProps)
       this.goodsList = JSON.parse(this.$route.query.goodsList)
       console.log('goodsList', this.goodsList)

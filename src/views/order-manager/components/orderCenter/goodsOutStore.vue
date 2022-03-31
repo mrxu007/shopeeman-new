@@ -276,6 +276,7 @@ export default {
     }
   },
   mounted() {
+    debugger
     this.exchangeRateList()
     // this.chooseData = this.uniqueArr(this.chooseData)
     this.orderInfo = this.chooseData[0]
@@ -298,8 +299,10 @@ export default {
       this.outTotalStock = numberS
       this.outTotalPriceRmb = price.toFixed(2)
       this.outTotalPrice = (price * Number(this.rateList[this.orderInfo.country])).toFixed(2)
+      debugger
       this.grossProfit = (this.incomeRmb - this.outTotalPriceRmb).toFixed(2)
       this.interestRate = this.outTotalPriceRmb ? Math.round((this.grossProfit / this.outTotalPriceRmb) * 100).toFixed(2) : 100
+      debugger
       // console.log(this.rateList[this.orderInfo.country])
     },
     // 获取面单信息
