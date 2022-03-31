@@ -293,22 +293,24 @@ export default {
           this.$message.error('获取分组、店铺列表失败')
         }
       }
+      let groupIdList = []
       if (this.groupIdList.length === 0) {
         this.groupIdList = [{
           group_name: '全部',
           id: ''
         }]
-        this.groupId = ['']
         this.siteList.forEach((item) => {
-          const index = this.groupIdList.findIndex((i) => i.id === item.group_id)
+          const index = groupIdList.findIndex((i) => i && i.id === item.group_id)
           if (item.group_name && index < 0) {
-            this.groupIdList.push({
+            groupIdList.push({
               group_name: item.group_name,
               id: item.group_id
             })
-            this.groupId.push(item.group_id)
           }
         })
+        groupIdList.zzSort('id')
+        this.groupIdList = [...this.groupIdList,...groupIdList]
+        this.groupId = ['',...groupIdList.map(son=>son.id)]
       }
       setTimeout(() => {
         this.isAllowSet2 = true

@@ -63,7 +63,24 @@ export default {
     this.$appConfig.primaryColor().then(res => {
       console.log('res-appvue', res)
       document.body.style.setProperty('--themeColor', res)
-    })
+    });
+
+    Array.prototype.zzSort = function(name,isNum) {
+      let newArr = this;
+      for (let i = 0; i < newArr.length; i++) {
+        for (let j = 0; j < newArr.length; j++) {
+          let front = newArr[j] && newArr[j][name] || newArr[j]
+          let after = newArr[j+1] && newArr[j+1][name] || newArr[j+1]
+          front = isNum && Number(isNum) || front
+          if ((front) > (after)) {
+            let pre = newArr[j];
+            newArr[j] = newArr[j+1];
+            newArr[j+1] = pre;
+          }
+        }
+      }
+      return newArr;
+    }
   }
 }
 </script>

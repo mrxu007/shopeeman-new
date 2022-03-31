@@ -1950,6 +1950,7 @@ export default {
     },
     // 修改单个备注
     async changeRemarkNode(id, index) {
+      console.log(id, index,2)
       const params = {
         order_id: this.tableData[index].order_id,
         new_note: this.orderRemarkNode,
@@ -1959,7 +1960,7 @@ export default {
       console.log(res)
       if (res.code == 200) {
         this.$message.error(`设置备注成功`)
-        this.tableData[index].note = this.orderRemarkNode
+        this.tableData[index].note = params.new_note
         this.activeRemarkIDNode = ''
         return
       }
@@ -1968,16 +1969,18 @@ export default {
     },
     editRemark(index, activeRemarkID) {
       this.activeRemarkID = activeRemarkID
-      console.log(this.tableData[index].remark, '5555555')
+      console.log(index,this.tableData[index].remark, '5555555')
       this.orderRemark = this.tableData[index].remark
       this.orderRemarkCopy = this.tableData[index].remark
     },
     // 修改单个备注
     async changeRemark(id, index) {
-      const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
+      console.log(id, index,1)
+      let orderRemark = this.orderRemark
+      const res = await this.$api.setLocalRemark({ id: id, remark: orderRemark })
       if (res.data.code == 200) {
         this.$message.success(`设置备注成功`)
-        this.tableData[index].remark = this.orderRemark
+        this.tableData[index].remark = orderRemark
         this.activeRemarkID = ''
         return
       }

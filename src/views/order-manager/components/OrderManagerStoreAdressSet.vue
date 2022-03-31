@@ -231,8 +231,7 @@
           stripe
           use-virtual
           :row-key="getRowKey"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa'}"
+          :header-cell-style="{ backgroundColor: '#f5f7fa'}"
           @selection-change="handleSelectionChange"
         >
           <u-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />

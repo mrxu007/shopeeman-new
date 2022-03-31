@@ -367,21 +367,21 @@ export default class MallListAPI {
 
   // 根据站点获取分组
   async getGroup(params) {
-    Array.prototype.zzSort = function(name) {
-      var newarr = this;
-      for (let i = 0; i < newarr.length; i++) {
-        for (let j = 0; j < newarr.length; j++) {
-          let front = newarr[j] && newarr[j][name] || newarr[j]
-          let after = newarr[j+1] && newarr[j+1][name] || newarr[j+1]
-          if (Number(front) > Number(after)) {
-            let pre = newarr[j];
-            newarr[j] = newarr[j+1];
-            newarr[j+1] = pre;
-          }
-        }
-      }
-      return newarr;
-    }
+    // Array.prototype.zzSort = function(name) {
+    //   var newarr = this;
+    //   for (let i = 0; i < newarr.length; i++) {
+    //     for (let j = 0; j < newarr.length; j++) {
+    //       let front = newarr[j] && newarr[j][name] || newarr[j]
+    //       let after = newarr[j+1] && newarr[j+1][name] || newarr[j+1]
+    //       if (Number(front) > Number(after)) {
+    //         let pre = newarr[j];
+    //         newarr[j] = newarr[j+1];
+    //         newarr[j+1] = pre;
+    //       }
+    //     }
+    //   }
+    //   return newarr;
+    // }
     try {
       const res = await this._this.$api.getMallGroupList(params)
       console.log('getMallGroupList',res)
