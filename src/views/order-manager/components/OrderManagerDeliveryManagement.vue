@@ -916,12 +916,9 @@ export default {
         } else {}
         return pop
       })
-      const Base64 = require('js-base64').Base64
-      // this.$router.push({ name: 'customSetDownload', params: { goodsProps: exporGoodsProp, goodsList: exporGoodsList }})
-      this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${JSON.stringify(exporGoodsProp)}&&goodsList=${JSON.stringify(exporGoodsList)}`)
-      // this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${md5(exporGoodsProp)}&&goodsList=${md5(exporGoodsList)}`)
-
-      // this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${Base64.encode(JSON.stringify(exporGoodsProp))}&&goodsList=${Base64.encode(JSON.stringify(exporGoodsList))}`)
+      let goodsProp = escape(JSON.stringify(exporGoodsProp))
+      let goodsList = escape(JSON.stringify(exporGoodsList))
+      this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${JSON.stringify(goodsProp)}&&goodsList=${JSON.stringify(goodsList)}`)
     },
     // async downLoadPickListAuto() {
     //   this.downloadSetVisible = true

@@ -52,11 +52,14 @@ export default {
   created() {
     console.log(this.$route, '测试')
     if (this.$route.query) {
-      const Base64 = require('js-base64').Base64
-      this.goodsProps = JSON.parse(this.$route.query.goodsProps)
-      this.goodsList = JSON.parse(this.$route.query.goodsList)
-      console.log('goodsList', this.goodsList)
-      console.log('goodsProps', this.goodsProps)
+      let goodsProps = this.$route.query.goodsProps || ''
+      let goodsList = this.$route.query.goodsList || ''
+      let goodsPropsJson = unescape(goodsProps)
+      let goodsListJson = unescape(goodsList)
+      this.goodsProps = JSON.parse(goodsPropsJson)
+      this.goodsList = JSON.parse(goodsListJson)
+      console.log('goodsList', this.goodsProps)
+      console.log('goodsProps', this.goodsList)
     }
     this.headTitle = '拣货清单(' + this.formatTime(new Date().getTime()) + ')'
     const array = this.goodsProps.map(son => (son.width || 120))
