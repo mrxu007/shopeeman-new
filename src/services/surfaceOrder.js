@@ -1090,7 +1090,13 @@ export default class {
                 this.writeLog(`创建拣货单失败，${creatInfo.data}`, false)
               } else {
                 const jobId = creatInfo.data.list[0].job_id
-                const base64 = await this.downloadSdJob(mallId, jobId, country)
+                // const base64 = await this.downloadSdJob(mallId, jobId, country)
+                const downRes = await this.downloadSdJob(mallId, jobId, country)
+                if (downRes.code !== 200) {
+                  this.writeLog(`店铺【${mallName}】下载拣货单失败，${downRes.message}`, false)
+                  continue
+                }
+                const base64 = downRes.data
                 console.log(base64.length, 'base64')
                 if (!base64 || base64.length < 500) {
                   this.writeLog(`店铺【${mallName}】下载拣货单失败，稍后请重试`, false)
