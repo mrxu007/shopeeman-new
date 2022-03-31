@@ -1706,7 +1706,8 @@ export default {
       } finally {
         --count.count
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
       }
     },
     // 如果翻新的商品存在折扣活动则把商品添加回活动中
@@ -1779,7 +1780,8 @@ export default {
       } finally {
         --count.count
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
       }
     },
     // 修改上家sku值
@@ -1942,7 +1944,8 @@ export default {
       } finally {
         --count.count
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
       }
     },
     // 批量更新物流方式
@@ -2137,7 +2140,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2204,7 +2208,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2235,7 +2240,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2263,7 +2269,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2289,7 +2296,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2321,7 +2329,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2354,7 +2363,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2383,7 +2393,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2448,7 +2459,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2504,7 +2516,8 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2874,7 +2887,8 @@ export default {
         this.batchStatus(item, `${this.upDown ? '下架异常' : '上架异常'}`, false)
       } finally {
         const temp = 100 / this.multipleSelection.length
-        this.percentage += temp
+        let percentage = Math.ceil(this.percentage + temp)
+        this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
     },
@@ -2955,7 +2969,8 @@ export default {
       } finally {
         if (!this.isRefurbishProduct) {
           const temp = 100 / this.deleteData.length
-          this.percentage += temp
+          let percentage = Math.ceil(this.percentage + temp)
+          this.percentage = percentage > 100 && 100 || percentage
         }
         --count.count
       }
@@ -3453,7 +3468,8 @@ export default {
         } else {
           this.queryNum = this.tableData.length
           const temp = 100 / this.selectMallList.length
-          this.percentage += temp
+          let percentage = Math.ceil(this.percentage + temp)
+          this.percentage = percentage > 100 && 100 || percentage
           --count.count
         }
       }
@@ -3864,7 +3880,8 @@ export default {
           this.batchStatus(item, `该店铺正处于休假模式`)
           this.failNum++
           const temp = 100 / data.length
-          this.percentage += temp
+          let percentage = Math.ceil(this.percentage + temp)
+          this.percentage = percentage > 100 && 100 || percentage
         } else {
           newData.push(item)
         }

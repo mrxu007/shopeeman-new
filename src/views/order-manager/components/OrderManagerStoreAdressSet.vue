@@ -219,19 +219,22 @@
         </div>
       </div>
       <div class="dialog-right">
-        <div style="display: flex">
+        <div style="display: flex;margin-bottom: 10px;">
           <store-choose-mall :key="changeIndex" :is-all="true" :show-mall="false" @changeMallList="changeMallList" />
+          <el-input placeholder='店铺' v-model='searchMall' @input='searchInputMall'
+                    size='mini' class='input-with-select' prefix-icon='el-icon-search'></el-input>
           <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMall">查 询</el-button>
         </div>
         <u-table
           ref="bindMallDataRef"
           v-loading="warehouseLoading"
-          height="420"
-          :data="bindMallData"
-          stripe
-          use-virtual
+          height="420" v-if="mallTableShow"
+          :data="bindMallData" stripe use-virtual
           :row-key="getRowKey"
-          :header-cell-style="{ backgroundColor: '#f5f7fa'}"
+          :header-cell-style="{ backgroundColor: '#f5f7fa',height: '38px',padding:0}"
+          :row-height="40"
+          :cell-style="{ padding: '0',height: '40px'}"
+          :row-style="{ padding: '0',height: '40px'}"
           @selection-change="handleSelectionChange"
         >
           <u-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
@@ -240,7 +243,10 @@
               {{ row.country | chineseSite }}
             </template>
           </u-table-column>
-          <u-table-column align="center" label="店铺名称" min-width="120">
+          <u-table-column align="center" label="店铺名称" min-width="120"
+                          sortable
+                          :filters="[]"
+                          :filter-method='getBuyersTableShow'>
             <template slot-scope="{ row }">
               {{ row.mallAliasName ? row.mallAliasName : row.platformMallName }}
             </template>
@@ -391,7 +397,11 @@ export default {
       sStreetList: '',
 
       abroadAddressParams: {},
-      itselfUpdateType: ''
+      itselfUpdateType: '',
+      searchMall:'',
+      searchMallSetTime:null,
+      mallTableShow:true,
+
     }
   },
   mounted() {
@@ -1022,11 +1032,38 @@ export default {
     // 记住所选项
     getRowKey(row) {
       return row.sysMallId
-    }
+    },
+    searchInputMall(){
+      this.searchMallSetTime && clearTimeout(this.searchMallSetTime)
+      this.searchMallSetTime = null
+      this.searchMallSetTime = setTimeout(() => {
+        this.$refs.bindMallDataRef.clearFilter()
+        this.mallTableShow = false
+        this.$nextTick(() => {
+          this.mallTableShow = true
+        })
+      }, 500)
+    },
+    getBuyersTableShow(value, row, column) {
+      let success = true
+      if (this.searchMall) {
+        success = (row.mallAliasName?.includes(this.searchMall) || row.platformMallName?.includes(this.searchMall))
+      }
+      return success
+    },
   }
 }
 </script>
 
 <style lang="less" scoped>
 @import '../../../module-less/order-manager-less/address-set.less';
+/deep/.plTableBox .el-table th>.cell{
+  color: #909399;
+
+  .el-table__column-filter-trigger,.caret-wrapper{
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
 </style>
