@@ -26,7 +26,9 @@
         </div>
         <div style="margin-left:11px;margin-top:5px">
           <label>支付密码：</label>
-          <el-input v-model="psdZFB" type="password" size="mini" style="width:120px" />
+          <el-input v-model="psdZFB" :type="passwordType" size="mini" style="width:120px" >
+            <i slot="suffix" class="el-input__icon el-icon-view" style="color:#000;cursor:pointer;" @click="changePayType"></i>
+          </el-input>
           <el-button type="primary" size="mini" style="margin-left:10px" @click="save()">保存</el-button>
         </div>
       </li>
@@ -155,7 +157,8 @@ export default {
         { name: '越南站', value: '0.00027723' },
         { name: '巴西站', value: '1.22500000' }
       ],
-      changeIp: ''
+      changeIp: '',
+      passwordType: 'password'
     }
   },
   async mounted() {
@@ -166,6 +169,13 @@ export default {
     await this.getcolorList()
   },
   methods: {
+    changePayType(){
+      if(this.passwordType === 'password'){
+        this.passwordType = 'text'
+      }else if(this.passwordType === 'text'){
+        this.passwordType = 'password'
+      }
+    },
     // 颜色标识
     async getcolorList() {
       const res = await this.$api.getcolorList()
@@ -206,14 +216,14 @@ export default {
       this.getcolorList()
     },
     // 初始化用户信息
-    getUserinfo() {
+    async getUserinfo() {
       console.log(this.userInfo)
       this.userID = this.userInfo.id // 用户信息
       this.uid = this.userInfo.uid // 用户信息
       this.interTime = this.userInfo.ori_logistics_interval_time // 获取物流单号间隔时间：
       this.isAutoToken = this.userInfo.is_auto_ori_logistics.toString() // 是否自定获取：
       this.accountZFB = this.userInfo.pay_account// 支付宝账号：
-      this.psdZFB = this.userInfo.pay_password // 支付密码：
+      this.psdZFB = await window.ConfigBridgeService.getAesDecrypt(this.userInfo.pay_password) || ''// 支付密码：
       this.setLanguage = this.userInfo.translate_language// 翻译语言
       this.changeIp = this.userInfo.domain_switch.toString() // 域名切换
     },
