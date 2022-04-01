@@ -270,7 +270,7 @@ export default {
             }
             if (this.dealType === 'batch') {
               params.shotAmountRmb = this.shotAmount
-              params.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
+              params.shotAmount = (Number(this.shotAmount) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
               console.log('params', params)
             }
             if (this.shopeeLink) {
