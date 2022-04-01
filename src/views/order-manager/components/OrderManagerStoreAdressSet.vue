@@ -245,7 +245,8 @@
           </u-table-column>
           <u-table-column align="center" label="店铺名称" min-width="120"
                           sortable
-                          :filters="[]"
+                          :filters="[{text:'',value:''}]"
+                          :filtered-value="['']"
                           :filter-method='getBuyersTableShow'>
             <template slot-scope="{ row }">
               {{ row.mallAliasName ? row.mallAliasName : row.platformMallName }}
@@ -1045,6 +1046,7 @@ export default {
       }, 500)
     },
     getBuyersTableShow(value, row, column) {
+      console.log(row)
       let success = true
       if (this.searchMall) {
         success = (row.mallAliasName?.includes(this.searchMall) || row.platformMallName?.includes(this.searchMall))
