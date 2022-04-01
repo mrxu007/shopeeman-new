@@ -245,7 +245,8 @@
           </u-table-column>
           <u-table-column align="center" label="店铺名称" min-width="120"
                           sortable
-                          :filters="[]"
+                          :filters="[{text:'',value:''}]"
+                          :filtered-value="['']"
                           :filter-method='getBuyersTableShow'>
             <template slot-scope="{ row }">
               {{ row.mallAliasName ? row.mallAliasName : row.platformMallName }}
