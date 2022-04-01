@@ -227,7 +227,7 @@ export default {
           oriLogisticsIntervalTime: this.interTime, // 获取物流单号间隔时间
           isAutoOriLogistics: this.isAutoToken, // 是否自定获取
           payAccount: this.accountZFB, // 支付宝账号
-          payPassword: window.ConfigBridgeService.getAesEecrypt(this.psdZFB), // 支付密码
+          payPassword: await window.ConfigBridgeService.getAesEecrypt(this.psdZFB) || '', // 支付密码
           translateLanguage: this.setLanguage, // 翻译语言
           domainSwitch: this.changeIp // 域名切换
         },
