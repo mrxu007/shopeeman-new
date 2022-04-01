@@ -11,7 +11,7 @@
         <el-input v-model="form.shotOrderSn" size="mini" class="inputWidth" />
       </el-form-item>
       <el-form-item label="shopee订单详情链接:">
-        <el-input v-model="shopeeLink" size="mini" class="inputWidth" type="textarea" :rows="2" />
+        <el-input v-model="shopeeLink" size="mini" class="inputWidth" resize="none" type="textarea" :rows="2" />
       </el-form-item>
       <p style="color: red; margin-bottom: 10px">注:shopee订单详情链接,请在个人中心订单详情页,右键复制当前链接植入</p>
       <el-form-item v-if="dealType === 'single'" prop="shotAmountRmb">
@@ -66,12 +66,12 @@
           <el-radio label="3">商检货</el-radio>
         </el-radio-group>
       </el-form-item>
-      <div v-if="dealType !== 'single'" class="base-box">
+      <div class="base-box">
         <span class="base-title">备注修改</span>
         <div class="base-item">
           <div class="remark">
-            <span>备注:</span>
-            <el-input v-model="remark" size="mini" type="textarea" :rows="2" style="width: 300px" />
+            <span style="margin-right: 5px;">备注:</span>
+            <el-input v-model="remark" size="mini" type="textarea" resize="none" :rows="2" style="width: 300px" />
           </div>
         </div>
       </div>

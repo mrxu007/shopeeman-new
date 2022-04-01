@@ -13,21 +13,15 @@ export default class MarketManagerAPI {
       }
       const res = await this._this.$shopeemanService.postChinese(country, '/api/v3/product/boost_product/?', params, {
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
-          'Accept-Encoding': 'gzip, deflate'
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Encoding': 'gzip, deflate, br',
+          referer: '/portal/product/list/all'
         }
       })
       const des = JSON.parse(JSON.parse(res).data)
-      // let ecode = des.code || des.errcode
-      // if (des.errcode) {
-      //   ecode = des.errcode
-      // } else {
-      //   ecode = des.code
-      // }
       const ecode = des.code
       const message = des.message
-      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
       return { ecode, message }
     } catch (error) {
       return { code: -2, data: `getSkuList-catch: ${error}` }

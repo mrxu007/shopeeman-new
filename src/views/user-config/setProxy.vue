@@ -5,7 +5,7 @@
       <span>&nbsp;翻译设置&nbsp;</span>
       <li>
         <el-radio-group v-model="selTrans" @change="save()">
-          <el-radio label="1">阿里翻译（付费翻译，推荐使用0.000085元/字符）</el-radio>
+          <el-radio label="4">阿里翻译（付费翻译，推荐使用0.000085元/字符）</el-radio>
           <el-radio label="5">有道翻译（免费翻译，接口调用频繁容易封IP，只支持英文）</el-radio>
           <el-radio label="2">谷歌翻译</el-radio>
           <el-radio label="3">私有翻译（需要自己提供百度或者必应翻译API信息）

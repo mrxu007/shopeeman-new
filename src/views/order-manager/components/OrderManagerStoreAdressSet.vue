@@ -1046,7 +1046,6 @@ export default {
       }, 500)
     },
     getBuyersTableShow(value, row, column) {
-      console.log(row)
       let success = true
       if (this.searchMall) {
         success = (row.mallAliasName?.includes(this.searchMall) || row.platformMallName?.includes(this.searchMall))
