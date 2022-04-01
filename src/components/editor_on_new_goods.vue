@@ -205,8 +205,8 @@
             <div>图片翻译：</div>
             <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="" :disabled="isCollectShow">
               <el-option label="不翻译" :value="'no'" />
-              <el-option label="中文" :value="1" />
-              <el-option label="英文" :value="2" />
+              <el-option label="中文" :value="'zh'" />
+              <el-option label="英文" :value="'en'" />
             </el-select>
             <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;" />
             <el-select
@@ -220,7 +220,7 @@
             <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">
               <el-option
                 v-for="item in pictureLanguagesList"
-                v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"
+                v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !=='en') || item.free"
                 v-if="item.isShow.indexOf(translationConfig.before)>=0"
                 :key="item.value"
                 :label="item.label"
@@ -696,46 +696,46 @@ export default {
       pictureLanguagesList: [
         {
           label: '英文',
-          isShow: '1',
+          isShow: 'zh',
           value: 'en'
         }, {
           label: '中文',
-          isShow: '2',
+          isShow: 'zh',
           free: true,
           value: 'zh'
         }, {
           label: '繁体',
-          isShow: '1,2',
+          isShow: 'zh,en',
           value: 'zh-TW'
         }, {
           label: '泰语',
-          isShow: '1,2',
+          isShow: 'zh,en',
           value: 'th'
         }, {
           label: '印尼语',
-          isShow: '1,2',
+          isShow: 'zh,en',
           value: 'id'
         }, {
           label: '马来语',
-          isShow: '1',
+          isShow: 'zh',
           value: 'ms'
         }, {
           label: '越南语',
-          isShow: '1,2',
+          isShow: 'zh,en',
           value: 'vi'
         }, {
           label: '葡萄牙语',
-          isShow: '1,2',
+          isShow: 'zh,en',
           free: true,
           value: 'pt'
         }, {
           label: '西班牙语',
-          isShow: '1,2',
+          isShow: 'zh,en',
           free: true,
           value: 'es'
         }, {
           label: '法语',
-          isShow: '2',
+          isShow: 'en',
           value: 'fr'
         }],
       filterSimplifiedChecked: false, // 过滤简体
@@ -1070,6 +1070,7 @@ export default {
           const text = this.describeConfig.text || ''
           if (this.titleGoodsDescribeRadio === 0) {
             const tier_variation = neededTranslateInfoData.tier_variation
+            console.log(tier_variation,tier_variation[tier_variation.spec1])
             const spec1List = tier_variation[tier_variation.spec1].join('\n')
             const spec2List = tier_variation[tier_variation.spec2].join('\n')
             tempText = text + '\n' + spec1List + '\n' + spec2List
