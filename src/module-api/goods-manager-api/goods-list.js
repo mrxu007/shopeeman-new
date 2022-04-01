@@ -327,8 +327,8 @@ export default class GoodsList {
     }
   }
   // 未输入条件时查询
-
   async getMpskuList(val) {
+    console.log('11111')
     const { mItem, pageSize, listType, listOrderType, cursor } = val
     try {
       const params = {

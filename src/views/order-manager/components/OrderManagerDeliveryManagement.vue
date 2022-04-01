@@ -754,7 +754,6 @@ export default {
       this.showConsole = false
       this.$refs.Logs.writeLog('下载拣货单开始，请耐心等待！', true)
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
-      debugger
       service.getPickListData(this.multipleSelection)
     },
     // 下载自定义拣货单
@@ -916,8 +915,8 @@ export default {
         } else {}
         return pop
       })
-      let goodsProp = escape(JSON.stringify(exporGoodsProp))
-      let goodsList = escape(JSON.stringify(exporGoodsList))
+      const goodsProp = escape(JSON.stringify(exporGoodsProp))
+      const goodsList = escape(JSON.stringify(exporGoodsList))
       this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${JSON.stringify(goodsProp)}&&goodsList=${JSON.stringify(goodsList)}`)
     },
     // async downLoadPickListAuto() {

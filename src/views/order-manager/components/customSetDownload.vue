@@ -52,10 +52,10 @@ export default {
   created() {
     console.log(this.$route, '测试')
     if (this.$route.query) {
-      let goodsProps = this.$route.query.goodsProps || ''
-      let goodsList = this.$route.query.goodsList || ''
-      let goodsPropsJson = unescape(goodsProps)
-      let goodsListJson = unescape(goodsList)
+      const goodsProps = this.$route.query.goodsProps || ''
+      const goodsList = this.$route.query.goodsList || ''
+      const goodsPropsJson = unescape(goodsProps)
+      const goodsListJson = unescape(goodsList)
       this.goodsProps = JSON.parse(goodsPropsJson)
       this.goodsList = JSON.parse(goodsListJson)
       console.log('goodsList', this.goodsProps)

@@ -356,7 +356,7 @@ export default {
       }
     },
     // 获取置顶商品
-    async getMallTopGoods(mall, topedlist) {
+    async getMallTopGoods(mall, top_total_count) {
       const mItem = {
         country: mall.country,
         pageNumber: 0,
@@ -379,7 +379,6 @@ export default {
       if (mall.top_type === '6') {
         params.listOrderType = 'price_dsc'
       }
-      let getGoods = []
       let flag = true
       while (flag) {
         mItem['pageNumber']++
@@ -390,10 +389,10 @@ export default {
             break
           }
           const resgoodsList = res.data.list
-          getGoods += resgoodsList
-          if (getGoods.length > 5) {
-            break
+          const topGoodsList = await this.$BaseUtilBridgeService.getTopGoods(mall.platform_mall_id, '1')
+          for (const goods of resgoodsList) {
           }
+
           // for (const goods of resgoodsList) {
           //   if (topedlist.length) {
           //     const index = topedlist.indexOf(el => { return goods.id === el })
@@ -582,8 +581,8 @@ export default {
         mallId: '213693788',
         goodsID: 10053264472
       }
-      const res = await this.MarketManagerAPIInstance.topGoods(goodsinfo)
-      debugger
+      const res = await window.BaseUtilBridgeService.getTopGoods('213693788', '1')
+      console.log(res)
     },
     // 创建任务
     // 1.删除原任务--创建新任务
@@ -605,36 +604,36 @@ export default {
         } else {
           top_total_count = this.loopGoodsNum // 接口获取
         }
-        // // 获取置顶商品
-        // let topGoods = []
-        // if (this.otherConditon === '1') { // 自定义商品
-        //   topGoods = this.couponGoodslist
-        // } else {
-        //   mall['top_type'] = this.saleType
-        //   // const topedlist = await window.BaseUtilBridgeService.getTopGoods(mall.platform_mall_id, null, true)
-        //   topGoods = await this.getMallTopGoods(mall, top_total_count)
+        // 获取置顶商品
+        let topGoods = []
+        if (this.otherConditon === '1') { // 自定义商品
+          topGoods = this.couponGoodslist
+        } else {
+          mall['top_type'] = this.saleType
+          topGoods = await this.getMallTopGoods(mall, top_total_count)
+        }
+
+        // const currentTime = new Date().getTime()
+        // // 创建
+        // const param = {
+        //   'country': mall.country,
+        //   'mall_name': mall.mall_alias_name || mall.platform_mall_name,
+        //   'mall_id': mall.platform_mall_id,
+        //   'top_task_type': isCreatedtesk, // 1 新建 2 重建
+        //   'top_total_count': top_total_count,
+        //   'toped_count': gettesk.toped_count || 0,
+        //   'next_top_time': this.formatTime(currentTime + 3600 * 1000 * 4),
+        //   'topping_goods_ids': top_total_count,
+        //   'message': '任务创建成功',
+        //   'created_at': this.formatTime(currentTime),
+        //   'updated_at': this.formatTime(currentTime)
         // }
-        const currentTime = new Date().getTime()
-        // 创建
-        const param = {
-          'country': mall.country,
-          'mall_name': mall.mall_alias_name || mall.platform_mall_name,
-          'mall_id': mall.platform_mall_id,
-          'top_task_type': isCreatedtesk, // 1 新建 2 重建
-          'top_total_count': top_total_count,
-          'toped_count': gettesk.toped_count || 0,
-          'next_top_time': this.formatTime(currentTime + 3600 * 1000 * 4),
-          'topping_goods_ids': top_total_count,
-          'message': '任务创建成功',
-          'created_at': this.formatTime(currentTime),
-          'updated_at': this.formatTime(currentTime)
-        }
-        debugger
-        const newTesk = await window.BaseUtilBridgeService.saveTopGoodsTask(param)
-        if (newTesk.code !== 200) {
-          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】创建失败`, false)
-          return
-        }
+        // debugger
+        // const newTesk = await window.BaseUtilBridgeService.saveTopGoodsTask(param)
+        // if (newTesk.code !== 200) {
+        //   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】创建失败`, false)
+        //   return
+        // }
       } catch (error) {
         this.$refs.Logs.writeLog(`【${error}】`, false)
       } finally {

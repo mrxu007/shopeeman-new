@@ -1706,7 +1706,7 @@ export default {
       } finally {
         --count.count
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
       }
     },
@@ -1780,7 +1780,7 @@ export default {
       } finally {
         --count.count
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
       }
     },
@@ -1944,7 +1944,7 @@ export default {
       } finally {
         --count.count
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
       }
     },
@@ -2140,7 +2140,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2208,7 +2208,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2240,7 +2240,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2269,7 +2269,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2296,7 +2296,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2329,7 +2329,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2363,7 +2363,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2393,7 +2393,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2459,7 +2459,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2516,7 +2516,7 @@ export default {
         this.failNum++
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2887,7 +2887,7 @@ export default {
         this.batchStatus(item, `${this.upDown ? '下架异常' : '上架异常'}`, false)
       } finally {
         const temp = 100 / this.multipleSelection.length
-        let percentage = Math.ceil(this.percentage + temp)
+        const percentage = Math.ceil(this.percentage + temp)
         this.percentage = percentage > 100 && 100 || percentage
         --count.count
       }
@@ -2969,7 +2969,7 @@ export default {
       } finally {
         if (!this.isRefurbishProduct) {
           const temp = 100 / this.deleteData.length
-          let percentage = Math.ceil(this.percentage + temp)
+          const percentage = Math.ceil(this.percentage + temp)
           this.percentage = percentage > 100 && 100 || percentage
         }
         --count.count
@@ -3468,7 +3468,7 @@ export default {
         } else {
           this.queryNum = this.tableData.length
           const temp = 100 / this.selectMallList.length
-          let percentage = Math.ceil(this.percentage + temp)
+          const percentage = Math.ceil(this.percentage + temp)
           this.percentage = percentage > 100 && 100 || percentage
           --count.count
         }
@@ -3526,6 +3526,7 @@ export default {
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
         if (!(this.queryType === 100 || this.queryType === 200)) {
+          console.log('100 || 200')
           // 过滤上家商品ID
           if (this.searchType === 'originId' && this.keyword && this.keyword !== item.productId) {
             continue
@@ -3587,12 +3588,18 @@ export default {
         }
         // 过滤无流量商品
         if (this.queryType === 100) {
-          if (((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
+          if (((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) ||
+                Number(item.view_count) !== 0 ||
+                Number(item.sold) !== 0
+          ) {
             continue
           }
         }
         if (this.queryType === 200) {
-          if (((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
+          if (((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) ||
+                Number(item.view_count) !== 0 ||
+                Number(item.sold) !== 0
+          ) {
             continue
           }
         }
@@ -3880,7 +3887,7 @@ export default {
           this.batchStatus(item, `该店铺正处于休假模式`)
           this.failNum++
           const temp = 100 / data.length
-          let percentage = Math.ceil(this.percentage + temp)
+          const percentage = Math.ceil(this.percentage + temp)
           this.percentage = percentage > 100 && 100 || percentage
         } else {
           newData.push(item)

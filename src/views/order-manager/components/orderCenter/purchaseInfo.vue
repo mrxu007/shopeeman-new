@@ -118,7 +118,7 @@ export default {
         shotAmountRmb: 0, // 拍单金额(rmb)
         shotAmount: 0, // 拍单金额(rmb)
         buyAccountInfo: '', // 买家账号信息 传json格式
-        shotOrderSn: '', // 拍单订单号
+        // shotOrderSn: '', // 拍单订单号
         // country: '',
         remark: ''
       },
@@ -259,11 +259,8 @@ export default {
         try {
           for (let i = 0; i < this.chooseData.length; i++) {
             const order = this.chooseData[i]
-            console.log(order, i, this.chooseData, '000')
             this.form.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
             const params = JSON.parse(JSON.stringify(this.form))
-            // params.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
-            // console.log(params, '-----------')
             params.sysOrderId = order.id
             params.platformId = params.platformId.toString()
             params.shotStatus = params.shotStatus.toString()
@@ -273,6 +270,8 @@ export default {
             }
             if (this.dealType === 'batch') {
               params.shotAmountRmb = this.shotAmount
+              params.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
+              console.log('params', params)
             }
             if (this.shopeeLink) {
               const linkInfo = this.dealWithShopeeLink(this.shopeeLink)
@@ -289,7 +288,7 @@ export default {
               params.warehouseUserId = this.warehouse.id || ''
             }
             this.loading = true
-            console.log(params, '11111111111111')
+            console.log('--------', params)
             const res = await this.$api.updateShotOrder(params)
             console.log(res, 'saveBatchSetting')
             if (res.data.code === 200) {
