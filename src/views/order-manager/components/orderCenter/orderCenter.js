@@ -379,6 +379,14 @@ const site_mall = [{
     'ShipName': 'Seller Own Fleet'
   },
   {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': false,
+    'IsSelected': false,
+    'ShipId': '79707',
+    'ShipName': 'ผู้ขายทำการจัดส่งให้'
+  },
+  {
     'Country': '台湾站',
     'CountryCode': 'TW',
     'IsDeafult': true,

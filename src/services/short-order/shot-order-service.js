@@ -472,7 +472,7 @@ export default class {
     }
     //5:拍单时买家姓名自动增加订单后6位
     if (configInfo.shot_order_address_label.includes('5')) {
-      buyerName += "-" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
+      buyerName += "-" + itemOrder.order_sn.substring(itemOrder.order_sn.length - 6);
     }
     // if (configInfo.IsAutoAddOrderSnToBuyer) {
     //   buyerName += "-" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
@@ -492,7 +492,7 @@ export default class {
       // }
       //6:拍单时买家地址自动增加订单后6位
       if (configInfo.shot_order_address_label.includes('6')) {
-        detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
+        detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.length - 6);
       }
       // if (configInfo.IsAutoAddOrderSnToAddress) {
       //   detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
