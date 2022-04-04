@@ -474,9 +474,6 @@ export default class {
     if (configInfo.shot_order_address_label.includes('5')) {
       buyerName += "-" + itemOrder.order_sn.substring(itemOrder.order_sn.length - 6);
     }
-    // if (configInfo.IsAutoAddOrderSnToBuyer) {
-    //   buyerName += "-" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
-    // }
     addressUserInfo['buyerName'] = itemOrder.goods_info.ori_platform_id == 1 ? warehouseInfo.receiving_name : buyerName;
     //手机号处理
     addressUserInfo["buyerPhone"] = warehouseInfo.is_use_own_phone == 1 ? warehouseInfo.own_phone : warehouseInfo.receiving_tel;
@@ -487,16 +484,10 @@ export default class {
       if (configInfo.shot_order_address_label.includes('4')) {
         detailAddress += "#" + itemOrder.id;
       }
-      // if (configInfo.IsAutoAddBuyerAddr) {
-      //   detailAddress += "#" + itemOrder.id;
-      // }
       //6:拍单时买家地址自动增加订单后6位
       if (configInfo.shot_order_address_label.includes('6')) {
         detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.length - 6);
       }
-      // if (configInfo.IsAutoAddOrderSnToAddress) {
-      //   detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
-      // }
     }
     if (itemOrder.goods_info.ori_platform_id == 1) {
       if (warehouseInfo.isUser != 1) {

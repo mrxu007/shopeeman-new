@@ -229,7 +229,7 @@ export default {
   },
   created() {
   },
-  mounted(){
+  mounted() {
     this.getUserinfo()
   },
   methods: {
@@ -319,7 +319,7 @@ export default {
               continue
             }
           }
-          isFollow = await this.runCancerAttention(followering, mall, mall.platform_mall_id)//取关
+          isFollow = await this.runCancerAttention(followering, mall, mall.platform_mall_id)// 取关
           if (isFollow) {
             canCerFollowN++
           }
@@ -526,9 +526,11 @@ export default {
         if (resMall.code === 200) {
           return resMall.data
         } else {
+          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】主页详情获取失败，${resMall.message}`, false)
           return ''
         }
       } else {
+        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】用户名获取失败，${resUser.message}`, false)
         return ''
       }
     },
@@ -568,11 +570,11 @@ export default {
       // params['offset_of_offset'] = 0
       // params['timeStamp'] = new Date().getTime()
       this.AutoAddFenceInstance.autoAddFenceActive()
-            // const isFollowed=await window.BaseUtilBridgeService.getAttentionUser('TH','333281690','58088697');
-            // if(isFollowed.attention_shop_id){
+      // const isFollowed=await window.BaseUtilBridgeService.getAttentionUser('TH','333281690','58088697');
+      // if(isFollowed.attention_shop_id){
 
-            // }
-            // console.log(isFollowed);
+      // }
+      // console.log(isFollowed);
       // 关注
       // params['country'] = 'TH'
       // params['mallId'] = '333281690'
@@ -759,12 +761,14 @@ export default {
         // 判断HOME店铺未登录（方法里已打印了日志）
         const islogin = await this.isLogin(mall)
         if (!islogin) {
+          this.$set(mall, 'state', '店铺未登录')
           return
         }
         // 获取HOME店铺数据
         const resMall = await this.getHomeMallData(mall)
         this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
         this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
+        console.log('111111', resMall.account.following_count, resMall.follower_count)
         if (!resMall) {
           this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`, true)
           this.$set(mall, 'state', '店铺暂无数据')
@@ -779,6 +783,7 @@ export default {
         let totalMallFollow = Number(mall.newFollow)
         for (const followermallID of followermallIDList) {
           if (this.isStop) {
+            this.$set(mall, 'state', '操作结束')
             return
           }
           // 接口请求擦参数
@@ -795,19 +800,20 @@ export default {
             this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取第${(params.offset / 20) + 1}页粉丝`)
             for (const shop of ALLshopDatas) {
               if (this.isStop) {
+                this.$set(mall, 'state', '操作结束')
                 return
               }
-              
+
               const lineUser = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
               if (!lineUser) {
                 continue
               }
-              //查询壳内数据
-              const isFollowed=await window.BaseUtilBridgeService.getAttentionUser(mall.country,mall.platform_mall_id.toString(),shop.ShopId);
-              if(isFollowed.attention_shop_id){
+              // 查询壳内数据
+              const isFollowed = await window.BaseUtilBridgeService.getAttentionUser(mall.country, mall.platform_mall_id.toString(), shop.ShopId)
+              if (isFollowed.attention_shop_id) {
                 continue
               }
-                // if (allhomeFollowringList.length) { // HOME店铺是否有关注的粉丝
+              // if (allhomeFollowringList.length) { // HOME店铺是否有关注的粉丝
               //   const Followindex = allhomeFollowringList.findIndex(el => { return el.ShopId === shop.ShopId }) // 新增粉丝与已关注粉丝查重
               //   if (Followindex >= 0) {
               //     continue
@@ -817,8 +823,9 @@ export default {
 
               if (isFollow) {
                 totalMallFollow++
-                //存储数据到壳内
-               const saveShopID= await BaseUtilBridgeService.saveAttentionUser({"country":mall.country,"mall_id":mall.platform_mall_id.toString(),"attention_shop_id":shop.ShopId})
+                this.$set(mall, 'newFollow', totalMallFollow)
+                // 存储数据到壳内
+                const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ 'country': mall.country, 'mall_id': mall.platform_mall_id.toString(), 'attention_shop_id': shop.ShopId })
               } else {
                 this.$set(mall, 'newFollow', totalMallFollow)
                 this.$set(mall, 'state', '关注失败')
@@ -846,6 +853,7 @@ export default {
             // 关注更多粉丝
             while (flag) {
               if (this.isStop) {
+                this.$set(mall, 'state', '操作结束')
                 return
               }
               params['offset'] += 20
@@ -854,6 +862,7 @@ export default {
 
               for (let index = 0; index < ALLshopDatas.length; index++) {
                 if (this.isStop) {
+                  this.$set(mall, 'state', '操作结束')
                   return
                 }
                 const shop = ALLshopDatas[index]
@@ -861,11 +870,11 @@ export default {
                 if (!lineUser) {
                   continue
                 }
-                //查询壳内数据
-              const isFollowed=await window.BaseUtilBridgeService.getAttentionUser(mall.country,mall.platform_mall_id.toString(),shop.ShopId);
-              if(isFollowed.attention_shop_id){
-                continue
-              }
+                // 查询壳内数据
+                const isFollowed = await window.BaseUtilBridgeService.getAttentionUser(mall.country, mall.platform_mall_id.toString(), shop.ShopId)
+                if (isFollowed.attention_shop_id) {
+                  continue
+                }
                 // if (allhomeFollowringList.length) { // HOME店铺是否有关注的粉丝
                 //   const Followindex = allhomeFollowringList.findIndex(el => { return el.ShopId === shop.ShopId }) // 新增粉丝与已关注粉丝查重
                 //   if (Followindex >= 0) {
@@ -875,8 +884,8 @@ export default {
                 const isFollow = await this.runAttention(shop, mall, followermallID)
                 if (isFollow) {
                   totalMallFollow++
-                   //存储数据到壳内
-               const saveShopID= await BaseUtilBridgeService.saveAttentionUser({"country":mall.country,"mall_id":mall.platform_mall_id.toString(),"attention_shop_id":shop.ShopId})
+                  // 存储数据到壳内
+                  const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ 'country': mall.country, 'mall_id': mall.platform_mall_id.toString(), 'attention_shop_id': shop.ShopId })
                 } else {
                   this.$set(mall, 'newFollow', totalMallFollow)
                   this.$set(mall, 'state', '关注失败')
@@ -935,16 +944,16 @@ export default {
               //     continue
               //   }
               // }
-                //查询壳内数据否有关注的粉丝
-                const isFollowed=await window.BaseUtilBridgeService.getAttentionUser(mall.country,mall.platform_mall_id.toString(),shop.ShopId);
-                if(isFollowed.attention_shop_id){
-                  continue
-                }
+              // 查询壳内数据否有关注的粉丝
+              const isFollowed = await window.BaseUtilBridgeService.getAttentionUser(mall.country, mall.platform_mall_id.toString(), shop.ShopId)
+              if (isFollowed.attention_shop_id) {
+                continue
+              }
               const isFollow = await this.runAttention(shop, mall, RateCustom.shopid) // 开始关注
               if (isFollow) {
                 totalMallFollow++
-                 //存储数据到壳内
-                const saveShopID= await BaseUtilBridgeService.saveAttentionUser({"country":mall.country,"mall_id":mall.platform_mall_id.toString(),"attention_shop_id":shop.ShopId})
+                // 存储数据到壳内
+                const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ 'country': mall.country, 'mall_id': mall.platform_mall_id.toString(), 'attention_shop_id': shop.ShopId })
               } else {
                 this.$set(mall, 'newFollow', totalMallFollow)
                 this.$set(mall, 'state', '关注失败')
@@ -972,6 +981,7 @@ export default {
             // 关注更多评价用户
             while (flag2) {
               if (this.isStop) {
+                this.$set(mall, 'state', '操作结束')
                 return
               }
               offset += 52
@@ -979,6 +989,7 @@ export default {
               RateCustomList = await this.GetShopComment(itemID, followermallID, mall, offset)
               for (let j = 0; j < RateCustomList.length; j++) {
                 if (this.isStop) {
+                  this.$set(mall, 'state', '操作结束')
                   return
                 }
                 const RateCustom = RateCustomList[j]
@@ -991,16 +1002,16 @@ export default {
                 //     continue
                 //   }
                 // }
-                 //查询壳内数据是否有关注的粉丝
-                const isFollowed=await window.BaseUtilBridgeService.getAttentionUser(mall.country,mall.platform_mall_id.toString(),shop.ShopId);
-                if(isFollowed.attention_shop_id){
+                // 查询壳内数据是否有关注的粉丝
+                const isFollowed = await window.BaseUtilBridgeService.getAttentionUser(mall.country, mall.platform_mall_id.toString(), shop.ShopId)
+                if (isFollowed.attention_shop_id) {
                   continue
                 }
                 const isFollow = await this.runAttention(shop, mall, followermallID) // 开始关注
                 if (isFollow) {
                   totalMallFollow++
-                   //存储数据到壳内
-                  const saveShopID= await BaseUtilBridgeService.saveAttentionUser({"country":mall.country,"mall_id":mall.platform_mall_id.toString(),"attention_shop_id":shop.ShopId})
+                  // 存储数据到壳内
+                  const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ 'country': mall.country, 'mall_id': mall.platform_mall_id.toString(), 'attention_shop_id': shop.ShopId })
                 } else {
                   this.$set(mall, 'newFollow', totalMallFollow)
                   this.$set(mall, 'state', '关注失败')
@@ -1167,10 +1178,10 @@ export default {
         return []
       }
     },
-   
+
     // 参数设置保存
     setSave(val) {
-      //用户成功保存了信息
+      // 用户成功保存了信息
       this.dialog_userInfo = false
       // 更新userinfo
       this.getUserinfo()
@@ -1179,9 +1190,8 @@ export default {
     async setQurey() {
       this.dialog_userInfo = true
       // this.getUserinfo()
-
     },
-     // 获取用户数据
+    // 获取用户数据
     async getUserinfo() {
       this.showlog = true
       const res = await this.$api.userSet()
@@ -1203,8 +1213,8 @@ export default {
         this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true // 是否不关注一定天数内已关注的卖家
         this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
         this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false // 每日启动时间
-        this.userInfo.auto_attention_set.OpenHour='10'
-        this.userInfo.auto_attention_set.OpenMinute='00'
+        this.userInfo.auto_attention_set.OpenHour = '10'
+        this.userInfo.auto_attention_set.OpenMinute = '00'
       }
       // console.log('useSet', this.userInfo.auto_attention_set)
       if (!this.userInfo.auto_attention_set) {

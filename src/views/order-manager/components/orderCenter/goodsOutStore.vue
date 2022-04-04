@@ -131,7 +131,7 @@
           <span class="mar-right">出库总价（RMB）</span>
           <span class="mar-right activeColor">{{ outTotalPriceRmb }}</span>
           <span class="mar-right">出库总价</span>
-          <span class="mar-right activeColor">{{ outTotalPrice }}</span>
+          <span class="mar-right activeColor">{{ outTotalPrice }}{{ orderInfo.country | siteCoin }}</span>
           <el-button
             size="mini"
             type="primary"
@@ -298,11 +298,10 @@ export default {
       })
       this.outTotalStock = numberS
       this.outTotalPriceRmb = price.toFixed(2)
-      this.outTotalPrice = (price * Number(this.rateList[this.orderInfo.country])).toFixed(2)
-      debugger
+      this.outTotalPrice = (price / Number(this.rateList[this.orderInfo.country])).toFixed(2)
       this.grossProfit = (this.incomeRmb - this.outTotalPriceRmb).toFixed(2)
-      this.interestRate = this.outTotalPriceRmb ? Math.round((this.grossProfit / this.outTotalPriceRmb) * 100).toFixed(2) : 100
-      debugger
+      this.interestRate = this.outTotalPriceRmb ? (Math.round((this.grossProfit / this.outTotalPriceRmb) * 100).toFixed(2)) : 100
+
       // console.log(this.rateList[this.orderInfo.country])
     },
     // 获取面单信息

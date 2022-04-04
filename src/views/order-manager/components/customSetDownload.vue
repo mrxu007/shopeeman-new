@@ -56,10 +56,8 @@ export default {
       const goodsList = this.$route.query.goodsList || ''
       const goodsPropsJson = unescape(goodsProps)
       const goodsListJson = unescape(goodsList)
-      this.goodsProps = JSON.parse(goodsPropsJson)
-      this.goodsList = JSON.parse(goodsListJson)
-      console.log('goodsList', this.goodsProps)
-      console.log('goodsProps', this.goodsList)
+      this.goodsProps = goodsPropsJson[0] === '"' ? JSON.parse(goodsPropsJson.replace(/^(\s|")+|(\s|")+$/g, '')) : JSON.parse(goodsPropsJson)
+      this.goodsList = goodsListJson[0] === '"' ? JSON.parse(goodsListJson.replace(/^(\s|")+|(\s|")+$/g, '')) : JSON.parse(goodsListJson)
     }
     this.headTitle = '拣货清单(' + this.formatTime(new Date().getTime()) + ')'
     const array = this.goodsProps.map(son => (son.width || 120))

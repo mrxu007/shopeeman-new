@@ -879,13 +879,13 @@ export default {
           pop.width = 60
         } else if (el === 'platform_mall_name') {
           pop.label = '店铺名称'
-          pop.width = 120
+          pop.width = 200
         } else if (el === 'goods_name') {
           pop.label = '商品名称'
           pop.width = 350
         } else if (el === 'outer_goods_id') {
           pop.label = 'parentSKU'
-          pop.width = 120
+          pop.width = 200
         } else if (el === 'order_sn') {
           pop.label = '订单编号'
           pop.width = 150
@@ -897,7 +897,7 @@ export default {
           pop.width = 150
         } else if (el === 'goodsLink') {
           pop.label = '商品链接'
-          pop.width = 180
+          pop.width = 200
         } else if (el === 'goods_img') {
           pop.label = '商品图片'
           pop.width = 80
