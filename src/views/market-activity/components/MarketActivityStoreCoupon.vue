@@ -155,7 +155,7 @@
                 style="width:100px"
                 maxlength="2"
                 clearable
-                onkeyup="value=value.replace(/[^\d]/g,0)"
+                onkeyup="value=value.replace(/[^\d.]/g,0)"
               />
               <!-- 其他输入框 -->
               <el-input
@@ -164,7 +164,7 @@
                 size="mini"
                 style="width:100px"
                 clearable
-                onkeyup="value=value.replace(/[^\d]/g,0)"
+                onkeyup="value=value.replace(/[^\d.]/g,0)"
               />
               <span v-if="rewardType==='0' && discountType==='0'">%折扣</span>
               <span v-if="rewardType==='1'">%Shopee币折扣</span>
@@ -192,13 +192,13 @@
           <el-radio-group v-model="limitPrice">
             <el-radio label="0">无限制</el-radio>
             <el-radio label="1">设置金额：
-              <el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+              <el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
             </el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item label="最低消费金额">
-          <el-input v-model="minPrice" clearable size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+          <el-input v-model="minPrice" clearable size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
         </el-form-item>
 
         <el-form-item label="优惠时限">
@@ -215,7 +215,7 @@
           />
         </el-form-item>
         <el-form-item label="优惠劵可使用数量(必填)">
-          <el-input v-model="useQuantity" clearable size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+          <el-input v-model="useQuantity" clearable size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
         </el-form-item>
 
         <el-form-item label="优惠劵显示页面">

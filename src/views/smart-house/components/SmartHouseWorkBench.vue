@@ -293,9 +293,9 @@
                   placeholder="请输入备注内容"
                   size="mini"
                   clearable
-                  @blur="changeRemark(scope.row.package_order_sn, scope.$index)"
+                  @blur="changeRemark(scope.row.package_order_sn)"
               />
-              <i style="cursor: pointer" class="el-icon-edit-outline" @click="editRemark(scope.$index, scope.row.id)"/>
+              <i style="cursor: pointer" class="el-icon-edit-outline" @click="editRemark(scope.row.id)"/>
             </p>
           </template>
         </el-table-column>
@@ -1543,18 +1543,21 @@ export default {
         this.isLoading = false
       }
     },
-    editRemark(index, activeRemarkID) {
+    editRemark(activeRemarkID) {
+      let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
       this.activeRemarkID = activeRemarkID
       this.orderRemark = this.tableData[index].user_remark
     },
     // 修改单个备注
-    async changeRemark(id, activeOrder) {
+    async changeRemark(id) {
       // this.isLoading = true
+
+      let index = this.tableData.findIndex(son=>son.id === id)
       const res = await this.$api.setUserRemark({
         packageOrderSn: id,
         remark: this.orderRemark
       })
-      this.tableData[activeOrder].user_remark = this.orderRemark
+      this.tableData[index].user_remark = this.orderRemark
       this.isfocus = true
       this.activeRemarkID = ''
       if (res.data.code !== 200) {

@@ -170,9 +170,9 @@
           </el-form-item>
 
           <el-form-item label="共享库存：">
-            <el-input v-model="primarynum" size="mini" style="width:150px" onkeyup="value=value.replace(/[^\d]/g,0)" clearable />
+            <el-input v-model="primarynum" size="mini" style="width:150px" onkeyup="value=value.replace(/[^\d.]/g,0)" clearable />
 
-            <!-- <el-input v-model="rowy.shared_num" size="mini" style="width:150px" onkeyup="value=value.replace(/[^\d]/g,0)" clearable/> -->
+            <!-- <el-input v-model="rowy.shared_num" size="mini" style="width:150px" onkeyup="value=value.replace(/[^\d.]/g,0)" clearable/> -->
           </el-form-item>
 
           <el-form-item>

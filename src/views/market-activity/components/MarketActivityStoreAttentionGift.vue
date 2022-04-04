@@ -137,7 +137,7 @@
                 size="mini"
                 style="width:100px"
                 maxlength="2"
-                onkeyup="value=value.replace(/[^\d]/g,0)"
+                onkeyup="value=value.replace(/[^\d.]/g,0)"
               />
               <!-- 其他输入框 -->
               <el-input
@@ -145,7 +145,7 @@
                 v-model="discountNum"
                 size="mini"
                 style="width:100px"
-                onkeyup="value=value.replace(/[^\d]/g,0)"
+                onkeyup="value=value.replace(/[^\d.]/g,0)"
               />
               <span v-if="rewardType==='0' && discountType==='0'">%折扣</span>
               <span v-if="rewardType==='1'">%Shopee币折扣</span>
@@ -172,12 +172,12 @@
         <el-form-item v-if="(rewardType==='0'&& discountType==='0') || rewardType==='1'" label="最高折扣金额">
           <el-radio-group v-model="limitPrice">
             <el-radio label="0">无限制</el-radio>
-            <el-radio label="1">设置金额：<el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d]/g,0)" /></el-radio>
+            <el-radio label="1">设置金额：<el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d.]/g,0)" /></el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item label="最低消费金额">
-          <el-input v-model="minPrice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+          <el-input v-model="minPrice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
         </el-form-item>
 
         <el-form-item label="关注礼时限">
@@ -196,7 +196,7 @@
           <div style="color:red;line-height: 20px">* 所选时间段内不可存在其他后续奖券</div>
         </el-form-item>
         <el-form-item label="折扣劵可使用数量(必填)">
-          <el-input v-model="useQuantity" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+          <el-input v-model="useQuantity" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
         </el-form-item>
 
         <el-form-item label="使用期限">

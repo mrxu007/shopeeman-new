@@ -88,19 +88,19 @@
           <label>关键词</label>
           <el-input v-model="keyword" size="mini" style="width:100px" clearable />
           <label>评论数</label>
-          <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
+          <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
           <label>点赞数</label>
-          <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
+          <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
         </li>
         <!-- row3 -->
         <li>
           <label>评分数</label>
-          <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
+          <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
           <label style="margin-left:50px">店铺数</label>
-          <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
           <el-button type="primary" size="mini" style="margin-left:30px" @click="searchMall">搜索</el-button>
           <el-button type="primary" size="mini" @click="addTargetMall">添加勾选店铺</el-button>
         </li>

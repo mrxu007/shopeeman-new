@@ -386,19 +386,19 @@
                   <div class="dropdownItem" @click="singleBuyInfo(row)">采购信息编辑</div>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <div class="dropdownItem" @click="addPurchaseLink(row, $index)">添加采购链接</div>
+                  <div class="dropdownItem" @click="addPurchaseLink(row)">添加采购链接</div>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <div class="dropdownItem" @click="addMoreTrackingNumber(row, $index)">添加多物流单号</div>
+                  <div class="dropdownItem" @click="addMoreTrackingNumber(row)">添加多物流单号</div>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <div class="" @click="setColorSingle(row, $index)">标记颜色标识</div>
+                  <div class="" @click="setColorSingle(row)">标记颜色标识</div>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <div class="" @click="setAbroadSingle(row, $index)">标记海外商品</div>
+                  <div class="" @click="setAbroadSingle(row)">标记海外商品</div>
                 </el-dropdown-item>
                 <el-dropdown-item>
-                  <div class="" @click="pushOrderToStoreSingle(row, $index)">推送订单至仓库</div>
+                  <div class="" @click="pushOrderToStoreSingle(row)">推送订单至仓库</div>
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <div
@@ -548,25 +548,23 @@
               <span class="tableActive" @click="clickBuyOrder(row)">{{ getTableRow(row, item.prop) }}</span>
             </p>
             <div v-else-if="item.showType === 23">
-              <div
-                v-if="!(row.id === activeRemarkID) "
+              <div v-if="!(row.id === activeRemarkID) "
                 style="cursor: pointer; min-width: 20px"
-                @click.stop="editRemark($index, row.id)"
-              >
+                @click.stop="editRemark(row.id)">
                 <p class="remark_p" @dblclick="copyItem(row.remark)">{{ row.remark }}</p>
               </div>
               <el-input
                 v-if="row.id === activeRemarkID"
                 v-model="orderRemark"
                 size="mini"
-                @blur="changeRemark(row.id, $index)"
+                @blur="changeRemark(row.id)"
               />
             </div>
             <div v-else-if="item.showType === 24">
               <div
                 v-show="!(row.id === activeRemarkIDNode)"
                 style="cursor: pointer"
-                @click="editRemarkNode($index, row.id)"
+                @click="editRemarkNode(row.id)"
               >
                 <el-input v-model="row.note" disabled size="mini" />
               </div>
@@ -574,7 +572,7 @@
                 v-if="row.id === activeRemarkIDNode"
                 v-model="orderRemarkNode"
                 size="mini"
-                @blur="changeRemarkNode(row.id, $index)"
+                @blur="changeRemarkNode(row.id)"
               />
             </div>
           </template>
@@ -1943,14 +1941,15 @@ export default {
         return this.$message.warning('请登录相应买手号！')
       }
     },
-    editRemarkNode(index, activeRemarkID) {
+    editRemarkNode(activeRemarkID) {
       this.activeRemarkIDNode = activeRemarkID
+      let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
       this.orderRemarkNode = this.tableData[index].note
       this.orderRemarkCopyNode = this.tableData[index].note
     },
     // 修改单个备注
-    async changeRemarkNode(id, index) {
-      console.log(id, index,2)
+    async changeRemarkNode(id) {
+      let index = this.tableData.findIndex(son=>son.id === id)
       const params = {
         order_id: this.tableData[index].order_id,
         new_note: this.orderRemarkNode,
@@ -1967,18 +1966,17 @@ export default {
       this.$message.error(`设置备注失败`)
       this.activeRemarkIDNode = ''
     },
-    editRemark(index, activeRemarkID) {
+    editRemark(activeRemarkID) {
       this.activeRemarkID = activeRemarkID
-      console.log(index,this.tableData[index].remark, '5555555')
+      let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
       this.orderRemark = this.tableData[index].remark
-      this.orderRemarkCopy = this.tableData[index].remark
     },
     // 修改单个备注
-    async changeRemark(id, index) {
-      console.log(id, index,1)
+    async changeRemark(id) {
       let orderRemark = this.orderRemark
       const res = await this.$api.setLocalRemark({ id: id, remark: orderRemark })
       if (res.data.code == 200) {
+        let index = this.tableData.findIndex(son=>son.id === id)
         this.$message.success(`设置备注成功`)
         this.tableData[index].remark = orderRemark
         this.activeRemarkID = ''
@@ -2180,7 +2178,7 @@ export default {
       }
     },
     // 推送订单至仓库
-    async pushOrderToStoreSingle(row, index) {
+    async pushOrderToStoreSingle(row) {
       this.multipleSelection = [row]
       this.pushOrderToStoreVisible = true
     },
@@ -2694,7 +2692,7 @@ export default {
       console.log(res, 'res')
     },
     // 添加多物流单号
-    async addMoreTrackingNumber(row, index) {
+    async addMoreTrackingNumber(row) {
       this.clickRow = row
       this.addMoreTraNumberVisible = true
       const res = await this.$appConfig.getWarehouseInfo(row.mall_info.platform_mall_id)
@@ -2752,7 +2750,7 @@ export default {
       this.trackingNumberList.push(par)
     },
     // 添加采购链接
-    async addPurchaseLink(row, index) {
+    async addPurchaseLink(row) {
       this.clickRow = row
       this.addBuyLinkVisible = true
     },
@@ -3107,7 +3105,7 @@ export default {
       console.log(this.outStoreType, '79')
       this.goodsOutStoreVisible = true
     },
-    async setColorSingle(row, index) {
+    async setColorSingle(row) {
       this.clickRow = row
       this.multipleSelection = [row]
 
@@ -3197,7 +3195,7 @@ export default {
       this.localRamarkVisible = false
       this.closeDialog('noRefresh')
     },
-    setAbroadSingle(row, index) {
+    setAbroadSingle(row) {
       this.multipleSelection = [row]
       this.abroadVisible = true
     },
