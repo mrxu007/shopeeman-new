@@ -1034,11 +1034,7 @@ export default {
       exportExcelDataCommon('发货管理订单数据', str)
     },
     // 修改单个备注
-<<<<<<< HEAD
-    async changeRemark (id, index) {
-=======
     async changeRemark(id) {
->>>>>>> cd3276cdfd04da972d4b7cd6ad9a0bbbf0b82c36
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
       if (res.data.code == 200) {
         let index = this.tableData.findIndex(son=>son.id === id)
@@ -1050,11 +1046,7 @@ export default {
       this.$message.error('设置备注失败')
       this.activeRemarkID = ''
     },
-<<<<<<< HEAD
-    editRemark (index, activeRemarkID) {
-=======
     editRemark(activeRemarkID) {
->>>>>>> cd3276cdfd04da972d4b7cd6ad9a0bbbf0b82c36
       this.activeRemarkID = activeRemarkID
       let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
       this.orderRemark = this.tableData[index].remark
