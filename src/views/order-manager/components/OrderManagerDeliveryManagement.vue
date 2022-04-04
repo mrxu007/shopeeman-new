@@ -242,7 +242,7 @@
     <el-dialog title="自定义拣货单" :visible.sync="downloadSetVisible" width="400px" :close-on-click-modal="false">
       <div class="downloadSetContent">
         <el-checkbox-group v-model="downloadSetList" class="downloadSetDetail">
-          <el-row> <h3> 请选择导出选项：</h3></el-row>
+          <el-row> <h3>请选择导出选项：</h3></el-row>
           <el-row>
             <el-checkbox label="country">站点</el-checkbox>
             <el-checkbox label="platform_mall_name" class="mall">店铺名称</el-checkbox>
@@ -276,7 +276,6 @@
             <el-checkbox label="is_apply_tracking_no">是否已申请物流单号</el-checkbox>
             <el-checkbox label="hasLogistics">是否同步面单信息</el-checkbox>
           </el-row>
-
         </el-checkbox-group>
       </div>
       <span slot="footer">
@@ -295,12 +294,12 @@ export default {
   components: {
     storeChoose
   },
-  data() {
+  data () {
     return {
       downloadSetVisible: false, // 下载设置弹窗
       downloadSetList: [], // 下载设置选项
       pickerOptions: {
-        disabledDate(time) {
+        disabledDate (time) {
           return time.getTime() > Date.now()
         }
       },
@@ -336,7 +335,7 @@ export default {
       isDownloadOriginFaceQJ: false // 全家原始面单
     }
   },
-  mounted() {
+  mounted () {
     console.log('ces')
     this.createTime = creatDate(15)
     setTimeout(() => {
@@ -344,7 +343,7 @@ export default {
     }, 2000)
   },
   methods: {
-    beforeVirtual() {
+    beforeVirtual () {
       const filterArr = this.multipleSelection.filter((n) => n.country == 'TW')
       if (!filterArr.length) {
         return this.$message.warning('请选择台湾站订单数据')
@@ -362,7 +361,7 @@ export default {
         })
     },
     // 下载虚拟面单 --指台湾站
-    async downLoadVirtualTW(filterArr, isNeedGoodsInfo) {
+    async downLoadVirtualTW (filterArr, isNeedGoodsInfo) {
       try {
         const pdfModelList = []
         for (let i = 0; i < filterArr.length; i++) {
@@ -383,7 +382,7 @@ export default {
               BarCodeWidth: 200,
               BarCodeHeight: 50
             },
-            SkuList: [order.goodsInfo[0].variation_sku.replace('=|=', ''), order.goodsInfo[0].goods_count],
+            SkuList: this.dealwithSkuList(order.goodsInfo),
             IsNeedCut: !!(order.logistics_id == 30007 || order.logistics_id == 30008),
             IsUseA4Size: false,
             PdfWidth: 320,
@@ -402,8 +401,16 @@ export default {
 
       }
     },
+    dealwithSkuList (skulist) {
+      let resArr = []
+      for (let i = 0; i < skulist.length; i++) {
+        let info = `規格： ${skulist[i].variation_sku?skulist[i].variation_sku.replace('=|=', ''):skulist[i].variation_name}  數量：${skulist[i].goods_count}`
+        resArr.push(info)
+      }
+      return resArr
+    },
     // 标记面单已下载
-    async updateOrderPrintStatus(array) {
+    async updateOrderPrintStatus (array) {
       const mainOrderSns = []
       array.forEach(item => {
         mainOrderSns.push(item.MainOrderNo)
@@ -422,7 +429,7 @@ export default {
         })
       }
     },
-    changeTime(val, key, subKey) {
+    changeTime (val, key, subKey) {
       const days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
       if (days > 93) {
         if (subKey) {
@@ -434,7 +441,7 @@ export default {
       }
     },
     // 打印台湾虚拟面单
-    async downTWface() {
+    async downTWface () {
       try {
         const filterArr = this.multipleSelection.filter((n) => n.country == 'TW')
         if (!filterArr.length) {
@@ -464,7 +471,7 @@ export default {
       }
     },
     // 打印面单信息
-    batnchDownLoad(arrList, type) {
+    batnchDownLoad (arrList, type) {
       if (!arrList.length) {
         return this.$message.warning('请选择要操作的数据！')
       }
@@ -494,7 +501,7 @@ export default {
           })
       }
     },
-    async batchPrintOrderSurface(arrList, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
+    async batchPrintOrderSurface (arrList, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
       let country = ''
       const countryId = {}
       let mainOrders = ''
@@ -533,7 +540,7 @@ export default {
       }
     },
     // 打印面单信息
-    async downFace(arrList, OrderList, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
+    async downFace (arrList, OrderList, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       try {
@@ -564,7 +571,7 @@ export default {
               BarCodeWidth: 200,
               BarCodeHeight: 50
             },
-            SkuList: [orderInfo.goodsInfo[0].variation_sku.replace('=|=', ''), orderInfo.goodsInfo[0].goods_count],
+            SkuList: this.dealwithSkuList(orderInfo.goodsInfo),
             IsNeedCut: !!(orderInfo.logistics_id == 30007 || orderInfo.logistics_id == 30008),
             IsUseA4Size: false,
             PdfWidth: 320,
@@ -691,7 +698,7 @@ export default {
       }
     },
     // 同步单个面单信息
-    async syncFaceDataSingle(row) {
+    async syncFaceDataSingle (row) {
       // 同步单个，强制开启申请面单
       // if (row.hasLogistics == '1' && row.tracking_no != '') {
       //   return this.$message.warning('订单面单已存在，无需再同步！')
@@ -699,7 +706,7 @@ export default {
       this.syncSurface([row], true)
     },
     // 同步面单信息
-    async syncSurfaceBefore() {
+    async syncSurfaceBefore () {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
@@ -736,7 +743,7 @@ export default {
       }
     },
     // 同步面单信息
-    async syncSurface(syncList, isApplyForceFaceInfo) {
+    async syncSurface (syncList, isApplyForceFaceInfo) {
       this.showConsole = false
       if (!syncList.length) {
         this.$refs.Logs.writeLog('没有要同步的订单！', true)
@@ -747,7 +754,7 @@ export default {
       service.handleStart(syncList, isApplyForceFaceInfo)
     },
     // 下载拣货单
-    async downLoadPickList() {
+    async downLoadPickList () {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
@@ -757,7 +764,7 @@ export default {
       service.getPickListData(this.multipleSelection)
     },
     // 下载自定义拣货单
-    async  downloadSetSave() {
+    async downloadSetSave () {
       if (!this.downloadSetList.length) {
         this.$message.warning('请选择需要导出的选项')
       }
@@ -784,7 +791,7 @@ export default {
         let exportData = []
         let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
         while (dataFlag && dataFlag.length) {
-          dataFlag.forEach(async(item) => {
+          dataFlag.forEach(async (item) => {
             item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
           })
           exportData = exportData.concat(dataFlag)
@@ -912,7 +919,7 @@ export default {
         } else if (el === 'logistics_name') {
           pop.label = '虾皮物流'
           pop.width = 180
-        } else {}
+        } else { }
         return pop
       })
       const goodsProp = escape(JSON.stringify(exporGoodsProp))
@@ -923,7 +930,7 @@ export default {
     //   this.downloadSetVisible = true
     // },
     // 获取导出数据
-    async getExportData() {
+    async getExportData () {
       if (this.multipleSelection.length) {
         this.tableToExcel([this.multipleSelection])
       } else {
@@ -945,7 +952,7 @@ export default {
         let exportData = []
         let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
         while (dataFlag && dataFlag.length) {
-          dataFlag.forEach(async(item) => {
+          dataFlag.forEach(async (item) => {
             item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
           })
           exportData = exportData.concat(dataFlag)
@@ -972,7 +979,7 @@ export default {
       }
     },
     // 导出
-    tableToExcel(exportData) {
+    tableToExcel (exportData) {
       let num = 1
       let str = `<tr>
             <td>编号</td>
@@ -1027,7 +1034,7 @@ export default {
       exportExcelDataCommon('发货管理订单数据', str)
     },
     // 修改单个备注
-    async changeRemark(id, index) {
+    async changeRemark (id, index) {
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
       if (res.data.code == 200) {
         this.$message.success('设置备注成功')
@@ -1038,24 +1045,24 @@ export default {
       this.$message.error('设置备注失败')
       this.activeRemarkID = ''
     },
-    editRemark(index, activeRemarkID) {
+    editRemark (index, activeRemarkID) {
       this.activeRemarkID = activeRemarkID
       this.orderRemark = this.tableData[index].remark
     },
-    openBefore() {
+    openBefore () {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择需要备注的商品！')
       }
       this.localRamarkVisible = true
     },
     // 批量添加本地备注
-    async batchSetRemark() {
+    async batchSetRemark () {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择需要标记的商品！')
       }
       this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
-      this.multipleSelection.forEach(async(item) => {
+      this.multipleSelection.forEach(async (item) => {
         const params = {
           id: item.id,
           remark: this.localRamark
@@ -1073,7 +1080,7 @@ export default {
       this.getOrderList()
     },
     // 处理订单编号
-    handleKey(key) {
+    handleKey (key) {
       return key
         .split('\n')
         .map((item) => {
@@ -1084,13 +1091,13 @@ export default {
         })
     },
     // 查看商品详情
-    openGoodsDetail(row) {
+    openGoodsDetail (row) {
       this.clickRow = row
       this.goodsList = row.goodsInfo
       this.goodsListVisible = true
     },
     // 关闭弹窗
-    closeDialog() {
+    closeDialog () {
       this.clickRow = {}
       this.goodsList = []
       this.goodsSearchVisible = false
@@ -1099,7 +1106,7 @@ export default {
       this.localRamarkVisible = false
     },
     // 获取列表
-    async getOrderList(page, goodsOrderSnStr) {
+    async getOrderList (page, goodsOrderSnStr) {
       try {
         let sysMallId = ''
         this.selectMallList.forEach((item, index) => {
@@ -1138,7 +1145,7 @@ export default {
         this.tableLoading = false
       }
     },
-    async joinLink(row, goodsId) {
+    async joinLink (row, goodsId) {
       let url = ''
       if (row.mall_info && row.mall_info.platform_mall_id) {
         const params = {
@@ -1150,7 +1157,7 @@ export default {
       return url
     },
     // 打开外部窗口
-    async openUrl(data, goodsId, type) {
+    async openUrl (data, goodsId, type) {
       let url = data
       if (type === 'product') {
         const params = {
@@ -1163,7 +1170,7 @@ export default {
       this.$BaseUtilService.openUrl(url)
     },
     // 打开订单页面
-    viewDetails(type, id, shopId) {
+    viewDetails (type, id, shopId) {
       const reqStr = {
         type: type,
         shopId: shopId,
@@ -1171,24 +1178,24 @@ export default {
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
-    changeMallList(val) {
+    changeMallList (val) {
       this.selectMallList = val.mallList
     },
-    handleCurrentChange(val) {
+    handleCurrentChange (val) {
       this.currentPage = val
       this.getOrderList()
     },
-    handleSizeChange(size) {
+    handleSizeChange (size) {
       this.currentPage = 1
       this.pageSize = size
       this.getOrderList()
     },
     //   表格选择
-    handleSelectionChange(val) {
+    handleSelectionChange (val) {
       this.multipleSelection = val
     },
     // 点击复制
-    copyItem(attr) {
+    copyItem (attr) {
       const target = document.createElement('div')
       target.id = 'tempTarget'
       target.style.opacity = '0'
@@ -1317,29 +1324,29 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
-.downloadSetContent{
-  .downloadSetDetail{
-    .el-row{
+.downloadSetContent {
+  .downloadSetDetail {
+    .el-row {
       margin-bottom: 10px;
     }
-    .el-row:first-child{
+    .el-row:first-child {
       margin-bottom: 10px;
     }
-    .el-row:nth-child(2){
-      /deep/.el-checkbox:nth-child(2){
+    .el-row:nth-child(2) {
+      /deep/.el-checkbox:nth-child(2) {
         margin-left: 24px;
       }
-      .el-checkbox:nth-child(3){
+      .el-checkbox:nth-child(3) {
         margin-left: 24px;
       }
     }
-     .el-row:nth-child(3){
-      .el-checkbox:nth-child(3){
+    .el-row:nth-child(3) {
+      .el-checkbox:nth-child(3) {
         margin-left: 11px;
       }
     }
-     .el-row:nth-child(4){
-      .el-checkbox:nth-child(3){
+    .el-row:nth-child(4) {
+      .el-checkbox:nth-child(3) {
         margin-left: 24px;
       }
     }
