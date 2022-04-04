@@ -141,11 +141,11 @@
                       />
                     </el-select>
                   </div>
-                  <div class="tool-item mar-right">
+                  <div class="tool-item mar-right gross_profit">
                     <span>毛利值：</span>
-                    <el-input v-model="selectForm.minGrossProfit" size="mini" clearable style="width: 63px" />
+                    <el-input v-model="selectForm.minGrossProfit" size="mini" clearable style="width: 63px;" />
                     <p style="margin: 0 4px">-</p>
-                    <el-input v-model="selectForm.maxGrossProfit" size="mini" clearable style="width: 64px" />
+                    <el-input v-model="selectForm.maxGrossProfit" size="mini" clearable style="width: 64px;" />
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购时间：</span>
@@ -351,30 +351,23 @@
             />
             <p v-if="item.iColor" :style="{ background: changeColorLabel(row[item.iColor]), height: '20px' }" />
             <p v-if="item.showType === 0" style="padding: 0;display: flex;flex-flow: column;">
-              <span
-                v-if="!item.propList"
-                style="text-overflow: ellipsis; overflow: hidden;"
+              <span v-if="!item.propList" style="text-overflow: ellipsis; overflow: hidden;"
                 :class="item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle' || ''"
                 @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
-                @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''"
-              >
+                @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''">
                 {{ item.filter && item.filter(getTableRow(row, item.prop)) || getTableRow(row, item.prop) }}
               </span>
-              <span
-                v-for="(son,i) in item.propList"
-                v-else
-                :key="i"
-                style="text-overflow: ellipsis; overflow: hidden;"
+              <span v-for="(son,i) in item.propList"
+                v-else :key="i" style="text-overflow: ellipsis; overflow: hidden;"
                 :class="son.rowClick && 'tableActive' || son.rowDblClick && 'copyStyle' || ''"
                 @click="son.rowClick && tableRowBound(son.rowClick,row,$index,son) || ''"
-                @dblclick="son.rowDblClick && tableRowBound(son.rowDblClick,row,$index,son) || ''"
-              >
+                @dblclick="son.rowDblClick && tableRowBound(son.rowDblClick,row,$index,son) || ''">
                 {{ son.name }}：{{ son.filter && son.filter(getTableRow(row, son.prop)) || getTableRow(row, son.prop) }}
               </span>
             </p>
             <el-dropdown
               v-else-if="item.showType === 2"
-              style="width: 100px;"
+              style="width: 90px;"
               trigger="click"
               size="mini"
             >
@@ -1516,6 +1509,7 @@ export default {
           align: '',
           filter: $filter.siteCoin,
           prop: 'real_gross_profit',
+          sortable: true,
           showType: 11
         }, {
           key: 33,
@@ -1530,6 +1524,7 @@ export default {
           width: '120',
           align: '',
           prop: 'shot_order_info.buy_account_info.name',
+          sortable: true,
           showType: 0
         }, {
           key: 35,
@@ -3309,6 +3304,13 @@ export default {
         }
       })
       const params = JSON.parse(JSON.stringify(this.selectForm))
+      let minGrossProfit = Number(params['minGrossProfit']) || 0
+      let maxGrossProfit = Number(params['maxGrossProfit']) || 0
+      if(minGrossProfit > maxGrossProfit){
+        let min = params['minGrossProfit']
+        params['minGrossProfit'] = params['maxGrossProfit']
+        params['maxGrossProfit'] = min
+      }
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
       params['sysMallId'] = sysMallId
@@ -3319,6 +3321,7 @@ export default {
       params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
+      console.log('applyAsyncExportOrder - params',params)
       const res = await this.$api.applyAsyncExportOrder(params)
       if (res.data.code === 200) {
         return this.$message.success(`导出数据请求成功，可点击【导出数据报表】按钮查看导出状态`)
@@ -3344,6 +3347,13 @@ export default {
         }
       })
       const params = JSON.parse(JSON.stringify(this.selectForm))
+      let minGrossProfit = Number(params['minGrossProfit']) || 0
+      let maxGrossProfit = Number(params['maxGrossProfit']) || 0
+      if(minGrossProfit > maxGrossProfit){
+        let min = params['minGrossProfit']
+        params['minGrossProfit'] = params['maxGrossProfit']
+        params['maxGrossProfit'] = min
+      }
       this.currentPage = page || this.currentPage
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
@@ -4023,6 +4033,13 @@ export default {
 .timeFormat {
   .el-range-input {
     width: 70px !important;
+  }
+}
+
+.gross_profit{
+  .el-input__inner{
+    padding-left: 8px;
+    padding-right: 20px;
   }
 }
 

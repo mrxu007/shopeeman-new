@@ -406,6 +406,9 @@ export default {
       if (true || res.data.code === 200) {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('下单成功')
+        for(let i=0;i<this.orderList.length;i++){
+          this.$set(this.orderList[i],'order_status',3)
+        }
         this.flagText = '出库成功'
         this.matchOrderList = []
         this.totalPrice()
@@ -470,6 +473,9 @@ export default {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('下单成功')
         this.flagText = '出库成功'
+        for(let i=0;i<this.orderList.length;i++){
+          this.$set(this.orderList[i],'order_status',3)
+        }
         this.matchOrderList = []
         this.totalPrice()
         this.$emit('setTableData', main_order_sn, 'order_status', 3)
@@ -504,6 +510,9 @@ export default {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('出库成功')
         this.flagText = '出库成功'
+        for(let i=0;i<this.orderList.length;i++){
+          this.$set(this.orderList[i],'order_status',3)
+        }
         this.$emit('setTableData', main_order_sn, 'order_status', 3)
         this.goNext()
       } else {
@@ -536,6 +545,9 @@ export default {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('出库成功')
         this.flagText = '出库成功'
+        for(let i=0;i<this.orderList.length;i++){
+          this.$set(this.orderList[i],'order_status',3)
+        }
         this.$emit('setTableData', main_order_sn, 'order_status', 3)
         for (const item of arr) {
           const res = await this.$commodityService.updateSkuStock(item.sku_id, item.stock_num - item.outStock)
