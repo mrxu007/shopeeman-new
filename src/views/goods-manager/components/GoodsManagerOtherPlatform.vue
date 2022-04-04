@@ -26,15 +26,15 @@
           >商品点赞/加购设置</span>
           <ul>
             <li>
-              <div><el-checkbox v-model="isunlikeCreateMinDay" style="margin: 4px" />不点赞（加购）创建天数小于 <el-input v-model="unlikeCreateMinDay" clearable size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:100px" />的商品</div>
-              <div><el-checkbox v-model="isunlikeSaleMin" style="margin: 4px" />不点赞（加购）销量小于 <el-input v-model="unlikeSaleMin" clearable size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:100px" />的商品</div>
+              <div><el-checkbox v-model="isunlikeCreateMinDay" style="margin: 4px" />不点赞（加购）创建天数小于 <el-input v-model="unlikeCreateMinDay" clearable size="mini" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:100px" />的商品</div>
+              <div><el-checkbox v-model="isunlikeSaleMin" style="margin: 4px" />不点赞（加购）销量小于 <el-input v-model="unlikeSaleMin" clearable size="mini" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:100px" />的商品</div>
             </li>
             <li>
-              <div><el-checkbox v-model="isunlikeViewMinDay" style="margin: 4px" />不点赞（加购）浏览数小于 <el-input v-model="unlikeViewMinDay" clearable size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:100px;" />的商品</div>
-              <div style="margin-left:10px"><el-checkbox v-model="isunlikeLikeMinDay" style="margin: 4px" />不点赞（加购）喜欢数小于 <el-input v-model="unlikeLikeMinDay" clearable size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:100px" />的商品</div>
+              <div><el-checkbox v-model="isunlikeViewMinDay" style="margin: 4px" />不点赞（加购）浏览数小于 <el-input v-model="unlikeViewMinDay" clearable size="mini" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:100px;" />的商品</div>
+              <div style="margin-left:10px"><el-checkbox v-model="isunlikeLikeMinDay" style="margin: 4px" />不点赞（加购）喜欢数小于 <el-input v-model="unlikeLikeMinDay" clearable size="mini" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:100px" />的商品</div>
             </li>
             <li>
-              <div><el-checkbox v-model="isRandomLikeMinDay" style="margin: 4px" />随机点赞（加购） <el-input v-model="RandomLikeMinDay" clearable size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:100px" />个商品</div>
+              <div><el-checkbox v-model="isRandomLikeMinDay" style="margin: 4px" />随机点赞（加购） <el-input v-model="RandomLikeMinDay" clearable size="mini" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:100px" />个商品</div>
             </li>
           </ul>
         </div>
@@ -61,7 +61,7 @@
             </li>
             <li style="align-items: baseline;">
               <div><el-checkbox v-model="isunlikehaventPic" style="margin: 4px" />不点赞无图评价 </div>
-              <div><el-checkbox v-model="isunlikeMonthAgoComment" style="margin: 4px" />不点赞 <el-input v-model="unlikeMonthAgoComment" clearable size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:100px" />天前的评价 </div>
+              <div><el-checkbox v-model="isunlikeMonthAgoComment" style="margin: 4px" />不点赞 <el-input v-model="unlikeMonthAgoComment" clearable size="mini" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:100px" />天前的评价 </div>
             </li>
           </ul>
         </div>

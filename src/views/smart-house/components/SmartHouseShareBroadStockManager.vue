@@ -385,7 +385,7 @@
             v-model="shareTockData.shared_num"
             size="mini"
             style="width:150px"
-            onkeyup="value=value.replace(/[^\d]/g,0)"
+            onkeyup="value=value.replace(/[^\d.]/g,0)"
             clearable
           />
         </el-form-item>

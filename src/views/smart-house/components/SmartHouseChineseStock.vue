@@ -225,7 +225,7 @@
           <span style="color:#969393;margin-left: 5px;">RMB</span>
         </el-form-item>
         <!-- <el-form-item label="新价格：" style="margin-bottom: 10px;">
-          <el-input v-model="updatePriceData.newPrice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+          <el-input v-model="updatePriceData.newPrice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
           <span style="color:#969393;margin-left: 5px;">RMB</span>
         </el-form-item> -->
         <el-form-item style="margin-top: 10px;">

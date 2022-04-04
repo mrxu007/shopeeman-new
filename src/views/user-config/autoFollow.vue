@@ -6,9 +6,9 @@
       <li>
         <div>
           <label>店铺商品上限：</label>
-          <el-input v-model="limitgGoods" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <el-input v-model="limitgGoods" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
           <label style="margin-left:120px">最后活跃时间：</label>
-          <el-input v-model="lastOnline" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" /> &nbsp;天内
+          <el-input v-model="lastOnline" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" /> &nbsp;天内
         </div>
       </li>
       <!-- row2 -->
@@ -27,10 +27,10 @@
         <!--  -->
         <div style="margin-bottom:10px">
           <label>关注数量：</label>
-          <el-input v-model="followNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <el-input v-model="followNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
           （0为无限制）
           <label style="margin-left:110px">关注间隔：</label>
-          <el-input v-model="interTime" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:50px" size="mini" />
+          <el-input v-model="interTime" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:50px" size="mini" />
           秒
         </div>
         <!--  -->
@@ -42,7 +42,7 @@
         <!--  -->
         <div>
           <el-checkbox v-model="followDay">不关注 </el-checkbox>
-          <el-input v-model="followDayNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:75px" size="mini" @blur="followDay = true" />
+          <el-input v-model="followDayNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:75px" size="mini" @blur="followDay = true" />
           天内关注过的用户
         </div>
       </li>
@@ -51,7 +51,7 @@
       <li>
         <div>
           <label>取关数量：</label>
-          <el-input v-model="cancerFollowNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <el-input v-model="cancerFollowNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
           （0为无限制）
         </div>
       </li>

@@ -136,7 +136,7 @@
                 |
                 <el-tooltip class="item" effect="dark" :content="content1" placement="top-start">
                   <span>
-                    <el-input v-model="scope.row.minCost" size="mini" style="width:120px;" onkeyup="value=value.replace(/[^\d]/g,0)" @focus="checkMinCost(scope.row,scope.$index)" @blur="clearCost(scope.row)" /><br>
+                    <el-input v-model="scope.row.minCost" size="mini" style="width:120px;" onkeyup="value=value.replace(/[^\d.]/g,0)" @focus="checkMinCost(scope.row,scope.$index)" @blur="clearCost(scope.row)" /><br>
                   </span>
                 </el-tooltip>
                 <span style="color:red;margin-top: -4px;">

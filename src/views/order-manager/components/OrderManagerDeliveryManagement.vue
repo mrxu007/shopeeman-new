@@ -174,10 +174,10 @@
         </u-table-column>
         <u-table-column align="center" prop="remark" label="本地备注" min-width="120" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false)" style="cursor: pointer" @click="editRemark(scope.$index, scope.row.id)">
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false)" style="cursor: pointer" @click="editRemark( scope.row.id)">
               <el-input v-model="scope.row.remark" disabled size="mini" />
             </div>
-            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)" />
+            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id)" />
             <!-- <i @click="editRemark(scope.$index, scope.row.id)" style="cursor: pointer" class="el-icon-edit-outline"></i> -->
             <!-- {{ scope.row.remark }} -->
           </template>
@@ -1027,9 +1027,10 @@ export default {
       exportExcelDataCommon('发货管理订单数据', str)
     },
     // 修改单个备注
-    async changeRemark(id, index) {
+    async changeRemark(id) {
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
       if (res.data.code == 200) {
+        let index = this.tableData.findIndex(son=>son.id === id)
         this.$message.success('设置备注成功')
         this.tableData[index].remark = this.orderRemark
         this.activeRemarkID = ''
@@ -1038,8 +1039,9 @@ export default {
       this.$message.error('设置备注失败')
       this.activeRemarkID = ''
     },
-    editRemark(index, activeRemarkID) {
+    editRemark(activeRemarkID) {
       this.activeRemarkID = activeRemarkID
+      let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
       this.orderRemark = this.tableData[index].remark
     },
     openBefore() {

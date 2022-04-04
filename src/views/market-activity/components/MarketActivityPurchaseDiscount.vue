@@ -110,14 +110,14 @@
                   加购限制
                   <!-- 必须在1-100 -->
                   <el-tooltip class="item" effect="dark" content="买家在同一个订单里最多加购的商品数量是(1-100)" placement="top-start">
-                    <el-input v-model="addLimit" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                    <el-input v-model="addLimit" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
                   </el-tooltip>
                 </span>
                 <span v-if="discountType==='1'" style="margin-left: 16px;">
-                  赠品规则 消费<el-input v-model="costNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                  赠品规则 消费<el-input v-model="costNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
                   以获得
                   <el-tooltip class="item" effect="dark" content="赠品的数量应在(1-50)内" placement="top-start">
-                    <el-input v-model="sendNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                    <el-input v-model="sendNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d.]/g,0)" />
                   </el-tooltip>
                   个赠品
                 </span>
@@ -196,7 +196,7 @@
             <div style="margin-left: 10px;margin-bottom: 5px;">加购商品</div>
             <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
               <li style="display:flex;margin-bottom:5px">
-                <div>折扣：<el-input v-model="addGoodsDiscount" size="mini" style="width:50px" maxlength="2" onkeyup="value=value.replace(/[^\d]/g,0)" />%</div>
+                <div>折扣：<el-input v-model="addGoodsDiscount" size="mini" style="width:50px" maxlength="2" onkeyup="value=value.replace(/[^\d.]/g,0)" />%</div>
                 <el-button size="mini" type="primary" style="margin-left:10px" @click="changePriceMul">批量更新</el-button>
                 <el-button size="mini" type="primary" @click="otherGoodsOpenMul(1)">开启</el-button>
                 <el-button size="mini" type="primary" @click="otherGoodsOpenMul(2)">关闭</el-button>
@@ -218,7 +218,7 @@
                   <el-table-column v-if="othertableType==='0'" label="折扣" align="center" min-width="100px">
                     <template slot-scope="scope">
                       <!-- <div> -->
-                      <el-input v-model="scope.row.discount" size="mini" style="width:62px" maxlength="2" onkeyup="value=value.replace(/[^\d]/g,0)" @blur="changePrice(scope.row)" />%
+                      <el-input v-model="scope.row.discount" size="mini" style="width:62px" maxlength="2" onkeyup="value=value.replace(/[^\d.]/g,0)" @blur="changePrice(scope.row)" />%
                       <!-- </div> -->
                     </template>
                   </el-table-column>

@@ -143,7 +143,7 @@
                 <el-dropdown-item><div class="dropdownItem" @click="goodsDelist(row)">下架商品</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem" @click=";(shotVisible = true), (multipleSelection = [row])">修改采购状态</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem" @click="syncAfterOrder(row)">同步此店铺售后订单</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click="setColorSingle(row, $index)">订单颜色标识</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click="setColorSingle(row)">订单颜色标识</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(row)">同步此订单</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -182,10 +182,10 @@
         <u-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
         <u-table-column align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer; min-width: 20px">
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark( scope.row.id)" style="cursor: pointer; min-width: 20px">
               <p @dblclick="copy(scope.row.remark)" style="color: #000; height: 20px">{{ scope.row.remark }}</p>
             </div>
-            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)"
+            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id)"
           /></template>
         </u-table-column>
         <u-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px">
@@ -526,7 +526,7 @@ export default {
       }
       return colorInfo ? colorInfo.color : ''
     },
-    async setColorSingle(row, index) {
+    async setColorSingle(row) {
       this.clickRow = row
       this.multipleSelection = [row]
       this.colorVisible = true
@@ -619,12 +619,14 @@ export default {
       this.$refs.Logs.writeLog('售后订单同步已完成！！！', true)
     },
     // 修改备注
-    editRemark(index, activeRemarkID) {
+    editRemark(activeRemarkID) {
+      let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
       this.activeRemarkID = activeRemarkID
       this.orderRemark = this.tableList[index].remark
     },
     // 修改单个备注
-    async changeRemark(id, index) {
+    async changeRemark(id) {
+      let index = this.tableData.findIndex(son=>son.id === index)
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
       if (res.data.code == 200) {
         this.$message.success(`设置备注成功`)

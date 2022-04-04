@@ -83,7 +83,7 @@
           </li>
           <li style="align-items: baseline;">
             <div>循环置顶商品个数：
-              <el-input v-model="loopGoodsNum" size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:60px" />
+              <el-input v-model="loopGoodsNum" size="mini" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:60px" />
               <el-button size="mini" type="primary" style="margin-left:32px" @click="createTeskFun">创建任务</el-button>
               <el-button size="mini" type="primary" @click="refreshTopGoods">重新获取置顶商品</el-button>
             </div>
