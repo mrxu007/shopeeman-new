@@ -426,11 +426,12 @@
         </div>
       </div>
     </el-row>
-    <u-table :data="goodsTable"
+    <u-table :data="goodsTable" v-if="isRefreshTable"
+             ref="goodsTable" row-key="id"
              @selection-change="handleSelectionChange"
              use-virtual :data-changes-scroll-top="false"
              :header-cell-style="{backgroundColor: '#f5f7fa',}"
-             row-key="id" :border="false" :big-data-checkbox="true"
+             :border="false" :big-data-checkbox="true"
              :height="isNoFoldShow && (associatedConfig.dimensionRadio === 2 && 321 || 320) || 729">
       <u-table-column align="left" type="selection" width="50"/>
       <u-table-column align="left" label="序列号" type="index" width="60">
@@ -452,9 +453,9 @@
       <u-table-column align="left" label="上家商品Id" width="130">
         <template v-slot="{ row }">
           <div style="display: flex">
-          <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
-          <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
-            <i class="el-icon-document-copy"/></el-button>
+            <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
+            <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
+              <i class="el-icon-document-copy"/></el-button>
           </div>
         </template>
       </u-table-column>
@@ -1043,7 +1044,8 @@
             <div class="basisInstall-box">
               <div class="keepRight">上新时间间隔：</div>
               <el-input size="mini" v-model="setTimeConfig.onNewInterval"
-                        style="width: 80px;margin:0 5px;"></el-input>S
+                        style="width: 80px;margin:0 5px;"></el-input>
+              S
               <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -1051,7 +1053,8 @@
             <div class="basisInstall-box">
               <div class="keepRight">上新加速：</div>
               <el-input style="width: 80px;margin: 0 5px;" size="mini" v-model="setTimeConfig.onNewThread"
-                        @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"></el-input>条线程
+                        @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"></el-input>
+              条线程
               <el-tooltip class="item" effect="dark" content="请根据电脑配置合理设置上新线程数，最大为5" :min="1" :max="5" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -1419,7 +1422,8 @@ export default {
         onNewThread: '5',
         name: '',
         time: new Date(new Date().getTime() + 3600 * 1000 * 24)
-      }
+      },
+      isRefreshTable: true
     }
   },
   computed: {},
@@ -1842,7 +1846,7 @@ export default {
                 })
               }
               let goodsPrice = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
-              goodsParam['price'] = Math.ceil(goodsPrice  / this.rateList[this.country] * ratio) + ''
+              goodsParam['price'] = Math.ceil(goodsPrice / this.rateList[this.country] * ratio) + ''
               goodsParam['description'] = neededTranslateInfoData.description || ''
               let hotList = this.basicConfig.hotList || ''
               hotList = hotList.replaceAll('，', ',')
@@ -1944,7 +1948,7 @@ export default {
               let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
               goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
                 let price = this.getValuationPrice(son.price, neededTranslateInfoData)
-                price = Math.ceil(price / this.rateList[this.country]  * ratio) + ''
+                price = Math.ceil(price / this.rateList[this.country] * ratio) + ''
                 son = {
                   id: 0,
                   name: '',
@@ -2539,7 +2543,7 @@ export default {
       this.categoryVisible = true
     },
     categoryChange(val) {
-      console.log('categoryChange', val)
+      console.log('categoryChange', val, this.goodsCurrent)
       if (val) {
         let categoryList = val.categoryList
         let category = categoryList[categoryList.length - 1]
@@ -2575,6 +2579,16 @@ export default {
           })
         }
       }
+      let tableDom = this.$refs.goodsTable
+      let scrollTop = tableDom && tableDom.scrollTop
+      this.isRefreshTable = false
+      this.$nextTick(() => {
+        this.isRefreshTable = true
+        this.$nextTick(() => {
+          let tableDom = this.$refs.goodsTable
+          tableDom.scrollTop = scrollTop
+        })
+      })
       this.categoryVisible = false
     },
     enterGoodsTag() {
@@ -3011,36 +3025,36 @@ export default {
       this.setTimeVisible = true
     },
     async saveSetTime(isRun) {
-      if(!this.setTimeConfig.name){
+      if (!this.setTimeConfig.name) {
         this.$message.error('任务名称不能为空')
         return
       }
-      if(this.setTimeConfig.onNewThread > 5 || this.setTimeConfig.onNewThread < 1){
+      if (this.setTimeConfig.onNewThread > 5 || this.setTimeConfig.onNewThread < 1) {
         this.$message.error('任务线程需大于等于1小于等于5')
         return
       }
       let ext_info = JSON.stringify({
-        mallList:this.mallList,
-        config:this.setTimeConfig
+        mallList: this.mallList,
+        config: this.setTimeConfig
       })
-      let country = this.country;
-      let exec_time = dateFormat(this.setTimeConfig.time,'yyyy-MM-dd hh:mm:ss')
+      let country = this.country
+      let exec_time = dateFormat(this.setTimeConfig.time, 'yyyy-MM-dd hh:mm:ss')
       let task_name = this.setTimeConfig.name
       // let mallList = JSON.stringify(this.mallList)
-      let mall_Ids = this.mallList.map(son=> son.platform_mall_id).toString()
-      let mall_names = this.mallList.map(son=>son.mall_alias_name || son.platform_mall_name).toString()
+      let mall_Ids = this.mallList.map(son => son.platform_mall_id).toString()
+      let mall_names = this.mallList.map(son => son.mall_alias_name || son.platform_mall_name).toString()
       let status = isRun && 3 || 4
       let goods_count = this.goodsTableSelect.length
       let success_count = 0
       let fail_count = 0
       let created_at = Math.floor(new Date().getTime() / 1000)
       let setTimeSetting = {
-        ext_info, country, exec_time, mall_Ids,mall_names, status,task_name,
+        ext_info, country, exec_time, mall_Ids, mall_names, status, task_name,
         success_count, fail_count, goods_count, created_at
       }
-      console.log('saveCronPublishTask - parma',setTimeSetting)
+      console.log('saveCronPublishTask - parma', setTimeSetting)
       let setConfig = await this.$collectService.saveCronPublishTask(setTimeSetting)
-      if(setConfig.code == 200){
+      if (setConfig.code == 200) {
         this.$message.success('配置定时刊登成功')
       }
       this.setTimeVisible = false
@@ -3118,6 +3132,7 @@ export default {
   line-height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
+
   &:hover {
     color: #ff0000;
   }
