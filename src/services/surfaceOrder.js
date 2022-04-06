@@ -177,7 +177,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo,country)
+      const trackInfo = this.checkTrackInfo(orderInfo, country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -249,7 +249,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo,country)
+      const trackInfo = this.checkTrackInfo(orderInfo, country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -320,7 +320,7 @@ export default class {
     return trackNo
   }
   // 检查是否有物流信息
-  async checkTrackInfo(orderInfo,country) {
+  async checkTrackInfo(orderInfo, country) {
     const trackInfo = {}
     trackInfo['orderId'] = orderInfo.order_id
     trackInfo['logistics_channel'] = orderInfo.logistics_channel || ''
@@ -475,7 +475,7 @@ export default class {
     }
   }
   // 获取物流单号
-  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType,logisticsChannel) {
+  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType, logisticsChannel) {
     try {
       let trackNo = ''
       let channelId = logisticsChannel
@@ -836,8 +836,19 @@ export default class {
         }
       }
       options['params'] = params
-      const res = await window['NetMessageBridgeService'].post('https://external2.shopee.tw/ext/familymart/OrderPrint/OrderPrint.aspx', JSON.stringify(options), JSON.stringify(params))
-      const resObj = JSON.parse(res)
+      let res = await window['NetMessageBridgeService'].post('https://external2.shopee.tw/ext/familymart/OrderPrint/OrderPrint.aspx', JSON.stringify(options), JSON.stringify(params))
+      let resObj = JSON.parse(res)
+      if (resObj && resObj.status !== 200) {
+        if (resObj && resObj.status === 500) {
+          res = await window['NetMessageBridgeService'].post('https://external2.shopee.tw/ext/familymart/OrderPrint/OrderPrint.aspx', JSON.stringify(options), JSON.stringify(params))
+          resObj = JSON.parse(res)
+        }
+        if (resObj && resObj.status === 500) {
+          this.writeLog(`同步面单异常,官方错误：官方服务器异常：${resObj.statusText}`, false)
+        } else {
+          this.writeLog(`同步面单异常${resObj.statusText}`, false)
+        }
+      }
       let finishFaceData = resObj.data
       if (!(finishFaceData && finishFaceData.includes('.gif'))) {
         return null
@@ -851,6 +862,7 @@ export default class {
         const base64 = await window['BaseUtilBridgeService'].htmlToBase64(finishFaceData)
         return base64
       } else {
+        console.log('nullnull')
         return null
       }
     } catch (error) {
@@ -1034,7 +1046,7 @@ export default class {
   }
   blobToDataURL(blob, callBack) {
     var a = new FileReader()
-    a.onload = function(e) {
+    a.onload = function (e) {
       callBack(e.target.result)
     }
     a.readAsDataURL(blob)
