@@ -609,9 +609,9 @@
           <el-input
             v-model="titleVal"
             type="textarea"
+            resize="none"
             :rows="6"
             size="mini"
-            resize="none"
             placeholder="请输入内容"
             show-word-limit
           />

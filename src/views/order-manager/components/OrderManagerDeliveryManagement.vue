@@ -224,7 +224,7 @@
     </el-dialog>
     <el-dialog title="订单号批量查询" :visible.sync="goodsSearchVisible" width="500px" :close-on-click-modal="false" @close="closeDialog">
       <p>请输入订单号，一行一个，最多五十个</p>
-      <el-input v-model="goodsOrderSnStr" type="textarea" :rows="10" />
+      <el-input v-model="goodsOrderSnStr" type="textarea" resize="none" :rows="10" />
       <span slot="footer">
         <el-button type="primary" size="mini" @click="getOrderList(1, goodsOrderSnStr)">批量查询</el-button>
       </span>
@@ -232,7 +232,7 @@
     <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" :close-on-click-modal="false">
       <div class="remark-style">
         <span>本地备注</span>
-        <el-input v-model="localRamark" type="textarea" :rows="4" placeholder="请输入内容" />
+        <el-input v-model="localRamark" type="textarea" :rows="4" resize="none" placeholder="请输入内容" />
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>

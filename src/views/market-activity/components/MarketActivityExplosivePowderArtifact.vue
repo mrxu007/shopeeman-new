@@ -19,7 +19,7 @@
               <!-- row2.1 -->
               <li style="align-items: center;margin-bottom: 5px;">
                 <label style="width: 128px;">店铺ID信息：</label>
-                <el-input v-model="mallIDinfo" type="textarea" :rows="3" placeholder="请输入内容" />
+                <el-input v-model="mallIDinfo" type="textarea" resize="none" :rows="3" placeholder="请输入内容" />
                 <div>
                   <el-button type="primary" size="mini" style="margin-left: 10px;margin-bottom: 5px;" @click="addCancerMall">添加关注店铺</el-button>
                   <el-button type="primary" size="mini" @click="clearMallIDinfo">清空店铺信息</el-button>
