@@ -1078,6 +1078,7 @@ import ReplyBuyer from './orderCenter/replyBuyer.vue'
 import SecondSale from './orderCenter/secondSale.vue'
 import ImageCollection from './orderCenter/imageCollection.vue'
 import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
+import UploadOrdersShipment from './orderCenter/uploadOrdersShipment'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
 import orderSync from '../../../services/timeOrder'
@@ -1093,6 +1094,7 @@ export default {
     PushOrder,
     GoodsOutStore,
     UploadStoreShipAmount,
+    UploadOrdersShipment,
     BuyLink,
     BillDetail,
     ExportReport,
