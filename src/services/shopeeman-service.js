@@ -200,8 +200,9 @@ export default class NetMessageBridgeService {
 
   async getChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrlLocal(country, data) + api
-    const baseurl = await this.getWebUrlLocal(country, data)
+    // const baseurl = await this.getWebUrlLocal(country, data)
+    const baseurl = await this.getWebUrl(country, data)
+    const url = baseurl + api
     options['extrainfo'] = this.getExtraInfoBuyer(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
@@ -222,12 +223,12 @@ export default class NetMessageBridgeService {
 
   async postChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrlLocal(country, data) + api
-    const baseurl = await this.getWebUrlLocal(country, data)
+    // const baseurl = await this.getWebUrlLocal(country, data)
+    const baseurl = await this.getWebUrl(country, data)
+    const url = baseurl + api
     options['extrainfo'] = this.getExtraInfoBuyer(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
-      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
     }
     delete data.mallId
     delete data.isAddCsrfToken
