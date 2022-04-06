@@ -123,6 +123,11 @@ export default {
           }
           let save = await this.$commodityService.saveCategoryRelation(param)
         }
+        console.log('categoryChange', {
+          categoryList: categoryList,
+          attributesList: this.attributesList,
+          country: country || this.countryOption
+        })
         this.$emit('categoryChange', {
           categoryList: categoryList,
           attributesList: this.attributesList,

@@ -2543,9 +2543,10 @@ export default {
       if (val) {
         let categoryList = val.categoryList
         let category = categoryList[categoryList.length - 1]
-        let categoryName = category && `${category.category_name}(${category.category_cn_name})`
-        if (this.goodsCurrent) {
+        let categoryName = category && `${category.category_name}(${category.category_cn_name})` || ''
+        if (this.goodsCurrent && this.goodsCurrent.id) {
           let index = this.goodsTable.findIndex(son => son.id === this.goodsCurrent.id)
+          this.goodsTable[index]['categoryName'] = categoryName
           this.$set(this.goodsTable[index], 'categoryName', categoryName)
           this.goodsClassName[this.goodsTable[index].category_id] = categoryName
         } else {
