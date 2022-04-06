@@ -415,7 +415,7 @@ export default class NetMessageBridgeService {
 
   // 获取店铺评价列表
   getShopEvaluateList(country, data) {
-    return this.getChinese(country, '/api/v3/settings/search_shop_rating_comments', data, {
+    return this.getChinese(country, '/api/v3/settings/search_shop_rating_comments/', data, {
       headers: {
         'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99"',
         'Accept': 'application/json, text/plain, */*',

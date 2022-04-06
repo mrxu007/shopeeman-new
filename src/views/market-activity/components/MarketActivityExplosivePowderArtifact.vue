@@ -771,7 +771,7 @@ export default {
         console.log('111111', resMall.account.following_count, resMall.follower_count)
         if (!resMall) {
           this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`, true)
-          this.$set(mall, 'state', '店铺暂无数据')
+          this.$set(mall, 'state', '店铺数据请求失败')
           return
         }
         // 获取HOME店铺关注数据
