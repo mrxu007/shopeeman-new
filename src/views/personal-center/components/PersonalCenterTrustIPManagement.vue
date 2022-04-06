@@ -102,7 +102,7 @@
               <el-input v-model="currentIp" size="mini" placeholder="请输入IP" clearable oninput="value=value.replace(/\s+/g,'')" />
             </el-form-item>
             <el-form-item label="备注:">
-              <el-input v-model="remark" type="textarea" :rows="2" placeholder="请输入内容" oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="remark" type="textarea" resize="none" :rows="2" placeholder="请输入内容" oninput="value=value.replace(/\s+/g,'')" />
             </el-form-item>
           </el-form>
           <div style="text-align: center">

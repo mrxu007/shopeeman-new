@@ -333,6 +333,8 @@ const errorMsg = function(userMessage) {
       msg = '上新频率太快，请调整上新时间间隔'
     } else if (userMessage.indexOf('product has invalid logistics config') > -1) {
       msg = '请检查物流配置是否开启'
+    } else if (userMessage.indexOf("product's logistics config is invalid") > -1) {
+      msg = '物流配置无效，请检查物流配置是否正常'
     } else if (userMessage.indexOf('not enough logistics channel') > -1) {
       msg = '未设置物流，请商家后台至少开启一种物流方式'
     } else if (userMessage.indexOf('product has invalid weight') > -1) {

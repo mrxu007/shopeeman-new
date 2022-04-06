@@ -149,7 +149,7 @@
     <Logs ref="Logs" v-model="showConsole" clear />
     <el-dialog title="回复内容编辑" :visible.sync="replayTextVisible" width="30%">
       <div class="replay-dialog">
-        <el-input v-model="replayText" type="textarea" :rows="8" placeholder="请输入内容" />
+        <el-input v-model="replayText" type="textarea" :rows="8" resize="none" placeholder="请输入内容" />
         <el-button type="primary" size="mini" class="btn" @click="userReplaySave">确定</el-button>
       </div>
     </el-dialog>

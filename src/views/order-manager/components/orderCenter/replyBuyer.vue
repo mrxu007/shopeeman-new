@@ -15,7 +15,7 @@
         </div>
         <div class="item box-center mar-right">
           <p>评论：</p>
-          <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="item.replyText"> </el-input>
+          <el-input type="textarea" :rows="2" placeholder="请输入内容" resize="none" v-model="item.replyText"> </el-input>
         </div>
         <div class="item box-right">
           <p>星级</p>

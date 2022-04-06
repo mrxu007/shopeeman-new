@@ -421,13 +421,13 @@
           <template slot-scope="{ row }">
             <el-form label-position="right" label-width="80px">
               <el-form-item label="SPC_F:">
-                <el-input v-model="row.web_login_info.SPC_F" type="textarea" size="mini" :rows="1"/>
+                <el-input v-model="row.web_login_info.SPC_F" type="textarea" resize="none" size="mini" :rows="1"/>
               </el-form-item>
               <el-form-item label="SPC_EC:">
-                <el-input v-model="row.web_login_info.SPC_EC" type="textarea" size="mini" :rows="1"/>
+                <el-input v-model="row.web_login_info.SPC_EC" type="textarea" resize="none" size="mini" :rows="1"/>
               </el-form-item>
               <el-form-item label="SPC_SC_TK:">
-                <el-input v-model="row.web_login_info.SPC_SC_TK" type="textarea" size="mini" :rows="1"/>
+                <el-input v-model="row.web_login_info.SPC_SC_TK" type="textarea" resize="none" size="mini" :rows="1"/>
               </el-form-item>
             </el-form>
           </template>

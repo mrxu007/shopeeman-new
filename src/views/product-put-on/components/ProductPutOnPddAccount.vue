@@ -62,7 +62,7 @@
       @closed="clearDialog"
     >
       <span style="color:red">手机号，一行一个</span>
-      <el-input v-model="phoneList" type="textarea" rows="15" style="margin:10px 0px" />
+      <el-input v-model="phoneList" type="textarea" resize="none" rows="15" style="margin:10px 0px" />
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="dialogVisible_phone = false">导入</el-button>
       </span>
@@ -78,7 +78,7 @@
       <div style="color:red;margin-bottom: 5px;">Token导入有两种格式：</div>
       <div style="color:red;margin-bottom: 5px;">1、纯Token一行一个</div>
       <div style="color:red">2、买手号----Uid----Token,一行一个</div>
-      <el-input v-model="TokenList" type="textarea" rows="15" style="margin:10px 0px" />
+      <el-input v-model="TokenList" type="textarea" resize="none" rows="15" style="margin:10px 0px" />
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="dialogVisible_token = false">导入</el-button>
       </span>

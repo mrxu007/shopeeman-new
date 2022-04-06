@@ -15,7 +15,7 @@
       <li>
         <label style="color:red;margin-bottom:10px;">温馨提示：应用于淘宝</label>
         <div>
-          <el-input v-model="taobaoLeave" placeholder="请不要放价格单" type="textarea" :rows="3" size="mini" style="width:400px" />
+          <el-input v-model="taobaoLeave" placeholder="请不要放价格单" type="textarea" resize="none" :rows="3" size="mini" style="width:400px" />
           <el-button type="primary" size="mini" style="margin-left:10px" @change="save()">保存</el-button>
         </div>
         <el-checkbox v-model="checked">淘宝物流同步异常(需要滑块验证)时，启用弹窗验证</el-checkbox>
@@ -25,7 +25,7 @@
       <li>
         <label style="color:red;margin-bottom:10px;">温馨提示：应用于1688拍单</label>
         <div>
-          <el-input v-model="aliLeave" placeholder="请不要放价格单" type="textarea" :rows="3" size="mini" style="width:400px" />
+          <el-input v-model="aliLeave" placeholder="请不要放价格单" type="textarea" :rows="3" resize="none" size="mini" style="width:400px" />
           <el-button type="primary" size="mini" style="margin-left:10px" @change="save()">保存</el-button>
         </div>
       </li>

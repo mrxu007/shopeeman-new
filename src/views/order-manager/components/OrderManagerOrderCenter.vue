@@ -679,7 +679,7 @@
     >
       <div class="remark-style">
         <span>本地备注</span>
-        <el-input v-model="localRamark" type="textarea" :rows="4" placeholder="请输入内容" />
+        <el-input v-model="localRamark" type="textarea" :rows="4" resize="none" placeholder="请输入内容" />
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>

@@ -111,16 +111,16 @@
     </div>
     <div class="table-form">
       <u-table
-        :border="false"
-        use-virtual
         ref="multipleTable"
         v-loading="loading"
+        :border="false"
+        use-virtual
         height="640px"
         :data="tableList"
         tooltip-effect="dark"
-        @selection-change="handleSelectionChange"
         :row-style="{ height: '60px !important' }"
         :cell-style="{ padding: '0px' }"
+        @selection-change="handleSelectionChange"
       >
         <u-table-column type="selection" width="55" fixed />
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
@@ -150,9 +150,9 @@
           </template>
         </u-table-column>
         <u-table-column label="站点" prop="country" min-width="60px" align="center">
-          <template slot-scope="{ row }"
-            ><span>{{ row.mall_info.country | chineseSite }}</span></template
-          >
+          <template
+            slot-scope="{ row }"
+          ><span>{{ row.mall_info.country | chineseSite }}</span></template>
         </u-table-column>
         <u-table-column label="店铺名称" prop="mall_info.platform_mall_name" width="120px" align="center" show-overflow-tooltip />
         <u-table-column align="center" prop="color_id" label="颜色标识" width="120" show-overflow-tooltip>
@@ -169,24 +169,28 @@
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount_rmb }}元</template>
         </u-table-column>
         <u-table-column label="售后状态" prop="status" min-width="100px" align="center">
-          <template slot-scope="{ row }"
-            ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template
-          ></u-table-column
-        >
+          <template
+            slot-scope="{ row }"
+          ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template></u-table-column>
         <u-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
         <u-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
-          <template slot-scope="{ row }"
-            ><span :style="{ color: changeShotStatus(row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(row.shot_order_info.shot_status) }}</span></template
-          ></u-table-column
-        >
+          <template
+            slot-scope="{ row }"
+          ><span :style="{ color: changeShotStatus(row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(row.shot_order_info.shot_status) }}</span></template></u-table-column>
         <u-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
         <u-table-column align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark( scope.row.id)" style="cursor: pointer; min-width: 20px">
-              <p @dblclick="copy(scope.row.remark)" style="color: #000; height: 20px">{{ scope.row.remark }}</p>
+            <div v-show="!(scope.row.id === activeRemarkID)" style="cursor: pointer;" @click="editRemark(scope.row.id)">
+              <!-- <el-input v-model="scope.row.remark" disabled size="mini" @dblclick="copy(scope.row.remark)">{{ scope.row.remark }}</el-input> -->
+              <el-input v-model="scope.row.remark" disabled size="mini" />
             </div>
-            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id)"
-          /></template>
+            <el-input
+              v-if="scope.row.id === activeRemarkID"
+              v-model="orderRemark"
+              size="mini"
+              @blur="changeRemark(scope.row.id)"
+            />
+          </template>
         </u-table-column>
         <u-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px">
           <template slot-scope="{ row }">
@@ -303,14 +307,14 @@ import orderSync from '../../../services/timeOrder'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
 export default {
   components: {
-    storeChoose,
+    storeChoose
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       orderRemark: '',
       activeRemarkID: 0,
@@ -323,7 +327,7 @@ export default {
         { label: '已取消', value: 6 },
         { label: '退货退款中', value: 7 },
         { label: '退款成功', value: 9 },
-        { label: '退款失败', value: 10 },
+        { label: '退款失败', value: 10 }
       ],
       rowData: '', // 操作行数据
       multipleSelection: [],
@@ -341,7 +345,7 @@ export default {
         shotOrderStatus: [''], // 拍单状态
         afterApplyTime: '', // 申请时间
         createdTime: '', // 创建时间
-        colorLabelId: 0, // 颜色标识id
+        colorLabelId: 0 // 颜色标识id
       },
       page: 1,
       pageSize: 20,
@@ -357,12 +361,12 @@ export default {
       colorVisible: false,
       colorRadio: '',
       selectColorList: [],
-      categoryInfo: {},
+      categoryInfo: {}
     }
   },
   computed: {
     getCategoryName() {
-      return function (id, country) {
+      return function(id, country) {
         if (!this.categoryInfo[id]) {
           this.categoryInfo[id] = '正在获取类目...'
           this.getCategoryInfo(id, country)
@@ -370,7 +374,7 @@ export default {
         }
         return this.categoryInfo[id] || ''
       }
-    },
+    }
   },
   mounted() {
     this.loading = true
@@ -382,7 +386,7 @@ export default {
     }, 2000)
   },
   methods: {
-     async clickBuyOrder(row) {
+    async clickBuyOrder(row) {
       console.log(row, 'row', this.buyerAccountList)
       if (!row.shot_order_info.buy_account_info) {
         return this.$message.warning('订单无买手号信息')
@@ -392,39 +396,39 @@ export default {
       if (!buy) {
         return this.$message.warning(`请登录相应买手号！${row.shot_order_info.buy_account_info.name || '订单无买手号信息'}`)
       }
-        switch (buy.type) {
-          case 1:
-            account = this.changeAccountParams(buy)
-            await this.$buyerAccountService.pddOrderCenter(account, row.shot_order_info.shot_order_sn)
-            break
-          case 2:
-          case 3:
-            account = this.changeAccountParams(buy)
-            await this.$buyerAccountService.taobaoOrderCenter(account, row.shot_order_info.shot_order_sn)
-            break
-          case 8:
-            account = this.changeAccountParams(buy)
-            await this.$buyerAccountService.AlibabaOrderCenter(account, row.shot_order_info.shot_order_sn)
-            break
-          case 9:
-            account = this.changeAccountParams(buy)
-            await this.$buyerAccountService.lazadaOrderCenter(row.country, account, row.shot_order_info.shot_order_sn)
-            break
-          case 11:
-            let url = ''
-            if (row.shot_order_info.buy_account_info.orderType) {
-              url = `/user/purchase/order/${row.shot_order_info.buy_account_info.orderId}?type=${row.shot_order_info.buy_account_info.orderType}`
-            } else {
-              url = `/user/purchase/order/${row.shot_order_info.buy_account_info.orderId}/?shopid=${row.shot_order_info.shop_id}`
-            }
-            account = this.changeAccountParams(buy)
-            await this.$buyerAccountService.shopeeOrderCenter(row.country, account, url)
-            break
-          default:
-            break
-        }
+      switch (buy.type) {
+        case 1:
+          account = this.changeAccountParams(buy)
+          await this.$buyerAccountService.pddOrderCenter(account, row.shot_order_info.shot_order_sn)
+          break
+        case 2:
+        case 3:
+          account = this.changeAccountParams(buy)
+          await this.$buyerAccountService.taobaoOrderCenter(account, row.shot_order_info.shot_order_sn)
+          break
+        case 8:
+          account = this.changeAccountParams(buy)
+          await this.$buyerAccountService.AlibabaOrderCenter(account, row.shot_order_info.shot_order_sn)
+          break
+        case 9:
+          account = this.changeAccountParams(buy)
+          await this.$buyerAccountService.lazadaOrderCenter(row.country, account, row.shot_order_info.shot_order_sn)
+          break
+        case 11:
+          let url = ''
+          if (row.shot_order_info.buy_account_info.orderType) {
+            url = `/user/purchase/order/${row.shot_order_info.buy_account_info.orderId}?type=${row.shot_order_info.buy_account_info.orderType}`
+          } else {
+            url = `/user/purchase/order/${row.shot_order_info.buy_account_info.orderId}/?shopid=${row.shot_order_info.shop_id}`
+          }
+          account = this.changeAccountParams(buy)
+          await this.$buyerAccountService.shopeeOrderCenter(row.country, account, url)
+          break
+        default:
+          break
+      }
     },
-    changeSelect(val,key, baseData) {
+    changeSelect(val, key, baseData) {
       if (!val.includes('') && val.length === baseData.length) {
         // this.formData.sysMallId.unshift('全选')
       } else if (val.includes('') && val.length - 1 < baseData.length) {
@@ -475,7 +479,7 @@ export default {
         const params = {
           action: type,
           order_id: order.order_id,
-          mallId: order.mall_info.platform_mall_id,
+          mallId: order.mall_info.platform_mall_id
         }
         const res = await this.$shopeemanService.respondCancelRequest(order.country, params)
         if (res.code === 200) {
@@ -485,7 +489,7 @@ export default {
             this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，店铺未登录`, false)
           } else {
             if (res.data.indexOf('order not ready to cancel') > -1) {
-              //code 120410416
+              // code 120410416
               this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}该订单状态无法执行此操作，可能已回复，请知悉！`, true)
             } else {
               this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，${res.data}`, false)
@@ -499,7 +503,7 @@ export default {
       this.$confirm('是否删除该商品?', '商品删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning',
+        type: 'warning'
       })
         .then(() => {
           setGoodsDelete(this, row)
@@ -511,7 +515,7 @@ export default {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning',
+        type: 'warning'
       })
         .then(() => {
           setGoodsDelist(this, row)
@@ -543,7 +547,7 @@ export default {
       })
       const params = {
         sysOrderIds: ids,
-        id: this.colorRow.id,
+        id: this.colorRow.id
       }
       const res = await this.$api.setColorLabel(params)
       if (res.data.code === 200) {
@@ -569,7 +573,7 @@ export default {
         const obj = {
           id: 0,
           name: '取消标识',
-          color: '',
+          color: ''
         }
         this.colorList.unshift(obj)
       }
@@ -620,15 +624,17 @@ export default {
     },
     // 修改备注
     editRemark(activeRemarkID) {
-      let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
       this.activeRemarkID = activeRemarkID
+      console.log(this.tableList)
+      const index = this.tableList.findIndex(son => son.id === activeRemarkID)
       this.orderRemark = this.tableList[index].remark
     },
     // 修改单个备注
     async changeRemark(id) {
-      let index = this.tableData.findIndex(son=>son.id === index)
+      const index = this.tableList.findIndex(son => son.id === index)
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
-      if (res.data.code == 200) {
+      console.log('----', res)
+      if (res.data.code === 200) {
         this.$message.success(`设置备注成功`)
         this.$set(this.tableList[index], 'remark', this.orderRemark)
         // this.tableList[index].remark = this.orderRemark
@@ -656,7 +662,7 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id,
+        id: id
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
@@ -665,7 +671,7 @@ export default {
       let url = data
       if (type === 'product') {
         const params = {
-          platform_mall_id: data.mall_info.platform_mall_id,
+          platform_mall_id: data.mall_info.platform_mall_id
         }
         const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
         console.log(webUrl, 'webUrl', data.country)
@@ -680,7 +686,7 @@ export default {
         const reqStr = {
           type: type,
           shopId: shopId,
-          id: goodsid,
+          id: goodsid
         }
         this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
       }
@@ -755,7 +761,7 @@ export default {
         Cookiestr: JSON.stringify(account.login_info),
         AccountType: account.type,
         Ua: account.ua,
-        Country: account.site || '',
+        Country: account.site || ''
       }
       return params
     },
@@ -861,7 +867,7 @@ export default {
       if (window.performance && typeof window.performance.now === 'function') {
         d += performance.now() // use high-precision timer if available
       }
-      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = (d + Math.random() * 16) % 16 | 0
         d = Math.floor(d / 16)
         return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
@@ -897,7 +903,7 @@ export default {
       const list = []
       const query = {
         sysOrderIds: '',
-        status: this.shotstatus,
+        status: this.shotstatus
       }
       arr.forEach((item) => {
         list.push(item.sys_order_id)
@@ -1006,7 +1012,7 @@ export default {
       console.log(this.tableList)
     },
     async getCate() {
-      this.tableList.forEach(async (row, i) => {
+      this.tableList.forEach(async(row, i) => {
         // row.isChecked = false
         // row.categoryName = ''
         // row.categoryName = await this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
@@ -1043,8 +1049,8 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="less">

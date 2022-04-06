@@ -1657,6 +1657,7 @@ export default {
           for (let item of channelList) {
             if (item.enabled !== this.logistics.includes(item.channel_id + '') || item.is_mask_channel) {
               let temp = {
+                // enabled: true,
                 enabled: this.logistics.includes(item.channel_id + ''),
                 channelid: item.channel_id,
                 sizeid: 0,
@@ -1697,8 +1698,8 @@ export default {
           } else {
             ratio = Number((ratio - amplitude).toFixed(2))
           }
-          ratio = Number(ratio / 100)
         }
+        ratio = Number(ratio / 100)
         console.log(goodsList)
         if (goodsList.length > 0) {
           for (let item of goodsList) {
@@ -1840,9 +1841,8 @@ export default {
                   images: []
                 })
               }
-              goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
-              goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country] * ratio) + ''
-
+              let goodsPrice = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
+              goodsParam['price'] = Math.ceil(goodsPrice  / this.rateList[this.country] * ratio) + ''
               goodsParam['description'] = neededTranslateInfoData.description || ''
               let hotList = this.basicConfig.hotList || ''
               hotList = hotList.replaceAll('，', ',')
@@ -1944,7 +1944,7 @@ export default {
               let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
               goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
                 let price = this.getValuationPrice(son.price, neededTranslateInfoData)
-                price = Math.ceil(price / this.rateList[this.country] * ratio) + ''
+                price = Math.ceil(price / this.rateList[this.country]  * ratio) + ''
                 son = {
                   id: 0,
                   name: '',
@@ -2543,9 +2543,10 @@ export default {
       if (val) {
         let categoryList = val.categoryList
         let category = categoryList[categoryList.length - 1]
-        let categoryName = category && `${category.category_name}(${category.category_cn_name})`
-        if (this.goodsCurrent) {
+        let categoryName = category && `${category.category_name}(${category.category_cn_name})` || ''
+        if (this.goodsCurrent && this.goodsCurrent.id) {
           let index = this.goodsTable.findIndex(son => son.id === this.goodsCurrent.id)
+          this.goodsTable[index]['categoryName'] = categoryName
           this.$set(this.goodsTable[index], 'categoryName', categoryName)
           this.goodsClassName[this.goodsTable[index].category_id] = categoryName
         } else {

@@ -322,6 +322,7 @@
           <el-input
             v-model="returnMsg.returnAddress"
             type="textarea"
+            resize="none"
             placeholder="请填写详细地址"
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -359,6 +360,7 @@
           <el-input
             v-model="returnMsg.returnRemarks"
             type="textarea"
+            resize="none"
             size="mini"
             placeholder="请填写退件备注"
             oninput="value=value.replace(/\s+/g,'')"
@@ -412,6 +414,7 @@
           <el-input
             v-model="returnInfoVal.return_address"
             type="textarea"
+            resize="none"
             size="mini"
           />
         </el-form-item>
@@ -419,6 +422,7 @@
           <el-input
             v-model="returnInfoVal.return_remarks"
             type="textarea"
+            resize="none"
             size="mini"
           />
         </el-form-item>
