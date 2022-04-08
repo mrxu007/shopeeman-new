@@ -351,17 +351,24 @@
             />
             <p v-if="item.iColor" :style="{ background: changeColorLabel(row[item.iColor]), height: '20px' }" />
             <p v-if="item.showType === 0" style="padding: 0;display: flex;flex-flow: column;">
-              <span v-if="!item.propList" style="text-overflow: ellipsis; overflow: hidden;"
+              <span
+                v-if="!item.propList"
+                style="text-overflow: ellipsis; overflow: hidden;"
                 :class="item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle' || ''"
                 @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
-                @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''">
+                @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''"
+              >
                 {{ item.filter && item.filter(getTableRow(row, item.prop)) || getTableRow(row, item.prop) }}
               </span>
-              <span v-for="(son,i) in item.propList"
-                v-else :key="i" style="text-overflow: ellipsis; overflow: hidden;"
+              <span
+                v-for="(son,i) in item.propList"
+                v-else
+                :key="i"
+                style="text-overflow: ellipsis; overflow: hidden;"
                 :class="son.rowClick && 'tableActive' || son.rowDblClick && 'copyStyle' || ''"
                 @click="son.rowClick && tableRowBound(son.rowClick,row,$index,son) || ''"
-                @dblclick="son.rowDblClick && tableRowBound(son.rowDblClick,row,$index,son) || ''">
+                @dblclick="son.rowDblClick && tableRowBound(son.rowDblClick,row,$index,son) || ''"
+              >
                 {{ son.name }}：{{ son.filter && son.filter(getTableRow(row, son.prop)) || getTableRow(row, son.prop) }}
               </span>
             </p>
@@ -541,9 +548,11 @@
               <span class="tableActive" @click="clickBuyOrder(row)">{{ getTableRow(row, item.prop) }}</span>
             </p>
             <div v-else-if="item.showType === 23">
-              <div v-if="!(row.id === activeRemarkID) "
+              <div
+                v-if="!(row.id === activeRemarkID) "
                 style="cursor: pointer; min-width: 20px"
-                @click.stop="editRemark(row.id)">
+                @click.stop="editRemark(row.id)"
+              >
                 <p class="remark_p" @dblclick="copyItem(row.remark)">{{ row.remark }}</p>
               </div>
               <el-input
@@ -677,7 +686,7 @@
     >
       <div class="remark-style">
         <span>本地备注</span>
-        <el-input v-model="localRamark" type="textarea" :rows="4" resize="none" placeholder="请输入内容" />
+        <el-input v-model="localRamark" type="textarea" resize="none" :rows="4" placeholder="请输入内容" />
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
@@ -1260,14 +1269,16 @@ export default {
           prop: 'order_sn',
           rowClick: 'viewDetails_orderDetail',
           showType: 0
-        }, {
+        },
+        {
           key: 2,
           name: '操作',
           width: '125',
           fixed: 'left',
           align: 'center',
           showType: 2
-        }, {
+        },
+        {
           key: 3,
           width: '120',
           name: '店铺所属信息',
@@ -1938,13 +1949,13 @@ export default {
     },
     editRemarkNode(activeRemarkID) {
       this.activeRemarkIDNode = activeRemarkID
-      let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
+      const index = this.tableData.findIndex(son => son.id === activeRemarkID)
       this.orderRemarkNode = this.tableData[index].note
       this.orderRemarkCopyNode = this.tableData[index].note
     },
     // 修改单个备注
     async changeRemarkNode(id) {
-      let index = this.tableData.findIndex(son=>son.id === id)
+      const index = this.tableData.findIndex(son => son.id === id)
       const params = {
         order_id: this.tableData[index].order_id,
         new_note: this.orderRemarkNode,
@@ -1963,15 +1974,15 @@ export default {
     },
     editRemark(activeRemarkID) {
       this.activeRemarkID = activeRemarkID
-      let index = this.tableData.findIndex(son=>son.id === activeRemarkID)
+      const index = this.tableData.findIndex(son => son.id === activeRemarkID)
       this.orderRemark = this.tableData[index].remark
     },
     // 修改单个备注
     async changeRemark(id) {
-      let orderRemark = this.orderRemark
+      const orderRemark = this.orderRemark
       const res = await this.$api.setLocalRemark({ id: id, remark: orderRemark })
       if (res.data.code == 200) {
-        let index = this.tableData.findIndex(son=>son.id === id)
+        const index = this.tableData.findIndex(son => son.id === id)
         this.$message.success(`设置备注成功`)
         this.tableData[index].remark = orderRemark
         this.activeRemarkID = ''
@@ -3304,10 +3315,10 @@ export default {
         }
       })
       const params = JSON.parse(JSON.stringify(this.selectForm))
-      let minGrossProfit = Number(params['minGrossProfit']) || 0
-      let maxGrossProfit = Number(params['maxGrossProfit']) || 0
-      if(minGrossProfit > maxGrossProfit){
-        let min = params['minGrossProfit']
+      const minGrossProfit = Number(params['minGrossProfit']) || 0
+      const maxGrossProfit = Number(params['maxGrossProfit']) || 0
+      if (minGrossProfit > maxGrossProfit) {
+        const min = params['minGrossProfit']
         params['minGrossProfit'] = params['maxGrossProfit']
         params['maxGrossProfit'] = min
       }
@@ -3321,7 +3332,7 @@ export default {
       params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
-      console.log('applyAsyncExportOrder - params',params)
+      console.log('applyAsyncExportOrder - params', params)
       const res = await this.$api.applyAsyncExportOrder(params)
       if (res.data.code === 200) {
         return this.$message.success(`导出数据请求成功，可点击【导出数据报表】按钮查看导出状态`)
@@ -3347,10 +3358,10 @@ export default {
         }
       })
       const params = JSON.parse(JSON.stringify(this.selectForm))
-      let minGrossProfit = Number(params['minGrossProfit']) || 0
-      let maxGrossProfit = Number(params['maxGrossProfit']) || 0
-      if(minGrossProfit > maxGrossProfit){
-        let min = params['minGrossProfit']
+      const minGrossProfit = Number(params['minGrossProfit']) || 0
+      const maxGrossProfit = Number(params['maxGrossProfit']) || 0
+      if (minGrossProfit > maxGrossProfit) {
+        const min = params['minGrossProfit']
         params['minGrossProfit'] = params['maxGrossProfit']
         params['maxGrossProfit'] = min
       }

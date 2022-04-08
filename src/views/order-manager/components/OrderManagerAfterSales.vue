@@ -188,7 +188,7 @@
               v-if="scope.row.id === activeRemarkID"
               v-model="orderRemark"
               size="mini"
-              @blur="changeRemark(scope.row.id)"
+              @blur="changeRemark(scope.row)"
             />
           </template>
         </u-table-column>
@@ -630,13 +630,13 @@ export default {
       this.orderRemark = this.tableList[index].remark
     },
     // 修改单个备注
-    async changeRemark(id) {
-      const index = this.tableList.findIndex(son => son.id === index)
-      const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
+    async changeRemark(val) {
+      // const index = this.tableList.findIndex(son => son.id === val.id)
+      const res = await this.$api.setLocalRemark({ id: val.id, remark: this.orderRemark })
       console.log('----', res)
       if (res.data.code === 200) {
         this.$message.success(`设置备注成功`)
-        this.$set(this.tableList[index], 'remark', this.orderRemark)
+        this.$set(val, 'remark', this.orderRemark)
         // this.tableList[index].remark = this.orderRemark
         this.activeRemarkID = ''
         return

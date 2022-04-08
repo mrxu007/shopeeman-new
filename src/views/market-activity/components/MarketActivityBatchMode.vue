@@ -3,9 +3,9 @@
     <div class="select-box">
       <div class="select-mall">
         <storeChoose :is-all="true" :span-width="'80px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
-        <el-button type="primary" size="mini" @click="chatStart" class="mar-left" v-if="!btnLoading">开 始</el-button>
-        <el-button type="primary" size="mini" @click="cancel" class="mar-left" v-else>停 止</el-button>
-        <el-button size="mini" type="primary" @click="clearLog" class="mar-left">清空日志</el-button>
+        <el-button v-if="!btnLoading" type="primary" size="mini" class="mar-left" @click="chatStart">开 始</el-button>
+        <el-button v-else type="primary" size="mini" class="mar-left" @click="cancel">停 止</el-button>
+        <el-button size="mini" type="primary" class="mar-left" @click="clearLog">清空日志</el-button>
         <el-checkbox v-model="showConsole" class="mar-left">隐藏日志</el-checkbox>
       </div>
       <div class="chat-set-box">
@@ -22,8 +22,7 @@
             </div>
             <div class="row-style">
               <p>
-                <el-checkbox v-model="filterCheck" :disabled="radio === 'fans'">过滤 </el-checkbox
-                ><el-input v-model="filterDays" :disabled="radio === 'fans'" placeholder="请输入内容" size="mini" style="width: 50px"></el-input> 天以前的订单
+                <el-checkbox v-model="filterCheck" :disabled="radio === 'fans'">过滤 </el-checkbox><el-input v-model="filterDays" :disabled="radio === 'fans'" placeholder="请输入内容" size="mini" style="width: 50px" /> 天以前的订单
               </p>
             </div>
             <div class="row-style">
@@ -31,7 +30,7 @@
                 <span class="base-title">订单类型选择</span>
                 <div class="base-item">
                   <el-checkbox-group v-model="orderType" :disabled="radio === 'fans' || btnLoading">
-                    <el-checkbox v-for="type in orderTypeList" :label="type.value" :key="type.value">{{ type.label }}</el-checkbox>
+                    <el-checkbox v-for="type in orderTypeList" :key="type.value" :label="type.value">{{ type.label }}</el-checkbox>
                   </el-checkbox-group>
                 </div>
               </div>
@@ -42,18 +41,18 @@
           <span class="base-title">私聊内容</span>
           <div class="base-item">
             <div class="row-style">
-              <el-input type="textarea" resize="none" :rows="3" v-model="sendText" clearable size="mini" style="height: 60px"> </el-input>
+              <el-input v-model="sendText" type="textarea" resize="none" :rows="3" clearable size="mini" style="height: 60px" />
               <div class="chat-content-btn">
-                <el-button type="primary" size="mini" @click="addMessage" :disabled="btnLoading">添加消息</el-button>
+                <el-button type="primary" size="mini" :disabled="btnLoading" @click="addMessage">添加消息</el-button>
                 <el-tooltip class="item" effect="dark" content="若添加多条内容则会随机选择一条发送，建议添加多条不通的内容降低被平台屏蔽风险" placement="right-end">
-                  <i class="el-icon-question"></i>
+                  <i class="el-icon-question" />
                 </el-tooltip>
               </div>
             </div>
             <div class="row-style">
               <div class="chat-content-list">
                 <div v-for="(text, index) in messageList" :key="index" class="chat-content-item">
-                  <el-button type="primary" size="mini" @click="deleteMessage(index)" :disabled="btnLoading">删除</el-button>
+                  <el-button type="primary" size="mini" :disabled="btnLoading" @click="deleteMessage(index)">删除</el-button>
                   <span class="mar-left">{{ text }}</span>
                 </div>
               </div>
@@ -68,9 +67,9 @@
             <div class="base-item">
               <el-radio v-model="radioDiscountType" label="random" :disabled="btnLoading">随机优惠券</el-radio>
               <el-radio v-model="radioDiscountType" label="fixed" :disabled="btnLoading">固定优惠券</el-radio>
-              <el-input v-model="discountName" size="mini" style="width: 180px" :disabled="btnLoading"></el-input>
+              <el-input v-model="discountName" size="mini" style="width: 180px" :disabled="btnLoading" />
               <el-tooltip class="item" effect="dark" content="请输入固定优惠券的名称，多个店铺可以通过名称找到相应的优惠券" placement="right-end">
-                <i class="el-icon-question"></i>
+                <i class="el-icon-question" />
               </el-tooltip>
             </div>
           </div>
@@ -81,16 +80,16 @@
             <div class="base-item">
               <el-radio v-model="radioGoodsType" label="random" :disabled="btnLoading">随机商品</el-radio>
               <el-radio v-model="radioGoodsType" label="fixed" :disabled="btnLoading">固定商品</el-radio>
-              <el-input v-model="GoodsId" size="mini" style="width: 180px; margin-left: 24px" :disabled="btnLoading"></el-input>
+              <el-input v-model="GoodsId" size="mini" style="width: 180px; margin-left: 24px" :disabled="btnLoading" />
               <el-tooltip class="item" effect="dark" content="请输入固定商品ID，固定商品只在商品所在店铺下有效" placement="right-end">
-                <i class="el-icon-question"></i>
+                <i class="el-icon-question" />
               </el-tooltip>
             </div>
           </div>
           <div class="base-box mar-top">
             <span class="base-title">发送设置</span>
             <div class="base-item">
-              发送私聊数量<el-input v-model="sendNum" size="mini" style="width: 50px"></el-input>（0标表示无限制）发送间隔 <el-input v-model="sendTime" size="mini" style="width: 50px"></el-input>秒
+              发送私聊数量<el-input v-model="sendNum" size="mini" style="width: 50px" />（0标表示无限制）发送间隔 <div v-model="sendTime" size="mini" style="width: 50px" />秒
             </div>
           </div>
         </div>
@@ -106,7 +105,7 @@
             {{ row.country | chineseSite }}
           </template>
         </u-table-column>
-        <u-table-column width="120px" label="店铺名称"  align="center" show-overflow-tooltip>
+        <u-table-column width="120px" label="店铺名称" align="center" show-overflow-tooltip>
           <template slot-scope="{ row }">
             {{ row.mallInfo.mall_alias_name || row.mallInfo.platform_mall_name }}
           </template>
@@ -137,7 +136,7 @@ import { sleep, batchOperation, delay, terminateThread, exportExcelDataCommon } 
 export default {
   name: 'BusinessAnalyseStoreSelection',
   components: {
-    storeChoose,
+    storeChoose
   },
   data() {
     return {
@@ -150,24 +149,24 @@ export default {
       orderTypeList: [
         {
           label: '未支付',
-          value: 'unpaid',
+          value: 'unpaid'
         },
         {
           label: '待发货',
-          value: 'toship',
+          value: 'toship'
         },
         {
           label: '已发货',
-          value: 'shipping',
+          value: 'shipping'
         },
         {
           label: '已取消',
-          value: 'cancelled',
+          value: 'cancelled'
         },
         {
           label: '已完成',
-          value: 'completed',
-        },
+          value: 'completed'
+        }
       ],
       userType: {
         unpaid: '未支付订单',
@@ -175,7 +174,7 @@ export default {
         shipping: '已发货订单',
         cancelled: '已取消订单',
         completed: '已完成订单',
-        fans: '粉丝用户',
+        fans: '粉丝用户'
       },
       chatContent: '',
       sendNum: 0,
@@ -186,25 +185,25 @@ export default {
       GoodsId: '',
       isSendDiscount: false,
       isSendGoods: false,
-      messageList: [], //私聊内容
+      messageList: [], // 私聊内容
       sendText: '',
       tableData: [],
       findChatList: [],
       StoreSelection: new StoreSelection(this),
       btnLoading: false,
-      isStop: false,
+      isStop: false
     }
   },
   mounted() {},
   methods: {
-    cancel(){
+    cancel() {
       this.isStop = true
       this.btnLoading = false
       terminateThread()
-      this.$refs.Logs.writeLog(`停止操作,可能需要一些时间！`,false)
+      this.$refs.Logs.writeLog(`停止操作,可能需要一些时间！`, false)
       this.$alert('正在停止操作，可能需要一些时间！', '提示', {
-            confirmButtonText: '确定'
-          })
+        confirmButtonText: '确定'
+      })
     },
     changeUserType() {
       if (this.radio === 'fans') {
@@ -214,7 +213,7 @@ export default {
           {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
-            type: 'warning',
+            type: 'warning'
           }
         )
           .then(() => {
@@ -229,12 +228,12 @@ export default {
       try {
         if (this.isStop) {
           this.btnLoading = false
-          return 
+          return
         }
         let mallOrderList = []
         let status = ''
         for (let i = 0; i < this.orderType.length; i++) {
-          //同步状态
+          // 同步状态
           status = this.orderType[i]
           mallOrderList = (await this.getOrderUser(mall, status)) || []
         }
@@ -251,7 +250,7 @@ export default {
           }
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到订单用户${filterList.length}条`, true)
           await this.batchSendMessage(filterList, mall, status)
-          await delay(this.sendTime*1000)
+          await delay(this.sendTime * 1000)
         } else {
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未获取到订单用户，聊天结束`, true)
         }
@@ -264,10 +263,10 @@ export default {
       try {
         if (this.isStop) {
           this.btnLoading = false
-          return 
+          return
         }
-        let status = 'fans'
-        let fansList = await this.getFansAll(mall)
+        const status = 'fans'
+        const fansList = await this.getFansAll(mall)
         console.log(fansList, 'fansList')
         if (fansList.length) {
           // let fi = fansList.slice(0, 2)
@@ -281,7 +280,7 @@ export default {
           }
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到粉丝用户${filterList.length}条`, true)
           await this.batchSendMessage(filterList, mall, status)
-          await delay(this.sendTime*1000)
+          await delay(this.sendTime * 1000)
         } else {
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未获取到粉丝用户，聊天结束`, true)
         }
@@ -313,7 +312,7 @@ export default {
         this.showConsole = false
         if (this.isStop) {
           this.btnLoading = false
-          return 
+          return
         }
         if (this.radio == 'order') {
           await batchOperation(this.selectMallList, this.orderBatchMessage)
@@ -326,17 +325,17 @@ export default {
         console.log(error)
         this.$alert('出现错误，已停止执行', '提示', {
           confirmButtonText: '确定',
-          callback: (action) => {},
+          callback: (action) => {}
         })
       }
     },
-    //取随机数组
+    // 取随机数组
     async getRandomArrayElements(arr, count) {
-      let shuffled = arr.slice(0),
-        i = arr.length,
-        min = i - count,
-        temp,
-        index
+      const shuffled = arr.slice(0)
+      let i = arr.length
+      const min = i - count
+      let temp
+      let index
       while (i-- > min) {
         index = Math.floor((i + 1) * Math.random())
         temp = shuffled[index]
@@ -347,7 +346,7 @@ export default {
     },
     async getFansAll(mall) {
       let page = 1
-      let limit = 40
+      const limit = 40
       let fansList = []
       let array = await this.getFans(mall, page, limit)
       while (array.length) {
@@ -365,46 +364,46 @@ export default {
       console.log(fansList, 'fansList')
       return fansList
     },
-    //获取粉丝列表
+    // 获取粉丝列表
     async getFans(mall, page, limit) {
       if (this.isStop) {
         this.btnLoading = false
         return
       }
-      let arrList = []
-      let url = await this.$shopeemanService.getWebUrl(mall.country)
-      let api = url + '/shop/' + mall.platform_mall_id + '/followers/'
-      let offset = (page - 1) * limit
+      const arrList = []
+      const url = await this.$shopeemanService.getWebUrl(mall.country)
+      const api = url + '/shop/' + mall.platform_mall_id + '/followers/'
+      const offset = (page - 1) * limit
       console.log(offset, 'offset', page, limit, typeof page, typeof limit)
-      let params = {
+      const params = {
         offset: offset,
         limit: limit,
         offset_of_offset: 0,
         _: new Date().getTime(),
-        __classic__: 1,
+        __classic__: 1
       }
-      let res = await window['NetMessageBridgeService'].get(
+      const res = await window['NetMessageBridgeService'].get(
         api,
         JSON.stringify({
           params: params,
           headers: {
-            isGBK: false,
-          },
+            isGBK: false
+          }
         })
       )
-      let resObj = JSON.parse(res)
-      let str = resObj.data
-      let shoparr = str.match(/<li\s*data-follower-shop-id=.(\d+).\s*data-follower[^>]+>[\s\t\n]+<a[^>]+username='([^>]+)'\s*userid=.([0-9]+).\s*?class=.shop-href.>/g)
+      const resObj = JSON.parse(res)
+      const str = resObj.data
+      const shoparr = str.match(/<li\s*data-follower-shop-id=.(\d+).\s*data-follower[^>]+>[\s\t\n]+<a[^>]+username='([^>]+)'\s*userid=.([0-9]+).\s*?class=.shop-href.>/g)
       if (shoparr && shoparr.length) {
         shoparr.forEach((item) => {
-          let shopId = item.match(/data-follower-shop-id=.(\d+)/)[1]
-          let username = item.match(/username='(\w+)'/) ? item.match(/username='(\w+)'/)[1] : ''
+          const shopId = item.match(/data-follower-shop-id=.(\d+)/)[1]
+          const username = item.match(/username='(\w+)'/) ? item.match(/username='(\w+)'/)[1] : ''
           if (username !== '') {
-            let userid = item.match(/userid='(\d+)'/)[1]
-            let obj = {
+            const userid = item.match(/userid='(\d+)'/)[1]
+            const obj = {
               shopId: shopId,
               username: username,
-              user_id: userid,
+              user_id: userid
             }
             arrList.push(obj)
           }
@@ -418,40 +417,40 @@ export default {
         return
       }
       try {
-        let mallInfo = await window['ConfigBridgeService'].getGlobalCacheInfo('mallInfo', mall.platform_mall_id)
-        let mallInfoObj = mallInfo && JSON.parse(mallInfo)
-        let ShopeeUid = mallInfoObj.web_login_info.ShopeeUid
+        const mallInfo = await window['ConfigBridgeService'].getGlobalCacheInfo('mallInfo', mall.platform_mall_id)
+        const mallInfoObj = mallInfo && JSON.parse(mallInfo)
+        const ShopeeUid = mallInfoObj.web_login_info.ShopeeUid
         console.log(mallInfoObj, 'mallInfoObj')
-        //登录客服系统
-        let params = {
+        // 登录客服系统
+        const params = {
           params: {
             _uid: `0-${ShopeeUid}`,
             _v: '5.8.0',
-            _ts: Math.round(new Date().getTime() / 1000),
-          },
+            _ts: Math.round(new Date().getTime() / 1000)
+          }
         }
-        let data = {
-          shop_id: mall.platform_mall_id,
+        const data = {
+          shop_id: mall.platform_mall_id
         }
-        let loginRes = await this.$shopeemanService.loginMessage(mall.country, data, params)
-        let token = loginRes.data.token
+        const loginRes = await this.$shopeemanService.loginMessage(mall.country, data, params)
+        const token = loginRes.data.token
         let oldMsg = ''
         for (let i = 0; i < mallOrderList.length; i++) {
           if (this.isStop) {
             this.btnLoading = false
             return
           }
-          let order = mallOrderList[i]
-          let userName = order.buyer_user ? order.buyer_user.user_name.trim() : order.username.trim()
-          let userId = Number(order.user_id)
+          const order = mallOrderList[i]
+          const userName = order.buyer_user ? order.buyer_user.user_name.trim() : order.username.trim()
+          const userId = Number(order.user_id)
           if (!token) {
             continue
           }
-          //text
+          // text
           if (this.messageList.length) {
-            let index = this.tableData.findIndex((n) => n.userName == userName)
+            const index = this.tableData.findIndex((n) => n.userName == userName)
             if (index < 0) {
-              let params = {
+              const params = {
                 country: mall.country,
                 mallInfo: mall,
                 userName: userName,
@@ -459,22 +458,21 @@ export default {
                 chatMessage: '',
                 chatDiscount: '',
                 chatGoods: '',
-                remark: '',
+                remark: ''
               }
               this.tableData.push(params)
-
             }
             let msg = ''
             if (this.messageList.length == 1) {
               msg = this.messageList[0]
             } else {
-              let filterArr = this.messageList.filter((n) => n !== oldMsg)
-              let randomIndex = Math.floor(Math.random() * filterArr.length)
+              const filterArr = this.messageList.filter((n) => n !== oldMsg)
+              const randomIndex = Math.floor(Math.random() * filterArr.length)
               msg = filterArr[randomIndex]
             }
-            let timestamp = new Date().getTime()
-            let msgRes = await this.sendMessage('text', msg, {}, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
-            let indexA = this.tableData.findIndex((n) => n.userName == userName)
+            const timestamp = new Date().getTime()
+            const msgRes = await this.sendMessage('text', msg, {}, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
+            const indexA = this.tableData.findIndex((n) => n.userName == userName)
             if (msgRes.code === 200) {
               oldMsg = msg
               this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送成功】`)
@@ -488,12 +486,12 @@ export default {
             }
             console.log(msgRes, 'msgRes')
           }
-          //发优惠券
+          // 发优惠券
           if (this.isSendDiscount) {
-            let vouchers = await this.sendDiscount(mall.country, mall.platform_mall_id)
-            let index = this.tableData.findIndex((n) => n.userName == userName)
+            const vouchers = await this.sendDiscount(mall.country, mall.platform_mall_id)
+            const index = this.tableData.findIndex((n) => n.userName == userName)
             if (index < 0) {
-              let params = {
+              const params = {
                 country: mall.country,
                 mallInfo: mall,
                 userName: userName,
@@ -501,7 +499,7 @@ export default {
                 chatMessage: '',
                 chatDiscount: '',
                 chatGoods: '',
-                remark: '',
+                remark: ''
               }
               this.tableData.push(params)
             }
@@ -512,7 +510,7 @@ export default {
               note = '【没有可以使用的优惠券】'
             } else {
               if (this.radioDiscountType === 'random') {
-                let randomIndex = Math.floor(Math.random() * vouchers.length)
+                const randomIndex = Math.floor(Math.random() * vouchers.length)
                 voucherInfo = vouchers[randomIndex]
               } else {
                 voucherInfo = vouchers.find((n) => n.name == this.discountName.trim())
@@ -521,12 +519,12 @@ export default {
                 }
               }
             }
-            let indexA = this.tableData.findIndex((n) => n.userName == userName)
+            const indexA = this.tableData.findIndex((n) => n.userName == userName)
             if (!voucherInfo) {
               this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}${note}`)
             } else {
-              let timestamp = new Date().getTime()
-              let voucherRes = await this.sendMessage('voucher', '', voucherInfo, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
+              const timestamp = new Date().getTime()
+              const voucherRes = await this.sendMessage('voucher', '', voucherInfo, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
               if (voucherRes.code === 200) {
                 this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【优惠券发送成功】`)
                 this.$set(this.tableData[indexA], 'chatDiscount', `${voucherInfo.name}`)
@@ -536,11 +534,11 @@ export default {
             }
             console.log(vouchers, 'vouchers')
           }
-          //发送商品
+          // 发送商品
           if (this.isSendGoods) {
-            let index = this.tableData.findIndex((n) => n.userName == userName)
+            const index = this.tableData.findIndex((n) => n.userName == userName)
             if (index < 0) {
-              let params = {
+              const params = {
                 country: mall.country,
                 mallInfo: mall,
                 userName: userName,
@@ -548,25 +546,25 @@ export default {
                 chatMessage: '',
                 chatDiscount: '',
                 chatGoods: '',
-                remark: '',
+                remark: ''
               }
               this.tableData.push(params)
             }
             let goodsInfo = null
             let note = ''
-            let params = {
+            const params = {
               offset: 0,
               limit: 100,
               need_brand: 0,
               need_item_model: 0,
               is_ads: 0,
               platform_mall_id: mall.platform_mall_id,
-              country: mall.country,
+              country: mall.country
             }
             if (this.radioGoodsType == 'random') {
               const res = await this.StoreSelection.productSelector(params)
               if (res.code == 200 && res.data.length) {
-                let randomIndex = Math.floor(Math.random() * res.data.length)
+                const randomIndex = Math.floor(Math.random() * res.data.length)
                 goodsInfo = res.data[randomIndex]
               } else {
                 note = '【没有可以发送的商品】'
@@ -578,12 +576,12 @@ export default {
                 goodsInfo = res.data[0]
               } else note = `【没有找到商品ID为${this.GoodsId}的商品】`
             }
-            let indexA = this.tableData.findIndex((n) => n.userName == userName)
+            const indexA = this.tableData.findIndex((n) => n.userName == userName)
             if (!goodsInfo) {
               this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}${note}`)
             } else {
-              let timestamp = new Date().getTime()
-              let voucherRes = await this.sendMessage('product', '', goodsInfo, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
+              const timestamp = new Date().getTime()
+              const voucherRes = await this.sendMessage('product', '', goodsInfo, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
               if (voucherRes.code === 200) {
                 this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【商品发送成功】`)
                 this.$set(this.tableData[indexA], 'chatGoods', `${goodsInfo.itemid}`)
@@ -592,9 +590,9 @@ export default {
               }
             }
           }
-          let indexE = this.tableData.findIndex((n) => n.userName == userName)
+          const indexE = this.tableData.findIndex((n) => n.userName == userName)
           this.$set(this.tableData[indexE], 'remark', `${this.tableData[indexE].remark}【操作结束】`)
-          await delay(this.sendTime*1000)
+          await delay(this.sendTime * 1000)
           // sleep(this.sendTime)
         }
       } catch (error) {
@@ -602,14 +600,14 @@ export default {
       }
     },
     async sendDiscount(country, mallID) {
-      let params = {
+      const params = {
         offset: 0,
         limit: 40,
         promotion_type: 1,
-        shop_id: mallID,
+        shop_id: mallID
       }
       let vouchersList = []
-      let res = await this.$shopeemanService.getVouchers(country, params)
+      const res = await this.$shopeemanService.getVouchers(country, params)
       let { voucher_list } = res.data
       while (voucher_list.length) {
         if (this.isStop) {
@@ -621,60 +619,60 @@ export default {
           voucher_list = []
         } else {
           params.promotion_type++
-          let resMore = await this.$shopeemanService.getVouchers(country, params)
+          const resMore = await this.$shopeemanService.getVouchers(country, params)
           voucher_list = (resMore && resMore.data && resMore.data.voucher_list) || []
         }
       }
       return vouchersList
     },
     async sendMessage(type, msg, obj, userId, mallId, token, country, timestamp, uid) {
-      //发送消息
+      // 发送消息
       let contentInfo = {}
       if (type == 'text') {
         contentInfo = {
-          text: msg,
+          text: msg
         }
       }
       if (type == 'product') {
         contentInfo = {
           product_id: obj.itemid,
-          shop_id: mallId,
+          shop_id: mallId
         }
       }
       if (type == 'voucher') {
         contentInfo = {
           voucher_code: obj.voucher_code,
-          voucher_id: obj.voucher_id,
+          voucher_id: obj.voucher_id
         }
       }
-      let message = {
+      const message = {
         request_id: guid(),
         to_id: userId,
         type: type,
         content: contentInfo,
         chat_send_option: {
           force_send_cancel_order_warning: false,
-          comply_cancel_order_warning: false,
+          comply_cancel_order_warning: false
         },
         device_id: guid(),
-        shop_id: mallId,
+        shop_id: mallId
       }
-      let apiToMd5 = this.sha256('/webchat/api/v1.2/messages', message, timestamp, uid)
-      let query = {
+      const apiToMd5 = this.sha256('/webchat/api/v1.2/messages', message, timestamp, uid)
+      const query = {
         headers: {
           referer: '/webchat/conversations',
           'Content-Type': 'text/plain;charset=UTF-8',
           'x-s': apiToMd5,
           'x-v': 1,
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
         params: {
           _uid: `0-${uid}`,
           _ts: timestamp,
-          _v: '6.1.1',
-        },
+          _v: '6.1.1'
+        }
       }
-      let res = await this.$shopeemanService.sendMessage(country, message, query)
+      const res = await this.$shopeemanService.sendMessage(country, message, query)
       return res
       function guid() {
         return S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4()
@@ -683,41 +681,41 @@ export default {
         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
       }
     },
-    //采用sha256加密
+    // 采用sha256加密
     sha256(api, message, timestamp, uid) {
-      let isVer = api.match(/v\d+(.\d+)*/)[0] //匹配当前版本号
-      let key = '396c15ad-6d3e-4018-98be-cef58cb45cd0'
-      let plat = '6.1.1'
-      let ver = isVer
-      let fromID = uid
-      let reqID = message['request_id']
-      let toID = message['to_id']
-      let type = message['type']
+      const isVer = api.match(/v\d+(.\d+)*/)[0] // 匹配当前版本号
+      const key = '396c15ad-6d3e-4018-98be-cef58cb45cd0'
+      const plat = '6.1.1'
+      const ver = isVer
+      const fromID = uid
+      const reqID = message['request_id']
+      const toID = message['to_id']
+      const type = message['type']
       let strinput = ''
       if (type === 'text') {
         strinput = message.content.text
       }
-      let url = `key=${key}&plat=${plat}&ver=${ver}&fromID=${fromID}&reqID=${reqID}&toID=${toID}&timestamp=${timestamp}&type=${type}&strinput=${strinput}`
-      let pass = `${url}`
+      const url = `key=${key}&plat=${plat}&ver=${ver}&fromID=${fromID}&reqID=${reqID}&toID=${toID}&timestamp=${timestamp}&type=${type}&strinput=${strinput}`
+      const pass = `${url}`
       // console.log('strinput================', strinput)
       // pass = "key=396c15ad-6d3e-4018-98be-cef58cb45cd0&plat=6.0.0&ver=v1.2&fromID=326400&reqID=cea10e5b-d3e2-4e75-87c6-9778b63029df&toID=286289059&timestamp=1632908715539&type=text&strinput=hello"
       // console.log('sha256加密原文==========', pass)
-      let passResult = sha256(pass)
+      const passResult = sha256(pass)
       // console.log('sha256加密密文==========', passResult)
       return passResult
     },
-    //获取订单用户
+    // 获取订单用户
     async getOrderUser(mall, status) {
       let resList = []
       if (status == 'shipping') {
-        let params = {
+        const params = {
           page_size: 40,
           page_number: 1,
           total: 0,
           sort_by: 'confirmed_date_desc',
-          shop_id: mall.platform_mall_id,
+          shop_id: mall.platform_mall_id
         }
-        let res = await this.$shopeemanService.getToShipOrderIdList(mall.country, params)
+        const res = await this.$shopeemanService.getToShipOrderIdList(mall.country, params)
         console.log(res, 'toShip')
         if (res.code === 200) {
           let { package_list, total } = res.data
@@ -726,23 +724,23 @@ export default {
               this.btnLoading = false
               break
             }
-            //orderLen-a<5
+            // orderLen-a<5
             let orderDetailListFa = []
             for (let a = 0; a < package_list.length; a = a + 5) {
-              let orderArr = package_list.slice(a, a + 5)
-              let resDetail = await this.$shopeemanService.getDetailsByOrderIds(mall.country, {
+              const orderArr = package_list.slice(a, a + 5)
+              const resDetail = await this.$shopeemanService.getDetailsByOrderIds(mall.country, {
                 from_seller_data: false,
                 orders: this.changeParams(orderArr),
-                shop_id: mall.platform_mall_id,
+                shop_id: mall.platform_mall_id
               })
               console.log(resDetail, 'resDetail')
               if (resDetail.code === 200) {
-                let orderDetailList = (resDetail.data && resDetail.data.orders) || []
+                const orderDetailList = (resDetail.data && resDetail.data.orders) || []
                 orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
                 if (orderDetailList && orderDetailList.length) {
-                  //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
+                  // 过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
                   if (this.filterCheck) {
-                    let orderDetailListFilter = orderDetailList.filter((item) => {
+                    const orderDetailListFilter = orderDetailList.filter((item) => {
                       return new Date().getTime() - item.create_time * 1000 < this.filterDays * 24 * 60 * 60 * 1000
                     })
                     resList = resList.concat(orderDetailListFilter)
@@ -753,7 +751,7 @@ export default {
                 }
               }
             }
-            //自动翻页
+            // 自动翻页
             let lastTime = ''
             lastTime = orderDetailListFa[orderDetailListFa.length - 1].create_time
             console.log(lastTime, 'lastTime', new Date().getTime() - lastTime * 1000 > this.filterDays * 24 * 60 * 60 * 1000)
@@ -763,7 +761,7 @@ export default {
               console.log('toShip翻页--------------------')
               params.page_number++
               params.total = total
-              let pageUp = await this.$shopeemanService.getToShipOrderIdList(this.mall.country, params)
+              const pageUp = await this.$shopeemanService.getToShipOrderIdList(this.mall.country, params)
               package_list = (pageUp && pageUp.data && pageUp.data.package_list) || []
             }
           }
@@ -773,7 +771,7 @@ export default {
           return this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】${res.code}-${res.data}`, false)
         }
       } else {
-        let params = {
+        const params = {
           from_page_number: 1,
           source: status,
           page_size: 40,
@@ -781,9 +779,9 @@ export default {
           total: 0,
           is_massship: false,
           // sort_by: 'create_date_desc',
-          shop_id: mall.platform_mall_id,
+          shop_id: mall.platform_mall_id
         }
-        let res = await this.$shopeemanService.getOrderIdList(mall.country, params)
+        const res = await this.$shopeemanService.getOrderIdList(mall.country, params)
         console.log(res, 'res-first')
         if (res.code === 200) {
           let { orders, page_info } = res.data
@@ -792,23 +790,23 @@ export default {
               this.btnLoading = false
               break
             }
-            //orderLen-a<5
+            // orderLen-a<5
             let orderDetailListFa = []
             for (let a = 0; a < orders.length; a = a + 5) {
-              let orderArr = orders.slice(a, a + 5)
-              let resDetail = await this.$shopeemanService.getDetailsByOrderIds(mall.country, {
+              const orderArr = orders.slice(a, a + 5)
+              const resDetail = await this.$shopeemanService.getDetailsByOrderIds(mall.country, {
                 from_seller_data: false,
                 orders: orderArr,
-                shop_id: mall.platform_mall_id,
+                shop_id: mall.platform_mall_id
               })
               console.log(resDetail, 'resDetail')
               if (resDetail.code === 200) {
-                let orderDetailList = (resDetail.data && resDetail.data.orders) || []
+                const orderDetailList = (resDetail.data && resDetail.data.orders) || []
                 orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
                 if (orderDetailList && orderDetailList.length) {
                   // 过滤不是60天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
                   if (this.filterCheck) {
-                    let orderDetailListFilter = orderDetailList.filter((item) => {
+                    const orderDetailListFilter = orderDetailList.filter((item) => {
                       return new Date().getTime() - item.create_time * 1000 < this.filterDays * 24 * 60 * 60 * 1000
                     })
                     console.log(orderDetailListFilter, '过滤')
@@ -820,7 +818,7 @@ export default {
                 }
               }
             }
-            //自动翻页
+            // 自动翻页
             let lastTime = ''
             console.log('自动翻页', orderDetailListFa, orderDetailListFa[orderDetailListFa.length - 1])
             lastTime = orderDetailListFa[orderDetailListFa.length - 1].create_time
@@ -831,7 +829,7 @@ export default {
               console.log('other翻页--------------------')
               params.page_number++
               params.total = page_info.total
-              let pageUp = await this.$shopeemanService.getOrderIdList(mall.country, params)
+              const pageUp = await this.$shopeemanService.getOrderIdList(mall.country, params)
               orders = (pageUp && pageUp.data && pageUp.data.orders) || []
             }
           }
@@ -843,20 +841,20 @@ export default {
       }
       return resList
     },
-    //转换请求参数
+    // 转换请求参数
     changeParams(array) {
-      let params = []
+      const params = []
       array.forEach((item) => {
-        let par = {
+        const par = {
           order_id: item.order_id,
           region_id: item.region_id || item.region,
-          shop_id: item.shop_id,
+          shop_id: item.shop_id
         }
         params.push(par)
       })
       return params
     },
-    //添加消息
+    // 添加消息
     addMessage() {
       if (this.sendText == '') {
         return
@@ -876,8 +874,8 @@ export default {
     changeMallList(val) {
       console.log(val)
       this.selectMallList = val.mallList
-    },
-  },
+    }
+  }
 }
 </script>
 

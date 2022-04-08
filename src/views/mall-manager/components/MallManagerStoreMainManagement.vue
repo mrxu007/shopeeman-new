@@ -293,7 +293,7 @@
               <el-form-item v-show="query_person.ip_agency === '链接'" label="链接">
                 <span slot="label" style="color: red; margin-right: 3px">*</span>
                 <span slot="label">链接</span>
-                <el-input v-model="query_person.link" type="textarea" rows="5" resize="none" style="width: 150px" />
+                <el-input v-model="query_person.link" type="textarea" resize="none" rows="5" style="width: 150px" />
               </el-form-item>
             </el-form>
             <div class="item" style="margin-left: 120px; margin-top: 2px">

@@ -69,7 +69,14 @@
             <template slot-scope="scope"> {{ scope.row.mallInfo.length }} </template>
           </u-table-column>
           <u-table-column min-width="90px" label="对应站点" prop="country">
-            <template slot-scope="scope"> {{ scope.row.country | chineseSite }} </template>
+            <template slot-scope="scope">
+              <div v-if="activeName==='landStore'">
+                {{ scope.row.sites || (scope.row.country | chineseSite) }}
+              </div>
+              <div v-else>
+                {{ scope.row.country | chineseSite }}
+              </div>
+            </template>
           </u-table-column>
           <u-table-column min-width="120px" label="绑定的店铺" show-overflow-tooltip>
             <template slot-scope="scope"> {{ bindMallName(scope.row.mallInfo) }} </template>
@@ -221,15 +228,24 @@
       <div class="dialog-right">
         <div style="display: flex;margin-bottom: 10px;">
           <store-choose-mall :key="changeIndex" :is-all="true" :show-mall="false" @changeMallList="changeMallList" />
-          <el-input placeholder='店铺' v-model='searchMall' @input='searchInputMall'
-                    size='mini' class='input-with-select' prefix-icon='el-icon-search'></el-input>
+          <el-input
+            v-model="searchMall"
+            placeholder="店铺"
+            size="mini"
+            class="input-with-select"
+            prefix-icon="el-icon-search"
+            @input="searchInputMall"
+          />
           <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMall">查 询</el-button>
         </div>
         <u-table
+          v-if="mallTableShow"
           ref="bindMallDataRef"
           v-loading="warehouseLoading"
-          height="420" v-if="mallTableShow"
-          :data="bindMallData" stripe use-virtual
+          height="420"
+          :data="bindMallData"
+          stripe
+          use-virtual
           :row-key="getRowKey"
           :header-cell-style="{ backgroundColor: '#f5f7fa',height: '38px',padding:0}"
           :row-height="40"
@@ -243,11 +259,15 @@
               {{ row.country | chineseSite }}
             </template>
           </u-table-column>
-          <u-table-column align="center" label="店铺名称" min-width="120"
-                          sortable
-                          :filters="[{text:'',value:''}]"
-                          :filtered-value="['']"
-                          :filter-method='getBuyersTableShow'>
+          <u-table-column
+            align="center"
+            label="店铺名称"
+            min-width="120"
+            sortable
+            :filters="[{text:'',value:''}]"
+            :filtered-value="['']"
+            :filter-method="getBuyersTableShow"
+          >
             <template slot-scope="{ row }">
               {{ row.mallAliasName ? row.mallAliasName : row.platformMallName }}
             </template>
@@ -399,9 +419,9 @@ export default {
 
       abroadAddressParams: {},
       itselfUpdateType: '',
-      searchMall:'',
-      searchMallSetTime:null,
-      mallTableShow:true,
+      searchMall: '',
+      searchMallSetTime: null,
+      mallTableShow: true
 
     }
   },
@@ -466,7 +486,7 @@ export default {
       if (this.isSG) {
         params['address']['post_code'] = this.itselfPostCode
       }
-      if(this.itselfCountry === 'PH'){
+      if (this.itselfCountry === 'PH') {
         params['address']['post_code'] = this.sPDistinctInput
       }
       await this.updateData(params)
@@ -503,8 +523,17 @@ export default {
       if (!this.receivingName) return this.$message('收件人不能为空')
       if (!this.wareHouseTel) return this.$message('电话号码不能为空')
       if (this.flag2) {
-        if (!this.multipleSelection.every((item) => item.country === this.itemData.country)) {
-          return this.$message(`当前仓库只能绑定${this.$filters.chineseSite(this.itemData.country)}的店铺，请重新选择`)
+        if (this.activeName === 'landStore' && this.itemData.countrys) {
+          for (const el of this.multipleSelection) {
+            if (this.itemData.countrys.findIndex(ol => { return el.country === ol }) < 0) {
+              this.$message(`当前仓库只能绑定${this.itemData.countrys.map(al => { return this.$filters.chineseSite(al) }).toString()}的店铺，请重新选择`)
+              return
+            }
+          }
+        } else {
+          if (!this.multipleSelection.every((item) => item.country === this.itemData.country)) {
+            return this.$message(`当前仓库只能绑定${this.$filters.chineseSite(this.itemData.country)}的店铺，请重新选择`)
+          }
         }
       }
       const params = {
@@ -646,8 +675,8 @@ export default {
       }
     },
     itselfUpdate(type) {
-      console.log(this.flag4,"-----------")
-      this.itselfUpdateType = type 
+      console.log(this.flag4, '-----------')
+      this.itselfUpdateType = type
       let arr = {}
       if (!this.itselfWarehouseName) return this.$message('仓库名称不能为空')
       if (!this.itselfDetailAddress) return this.$message('详细地址不能为空')
@@ -891,8 +920,57 @@ export default {
       this.isShowLoading = true
       const res = await this.AddressSet.getUserWarehouse()
       if (res.code === 200) {
+        const obj = {
+          'id': 55,
+          'uid': 213791,
+          'uuid': 0,
+          'warehouse_id': 3,
+          'warehouse_name': '星卓越泰国仓',
+          'isUser': 0,
+          'province_id': 6,
+          'province_text': '广东省',
+          'city_id': 76,
+          'city_text': '广州市',
+          'distinct_id': 695,
+          'distinct_text': '白云区',
+          'detail_address': '湖街道龙塘路龙湖东一路8号里面C栋后门泰国本土',
+          'full_address': '广东省广州市白云区湖街道龙塘路龙湖东一路8号里面C栋后门泰国本土',
+          'shopee_map_id': '0',
+          'receiving_name': '小鑫',
+          'receiving_tel': '19129538023',
+          'remark': '',
+          'post_code': '510440',
+          'country': 'TH',
+          'type': 0,
+          'is_use_own_phone': true,
+          'own_phone': '18507494173',
+          'created_at': '2020-04-05 16:14:36',
+          'updated_at': '2022-04-07 14:30:16',
+          'deleted_at': null,
+          'countrys': ['TH', 'PH'],
+          'warehouse_status': 1,
+          'sys_warehouse_name': '星卓越泰国仓',
+          'mallInfo': [
+            {
+              'id': 1601730,
+              'platform_mall_name': '退货退款用户真实店铺',
+              'mall_alias_name': '89',
+              'platform_mall_id': 333281690
+            }
+          ]
+        }
+
         this.tableDataAll = res.data
+        this.tableDataAll.unshift(obj)
         this.tableDataAll.map((item) => {
+          if (item.countrys) {
+            // const countrysList = item.countrys.split(',')
+            item.sites = item.countrys.map(el => { return this.$filters.chineseSite(el) }).toString() || ''
+            console.log(item.countrys)
+          }
+          // if (item.countrys.split(',') > 1) {
+          //   console.log(JSON.parse(item.countrys))
+          // }
           item.is_use_own_phone = item.is_use_own_phone === '1'
         })
         this.handleClick()
@@ -903,7 +981,7 @@ export default {
       this.isShowLoading = false
     },
     addAbroadAddress() {
-      console.log(this.sCity, this.sPDistinct, this.sStreet, 'sPDistinct',this.itselfUpdateType)
+      console.log(this.sCity, this.sPDistinct, this.sStreet, 'sPDistinct', this.itselfUpdateType)
       if (!this.sPDistinct && (!this.sCity) && !this.sStreet) {
         return this.$message.warning('请先进行shopee地址设置')
       }
@@ -1034,7 +1112,7 @@ export default {
     getRowKey(row) {
       return row.sysMallId
     },
-    searchInputMall(){
+    searchInputMall() {
       this.searchMallSetTime && clearTimeout(this.searchMallSetTime)
       this.searchMallSetTime = null
       this.searchMallSetTime = setTimeout(() => {
@@ -1051,7 +1129,7 @@ export default {
         success = (row.mallAliasName?.includes(this.searchMall) || row.platformMallName?.includes(this.searchMall))
       }
       return success
-    },
+    }
   }
 }
 </script>
