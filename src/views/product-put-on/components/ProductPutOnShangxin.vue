@@ -396,7 +396,7 @@
         <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>导入数据</el-button>
         <el-button size="mini" @click="cancelRelease">取消发布</el-button>
         <el-button size="mini" type="primary" @click="deleteGoodsList(true)" :disabled="isBanPerform">清理全部</el-button>
-        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform" disabled>设置定时任务</el-button>
+        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform">设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
@@ -969,7 +969,7 @@
           <div v-for="(sItem,index) in shippingMethodList" :key="index">
             <div class="basisInstall-box" v-for="(gItem,index) in goodsTypeList" :key="index"
                  style="padding: 10px;margin: 0; color: #000"
-                 :style="'background:'+(index == 1 && '#F6ECCB' || index == 2 && '#FE4148')">
+                 :style="'background:'+(index === 1 && '#F6ECCB' || index === 2 && '#FE4148')">
               <div class="basisInstall-box-item">
                 {{ sItem.label + '-' + gItem.label }}
               </div>
@@ -1092,7 +1092,7 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  randomWord, sleep, copyText, dateFormat
+  sleep, copyText, dateFormat
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
@@ -1167,7 +1167,8 @@ export default {
         }, {
           label: '中间',
           value: 5
-        }],
+        }
+        ],
       imgSizeList: [
         {
           label: '按比例缩放',
@@ -1180,7 +1181,8 @@ export default {
         {
           label: '与商品图高一致',
           value: 3
-        }],
+        }
+        ],
       locateClass: 'watermark_image_left watermark_image_top',
       logistics: [],  //所选物流
       logisticsList: [], // 物流列表
@@ -1423,7 +1425,8 @@ export default {
         name: '',
         time: new Date(new Date().getTime() + 3600 * 1000 * 24)
       },
-      isRefreshTable: true
+      isRefreshTable: true,
+      isCancelRelease: true
     }
   },
   computed: {},
@@ -1464,7 +1467,7 @@ export default {
         if (!(setting && setting.bubbleHeavy >= 0)) {
           this.$alert('计价信息为空，请填写点击确认后再选择此计价方式上新！', '提示', {
             confirmButtonText: '确定',
-            callback: action => {
+            callback: () => {
             }
           })
         }
@@ -1568,6 +1571,7 @@ export default {
   async mounted() {
     try {
       this.$IpcMain.on('gotoUpload', async e => { // 点听
+        console.log('gotoUpload', e)
         let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
         let goodsList = JSON.parse(goodsListJSON)
         console.log('goodsListJSON', goodsList)
@@ -1758,7 +1762,7 @@ export default {
               let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
               let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
               let neededTranslateInfoData = neededTranslateInfoRes.data
-              if (neededTranslateInfoRes.code != 200) {
+              if (Number(neededTranslateInfoRes.code) !== 200) {
                 messageName = neededTranslateInfoRes.msg || ''
               }
               let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
@@ -1810,14 +1814,14 @@ export default {
                 let status = checkListingRepeatData.status
                 if (status > 0) {
                   this.updateAttributeName(item, 4, 'resultsFilter')
-                  this.updateAttributeName(item, '发布失败：此产品已重复上新', '', mall)
+                  this.updateAttributeName(item, '检查到商品已经刊登', '', mall)
                   ++this.statistics.repeat
                   continue
                 }
               }
               this.updateAttributeName(item, '开始组装商品数据', '', mall)
               // weight
-              if (goodsParam['weight'] == '0') {
+              if (Number(goodsParam['weight']) === 0 || !goodsParam['weight']) {
                 goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
                 neededTranslateInfoData['weight'] = goodsParam['weight']
               }
@@ -1878,7 +1882,7 @@ export default {
               let isFieldFilter = await this.fieldFilter(goodsParam, item)
               if (!isFieldFilter) {
                 this.updateAttributeName(item, 3, 'resultsFilter')
-                this.updateOnNewDetails(item.id, mallId, { state: `发布失败：此产品已重复上新` })
+                this.updateOnNewDetails(item.id, mallId, { state: `检查到商品已经刊登` })
                 ++this.statistics.failure
                 continue
               }
@@ -2110,8 +2114,7 @@ export default {
             }
           }
         } else {
-          let progressItem = progress
-          let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
+          let mewOnProgress = (this.mewOnProgress + progress).toFixed(2)
           mewOnProgress = mewOnProgress < 100 && mewOnProgress || 100
           this.mewOnProgress = mewOnProgress * 1
         }
@@ -2418,7 +2421,7 @@ export default {
           label: value,
           config: [JSON.stringify(this.valuationConfig), JSON.stringify(this.freightList)]
         }
-        let res = await this.$api.valuationConfigSave(params)
+        await this.$api.valuationConfigSave(params)
         this.$message({
           type: 'success',
           message: '保存标签成功'
@@ -2473,9 +2476,6 @@ export default {
         data = data > 5 && 5 || data
         this.storeConfig.pictureThread = data
       }
-    },
-    async synchronousCategory() {
-
     },
     valuationInit() {
       this.valuationConfig = Object.assign(this.valuationConfig, this.valuationSetting)
@@ -2572,7 +2572,7 @@ export default {
               platformCategoryId: val.categoryList[val.categoryList.length - 1].category_id,
               categoryAttributes: attributesList
             }
-            let save = await this.$commodityService.saveCategoryRelation(param)
+            await this.$commodityService.saveCategoryRelation(param)
             let index = this.goodsTable.findIndex(son => son.id === item.id)
             this.$set(this.goodsTable[index], 'categoryName', categoryName)
             this.goodsClassName[this.goodsTable[index].category_id] = categoryName
@@ -3048,17 +3048,45 @@ export default {
       let success_count = 0
       let fail_count = 0
       let created_at = Math.floor(new Date().getTime() / 1000)
-      let setTimeSetting = {
-        ext_info, country, exec_time, mall_Ids, mall_names, status, task_name,
-        success_count, fail_count, goods_count, created_at
-      }
+      let setTimeSetting = { ext_info, country, exec_time, mall_Ids, mall_names,
+        status, task_name, success_count, fail_count, goods_count, created_at }
       console.log('saveCronPublishTask - parma', setTimeSetting)
       let setConfig = await this.$collectService.saveCronPublishTask(setTimeSetting)
-      if (setConfig.code == 200) {
+      console.log('setConfig', setConfig)
+      if (Number(setConfig.code) === 200) {
         this.$message.success('配置定时刊登成功')
+        let taskTimeStart = new Date(new Date().getTime() - 3600 * 1000 * 24)
+        let taskTimeEnd = new Date(new Date().getTime() + 3600 * 1000 * 24)
+        let startTime = Math.floor(taskTimeStart.getTime() / 1000)
+        let endTime = Math.floor(taskTimeEnd.getTime() / 1000)
+        let getConfig = await this.$collectService.getCronPublishTask(country, status + '', task_name, startTime, endTime)
+        console.log('getCronPublishTask', getConfig)
+        let task = getConfig && getConfig[getConfig.length - 1] || null
+        if (task) {
+          let task_id = task.id
+          let publishConfigObj = {
+            "country" : this.country,
+            "rateList" : this.rateList,
+            "logistics" : this.logistics,
+            "customLogistics" : this.customLogistics,
+            "storeConfig" : this.storeConfig,
+            "watermarkSetting" : this.watermarkSetting,
+            "sellActiveTable" : this.sellActiveTable,
+            "sellActiveSetting" : this.sellActiveSetting,
+            "valuationRadio" : this.valuationRadio,
+            "basicConfig" : this.basicConfig,
+            "valuationSetting" : this.valuationSetting,
+            "freightList" : this.freightList,
+            "titleInterval" : this.titleInterval,
+            "descriptionInterval" : this.descriptionInterval,
+            "mewOnProgress" : this.mewOnProgress,
+            "calculateResults" : this.calculateResults,
+            "associatedConfig" : this.associatedConfig,
+          }
+          let publish_config = JSON.stringify(publishConfigObj)
+        }
       }
       this.setTimeVisible = false
-      console.log('setConfig', setConfig)
     }
   }
 }

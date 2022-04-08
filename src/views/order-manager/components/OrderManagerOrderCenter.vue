@@ -616,11 +616,9 @@
           @update="datadragEnd"
         >
           <transition-group>
-            <div
-              v-for="(item, index) in columnConfigShowList"
-              :key="index"
-              :class="index < 2 &&'forbid column-item' || 'column-item'"
-            >
+            <div v-for="(item, index) in columnConfigShowList"
+              :key="item.id"
+              :class="index < 2 &&'forbid column-item' || 'column-item'">
               <div class="column-top">
                 <span
                   :class="column_search && item.column_header.includes(column_search) && 'mover_search mover' || 'mover'"

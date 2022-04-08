@@ -131,6 +131,17 @@ export default class CollectService {
   }
 
   /**
+   * 保存/更新定时刊登配置表，传入JSON
+   * @param cronPublishConfig {
+   *   task_id // 任务id
+   *   publish_config // 配置信息
+   * }
+   */
+  saveCronPublishConfig(cronPublishConfig){
+    return this.nativeService.saveCronPublishConfig(cronPublishConfig);
+  }
+
+  /**
    * 删除定时刊登任务
    * @param ids
    * @returns {*}
@@ -138,6 +149,7 @@ export default class CollectService {
   deleteCronPublishTask(ids){
     return this.nativeService.deleteCronPublishTask(ids)
   }
+
   /**
    * 删除定时刊登配置表
    * @param ids
@@ -146,6 +158,7 @@ export default class CollectService {
   deleteCronPublishConfig(ids){
     return this.nativeService.deleteCronPublishConfig(ids)
   }
+
   /**
    * 删除定时刊登商品表
    * @param ids

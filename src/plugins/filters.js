@@ -314,7 +314,7 @@ const errorMsg = function(userMessage) {
     } else if (userMessage.indexOf('You have reached the product upload limit') > -1) {
       msg = '店铺产品已上满，请选择其他店铺上新'
     } else if (userMessage.indexOf('The product is duplicated with another') > -1) {
-      msg = '此商品已重复上新'
+      msg = '检查到商品已经刊登'
     } else if (userMessage.indexOf('options count does not match with models count') > -1) {
       msg = '数据格式异常，请联系客服'
     } else if (userMessage.indexOf('at least one channel') > -1) {
@@ -324,7 +324,7 @@ const errorMsg = function(userMessage) {
     } else if (userMessage.indexOf('create product failed') > -1) {
       msg = '商品创建失败'
     } else if (userMessage.indexOf('product is duplicated') > -1) {
-      msg = '此产品已重复上新'
+      msg = '检查到商品已经刊登'
     } else if (userMessage.indexOf('Failed to create product with invalid param') > -1) {
       msg = '请检查商品的属性是否正确'
     } else if (userMessage.indexOf("The product's category is invalid") > -1) {
