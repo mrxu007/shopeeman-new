@@ -232,7 +232,7 @@
     <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" :close-on-click-modal="false">
       <div class="remark-style">
         <span>本地备注</span>
-        <el-input v-model="localRamark" type="textarea" :rows="4" resize="none" placeholder="请输入内容" />
+        <el-input v-model="localRamark" type="textarea" resize="none" :rows="4" placeholder="请输入内容" />
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
@@ -919,7 +919,7 @@ export default {
         } else if (el === 'logistics_name') {
           pop.label = '虾皮物流'
           pop.width = 180
-        } else { }
+        } else {}
         return pop
       })
       const goodsProp = escape(JSON.stringify(exporGoodsProp))

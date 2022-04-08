@@ -71,12 +71,14 @@
         <div class="base-item">
           <div class="remark">
             <span style="margin-right: 5px;">备注:</span>
-            <el-input v-model="remark" size="mini" type="textarea" resize="none" :rows="2" style="width: 300px" />
+            <el-input v-model="remark" size="mini" type="textarea" resize="none" :rows="2" style="width: 300px;margin-right:5px" />
+            <el-button type="primary" size="mini" @click="batchSetRemark">保 存</el-button>
           </div>
         </div>
       </div>
       <el-form-item>
         <el-button type="primary" size="mini" @click="saveBatchSetting">保 存</el-button>
+        <Logs ref="Logs" v-model="showConsole" clear />
       </el-form-item>
     </el-form>
   </div>
@@ -109,6 +111,7 @@ export default {
       callback()
     }
     return {
+      showConsole: false,
       form: {
         shotOrderSn: '', // 拍单订单号
         shotStatus: '', // 采购状态
@@ -235,6 +238,27 @@ export default {
         linkInfo['orderType'] = typeInfo[1]
       }
       return linkInfo
+    },
+    // 批量添加本地备注
+    async batchSetRemark() {
+      if (!this.chooseData.length) {
+        return this.$message.warning('请先选择需要标记的商品！')
+      }
+      for (const item of this.chooseData) {
+        const params = {
+          id: item.id,
+          remark: this.remark
+        }
+        const res = await this.$api.setLocalRemark(params)
+        if (res.data.code === 200) {
+          this.$refs.Logs.writeLog(`订单编号【${item.order_sn}】备注成功`, true)
+        } else {
+          this.$refs.Logs.writeLog(`订单编号【${item.order_sn}】备注失败-${res.data.message}`, false)
+        }
+        console.log(res)
+      }
+      this.$emit('close')
+      this.showConsole = true
     },
     // batch保存
     async saveBatchSetting() {

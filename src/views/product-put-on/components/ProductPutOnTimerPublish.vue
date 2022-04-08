@@ -96,14 +96,21 @@
   </el-row>
 </template>
 <script>
+import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
+import GoodsManagerAPI from '@/module-api/goods-manager-api/goods-data'
+import GoodsDiscount from '@/module-api/market-activity-api/goods-discount'
+
 export default {
   data() {
     return {
+      mallListAPIInstance: new MallListAPI(this),
+      GoodsManagerAPIInstance: new GoodsManagerAPI(this),
+      GoodsDiscount: new GoodsDiscount(this),
       countriesOption: this.$filters.countries_option,
       countryOption: 'TH',
       taskName: '',
       taskTimeStart: new Date(new Date().getTime() - 3600 * 1000 * 24 * 2),
-      taskTimeEnd: new Date(new Date().getTime()),
+      taskTimeEnd: new Date(new Date().getTime() + 3600 * 1000 * 24),
       taskTable: [],
       taskSelectTable: [],
       statusList: [

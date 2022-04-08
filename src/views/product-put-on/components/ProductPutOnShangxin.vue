@@ -396,7 +396,7 @@
         <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>导入数据</el-button>
         <el-button size="mini" @click="cancelRelease">取消发布</el-button>
         <el-button size="mini" type="primary" @click="deleteGoodsList(true)" :disabled="isBanPerform">清理全部</el-button>
-        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform" disabled>设置定时任务</el-button>
+        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform">设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
@@ -426,11 +426,12 @@
         </div>
       </div>
     </el-row>
-    <u-table :data="goodsTable"
+    <u-table :data="goodsTable" v-if="isRefreshTable"
+             ref="goodsTable" row-key="id"
              @selection-change="handleSelectionChange"
              use-virtual :data-changes-scroll-top="false"
              :header-cell-style="{backgroundColor: '#f5f7fa',}"
-             row-key="id" :border="false" :big-data-checkbox="true"
+             :border="false" :big-data-checkbox="true"
              :height="isNoFoldShow && (associatedConfig.dimensionRadio === 2 && 321 || 320) || 729">
       <u-table-column align="left" type="selection" width="50"/>
       <u-table-column align="left" label="序列号" type="index" width="60">
@@ -452,9 +453,9 @@
       <u-table-column align="left" label="上家商品Id" width="130">
         <template v-slot="{ row }">
           <div style="display: flex">
-          <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
-          <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
-            <i class="el-icon-document-copy"/></el-button>
+            <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
+            <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
+              <i class="el-icon-document-copy"/></el-button>
           </div>
         </template>
       </u-table-column>
@@ -968,7 +969,7 @@
           <div v-for="(sItem,index) in shippingMethodList" :key="index">
             <div class="basisInstall-box" v-for="(gItem,index) in goodsTypeList" :key="index"
                  style="padding: 10px;margin: 0; color: #000"
-                 :style="'background:'+(index == 1 && '#F6ECCB' || index == 2 && '#FE4148')">
+                 :style="'background:'+(index === 1 && '#F6ECCB' || index === 2 && '#FE4148')">
               <div class="basisInstall-box-item">
                 {{ sItem.label + '-' + gItem.label }}
               </div>
@@ -1043,7 +1044,8 @@
             <div class="basisInstall-box">
               <div class="keepRight">上新时间间隔：</div>
               <el-input size="mini" v-model="setTimeConfig.onNewInterval"
-                        style="width: 80px;margin:0 5px;"></el-input>S
+                        style="width: 80px;margin:0 5px;"></el-input>
+              S
               <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -1051,7 +1053,8 @@
             <div class="basisInstall-box">
               <div class="keepRight">上新加速：</div>
               <el-input style="width: 80px;margin: 0 5px;" size="mini" v-model="setTimeConfig.onNewThread"
-                        @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"></el-input>条线程
+                        @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"></el-input>
+              条线程
               <el-tooltip class="item" effect="dark" content="请根据电脑配置合理设置上新线程数，最大为5" :min="1" :max="5" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -1089,7 +1092,7 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  randomWord, sleep, copyText, dateFormat
+  sleep, copyText, dateFormat
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
@@ -1164,7 +1167,8 @@ export default {
         }, {
           label: '中间',
           value: 5
-        }],
+        }
+        ],
       imgSizeList: [
         {
           label: '按比例缩放',
@@ -1177,7 +1181,8 @@ export default {
         {
           label: '与商品图高一致',
           value: 3
-        }],
+        }
+        ],
       locateClass: 'watermark_image_left watermark_image_top',
       logistics: [],  //所选物流
       logisticsList: [], // 物流列表
@@ -1419,7 +1424,9 @@ export default {
         onNewThread: '5',
         name: '',
         time: new Date(new Date().getTime() + 3600 * 1000 * 24)
-      }
+      },
+      isRefreshTable: true,
+      isCancelRelease: true
     }
   },
   computed: {},
@@ -1460,7 +1467,7 @@ export default {
         if (!(setting && setting.bubbleHeavy >= 0)) {
           this.$alert('计价信息为空，请填写点击确认后再选择此计价方式上新！', '提示', {
             confirmButtonText: '确定',
-            callback: action => {
+            callback: () => {
             }
           })
         }
@@ -1564,6 +1571,7 @@ export default {
   async mounted() {
     try {
       this.$IpcMain.on('gotoUpload', async e => { // 点听
+        console.log('gotoUpload', e)
         let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
         let goodsList = JSON.parse(goodsListJSON)
         console.log('goodsListJSON', goodsList)
@@ -1754,7 +1762,7 @@ export default {
               let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
               let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
               let neededTranslateInfoData = neededTranslateInfoRes.data
-              if (neededTranslateInfoRes.code != 200) {
+              if (Number(neededTranslateInfoRes.code) !== 200) {
                 messageName = neededTranslateInfoRes.msg || ''
               }
               let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
@@ -1806,14 +1814,14 @@ export default {
                 let status = checkListingRepeatData.status
                 if (status > 0) {
                   this.updateAttributeName(item, 4, 'resultsFilter')
-                  this.updateAttributeName(item, '发布失败：此产品已重复上新', '', mall)
+                  this.updateAttributeName(item, '检查到商品已经刊登', '', mall)
                   ++this.statistics.repeat
                   continue
                 }
               }
               this.updateAttributeName(item, '开始组装商品数据', '', mall)
               // weight
-              if (goodsParam['weight'] == '0') {
+              if (Number(goodsParam['weight']) === 0 || !goodsParam['weight']) {
                 goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
                 neededTranslateInfoData['weight'] = goodsParam['weight']
               }
@@ -1842,7 +1850,7 @@ export default {
                 })
               }
               let goodsPrice = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
-              goodsParam['price'] = Math.ceil(goodsPrice  / this.rateList[this.country] * ratio) + ''
+              goodsParam['price'] = Math.ceil(goodsPrice / this.rateList[this.country] * ratio) + ''
               goodsParam['description'] = neededTranslateInfoData.description || ''
               let hotList = this.basicConfig.hotList || ''
               hotList = hotList.replaceAll('，', ',')
@@ -1874,7 +1882,7 @@ export default {
               let isFieldFilter = await this.fieldFilter(goodsParam, item)
               if (!isFieldFilter) {
                 this.updateAttributeName(item, 3, 'resultsFilter')
-                this.updateOnNewDetails(item.id, mallId, { state: `发布失败：此产品已重复上新` })
+                this.updateOnNewDetails(item.id, mallId, { state: `检查到商品已经刊登` })
                 ++this.statistics.failure
                 continue
               }
@@ -1944,7 +1952,7 @@ export default {
               let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
               goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
                 let price = this.getValuationPrice(son.price, neededTranslateInfoData)
-                price = Math.ceil(price / this.rateList[this.country]  * ratio) + ''
+                price = Math.ceil(price / this.rateList[this.country] * ratio) + ''
                 son = {
                   id: 0,
                   name: '',
@@ -2106,8 +2114,7 @@ export default {
             }
           }
         } else {
-          let progressItem = progress
-          let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
+          let mewOnProgress = (this.mewOnProgress + progress).toFixed(2)
           mewOnProgress = mewOnProgress < 100 && mewOnProgress || 100
           this.mewOnProgress = mewOnProgress * 1
         }
@@ -2414,7 +2421,7 @@ export default {
           label: value,
           config: [JSON.stringify(this.valuationConfig), JSON.stringify(this.freightList)]
         }
-        let res = await this.$api.valuationConfigSave(params)
+        await this.$api.valuationConfigSave(params)
         this.$message({
           type: 'success',
           message: '保存标签成功'
@@ -2469,9 +2476,6 @@ export default {
         data = data > 5 && 5 || data
         this.storeConfig.pictureThread = data
       }
-    },
-    async synchronousCategory() {
-
     },
     valuationInit() {
       this.valuationConfig = Object.assign(this.valuationConfig, this.valuationSetting)
@@ -2539,7 +2543,7 @@ export default {
       this.categoryVisible = true
     },
     categoryChange(val) {
-      console.log('categoryChange', val)
+      console.log('categoryChange', val, this.goodsCurrent)
       if (val) {
         let categoryList = val.categoryList
         let category = categoryList[categoryList.length - 1]
@@ -2568,13 +2572,23 @@ export default {
               platformCategoryId: val.categoryList[val.categoryList.length - 1].category_id,
               categoryAttributes: attributesList
             }
-            let save = await this.$commodityService.saveCategoryRelation(param)
+            await this.$commodityService.saveCategoryRelation(param)
             let index = this.goodsTable.findIndex(son => son.id === item.id)
             this.$set(this.goodsTable[index], 'categoryName', categoryName)
             this.goodsClassName[this.goodsTable[index].category_id] = categoryName
           })
         }
       }
+      let tableDom = this.$refs.goodsTable
+      let scrollTop = tableDom && tableDom.scrollTop
+      this.isRefreshTable = false
+      this.$nextTick(() => {
+        this.isRefreshTable = true
+        this.$nextTick(() => {
+          let tableDom = this.$refs.goodsTable
+          tableDom.scrollTop = scrollTop
+        })
+      })
       this.categoryVisible = false
     },
     enterGoodsTag() {
@@ -3011,40 +3025,73 @@ export default {
       this.setTimeVisible = true
     },
     async saveSetTime(isRun) {
-      if(!this.setTimeConfig.name){
+      if (!this.setTimeConfig.name) {
         this.$message.error('任务名称不能为空')
         return
       }
-      if(this.setTimeConfig.onNewThread > 5 || this.setTimeConfig.onNewThread < 1){
+      if (this.setTimeConfig.onNewThread > 5 || this.setTimeConfig.onNewThread < 1) {
         this.$message.error('任务线程需大于等于1小于等于5')
         return
       }
       let ext_info = JSON.stringify({
-        mallList:this.mallList,
-        config:this.setTimeConfig
+        mallList: this.mallList,
+        config: this.setTimeConfig
       })
-      let country = this.country;
-      let exec_time = dateFormat(this.setTimeConfig.time,'yyyy-MM-dd hh:mm:ss')
+      let country = this.country
+      let exec_time = dateFormat(this.setTimeConfig.time, 'yyyy-MM-dd hh:mm:ss')
       let task_name = this.setTimeConfig.name
       // let mallList = JSON.stringify(this.mallList)
-      let mall_Ids = this.mallList.map(son=> son.platform_mall_id).toString()
-      let mall_names = this.mallList.map(son=>son.mall_alias_name || son.platform_mall_name).toString()
+      let mall_Ids = this.mallList.map(son => son.platform_mall_id).toString()
+      let mall_names = this.mallList.map(son => son.mall_alias_name || son.platform_mall_name).toString()
       let status = isRun && 3 || 4
       let goods_count = this.goodsTableSelect.length
       let success_count = 0
       let fail_count = 0
       let created_at = Math.floor(new Date().getTime() / 1000)
-      let setTimeSetting = {
-        ext_info, country, exec_time, mall_Ids,mall_names, status,task_name,
-        success_count, fail_count, goods_count, created_at
-      }
-      console.log('saveCronPublishTask - parma',setTimeSetting)
+      let setTimeSetting = { ext_info, country, exec_time, mall_Ids, mall_names,
+        status, task_name, success_count, fail_count, goods_count, created_at }
+      console.log('saveCronPublishTask - parma', setTimeSetting)
       let setConfig = await this.$collectService.saveCronPublishTask(setTimeSetting)
-      if(setConfig.code == 200){
+      console.log('setConfig', setConfig)
+      if (Number(setConfig.code) === 200) {
         this.$message.success('配置定时刊登成功')
+        let taskTimeStart = new Date(new Date().getTime() - 3600 * 1000 * 24)
+        let taskTimeEnd = new Date(new Date().getTime() + 3600 * 1000 * 24)
+        let startTime = Math.floor(taskTimeStart.getTime() / 1000)
+        let endTime = Math.floor(taskTimeEnd.getTime() / 1000)
+        let getConfig = await this.$collectService.getCronPublishTask(country, status + '', task_name, startTime, endTime)
+        console.log('getCronPublishTask', getConfig)
+        let task = getConfig && getConfig[getConfig.length - 1] || null
+        if (task) {
+          let task_id = task.id
+          let publishConfigObj = {
+            "country" : this.country,
+            "rateList" : this.rateList,
+            "logistics" : this.logistics,
+            "customLogistics" : this.customLogistics,
+            "storeConfig" : this.storeConfig,
+            "watermarkSetting" : this.watermarkSetting,
+            "sellActiveTable" : this.sellActiveTable,
+            "sellActiveSetting" : this.sellActiveSetting,
+            "valuationRadio" : this.valuationRadio,
+            "basicConfig" : this.basicConfig,
+            "valuationSetting" : this.valuationSetting,
+            "freightList" : this.freightList,
+            "titleInterval" : this.titleInterval,
+            "descriptionInterval" : this.descriptionInterval,
+            "mewOnProgress" : this.mewOnProgress,
+            "calculateResults" : this.calculateResults,
+            "associatedConfig" : this.associatedConfig,
+          }
+          let param = {
+            task_id,
+            publish_config : JSON.stringify(publishConfigObj)
+          }
+          let setConfig = await this.$collectService.saveCronPublishConfig(param)
+
+        }
       }
       this.setTimeVisible = false
-      console.log('setConfig', setConfig)
     }
   }
 }
@@ -3118,6 +3165,7 @@ export default {
   line-height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
+
   &:hover {
     color: #ff0000;
   }

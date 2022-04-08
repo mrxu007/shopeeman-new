@@ -25,7 +25,7 @@
       <li>
         <label style="color:red;margin-bottom:10px;">温馨提示：应用于1688拍单</label>
         <div>
-          <el-input v-model="aliLeave" placeholder="请不要放价格单" type="textarea" :rows="3" resize="none" size="mini" style="width:400px" />
+          <el-input v-model="aliLeave" placeholder="请不要放价格单" type="textarea" resize="none" :rows="3" size="mini" style="width:400px" />
           <el-button type="primary" size="mini" style="margin-left:10px" @change="save()">保存</el-button>
         </div>
       </li>

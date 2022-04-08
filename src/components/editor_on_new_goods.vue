@@ -1070,7 +1070,7 @@ export default {
           const text = this.describeConfig.text || ''
           if (this.titleGoodsDescribeRadio === 0) {
             const tier_variation = neededTranslateInfoData.tier_variation
-            console.log(tier_variation,tier_variation[tier_variation.spec1])
+            console.log(tier_variation, tier_variation[tier_variation.spec1])
             const spec1List = tier_variation[tier_variation.spec1].join('\n')
             const spec2List = tier_variation[tier_variation.spec2].join('\n')
             tempText = text + '\n' + spec1List + '\n' + spec2List

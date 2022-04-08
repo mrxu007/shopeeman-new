@@ -435,7 +435,7 @@ export default class NetMessageBridgeService {
 
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, {
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating/', data, {
       Headers: {
         'Content-Type': ' application/json'
       }
