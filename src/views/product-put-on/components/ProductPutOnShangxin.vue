@@ -3088,7 +3088,27 @@ export default {
             publish_config : JSON.stringify(publishConfigObj)
           }
           let setConfig = await this.$collectService.saveCronPublishConfig(param)
-
+          let goodsList = JSON.parse(JSON.stringify(this.goodsTableSelect))
+          goodsList = [...goodsList.map(item=>{
+            return {
+              task_id,
+              ori_goods_id: item.goods_id,
+              pri_goods_id: '',
+              ori_category_id: item.category_id,
+              ori_category_name: item.category_name,
+              shopee_category_id: '',
+              shopee_category_name: '',
+              mall_id: '',
+              mall_name: '',
+              shopee_goods_id: '',
+              status: 1,
+              message: '',
+              goods_info:JSON.stringify(item)
+            }
+          })]
+          console.log('goodsList',goodsList)
+          let setGoodsConfig = await this.$collectService.saveCronPublishGoods(goodsList)
+          console.log(setConfig,setGoodsConfig)
         }
       }
       this.setTimeVisible = false

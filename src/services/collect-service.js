@@ -116,6 +116,19 @@ export default class CollectService {
   saveCronPublishTask(cronPublishTask){
     return this.nativeService.saveCronPublishTask(cronPublishTask)
   }
+  /**
+   * 保存/更新定时刊登配置表，传入JSON
+   * @param cronPublishConfig {{task_id, publish_config: string}
+   */
+  saveCronPublishConfig(cronPublishConfig){
+    return this.nativeService.saveCronPublishConfig(cronPublishConfig);
+  }
+  /**
+   * 保存/更新定时刊登商品表：传入JSON
+   */
+  saveCronPublishGoods(goods){
+    return this.nativeService.saveCronPublishGoods(goods);
+  }
 
   /**
    * 查询定时刊登任务
@@ -129,13 +142,21 @@ export default class CollectService {
   getCronPublishTask(country,status,taskName,startTime,endTime){
     return this.nativeService.getCronPublishTask(country,status,taskName,startTime,endTime)
   }
-
   /**
-   * 保存/更新定时刊登配置表，传入JSON
-   * @param cronPublishConfig {{task_id, publish_config: string}
+   * 查询定时刊登任务
+   *
+   * @returns {*}
    */
-  saveCronPublishConfig(cronPublishConfig){
-    return this.nativeService.saveCronPublishConfig(cronPublishConfig);
+  getCronPublishConfig(id){
+    return this.nativeService.getCronPublishConfig(id)
+  }
+  /**
+   * 查询定时刊登任务
+   *
+   * @returns {*}
+   */
+  getCronPublishGoods(id,status ='',oriGoodsId =''){
+    return this.nativeService.getCronPublishGoods(id,status,oriGoodsId)
   }
 
   /**
@@ -146,19 +167,17 @@ export default class CollectService {
   deleteCronPublishTask(ids){
     return this.nativeService.deleteCronPublishTask(ids)
   }
-
   /**
    * 删除定时刊登配置表
    * @param ids
    * @returns {*}
    */
   deleteCronPublishConfig(ids){
-    return this.nativeService.deleteCronPublishConfig(ids)
+    return this.nativeService.deleteCronPublishConfig(ids+'')
   }
-
   /**
    * 删除定时刊登商品表
-   * @param ids
+   * @param id
    * @returns {*}
    */
   deleteCronPublishGoods(id,status ='',oriGoodsId =''){

@@ -162,10 +162,10 @@ export default {
       }
       let ids = this.taskSelectTable.map(son=>son.id)
       let res = await this.$collectService.deleteCronPublishTask(ids)
-      if (res.code == 200){
+      if (Number(res.code) === 200){
         this.$message.success('删除成功')
-        await this.$collectService.deleteCronPublishConfig(ids)
         for (let i =0;i<ids.length;i++){
+          await this.$collectService.deleteCronPublishConfig(ids[i])
           await this.$collectService.deleteCronPublishGoods(ids[i] + '')
           let index = this.taskTable.findIndex(son=>son.id === ids[i])
           this.taskTable.splice(index,1)
