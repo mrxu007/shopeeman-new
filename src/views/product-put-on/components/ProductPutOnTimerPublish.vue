@@ -84,12 +84,12 @@
       </u-table-column>
       <u-table-column align="left" label="任务详情" width="120" prop="sys_label_name" show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="viewTask(scope)">查看</el-button>
+          <el-button type="primary" size="mini" @click="viewTask(scope.row)">查看</el-button>
         </template>
       </u-table-column>
       <u-table-column align="left" label="启动任务" width="120" prop="sourceName">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="startTask(scope)">启动</el-button>
+          <el-button type="primary" size="mini" @click="startTask(scope.row)">启动</el-button>
         </template>
       </u-table-column>
     </u-table>
@@ -176,6 +176,7 @@ export default {
       console.log(res)
     },
     viewTask(data){
+      console.log('viewTask',data)
 
     },
     handleSelectionChange(val) {
