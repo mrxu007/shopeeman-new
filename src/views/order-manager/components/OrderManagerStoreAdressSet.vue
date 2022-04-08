@@ -920,48 +920,6 @@ export default {
       this.isShowLoading = true
       const res = await this.AddressSet.getUserWarehouse()
       if (res.code === 200) {
-        const obj = {
-          'id': 55,
-          'uid': 213791,
-          'uuid': 0,
-          'warehouse_id': 3,
-          'warehouse_name': '星卓越泰国仓',
-          'isUser': 0,
-          'province_id': 6,
-          'province_text': '广东省',
-          'city_id': 76,
-          'city_text': '广州市',
-          'distinct_id': 695,
-          'distinct_text': '白云区',
-          'detail_address': '湖街道龙塘路龙湖东一路8号里面C栋后门泰国本土',
-          'full_address': '广东省广州市白云区湖街道龙塘路龙湖东一路8号里面C栋后门泰国本土',
-          'shopee_map_id': '0',
-          'receiving_name': '小鑫',
-          'receiving_tel': '19129538023',
-          'remark': '',
-          'post_code': '510440',
-          'country': 'TH',
-          'type': 0,
-          'is_use_own_phone': true,
-          'own_phone': '18507494173',
-          'created_at': '2020-04-05 16:14:36',
-          'updated_at': '2022-04-07 14:30:16',
-          'deleted_at': null,
-          'countrys': ['TH', 'PH'],
-          'warehouse_status': 1,
-          'sys_warehouse_name': '星卓越泰国仓',
-          'mallInfo': [
-            {
-              'id': 1601730,
-              'platform_mall_name': '退货退款用户真实店铺',
-              'mall_alias_name': '89',
-              'platform_mall_id': 333281690
-            }
-          ]
-        }
-
-        this.tableDataAll = res.data
-        this.tableDataAll.unshift(obj)
         this.tableDataAll.map((item) => {
           if (item.countrys) {
             // const countrysList = item.countrys.split(',')
