@@ -3083,7 +3083,12 @@ export default {
             "calculateResults" : this.calculateResults,
             "associatedConfig" : this.associatedConfig,
           }
-          let publish_config = JSON.stringify(publishConfigObj)
+          let param = {
+            task_id,
+            publish_config : JSON.stringify(publishConfigObj)
+          }
+          let setConfig = await this.$collectService.saveCronPublishConfig(param)
+
         }
       }
       this.setTimeVisible = false

@@ -132,10 +132,7 @@ export default class CollectService {
 
   /**
    * 保存/更新定时刊登配置表，传入JSON
-   * @param cronPublishConfig {
-   *   task_id // 任务id
-   *   publish_config // 配置信息
-   * }
+   * @param cronPublishConfig {{task_id, publish_config: string}
    */
   saveCronPublishConfig(cronPublishConfig){
     return this.nativeService.saveCronPublishConfig(cronPublishConfig);

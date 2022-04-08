@@ -187,9 +187,17 @@ const special_characters = [
   '✆', '✇', '✑', '✒', '✓', '✕', '✖', '✢', '✣', '✤', '✥', '✟', '✧', '❍', '❏', '❐', '❒', '✗', '✘', '✚', '✜', '✝']
 
 const chineseSite = function(val) {
-  let attribute = val && (val + '').toLocaleUpperCase() || val
-  attribute = countries_id[attribute] || attribute
-  return countries[attribute] || attribute
+  if (val instanceof Array){
+    let countries = []
+    for (let i =0;i<val.length;i++){
+      countries.push( chineseSite(val[i]))
+    }
+    return countries.toString()
+  }else {
+    let attribute = val && (val + '').toLocaleUpperCase() || val
+    attribute = countries_id[attribute] || attribute
+    return countries[attribute] || attribute
+  }
 }
 const imageRender = function(data) {
   const image_value = data[0]

@@ -68,14 +68,14 @@
           <u-table-column min-width="100px" label="绑定店铺数量">
             <template slot-scope="scope"> {{ scope.row.mallInfo.length }} </template>
           </u-table-column>
-          <u-table-column min-width="90px" label="对应站点" prop="country">
+          <u-table-column min-width="90px" label="对应站点" prop="country" show-overflow-tooltip>
             <template slot-scope="scope">
-              <div v-if="activeName==='landStore'">
-                {{ scope.row.sites || (scope.row.country | chineseSite) }}
-              </div>
-              <div v-else>
+              <span v-if="activeName==='landStore'">
+                {{ (scope.row.sites || scope.row.country) | chineseSite }}
+              </span>
+              <span v-else>
                 {{ scope.row.country | chineseSite }}
-              </div>
+              </span>
             </template>
           </u-table-column>
           <u-table-column min-width="120px" label="绑定的店铺" show-overflow-tooltip>
@@ -526,7 +526,7 @@ export default {
         if (this.activeName === 'landStore' && this.itemData.countrys) {
           for (const el of this.multipleSelection) {
             if (this.itemData.countrys.findIndex(ol => { return el.country === ol }) < 0) {
-              this.$message(`当前仓库只能绑定${this.itemData.countrys.map(al => { return this.$filters.chineseSite(al) }).toString()}的店铺，请重新选择`)
+              this.$message(`当前仓库只能绑定${this.$filters.chineseSite(this.itemData.countrys)}的店铺，请重新选择`)
               return
             }
           }
@@ -920,15 +920,14 @@ export default {
       this.isShowLoading = true
       const res = await this.AddressSet.getUserWarehouse()
       if (res.code === 200) {
+        this.tableDataAll = res.data
         this.tableDataAll.map((item) => {
           if (item.countrys) {
-            // const countrysList = item.countrys.split(',')
-            item.sites = item.countrys.map(el => { return this.$filters.chineseSite(el) }).toString() || ''
+            item.sites = this.$filters.chineseSite(item.countrys)
             console.log(item.countrys)
+          }else{
+            item.sites = ''
           }
-          // if (item.countrys.split(',') > 1) {
-          //   console.log(JSON.parse(item.countrys))
-          // }
           item.is_use_own_phone = item.is_use_own_phone === '1'
         })
         this.handleClick()
