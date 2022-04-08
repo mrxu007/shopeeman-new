@@ -1302,7 +1302,8 @@ export default {
     }
   },
   async mounted() {
-    this.createTime = [new Date().getTime() - 3600 * 1000 * 24 * 150, new Date()]
+    this.createTime = [new Date(new Date().toLocaleDateString()).getTime() - 3600 * 1000 * 24 * 150, new Date(new Date().toLocaleDateString()).getTime() + (3600 * 1000 * 24) - 1000]
+    console.log('--', this.createTime)
     await this.selectAll('goodsStatus', this.goodsStatusList)
     await this.selectAll('source', this.sourceList)
   },
@@ -3520,6 +3521,21 @@ export default {
         item.campaignTypeList = this.getGoodsActInfo(item)// 设置活动类型
       }
     },
+    // 时间格式转换
+    add0(m) { return m < 10 ? '0' + m : m },
+    formatTime(val, index) {
+      var time = new Date(val)
+      var y = time.getFullYear()
+      var m = time.getMonth() + 1
+      var d = time.getDate()
+      if (index === 0) {
+        var str0 = y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + '00:00:00'
+        return new Date(str0).getTime()
+      } else {
+        var str1 = y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + '23:59:59'
+        return new Date(str1).getTime()
+      }
+    },
     // 本地过滤
     filterData(data) {
       const fData = []
@@ -3558,10 +3574,10 @@ export default {
             continue
           }
           // 过滤创建时间
-          if (this.createTime?.length && item.create_time < this.createTime[0]) {
+          if (this.createTime?.length && item.create_time < this.formatTime(this.createTime[0], 0)) {
             continue
           }
-          if (this.createTime?.length && item.create_time > new Date(this.createTime[1]).getTime()) {
+          if (this.createTime?.length && item.create_time > this.formatTime(new Date(this.createTime[1]).getTime(), 1)) {
             continue
           }
           // 过滤价格

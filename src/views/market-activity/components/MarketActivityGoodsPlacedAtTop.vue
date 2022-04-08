@@ -554,6 +554,31 @@ export default {
           this.$refs.Logs.writeLog(`任务更新`, true)
           await this.delTesk({ mall_id: mall.platform_mall_id, mall_name: mall.mall_alias_name || mall.platform_mall_name })
         }
+        // 上报壳里--创建任务
+        const currentTime = new Date().getTime()
+        const runTeskTime = this.set_time === '1' ? currentTime : this.cloumn_date
+        const param = {
+          'country': mall.country,
+          'mall_name': mall.mall_alias_name || mall.platform_mall_name,
+          'mall_id': mall.platform_mall_id,
+          'top_task_type': gettesk ? 2 : 1, // 1 新建 2 重建
+          'top_total_count': this.otherConditon === '1' ? this.couponGoodslist.length : this.loopGoodsNum,
+          'toped_count': 0,
+          'sort_type': this.otherConditon === '1' ? '0' : this.saleType,
+          'next_top_time': this.formatTime(runTeskTime + 3600 * 1000 * 4),
+          'topping_goods_ids': '',
+          'message': '',
+          'created_at': this.formatTime(currentTime),
+          'updated_at': this.formatTime(runTeskTime)
+        }
+        const newTesk = await window.BaseUtilBridgeService.saveTopGoodsTask(param)
+        if (newTesk.code !== '200') {
+          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】任务创建失败`, false)
+          this.$set(mall, '')
+          return
+        } else {
+          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】任务创建成功`, true)
+        }
         // 上报置顶商品表
         let topGoods = []
         if (this.otherConditon === '1') {
@@ -621,34 +646,9 @@ export default {
           })
         }
         // 已经置顶的商品
-        const TopedGoods = await window.BaseUtilBridgeService.getTopGoods(mall.platform_mall_id.toString(), '1')
+        // const TopedGoods = await window.BaseUtilBridgeService.getTopGoods(mall.platform_mall_id.toString(), '1')
         // 置顶记录
-        const recordeList = await window.BaseUtilBridgeService.getTopGoodsHistory(mall.platform_mall_id)
-        // 上报壳里--创建任务
-        const currentTime = new Date().getTime()
-        const runTeskTime = this.set_time === '1' ? currentTime : this.cloumn_date
-        const param = {
-          'country': mall.country,
-          'mall_name': mall.mall_alias_name || mall.platform_mall_name,
-          'mall_id': mall.platform_mall_id,
-          'top_task_type': gettesk ? 2 : 1, // 1 新建 2 重建
-          'top_total_count': topGoods.length,
-          'toped_count': TopedGoods.length,
-          'sort_type': this.otherConditon === '1' ? '0' : this.saleType,
-          'next_top_time': this.formatTime(runTeskTime + 3600 * 1000 * 4),
-          'topping_goods_ids': topedGoodsList.map(el => { return el.id }).toString(),
-          'message': recordeList[recordeList.length - 1]?.log_message,
-          'created_at': this.formatTime(currentTime),
-          'updated_at': this.formatTime(runTeskTime)
-        }
-        const newTesk = await window.BaseUtilBridgeService.saveTopGoodsTask(param)
-        if (newTesk.code !== '200') {
-          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】任务创建失败`, false)
-          this.$set(mall, '')
-          return
-        } else {
-          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】任务创建成功`, true)
-        }
+        // const recordeList = await window.BaseUtilBridgeService.getTopGoodsHistory(mall.platform_mall_id)
       } catch (error) {
         this.$refs.Logs.writeLog(`【${error}】`, false)
       } finally {

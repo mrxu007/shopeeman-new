@@ -526,7 +526,11 @@ export default {
         if (this.activeName === 'landStore' && this.itemData.countrys) {
           for (const el of this.multipleSelection) {
             if (this.itemData.countrys.findIndex(ol => { return el.country === ol }) < 0) {
-              this.$message(`当前仓库只能绑定${this.$filters.chineseSite(this.itemData.countrys)}的店铺，请重新选择`)
+              const msgList = []
+              this.itemData.countrys.forEach(al => {
+                msgList.push(this.$filters.chineseSite(al))
+              })
+              this.$message(`当前仓库只能绑定${msgList}的店铺，请重新选择`)
               return
             }
           }
@@ -560,6 +564,7 @@ export default {
       await this.updateData(params)
       await this.getBindMall()
       this.butLoading = false
+      this.sysAdderssVisible = false
     },
     // 修改数据
     async updateData(params) {
@@ -583,8 +588,21 @@ export default {
       sysNewData = this.warehouseData.filter((item) => {
         return item.id === this.sysWarehouseId
       })
-      if (!this.multipleSelection.every((item) => item.country === sysNewData[0].country)) {
-        return this.$message(`当前仓库只能绑定${this.$filters.chineseSite(sysNewData[0].country)}的店铺，请重新选择`)
+      if (this.activeName === 'landStore') {
+        for (const el of this.multipleSelection) {
+          if (sysNewData[0].countrys.findIndex(ol => { return el.country === ol }) < 0) {
+            const msgList = []
+            sysNewData[0].countrys.forEach(al => {
+              msgList.push(this.$filters.chineseSite(al))
+            })
+            this.$message(`当前仓库只能绑定${this.$filters.chineseSite(msgList)}的店铺，请重新选择`)
+            return
+          }
+        }
+      } else {
+        if (!this.multipleSelection.every((item) => item.country === sysNewData[0].country)) {
+          return this.$message(`当前仓库只能绑定${this.$filters.chineseSite(sysNewData[0].country)}的店铺，请重新选择`)
+        }
       }
       this.multipleSelection.forEach((item) => {
         sysMallId.push(item.sysMallId)
@@ -604,6 +622,7 @@ export default {
         this.$message.error(res.data)
       }
       this.butLoading = false
+      this.sysAdderssVisible = false
     },
     // 仓库名称Change
     sysWarehouseChange() {
@@ -894,10 +913,12 @@ export default {
           this.$message.error(res.data)
         }
       }
+      console.log('555', resData)
       if (resData?.length) {
         if (resData[0].data?.length > 0) {
           this.isHomeApplyAddress = true
           this.warehouseData = resData[0].data
+          console.log('2222222222', this.warehouseData)
           this.sysWarehouseId = resData[0].data[0].id
           this.warehouseAddress = resData[0].data[0].full_address
           this.wareHouseTel = resData[0].data[0].receiving_tel
@@ -907,6 +928,7 @@ export default {
         if (resData[1] && resData[1].data?.length > 0) {
           this.isOverseasApplyAddress = true
           this.warehouseData = resData[1].data
+          console.log('2222222222', this.warehouseData)
           this.sysWarehouseId = resData[1].data[0].id
           this.warehouseAddress = resData[1].data[0].full_address
           this.wareHouseTel = resData[1].data[0].receiving_tel
@@ -924,8 +946,7 @@ export default {
         this.tableDataAll.map((item) => {
           if (item.countrys) {
             item.sites = this.$filters.chineseSite(item.countrys)
-            console.log(item.countrys)
-          }else{
+          } else {
             item.sites = ''
           }
           item.is_use_own_phone = item.is_use_own_phone === '1'
