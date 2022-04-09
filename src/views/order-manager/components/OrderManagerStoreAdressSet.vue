@@ -3,7 +3,7 @@
   <div class="store-address">
     <!-- tab区 -->
     <div class="tab-box">
-      <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tabs v-model="activeName">
         <el-tab-pane label="国内仓设置" name="landStore">
           <div class="btn-tool">
             <el-button type="primary" size="mini" class="mar-right" @click="homeAddress">添加国内自有仓库地址</el-button>
@@ -30,12 +30,11 @@
         <u-table
           ref="multipleTable"
           :data="tableData"
+          v-loading="isShowLoading"
           use-virtual
           height="640"
           tooltip-effect="dark"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa'}"
-        >
+          :header-cell-style="{backgroundColor: '#f5f7fa'}">
           <u-table-column type="index" label="序号" min-width="50px" align="center" fixed />
           <u-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
           <u-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip>
@@ -424,6 +423,22 @@ export default {
       searchMallSetTime: null,
       mallTableShow: true
 
+    }
+  },
+  watch:{
+    activeName(val){
+      this.flag4 = val === 'landStore'
+      console.log(this.tableDataAll)
+      if (this.flag4) {
+        this.tableData = this.tableDataAll.filter((item) => {
+          return item.type === 0
+        })
+      } else {
+        this.tableData = this.tableDataAll.filter((item) => {
+          return item.type === 2 || item.type === 3
+        })
+      }
+      this.xzyIndex([!this.flag4 && 3 || 0])
     }
   },
   mounted() {
@@ -887,20 +902,6 @@ export default {
       })
       return arr.toString()
     },
-    // 切换tab
-    handleClick() {
-      if (this.activeName === 'landStore') {
-        this.flag4 = true
-        this.tableData = this.tableDataAll.filter((item) => {
-          return item.type === 0
-        })
-      } else {
-        this.flag4 = false
-        this.tableData = this.tableDataAll.filter((item) => {
-          return item.type === 2 || item.type === 3
-        })
-      }
-    },
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
     async xzyIndex(typeLists) {
       const typeList = typeLists || [0, 3]
@@ -910,27 +911,15 @@ export default {
         if (res.code === 200) {
           let resData = res
           if(type === 0){
-            if (resData.data?.length > 0) {
-              this.isHomeApplyAddress = true
-              this.warehouseData = resData.data
-              console.log('xzyIndex - 0', this.warehouseData)
-              this.sysWarehouseId = resData.data[0].id
-              this.warehouseAddress = resData.data[0].full_address
-              this.wareHouseTel = resData.data[0].receiving_tel
-            } else {
-              this.isHomeApplyAddress = false
-            }
+            this.isHomeApplyAddress =resData.data?.length > 0
           }else{
-            if (resData.data?.length > 0) {
-              this.isOverseasApplyAddress = true
-              this.warehouseData = resData.data
-              console.log('xzyIndex - n', this.warehouseData)
-              this.sysWarehouseId = resData.data[0].id
-              this.warehouseAddress = resData.data[0].full_address
-              this.wareHouseTel = resData.data[0].receiving_tel
-            } else {
-              this.isOverseasApplyAddress = false
-            }
+            this.isOverseasApplyAddress = resData.data?.length > 0
+          }
+          if ((type === 0 && this.flag4) || (type !==0 && !this.flag4)){
+            this.warehouseData = resData.data
+            this.sysWarehouseId = resData.data[0].id
+            this.warehouseAddress = resData.data[0].full_address
+            this.wareHouseTel = resData.data[0].receiving_tel
           }
         } else {
           this.$message.error(res.data)
@@ -951,7 +940,15 @@ export default {
           }
           item.is_use_own_phone = item.is_use_own_phone === '1'
         })
-        this.handleClick()
+        if (this.flag4) {
+          this.tableData = this.tableDataAll.filter((item) => {
+            return item.type === 0
+          })
+        } else {
+          this.tableData = this.tableDataAll.filter((item) => {
+            return item.type === 2 || item.type === 3
+          })
+        }
       } else {
         this.$message.error(res.data)
       }
@@ -1033,13 +1030,13 @@ export default {
       this.isSG = false
       this.itselfPostCode = ''
     },
-    handleClose2() {
+    async handleClose2() {
       const type = this.flag4 ? [0] : [3]
-      this.xzyIndex(type)
-      this.getUserWarehouse()
+      await this.xzyIndex(type)
+      await this.getUserWarehouse()
       this.receivingName = ''
-      this.$refs.bindMallDataRef.clearSelection()
       this.changeIndex++
+      this.$refs.bindMallDataRef.clearSelection()
     },
     async handlerChange1() {
       await this.getLazadaDetailAddress(this.itselfProvinceId, 'cityList', 'CityId')
