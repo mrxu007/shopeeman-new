@@ -625,9 +625,11 @@
           @update="datadragEnd"
         >
           <transition-group>
-            <div v-for="(item, index) in columnConfigShowList"
+            <div
+              v-for="(item, index) in columnConfigShowList"
               :key="item.id"
-              :class="index < 2 &&'forbid column-item' || 'column-item'">
+              :class="index < 2 &&'forbid column-item' || 'column-item'"
+            >
               <div class="column-top">
                 <span
                   :class="column_search && item.column_header.includes(column_search) && 'mover_search mover' || 'mover'"
@@ -2253,7 +2255,9 @@ export default {
           order.order_sn,
           this.$refs.Logs.writeLog,
           order.goods_info.ori_platform_mall_id,
-          order.goods_info.ori_country
+          order.goods_info.ori_country,
+          this,
+          order
         )
       }
     },

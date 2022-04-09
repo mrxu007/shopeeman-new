@@ -678,7 +678,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
   let msg = ''
   let flag = false
   const _that = that
-  console.log('dealwithOriginGoodsNum ',oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country)
+  console.log('dealwithOriginGoodsNum ', oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country)
   try {
     // 1、同步shopee库存
     const params = {
@@ -773,14 +773,14 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
                 skuName = ''
               }
             } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
-              let originPropsArray = skuInfo.originProps.map(son=>son.name)
-              skuName = originPropsArray.splice(0,2).toString()
+              const originPropsArray = skuInfo.originProps.map(son => son.name)
+              skuName = originPropsArray.splice(0, 2).toString()
             } else {
               skuName = ''
             }
             // ----------------------------------------------------------------//
             const spIndex = shopeeSkuList.findIndex((n) => {
-              return n.sku.replace('=|=', ',') === skuName || n.name.replace('=|=', ',') ===skuName
+              return n.sku.replace('=|=', ',') === skuName || n.name.replace('=|=', ',') === skuName
             })
             if (spIndex > -1) {
               flag = true
@@ -857,8 +857,10 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
         }
         console.log(country, data, [editParams])
         const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
+        console.log('++++++', editRes)
+        console.log('++++++', _that)
         if (editRes.code === 200) {
-          _that.$set(shopeeItem,'stock',totalStock)
+          _that.$set(shopeeItem, 'stock', totalStock)
           if (orderSn) {
             return writeLog(`同步库存成功，订单【${orderSn}】同步库存成功！`, true)
           } else {

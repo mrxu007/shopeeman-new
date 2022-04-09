@@ -1126,7 +1126,6 @@ export default {
         proxy_ip: poxyIP,
         proxy_id: ID
       }
-
       const data = await this.$BaseUtilService.OpenProxyWeb(JSON.stringify(proxy))
       if (data === null) {
         //

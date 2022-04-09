@@ -10,9 +10,11 @@ import orderSync from '../../../../services/timeOrder'
 import surFaceService from '../../../../services/surfaceOrder'
 import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
 import { AutoAddFence } from '@/views/order-manager/components/orderCenter/powderFence'
+import { topGoods } from '@/views/market-activity/components/topGoods'
 export default {
   data() {
     return {
+      topGoodsInstance: new topGoods(),
       AutoAddFenceInstance: new AutoAddFence(this),
       showConsole: false,
       mallList: [],
@@ -165,8 +167,10 @@ export default {
       }, 10 * 60 * 1000)
     },
     // 商品置顶
-    topGoods() {
-
+    goodsTop() {
+      setTimeout(() => {
+        this.topGoodsInstance.init()
+      }, 8 * 60 * 1000)
     },
     // 仓库中没有面单
     async syncFaceStore() {

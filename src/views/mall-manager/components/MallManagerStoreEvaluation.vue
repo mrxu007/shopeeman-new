@@ -281,12 +281,13 @@ export default {
           if (this.cancelAction) {
             this.tableLoading = false
             this.$refs.Logs.writeLog(`操作已取消！`, true)
-            return
+            break
           }
           const mall = this.selectMallList[i]
           const pageNumber = 1
           await this.searchSingleMall(pageNumber, mall)
         }
+        this.$refs.Logs.writeLog(`查询结束`)
       } catch (error) {
         console.log(error)
         this.tableLoading = false
@@ -295,6 +296,10 @@ export default {
     },
     // 查询
     async searchSingleMall(pageNumber, mall, dataArr = [], page = 0) {
+      if (this.cancelAction) {
+        this.tableLoading = false
+        return
+      }
       const params = {
         page_number: pageNumber,
         page_size: this.mallPageSize,
