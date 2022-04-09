@@ -7,7 +7,7 @@
         <el-tab-pane label="国内仓设置" name="landStore">
           <div class="btn-tool">
             <el-button type="primary" size="mini" class="mar-right" @click="homeAddress">添加国内自有仓库地址</el-button>
-            <el-button v-if="isHomeApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress()">申请系统仓库地址</el-button>
+            <el-button v-if="isHomeApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress">申请系统仓库地址</el-button>
             <div class="warning-text activeColor">
               <p>温馨提示：1、绑定自有仓库时，订单信息将不会推送至对应站点的系统仓库，如使用软件合作物流，请申请绑定系统仓库！</p>
               <p>温馨提示：2、拍单平台为京喜时，收件人姓名只能由中文和字母组成，且在拍单时，软件不会自动增加买家姓名的拍单标识！</p>
@@ -17,7 +17,7 @@
         <el-tab-pane label="海外仓设置" name="abroadStore">
           <div class="btn-tool">
             <el-button type="primary" size="mini" class="mar-right" @click="oversearAddress">添加国外自有仓库地址</el-button>
-            <el-button v-if="isOverseasApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress()">申请系统仓库地址</el-button>
+            <el-button v-if="isOverseasApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress">申请国外系统仓库地址</el-button>
             <div class="warning-text activeColor">
               <p>温馨提示：1、绑定自有仓库时，订单信息将不会推送至对应站点的系统仓库，如使用软件合作物流，请申请绑定系统仓库！</p>
               <p>温馨提示：2、拍单平台为lazada时，收件人姓名不能带有特殊字符，如下划线，加号等，且菲律宾站点不能带有#字符！</p>
@@ -193,7 +193,8 @@
       </div>
     </el-dialog>
     <!--系统仓库地址弹窗-->
-    <el-dialog :close-on-click-modal="false" class="sys-store-dialog" :title="flag1 ? '申请系统仓库地址' : '修改仓库地址信息'" width="1000px" :visible.sync="sysAdderssVisible" @close="handleClose2">
+    <el-dialog :close-on-click-modal="false" class="sys-store-dialog" :title="flag1 ? '申请系统仓库地址' : '修改仓库地址信息'"
+               width="1000px" :visible.sync="sysAdderssVisible" @close="handleClose2">
       <div class="dialog-left">
         <!--?-->
         <div v-if="!flag4 && flag1" class="header">
@@ -902,38 +903,37 @@ export default {
     },
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
     async xzyIndex(typeLists) {
-      let resData = []
       const typeList = typeLists || [0, 3]
       for (let index = 0; index < typeList.length; index++) {
         const type = typeList[index]
         const res = await this.AddressSet.xzyIndex(type)
         if (res.code === 200) {
-          resData = resData.concat(res)
+          let resData = res
+          if(type === 0){
+            if (resData.data?.length > 0) {
+              this.isHomeApplyAddress = true
+              this.warehouseData = resData.data
+              console.log('xzyIndex - 0', this.warehouseData)
+              this.sysWarehouseId = resData.data[0].id
+              this.warehouseAddress = resData.data[0].full_address
+              this.wareHouseTel = resData.data[0].receiving_tel
+            } else {
+              this.isHomeApplyAddress = false
+            }
+          }else{
+            if (resData.data?.length > 0) {
+              this.isOverseasApplyAddress = true
+              this.warehouseData = resData.data
+              console.log('xzyIndex - n', this.warehouseData)
+              this.sysWarehouseId = resData.data[0].id
+              this.warehouseAddress = resData.data[0].full_address
+              this.wareHouseTel = resData.data[0].receiving_tel
+            } else {
+              this.isOverseasApplyAddress = false
+            }
+          }
         } else {
           this.$message.error(res.data)
-        }
-      }
-      console.log('555', resData)
-      if (resData?.length) {
-        if (resData[0].data?.length > 0) {
-          this.isHomeApplyAddress = true
-          this.warehouseData = resData[0].data
-          console.log('2222222222', this.warehouseData)
-          this.sysWarehouseId = resData[0].data[0].id
-          this.warehouseAddress = resData[0].data[0].full_address
-          this.wareHouseTel = resData[0].data[0].receiving_tel
-        } else {
-          this.isHomeApplyAddress = false
-        }
-        if (resData[1] && resData[1].data?.length > 0) {
-          this.isOverseasApplyAddress = true
-          this.warehouseData = resData[1].data
-          console.log('2222222222', this.warehouseData)
-          this.sysWarehouseId = resData[1].data[0].id
-          this.warehouseAddress = resData[1].data[0].full_address
-          this.wareHouseTel = resData[1].data[0].receiving_tel
-        } else {
-          this.isOverseasApplyAddress = false
         }
       }
     },

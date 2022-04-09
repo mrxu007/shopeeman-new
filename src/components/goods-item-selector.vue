@@ -7,11 +7,11 @@
             <el-option :value="0" label="关键字" />
             <el-option :value="1" label="商品编号" />
           </el-select>
-          <el-input v-model="searchParams.typeKey" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.typeKey" style="width: 100px;" size="mini" />
         </div>
         <div class="header-item">
           <div class="item-text">排序：</div>
-          <el-select v-model="searchParams.sort" style="width: 120px;" size="mini">
+          <el-select v-model="searchParams.sort" style="width: 100px;" size="mini">
             <el-option :value="''" label="默认排序" />
             <el-option :value="'sales'" label="销量从低往高" />
             <el-option :value="'-sales'" label="销量从高往低" />
@@ -21,9 +21,18 @@
         </div>
         <div class="header-item">
           <div class="item-text">价格区间：</div>
-          <el-input v-model="searchParams.minPrice" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.minPrice" style="width: 80px;" size="mini" />
           <div class="heng" />
-          <el-input v-model="searchParams.maxPrice" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.maxPrice" style="width: 80px;" size="mini" />
+        </div>
+        <div class="header-item">
+          <div class="item-text" style="width: 60px;">创建时间：</div>
+          <el-date-picker style="width: 130px"
+              v-model="searchParams.createTime"
+              size="mini"
+              type="date"
+              placeholder="选择日期">
+          </el-date-picker>
         </div>
         <el-button type="primary" size="mini" :disabled="isRunning" @click="categoryVisible = true">选择类目</el-button>
         <el-button type="primary" size="mini" :disabled="isRunning" @click="queryGoods">查询商品</el-button>
@@ -32,20 +41,20 @@
       <div class="header-list">
         <div class="header-item">
           <div class="item-text" style="width: 120px;">每一个店铺商品数量：</div>
-          <el-input v-model="searchParams.goodsCount" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.goodsCount" style="width: 100px;" size="mini" />
         </div>
         <div class="header-item">
           <div class="item-text">过滤商品编号：</div>
-          <el-input v-model="searchParams.filterNo" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.filterNo" style="width: 100px;" size="mini" />
           <el-tooltip class="item" effect="dark" content="不同商品id使用,号隔开" placement="top">
             <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
           </el-tooltip>
         </div>
         <div class="header-item">
           <div class="item-text" style="width: 72px;">销量区间：</div>
-          <el-input v-model="searchParams.minSales" size="mini" style="width: 120px;" />
+          <el-input v-model="searchParams.minSales" size="mini" style="width: 80px;" />
           <div class="heng" />
-          <el-input v-model="searchParams.maxSales" size="mini" style="width: 120px;" />
+          <el-input v-model="searchParams.maxSales" size="mini" style="width: 80px;" />
         </div>
         <el-button type="primary" size="mini" :disabled="isRunning" @click="changeGoodsItem">添加已选商品</el-button>
         <el-checkbox v-model="isApplyCheck" :disabled="isRunning" style="margin-left: 10px;" size="mini">仅显示适用商品
@@ -167,7 +176,8 @@ export default {
         goodsCount: '1000',
         filterNo: '',
         minSales: '0',
-        maxSales: '999999'
+        maxSales: '999999',
+        createTime:''
       },
       goodsSelect: [],
       goodsTable: [],
@@ -296,7 +306,7 @@ export default {
             if (info && info.sku_stock_price_list[0]) {
               const price_info = info.sku_stock_price_list[0].price_info
               if (price_info.price_promotion_type) {
-                console.log('isApplyCheck',info)
+                // console.log('isApplyCheck',info)
                 ++errorCount
                 continue
               }

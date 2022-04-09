@@ -803,7 +803,8 @@
       :close-on-click-modal="false"
     >
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @dynamicSet="setTableData" />
+      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @dynamicSet="setTableData"
+                       @close="closeDialog"/>
     </el-dialog>
     <el-dialog
       v-if="addBuyLinkVisible"

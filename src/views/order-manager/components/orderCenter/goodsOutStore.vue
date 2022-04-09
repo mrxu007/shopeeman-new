@@ -276,7 +276,6 @@ export default {
     }
   },
   mounted() {
-    debugger
     this.exchangeRateList()
     // this.chooseData = this.uniqueArr(this.chooseData)
     this.orderInfo = this.chooseData[0]
@@ -327,6 +326,10 @@ export default {
     },
     async outStore() {
       const arrFilter = this.matchOrderList.filter((item) => !item.isGift)
+      if (this.orderInfo.country != 'TW' && (this.flagBool == false || this.orderInfo.tracking_no == '')) {
+        this.flagText = '该订单面单信息或物流单号不存在，无法出库！'
+        return this.$message.warning('该订单面单信息或物流单号不存在，无法出库！')
+      }
       if (this.orderList.length !== arrFilter.length) {
         this.$confirm('订单信息不匹配，是否确认出库?', '提示', {
           confirmButtonText: '确定',
@@ -619,11 +622,10 @@ export default {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
+        }).then(() => {
+          this.$emit('close','true')
         })
-        // .then(() => {
-        //   this.$emit('close')
-        // })
-        // .catch(() => {})
+        .catch(() => {})
         return
       }
       console.log(this.orderInfo, 'pp')

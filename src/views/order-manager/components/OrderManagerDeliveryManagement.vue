@@ -290,6 +290,7 @@ import storeChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, creatDate, getDaysBetween } from '../../../util/util'
 import md5 from 'js-md5'
 import surFaceService from '../../../services/surfaceOrder'
+import { Base64 } from 'js-base64'
 export default {
   components: {
     storeChoose
@@ -770,40 +771,33 @@ export default {
       }
       let subExportData = []
       if (this.multipleSelection.length) {
-        // this.tableToExcel([this.multipleSelection])
         subExportData = [this.multipleSelection]
       } else {
-        let sysMallId = ''
-        this.selectMallList.forEach((item, index) => {
-          if (index === 0) {
-            sysMallId = item.id
-          } else {
-            sysMallId = sysMallId + ',' + item.id
-          }
-        })
+        let sysMallId = [...this.selectMallList.map(item => item.id)].toString()
         const params = JSON.parse(JSON.stringify(this.selectForm))
         params['page'] = 1
         params['pageSize'] = 200
         params['sysMallId'] = sysMallId
         params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
         this.tableLoading = true
-        const { data } = await this.$api.getDeliveryList(params)
+        console.log('getDeliveryList - params',params)
         let exportData = []
-        let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
-        while (dataFlag && dataFlag.length) {
-          dataFlag.forEach(async(item) => {
-            item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
+        let dataFlag = []
+        do{
+          const { data } = await this.$api.getDeliveryList(params)
+          console.log('getDeliveryList - data',data)
+          dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
+          dataFlag.forEach((item) => {
+            item.goodsLink = this.joinLink(item, item.goodsInfo[0].goods_id)
           })
           exportData = exportData.concat(dataFlag)
           params.page++
-          const { data } = await this.$api.getDeliveryList(params)
-          dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
-        }
+        }while (dataFlag && dataFlag.length)
         this.tableLoading = false
         if (!exportData.length) {
           return this.$message.warning('没有可导出的数据！')
         }
-        // const subExportData = []
+        console.log('exportData',exportData)
         const dataCopy = JSON.parse(JSON.stringify(exportData))
         if (dataCopy.length > 7000) {
           let i = 0
@@ -814,22 +808,16 @@ export default {
         } else {
           subExportData[0] = dataCopy
         }
-
-        // 筛选数据
-        // this.downloadSetList=
       }
       // 数据组装
       const exporGoodsList = []
-      const num = 1
       for (let index = 0; index < subExportData.length; index++) {
         const jsonData = subExportData[index]
         for (let j = 0; j < jsonData.length; j++) {
           const item = jsonData[j]
-          // let goodsArr = item.goodsInfo.length || []
           for (let m = 0; m < item.goodsInfo.length; m++) {
             const goodsInfo = item.goodsInfo[m]
             const obj = {}
-            // obj['SerialNumber'] = num++
             this.downloadSetList.map(el => {
               if (el === 'country') {
                 obj[el] = item.mall_info && item.mall_info.country ? this.$filters.chineseSite(item.mall_info.country) : ''
@@ -871,60 +859,16 @@ export default {
           }
         }
       }
-      const exporGoodsProp = this.downloadSetList.map(el => {
-        const pop = {}
-        pop.propName = el
-        if (el === 'country') {
-          pop.label = '站点'
-          pop.width = 60
-        } else if (el === 'platform_mall_name') {
-          pop.label = '店铺名称'
-          pop.width = 200
-        } else if (el === 'goods_name') {
-          pop.label = '商品名称'
-          pop.width = 350
-        } else if (el === 'outer_goods_id') {
-          pop.label = 'parentSKU'
-          pop.width = 200
-        } else if (el === 'order_sn') {
-          pop.label = '订单编号'
-          pop.width = 150
-        } else if (el === 'goods_count') {
-          pop.label = '商品数量'
-          pop.width = 100
-        } else if (el === 'variation_name') {
-          pop.label = '商品规格'
-          pop.width = 150
-        } else if (el === 'goodsLink') {
-          pop.label = '商品链接'
-          pop.width = 200
-        } else if (el === 'goods_img') {
-          pop.label = '商品图片'
-          pop.width = 80
-        } else if (el === 'created_time') {
-          pop.label = '订单创建时间'
-          pop.width = 180
-        } else if (el === 'ship_by_date') {
-          pop.label = '截止发货时间'
-          pop.width = 180
-        } else if (el === 'is_apply_tracking_no') {
-          pop.label = '是否已申请物流单号'
-          pop.width = 60
-        } else if (el === 'hasLogistics') {
-          pop.label = '是否同步面单信息'
-          pop.width = 60
-        } else if (el === 'order_status') {
-          pop.label = '发货状态'
-          pop.width = 60
-        } else if (el === 'logistics_name') {
-          pop.label = '虾皮物流'
-          pop.width = 180
-        } else {}
-        return pop
-      })
-      const goodsProp = escape(JSON.stringify(exporGoodsProp))
-      const goodsList = escape(JSON.stringify(exporGoodsList))
-      this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?goodsProps=${JSON.stringify(goodsProp)}&&goodsList=${JSON.stringify(goodsList)}`)
+      const goodsList =JSON.stringify(exporGoodsList)
+      let { data } = await this.$api.saveCustomerFaceData({faceData:goodsList})
+      if (data.code === 200){
+        let code = data?.data?.code || ''
+        console.log(this.$userInfo)
+        this.$BaseUtilService.openUrl(`http://${window.location.host}/customSetDownload?uid=${this.$userInfo.muid}&uuid=${this.$userInfo.child_id}&code=${code}`)
+      }else {
+        this.$message.error('自定义拣货单展开失败')
+      }
+      this.downloadSetVisible = false
     },
     // async downLoadPickListAuto() {
     //   this.downloadSetVisible = true
@@ -953,7 +897,7 @@ export default {
         let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
         while (dataFlag && dataFlag.length) {
           dataFlag.forEach(async(item) => {
-            item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
+            item.goodsLink = this.joinLink(item, item.goodsInfo[0].goods_id)
           })
           exportData = exportData.concat(dataFlag)
           params.page++
@@ -1147,13 +1091,13 @@ export default {
         this.tableLoading = false
       }
     },
-    async joinLink(row, goodsId) {
+    joinLink(row, goodsId) {
       let url = ''
       if (row.mall_info && row.mall_info.platform_mall_id) {
         const params = {
           platform_mall_id: row.mall_info ? row.mall_info.platform_mall_id : ''
         }
-        const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
+        const webUrl = this.$shopeemanService.getWebUrl(row.country, params)
         url = webUrl + '/product' + '/' + row.mall_info.platform_mall_id + '/' + goodsId
       }
       return url

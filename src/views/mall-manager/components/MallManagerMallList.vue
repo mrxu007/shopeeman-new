@@ -1565,7 +1565,20 @@ export default {
       if (!this.multipleSelection2.length) {
         return this.$message.error('请勾选店铺')
       }
-      this.alotOfLogined(this.multipleSelection2)
+      let messageStr = this.isIPType && '您选择了使用IP主体，如出现问题请检查您所填写IP主体信息与已有IP主体信息！'
+          || '您选择了不使用IP主体，请注意您所填写的IP信息将不会生效！'
+      this.$confirm(messageStr, '授权提示', {
+        confirmButtonText: '确定',
+        type: 'warning'
+      }).then(() => {
+        this.alotOfLogined(this.multipleSelection2)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        });
+      });
+
     },
     editWaterMall(val) {
       this.importType = val
@@ -2483,7 +2496,7 @@ export default {
         const password = item['密码(必填)']
         const mallName = item['店铺真实名称(必填)']
         const GroupName = item['分组(选填)'] || ''
-        const MallMainName = item['店铺主体名称(需申IP隔离必填)'] || ''
+        const MallMainName = this.isIPType && item['店铺主体名称(需申IP隔离必填)'] || ''
         const SPC_FName = item['SPC_F(浏览识别码)'] || ''
         const mall_alias_name = item['店铺别名(选填)'] || ''
         if (!mallName) {

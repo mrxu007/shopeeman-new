@@ -117,8 +117,10 @@ Vue.directive('focus', {
   }
 })
 async function getUserInfo() {
-  const res = await new applicationConfig().getUserInfo()
-  Vue.prototype.$userInfo = res
+  const userInfo = await new applicationConfig().getUserInfo()
+  const userConfig = await new applicationConfig().getUserConfig()
+  Vue.prototype.$userInfo = userInfo
+  Vue.prototype.$userConfig = userConfig && JSON.parse(userConfig)
 }
 getUserInfo()
 

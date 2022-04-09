@@ -2043,8 +2043,8 @@ export default {
                 }
                 console.log(saveListingRecordParma)
                 let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
+                console.log('saveListingRecordParmaRes', saveListingRecordParmaJson)
                 let saveListingRecordParmaRes = JSON.parse(saveListingRecordParmaJson)
-                console.log('saveListingRecordParmaRes', saveListingRecordParmaRes)
                 this.updateAttributeName(item, product_id, 'product_id')
                 this.updateAttributeName(item, mallId, 'mallId')
                 this.updateAttributeName(item, this.country, 'country')

@@ -57,7 +57,7 @@ export default class NetMessageBridgeService {
     return url
   }
 
-  async getWebUrl(country, data) {
+  getWebUrl(country, data) {
     const url = this.site_domain_chinese_pre[country]
     return url
   }
@@ -260,7 +260,7 @@ export default class NetMessageBridgeService {
         'Host': aurl.replace('https://', '')
       })
     }
-    console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
+    console.log('NetMessageBridgeService - post', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 

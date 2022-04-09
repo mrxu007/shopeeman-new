@@ -34,7 +34,7 @@ export default class applicationConfig {
     }
     // 获取用户账号
     async getUserConfig() {
-      return await this.nativeService.getUserConfig()
+      return await this.nativeService?.getUserConfig()
     }
     /**
    * 获取店铺信息 买手号信息 type: buyerInfo
