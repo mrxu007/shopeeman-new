@@ -766,11 +766,6 @@ export default {
     },
     // 下载自定义拣货单
     async downloadSetSave() {
-      this.$alert('此功能正在维护中，暂时无法使用。预计在2022-4-11号之前完善！，很抱歉给您带来不便！'
-          , '完善通知', {
-        confirmButtonText: '确定',
-      });
-      return
       if (!this.downloadSetList.length) {
         this.$message.warning('请选择需要导出的选项')
       }

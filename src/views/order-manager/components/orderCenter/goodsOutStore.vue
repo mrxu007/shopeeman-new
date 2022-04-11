@@ -11,8 +11,8 @@
     <div class="out-header">
       <span>{{ clickNum }}/{{ chooseData.length }}</span>
       <el-button type="primary" size="mini" @click="goNext">{{
-        clickNum == chooseData.length ? '关闭' : '匹配下一单'
-      }}
+          clickNum == chooseData.length ? '关闭' : '匹配下一单'
+        }}
       </el-button>
       <el-button v-if="outStoreType === '3' || outStoreType === '4'" type="primary" size="mini" @click="getSheetInfo">
         获取面单信息
@@ -28,32 +28,32 @@
           <span class="order-title">订单商品信息</span>
           <div class="order-item">
             <el-table ref="muliTbale" :data="orderList" tooltip-effect="dark" style="width: 100%" height="200">
-              <el-table-column align="center" type="index" label="序号" min-width="50px" />
-              <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center" />
+              <el-table-column align="center" type="index" label="序号" min-width="50px"/>
+              <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center"/>
               <el-table-column width="80px" label="订单状态" prop="order_status" align="center">
                 <template v-if="scope.row.order_status" slot-scope="scope">
                   {{ changeOrderStatus(scope.row.order_status) }}
                 </template>
               </el-table-column>
-              <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
-              <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip />
+              <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip/>
+              <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip/>
               <el-table-column min-width="120px" label="商品规格" prop="variation_sku" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">{{ scope.row.variation_sku || scope.row.variation_name }}</template>
               </el-table-column>
-              <el-table-column align="center" prop="goods_count" label="商品数量" width="80" />
+              <el-table-column align="center" prop="goods_count" label="商品数量" width="80"/>
               <el-table-column align="center" prop="ori_platform_id" label="商品图片" width="80">
                 <template slot-scope="scope">
                   <el-tooltip
-                    effect="light"
-                    placement="right-end"
-                    :visible-arrow="false"
-                    :enterable="false"
-                    style="width: 56px; height: 56px; display: inline-block"
+                      effect="light"
+                      placement="right-end"
+                      :visible-arrow="false"
+                      :enterable="false"
+                      style="width: 56px; height: 56px; display: inline-block"
                   >
                     <div slot="content">
-                      <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                      <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px"/>
                     </div>
-                    <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+                    <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px"/>
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -64,9 +64,9 @@
                 <template slot-scope="scope">
                   <div style="display: flex; justify-content: center">
                     <el-button
-                      type="primary"
-                      size="mini"
-                      @click="
+                        type="primary"
+                        size="mini"
+                        @click="
                         isGift = false
                         selfGoodsStoreVisible = true
                         addGiftAbroad = ''
@@ -76,10 +76,10 @@
                     >匹配商品
                     </el-button>
                     <el-button
-                      v-if="outStoreType == '3' || outStoreType == '4'"
-                      type="primary"
-                      size="mini"
-                      @click="
+                        v-if="outStoreType == '3' || outStoreType == '4'"
+                        type="primary"
+                        size="mini"
+                        @click="
                         isGift = true
                         selfGoodsStoreVisible = true
                         addGiftAbroad = 'gift'
@@ -97,21 +97,21 @@
           <span class="order-title">匹配商品信息</span>
           <div class="order-item">
             <el-table ref="muliTbale2" :data="matchOrderList" tooltip-effect="dark" style="width: 100%" height="300">
-              <el-table-column align="center" type="index" label="序号" min-width="50px" />
-              <el-table-column width="140px" label="匹配订单号" prop="orderSn" align="center" />
-              <el-table-column width="120px" label="商品编号" prop="sku_id" align="center" show-overflow-tooltip />
-              <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
-              <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
-              <el-table-column align="center" prop="stock_num" label="可用库存" width="80" />
+              <el-table-column align="center" type="index" label="序号" min-width="50px"/>
+              <el-table-column width="140px" label="匹配订单号" prop="orderSn" align="center"/>
+              <el-table-column width="120px" label="商品编号" prop="sku_id" align="center" show-overflow-tooltip/>
+              <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip/>
+              <el-table-column width="80px" label="商品规格" prop="sku_name" align="center"/>
+              <el-table-column align="center" prop="stock_num" label="可用库存" width="80"/>
               <el-table-column align="center" prop="outStock" label="出库数量" min-width="80">
                 <template slot-scope="scope">
-                  <el-input v-model="outStock[scope.$index]" size="mini" @input="setOutStock(scope.row, scope.$index)" />
+                  <el-input v-model="outStock[scope.$index]" size="mini" @input="setOutStock(scope.row, scope.$index)"/>
                 </template>
               </el-table-column>
-              <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center" />
+              <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center"/>
               <el-table-column label="商品图片" width="80">
                 <template slot-scope="scope">
-                  <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
+                  <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px"/>
                 </template>
               </el-table-column>
               <el-table-column align="center" prop="ori_platform_id" label="是否赠品" width="80">
@@ -133,10 +133,10 @@
           <span class="mar-right">出库总价</span>
           <span class="mar-right activeColor">{{ outTotalPrice }}{{ orderInfo.country | siteCoin }}</span>
           <el-button
-            size="mini"
-            type="primary"
-            :disabled="!matchOrderList.length || (clickNum === chooseData.length && flagText === '出库成功')"
-            @click="outStore"
+              size="mini"
+              type="primary"
+              :disabled="!matchOrderList.length || (clickNum === chooseData.length && flagText === '出库成功')"
+              @click="outStore"
           >立即下单
           </el-button>
         </div>
@@ -193,22 +193,22 @@
       </div>
     </div>
     <el-dialog
-      v-if="selfGoodsStoreVisible"
-      :visible.sync="selfGoodsStoreVisible"
-      width="1200px"
-      append-to-body
-      top="5vh"
+        v-if="selfGoodsStoreVisible"
+        :visible.sync="selfGoodsStoreVisible"
+        width="1200px"
+        append-to-body
+        top="5vh"
     >
       <div slot="title">{{ title[Number(outStoreType)] }}</div>
       <div class="go-out-store">
-        <self-goods-store v-if="outStoreType === '1'" @getChooseData="getChooseData" />
-        <product-goods-store v-if="outStoreType === '2'" @getChooseData="getChooseData" />
+        <self-goods-store v-if="outStoreType === '1'" @getChooseData="getChooseData"/>
+        <product-goods-store v-if="outStoreType === '2'" @getChooseData="getChooseData"/>
         <abroad-goods-store
-          v-if="outStoreType === '3'"
-          :add-gift-abroad="addGiftAbroad"
-          @getChooseData="getChooseData"
+            v-if="outStoreType === '3'"
+            :add-gift-abroad="addGiftAbroad"
+            @getChooseData="getChooseData"
         />
-        <inLand-goods-store v-if="outStoreType === '4'" @getChooseData="getChooseData" />
+        <inLand-goods-store v-if="outStoreType === '4'" @getChooseData="getChooseData"/>
       </div>
     </el-dialog>
   </div>
@@ -265,7 +265,7 @@ export default {
       clickRow: {},
       country: '',
       clickNum: 1,
-      flagBool: false
+      flagBool: true
     }
   },
   watch: {
@@ -408,8 +408,8 @@ export default {
       if (true || res.data.code === 200) {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('下单成功')
-        for(let i=0;i<this.orderList.length;i++){
-          this.$set(this.orderList[i],'order_status',3)
+        for (let i = 0; i < this.orderList.length; i++) {
+          this.$set(this.orderList[i], 'order_status', 3)
         }
         this.flagText = '出库成功'
         this.matchOrderList = []
@@ -430,13 +430,6 @@ export default {
       if (arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
-      // 国内仓出库：如果是台湾站，不校验是否存在面单和平台物流单号,其它校验
-      // console.log(
-      //   this.orderInfo.country != 'TW' && this.flagBool == false && this.orderInfo.tracking_no == '',
-      //   this.orderInfo.country != 'TW',
-      //   this.flagBool == false,
-      //   this.orderInfo.tracking_no == ''
-      // )
       if (this.orderInfo.country != 'TW' && (this.flagBool == false || this.orderInfo.tracking_no == '')) {
         this.flagText = '该订单面单信息或物流单号不存在，无法出库！'
         return this.$message.warning('该订单面单信息或物流单号不存在，无法出库！')
@@ -475,8 +468,8 @@ export default {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('下单成功')
         this.flagText = '出库成功'
-        for(let i=0;i<this.orderList.length;i++){
-          this.$set(this.orderList[i],'order_status',3)
+        for (let i = 0; i < this.orderList.length; i++) {
+          this.$set(this.orderList[i], 'order_status', 3)
         }
         this.matchOrderList = []
         this.totalPrice()
@@ -512,8 +505,8 @@ export default {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('出库成功')
         this.flagText = '出库成功'
-        for(let i=0;i<this.orderList.length;i++){
-          this.$set(this.orderList[i],'order_status',3)
+        for (let i = 0; i < this.orderList.length; i++) {
+          this.$set(this.orderList[i], 'order_status', 3)
         }
         this.$emit('setTableData', main_order_sn, 'order_status', 3)
         this.goNext()
@@ -547,8 +540,8 @@ export default {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('出库成功')
         this.flagText = '出库成功'
-        for(let i=0;i<this.orderList.length;i++){
-          this.$set(this.orderList[i],'order_status',3)
+        for (let i = 0; i < this.orderList.length; i++) {
+          this.$set(this.orderList[i], 'order_status', 3)
         }
         this.$emit('setTableData', main_order_sn, 'order_status', 3)
         for (const item of arr) {
@@ -623,9 +616,10 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$emit('close','true')
+          this.$emit('close', 'true')
         })
-        .catch(() => {})
+            .catch(() => {
+            })
         return
       }
       console.log(this.orderInfo, 'pp')

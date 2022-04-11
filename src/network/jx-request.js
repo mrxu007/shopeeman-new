@@ -17,7 +17,7 @@ const AppRequest = axios.create({ // 壳内转发请求
   }
 })
 const locationRequest = axios.create({ // 本地转发请求
-  baseURL,
+  baseURL: 'http://release.shopeeman.com',
   timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
@@ -280,7 +280,7 @@ export default {
   getNotHaveLogisticsInformations: (data) => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations', { params: data }), // 获取仓库需要同步面单的订单
 
   saveCustomerFaceData: (data) => AppRequest.post('/order/saveCustomerFaceData', data), // 保存临时面单
-  getCustomerFaceData: (data) => locationRequest.get('/order/getCustomerFaceData', { params: data }), // 获取保存临时面单
+  getCustomerFaceData: (data) => locationRequest.get('/getCustomerFaceData', { params: data }), // 获取保存临时面单
 
 
   // 订单详情删除--物流单号

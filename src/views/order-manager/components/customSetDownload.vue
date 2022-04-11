@@ -10,15 +10,9 @@
             width="60"
             type="index"
           />
-          <el-table-column
-            v-for="(gPros,index) in goodsProps"
-            v-if="gPros.propName!=='goods_img'"
-            :key="index"
-            align="center"
-            :prop="gPros.propName"
-            :label="gPros.label"
-            :width="gPros.width"
-          />
+          <el-table-column v-for="(gPros,index) in goodsProps"
+            v-if="gPros.propName!=='goods_img'" :key="index" align="center" :prop="gPros.propName"
+                           :label="gPros.label" :width="gPros.width"/>
           <el-table-column v-else align="center" :prop="gPros.propName" :label="gPros.label" :width="gPros.width">
             <template slot-scope="scope">
               <el-image :src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
@@ -97,7 +91,7 @@ export default {
         },
         order_status:{
           label: '发货状态',
-          width: 60,
+          width: 80,
         },
         logistics_name:{
           label: '虾皮物流',
@@ -113,13 +107,34 @@ export default {
       const uid = this.$route.query.uid || ''
       const uuid = this.$route.query.uuid || ''
       const code = this.$route.query.code || ''
-      let res = await this.$api.getCustomerFaceData({uid,uuid,code})
-      console.log('goodsListJson' , res)
+      let { data } = await this.$api.getCustomerFaceData({uid,uuid,code})
+      console.log('goodsListJson' , data)
+      let goodsList = []
+      if (data.code === 200){
+        let faceDataJson = data.data?.face_data || null
+        if(faceDataJson){
+          let faceData = JSON.parse(faceDataJson)
+          this.goodsList = faceData
+        }
+        this.headTitle = '拣货清单(' + this.formatTime(new Date().getTime()) + ')'
+        if (this.goodsList.length > 0){
+          for (let key in this.goodsList[0]){
+            let temp = {
+              label: this.column[key]?.label || '',
+              width: this.column[key]?.width || 120,
+              propName: key
+            }
+            goodsList.push(temp)
+          }
+          this.goodsProps = goodsList
+          const array = this.goodsProps.map(son => (son.width || 120))
+          const width = eval(array.join('+')) + 2
+          this.table_width = width || this.table_width
+        }
+      }else{
+        this.$message.error(data.message || '无效面单数据')
+      }
     }
-    this.headTitle = '拣货清单(' + this.formatTime(new Date().getTime()) + ')'
-    // const array = this.goodsProps.map(son => (son.width || 120))
-    // const width = eval(array.join('+')) + 2
-    // this.table_width = width || this.table_width
   },
   methods: {
     async point() {
