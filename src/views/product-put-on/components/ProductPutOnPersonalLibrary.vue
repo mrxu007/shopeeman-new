@@ -623,13 +623,13 @@ export default {
     },
     async goodsTagChange(val) {
       if (val) {
-        const mallList = [...this.multipleSelection.map(i => i.id)]
-        this.goodsList.forEach((item, index) => {
-          if (mallList.includes(item.id)) {
-            this.$set(this.goodsList[index], 'sys_label_id', val.category && val.category.id)
-          }
-        })
-        this.labelList = val.goodsTagList || []
+        // const mallList = [...this.multipleSelection.map(i => i.id)]
+        // this.goodsList.forEach((item, index) => {
+        //   if (mallList.includes(item.id)) {
+        //     this.$set(this.goodsList[index], 'sys_label_id', val.category && val.category.id)
+        //   }
+        // })
+        // this.labelList = val.goodsTagList || []
       }
       this.goodsLabelVisiable = false
     },

@@ -32,7 +32,13 @@ export default {
       default() {
         return []
       }
-    }
+    },
+    selectLabel: {
+      type: String,
+      default() {
+        return ''
+      }
+    },
   },
   data() {
     return {
@@ -45,9 +51,14 @@ export default {
   watch: {
     goodsTagAction(val) {
       this.goodsTagCurrent = val
+    },
+    selectLabel(val){
+      console.log(this.selectLabel)
+      this.goodsTagAction = val
     }
   },
   async mounted() {
+    console.log(this.selectLabel)
     await this.enterGoodsTag()
   },
   methods: {
@@ -105,8 +116,8 @@ export default {
         this.goodsTagList = goodsTagListRes.data || []
         this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', this.goodsTagList)
       }
-      this.goodsTagAction = this.goodsTagList[0].label_name
-      this.goodsTagCurrent = this.goodsTagList[0].label_name
+      this.goodsTagAction = this.selectLabel || this.goodsTagList[0].label_name
+      this.goodsTagCurrent = this.selectLabel || this.goodsTagList[0].label_name
       // const goodsTagListJson = await this.$commodityService.getGoodsTagList()
       // const goodsTagListRes = JSON.parse(goodsTagListJson)
       // console.log('goodsTagListRes', goodsTagListRes)

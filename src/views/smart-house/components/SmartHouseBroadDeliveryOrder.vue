@@ -103,9 +103,7 @@
         v-loading="isShowLoading"
         height="calc(100vh - 200px)"
         :data="tableData"
-        :header-cell-style="{
-          backgroundColor: '#f5f7fa',
-        }"
+        :header-cell-style="{backgroundColor: '#f5f7fa'}"
         @selection-change="handleSelectionChange"
       >
         <el-table-column
@@ -124,7 +122,7 @@
         <el-table-column
           prop="country"
           label="站点"
-          min-width="100"
+          width="90"
           align="center"
           show-overflow-tooltip
           fixed
@@ -177,32 +175,27 @@
             {{ row.status?statusObj[row.status]:'' }}
           </template>
         </el-table-column>
-        <el-table-column
-          label="出库商品详情"
+        <el-table-column label="出库商品详情"
           align="center"
-          min-width="125"
-        >
+          width="120">
           <template slot-scope="{row}">
-            <el-button
-              size="mini"
-              type="primary"
-              @click="
-                detailsVisible = true
-                getDetails(row)"
-            >查看商品详情</el-button>
+            <el-button size="mini"
+              type="primary" style="width: 100px;"
+              @click="detailsVisible = true
+                getDetails(row)">查看商品详情</el-button>
           </template>
         </el-table-column>
         <el-table-column
           prop="goods_num"
           label="出库商品总数"
           align="center"
-          min-width="95"
+          width="95"
         />
         <el-table-column
           prop="remark"
           label="仓库备注"
           align="center"
-          min-width="150"
+          width="130"
           show-overflow-tooltip
         />
         <el-table-column
@@ -261,371 +254,360 @@
     <div class="logging">
       <Logs ref="Logs" v-model="showConsole" clear />
     </div>
-    <!-- 查看出库商品详情弹窗 -->
-    <el-dialog
-      class="details-dialog"
-      title="出库商品详情"
-      :visible.sync="detailsVisible"
-      width="1000px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-    >
-      <el-table
-        height="420"
-        :data="detailsData"
-        :header-cell-style="{
+    <div class="dialog_shell">
+      <!-- 查看出库商品详情弹窗 -->
+      <el-dialog
+          class="details-dialog"
+          title="出库商品详情"
+          :visible.sync="detailsVisible"
+          width="1000px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+      >
+        <el-table
+            height="420"
+            :data="detailsData"
+            :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
-        :row-style="{
+            :row-style="{
           color: 'black',
           height: '50px',
         }"
-      >
-        <el-table-column
-          width="50"
-          align="center"
-          type="index"
-          label="序号"
-          fixed
-        />
-        <el-table-column
-          prop="order_sn"
-          width="150"
-          align="center"
-          label="订单编号"
-          fixed
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="出库商品状态"
         >
-          <template slot-scope="{row}">
-            {{ row.status?skuStatusObj[row.status]:'' }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          width="150"
-          align="center"
-          label="系统商品编号(SysSku)"
-          prop="sys_sku_id"
-        />
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品编号(SKU)"
-          prop="sku_id"
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="商品名称"
-          prop="goods_name"
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="出库数量"
-          prop="sku_num"
-        />
-        <el-table-column
-          width="120"
-          align="center"
-          label="商品单价(RMB)"
-          prop="sku_price"
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="商品规格"
-          prop="sku_name"
-        />
-        <el-table-column
-          width="80"
-          align="center"
-          label="商品图片"
-        >
-          <template slot-scope="{row}">
-            <el-tooltip
-              v-if="row.sku_image"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
-              <div slot="content">
+          <el-table-column
+              width="50"
+              align="center"
+              type="index"
+              label="序号"
+              fixed
+          />
+          <el-table-column
+              prop="order_sn"
+              width="150"
+              align="center"
+              label="订单编号"
+              fixed
+          />
+          <el-table-column
+              width="100"
+              align="center"
+              label="出库商品状态"
+          >
+            <template slot-scope="{row}">
+              {{ row.status?skuStatusObj[row.status]:'' }}
+            </template>
+          </el-table-column>
+          <el-table-column
+              width="150"
+              align="center"
+              label="系统商品编号(SysSku)"
+              prop="sys_sku_id"
+          />
+          <el-table-column
+              width="150"
+              align="center"
+              label="商品编号(SKU)"
+              prop="sku_id"
+          />
+          <el-table-column
+              width="100"
+              align="center"
+              label="商品名称"
+              prop="goods_name"
+          />
+          <el-table-column
+              width="100"
+              align="center"
+              label="出库数量"
+              prop="sku_num"
+          />
+          <el-table-column
+              width="120"
+              align="center"
+              label="商品单价(RMB)"
+              prop="sku_price"
+          />
+          <el-table-column
+              width="100"
+              align="center"
+              label="商品规格"
+              prop="sku_name"
+          />
+          <el-table-column
+              width="80"
+              align="center"
+              label="商品图片"
+          >
+            <template slot-scope="{row}">
+              <el-tooltip
+                  v-if="row.sku_image"
+                  effect="light"
+                  placement="right-end"
+                  :visible-arrow="false"
+                  :enterable="false"
+                  style="width: 50px; height: 50px"
+              >
+                <div slot="content">
+                  <el-image
+                      :src="row.sku_image"
+                      style="width: 400px; height: 400px"
+                  >
+                    <div slot="error" class="image-slot" />
+                  </el-image>
+                </div>
                 <el-image
-                  :src="row.sku_image"
-                  style="width: 400px; height: 400px"
+                    style="width: 40px; height: 40px"
+                    :src="row.sku_image"
                 >
                   <div slot="error" class="image-slot" />
                 </el-image>
-              </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="row.sku_image"
-              >
-                <div slot="error" class="image-slot" />
-              </el-image>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品链接"
-        >
-          <template slot-scope="{row}">
-            <el-button
-              v-if="row.sku_url"
-              type="primary"
-              size="mini"
-              @click="openUrl(row.sku_url)"
-            >查看商品链接</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
-    <!-- 海外仓补件弹窗 -->
-    <el-dialog
-      class="reissue-dialog"
-      title="海外仓补件"
-      :visible.sync="reissueVisible"
-      width="1200px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :before-close="reissueClose"
-    >
-      <ul>
-        <li>
-          <span>仓库名称：</span>
-          <el-select
-            v-model="stockForm.wid"
-            size="mini"
-            filterable
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column
+              width="150"
+              align="center"
+              label="商品链接"
           >
-            <el-option :value="'0'" label="全部" />
-            <el-option
-              v-for="(item, index) in widList"
-              :key="index"
-              :value="item.id"
-              :label="item.warehouse_name"
+            <template slot-scope="{row}">
+              <el-button
+                  v-if="row.sku_url"
+                  type="primary"
+                  size="mini"
+                  @click="openUrl(row.sku_url)"
+              >查看商品链接</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
+      <!-- 海外仓补件弹窗 -->
+      <el-dialog
+          class="reissue-dialog"
+          title="海外仓补件"
+          :visible.sync="reissueVisible"
+          width="1300px"
+          top="8vh"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          :before-close="reissueClose">
+        <ul>
+          <li>
+            <span>仓库名称：</span>
+            <el-select
+                v-model="stockForm.wid"
+                size="mini"
+                filterable>
+              <el-option :value="'0'" label="全部" />
+              <el-option
+                  v-for="(item, index) in widList"
+                  :key="index"
+                  :value="item.id"
+                  :label="item.warehouse_name"
+              />
+            </el-select>
+          </li>
+          <li>
+            <span>系统商品编号：</span>
+            <el-input
+                v-model="stockForm.sys_sku_id"
+                clearable
+                size="mini"
+                oninput="value=value.replace(/\s+/g,'')"
             />
-          </el-select>
-        </li>
-        <li>
-          <span>系统商品编号：</span>
-          <el-input
-            v-model="stockForm.sys_sku_id"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </li>
-        <li>
-          <span>商品编号：</span>
-          <el-input
-            v-model="stockForm.sku_id"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </li>
-        <li>
-          <span>商品规格：</span>
-          <el-input
-            v-model="stockForm.sku_name"
-            clearable
-            size="mini"
-          />
-        </li>
-        <li>
-          <el-checkbox v-model="filterZero">过滤0库存</el-checkbox>
-        </li>
-        <li>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="
+          </li>
+          <li>
+            <span>商品编号：</span>
+            <el-input
+                v-model="stockForm.sku_id"
+                clearable
+                size="mini"
+                oninput="value=value.replace(/\s+/g,'')"
+            />
+          </li>
+          <li>
+            <span>商品规格：</span>
+            <el-input
+                v-model="stockForm.sku_name"
+                clearable
+                size="mini"
+            />
+          </li>
+          <li>
+            <el-checkbox v-model="filterZero">过滤0库存</el-checkbox>
+          </li>
+          <li>
+            <el-button
+                type="primary"
+                size="mini"
+                @click="
               page =1
               getStock()"
-          >搜 索</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="batchReissue"
-          >批量补件</el-button>
-        </li>
-      </ul>
-      <el-table
-        v-loading="reissueLoading"
-        height="420"
-        :data="reissueData"
-        :header-cell-style="{
-          backgroundColor: '#f5f7fa',
-        }"
-        :row-style="{
-          color: 'black',
-          height: '50px',
-        }"
-        @selection-change="reissueSelectionChange"
+            >搜 索</el-button>
+            <el-button
+                type="primary"
+                size="mini"
+                @click="batchReissue"
+            >批量补件</el-button>
+          </li>
+        </ul>
+        <el-table
+            v-loading="reissueLoading"
+            height="520"
+            :data="reissueData"
+            :header-cell-style="{backgroundColor: '#f5f7fa',}"
+            :row-style="{color: 'black',height: '50px',}"
+            @selection-change="reissueSelectionChange">
+          <el-table-column
+              align="center"
+              type="selection"
+              width="50"
+              fixed/>
+          <el-table-column
+              width="50"
+              align="center"
+              type="index"
+              label="序号"
+              fixed/>
+          <el-table-column
+              width="120"
+              align="center"
+              label="仓库名称"
+              prop="warehouse_name"
+              fixed/>
+          <el-table-column
+              width="100"
+              align="center"
+              label="系统商品编号"
+              prop="sys_sku_id"
+          />
+          <el-table-column
+              min-width="120"
+              align="center"
+              label="商品编号(SkuId)"
+              prop="sku_id"
+          />
+          <el-table-column
+              width="100"
+              align="center"
+              label="商品名称"
+              prop="goods_name">
+            <template slot-scope="{ row }">
+              <div class="table_height_limit">
+                {{ row.goods_name }}
+              </div>
+            </template>
+            </el-table-column>
+          <el-table-column
+              width="100"
+              align="center"
+              label="商品规格"
+              prop="sku_name"
+              show-overflow-tooltip
+          />
+          <el-table-column
+              width="100"
+              align="center"
+              label="库存数量"
+              prop="stock_num"/>
+          <el-table-column
+              width="120"
+              align="center"
+              label="商品单价(RMB)"
+              prop="sku_price">
+            <template slot-scope="{row}">
+              {{ row.sku_price?row.sku_price/100:'' }}
+            </template>
+          </el-table-column>
+          <el-table-column
+              width="150"
+              align="center"
+              label="商品链接"
+              prop="sku_url">
+            <template slot-scope="{ row }">
+              <div class="table_height_limit">
+                {{ row.sku_url }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column width="80" align="center" label="商品图片">
+            <template slot-scope="{row}">
+              <el-tooltip v-if="row.sku_image || row.real_image_url"
+                  effect="light"
+                  placement="right-end"
+                  :visible-arrow="false"
+                  :enterable="false"
+                  style="width: 50px; height: 50px">
+                <div slot="content">
+                  <el-image :src="row.sku_image || row.real_image_url"
+                      style="width: 400px; height: 400px">
+                    <div slot="placeholder" class="image-slot">
+                      加载中<span class="dot">...</span>
+                    </div>
+                    >
+                    <div slot="error" class="image-slot" />
+                  </el-image>
+                  <el-image style="width: 40px; height: 40px" :src="row.sku_image || row.real_image_url">
+                    <div slot="placeholder" class="image-slot">
+                      加载中<span class="dot">...</span>
+                    </div>
+                    >
+                    <div slot="error" class="image-slot" />
+                  </el-image>
+                </div>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column
+              width="130"
+              align="center"
+              label="货架仓位"
+              prop="position"
+          />
+        </el-table>
+        <div class="pagination">
+          <el-pagination
+              background
+              :current-page="stockPage"
+              :page-sizes="[30, 50, 100]"
+              :page-size="stockPageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="stockTotal"
+              @size-change="reissueSizeChange"
+              @current-change="reissueCurrentChange"
+          />
+        </div>
+      </el-dialog>
+      <!--批量补件弹窗-->
+      <el-dialog
+          class="batchrei-dialog"
+          title="批量补件"
+          :visible.sync="batchreiVisible"
+          width="300px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          :show-close="!batchreiLoading"
+          @close="batchreiClose"
       >
-        <el-table-column
-          align="center"
-          type="selection"
-          width="50"
-          fixed
-        />
-        <el-table-column
-          width="50"
-          align="center"
-          type="index"
-          label="序号"
-          fixed
-        />
-        <el-table-column
-          width="130"
-          align="center"
-          label="仓库名称"
-          prop="warehouse_name"
-          fixed
-        />
-        <el-table-column
-          width="120"
-          align="center"
-          label="系统商品编号"
-          prop="sys_sku_id"
-        />
-        <el-table-column
-          width="120"
-          align="center"
-          label="商品编号(SkuId)"
-          prop="sku_id"
-        />
-        <el-table-column
-          width="130"
-          align="center"
-          label="商品名称"
-          prop="goods_name"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品规格"
-          prop="sku_name"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          width="150"
-          align="center"
-          label="库存数量"
-          prop="stock_num"
-        />
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品单价(RMB)"
-          prop="sku_price"
-        >
-          <template slot-scope="{row}">
-            {{ row.sku_price?row.sku_price/100:'' }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品链接"
-          prop="sku_url"
-        />
-        <el-table-column
-          width="80"
-          align="center"
-          label="商品图片"
-        >
-          <template slot-scope="{row}">
-            <el-tooltip
-              v-if="row.sku_image || row.real_image_url"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
-              <div slot="content">
-                <el-image
-                  :src="row.sku_image || row.real_image_url"
-                  style="width: 400px; height: 400px"
-                >
-                  <div slot="placeholder" class="image-slot">
-                    加载中<span class="dot">...</span>
-                  </div>
-                  >
-                  <div slot="error" class="image-slot" />
-                </el-image>
-                <el-image
-                  style="width: 40px; height: 40px"
-                  :src="row.sku_image || row.real_image_url"
-                >
-                  <div slot="placeholder" class="image-slot">
-                    加载中<span class="dot">...</span>
-                  </div>
-                  >
-                  <div slot="error" class="image-slot" />
-                </el-image>
-              </div></el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column
-          width="130"
-          align="center"
-          label="货架仓位"
-          prop="position"
-        />
-      </el-table>
-      <div class="pagination">
-        <el-pagination
-          background
-          :current-page="stockPage"
-          :page-sizes="[30, 50, 100]"
-          :page-size="stockPageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="stockTotal"
-          @size-change="reissueSizeChange"
-          @current-change="reissueCurrentChange"
-        />
-      </div>
-    </el-dialog>
-    <!--批量补件弹窗-->
-    <el-dialog
-      class="batchrei-dialog"
-      title="批量补件"
-      :visible.sync="batchreiVisible"
-      width="300px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :show-close="!batchreiLoading"
-      @close="batchreiClose"
-    >
-      <div class="wrap">
-        <span>补件数量：</span>
-        <el-input
-          v-model="reissueNum"
-          clearable
-          size="mini"
-          oninput="value=value.replace(/\s+/g,'')"
-        />
-      </div>
-      <div class="footer">
-        <el-button
-          :loading="batchreiLoading"
-          size="mini"
-          type="primary"
-          @click="addReissueStore(reissueSelection)"
-        >确 定</el-button>
-      </div>
-    </el-dialog>
+        <div class="wrap">
+          <span>补件数量：</span>
+          <el-input
+              v-model="reissueNum"
+              clearable
+              size="mini"
+              oninput="value=value.replace(/\s+/g,'')"
+          />
+        </div>
+        <div class="footer">
+          <el-button
+              :loading="batchreiLoading"
+              size="mini"
+              type="primary"
+              @click="addReissueStore(reissueSelection)"
+          >确 定</el-button>
+        </div>
+      </el-dialog>
+    </div>
   </el-row>
 </template>
 
@@ -791,7 +773,9 @@ export default {
       pamars['skuLists'] = skuLists
       if (!skuLists?.length) return this.$message('库存数小于补件数')
       this.batchreiLoading = true
+      console.log('addReissueStore - pamars',pamars)
       const res = await this.BroadDeliveryOrder.addReissueStore(pamars)
+      console.log('addReissueStore - data',res)
       if (res.code === 200) {
         this.$message.success('补件成功')
         this.batchreiVisible = false

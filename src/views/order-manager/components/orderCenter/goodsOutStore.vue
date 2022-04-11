@@ -317,6 +317,7 @@ export default {
       } else {
         this.flagBool = false
         this.flagText = '面单信息获取失败'
+        this.$message.error('面单信息获取失败')
       }
     },
     // 获取汇率

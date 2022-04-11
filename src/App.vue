@@ -52,6 +52,39 @@ i.close-right{
 .el-dialog {
   margin-bottom: 10px;
 }
+
+.dialog_shell{
+
+  .el-dialog__header {
+    padding: 10px;
+
+    .el-dialog__headerbtn {
+      top: 10px;
+
+      .el-icon-close {
+        font-size: 16px !important;
+      }
+    }
+
+    .el-dialog__title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+  }
+
+  .el-dialog__body {
+    padding: 5px 16px 10px;
+  }
+}
+
+.table_height_limit{
+  height: 70px;
+  width: 100%;
+  overflow: auto;
+  border: 1px #bcbcbc solid;
+  padding: 3px 5px;
+  text-align: left;
+}
 </style>
 <script>
 import './assets/css/reset.css'

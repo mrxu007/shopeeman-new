@@ -1037,18 +1037,19 @@
     >
       <image-collection :choose-data="clickRow" :collect-type="collectType" @close="closeDialog('noRefresh')" />
     </el-dialog>
-    <el-dialog
-      v-if="ordersShipmentVisible"
-      title="批量订单发货"
-      :visible.sync="ordersShipmentVisible"
-      top="5vh"
-      width="1200px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-    >
-      <UploadOrdersShipment :select-mall-list="selectMallList" />
-    </el-dialog>
-  </div>
+    <div class="dialog_shell">
+      <el-dialog
+          v-if="ordersShipmentVisible"
+          title="批量订单发货"
+          :visible.sync="ordersShipmentVisible"
+          top="5vh"
+          width="1200px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false">
+        <UploadOrdersShipment :select-mall-list="selectMallList" />
+      </el-dialog>
+    </div>
+    </div>
 </template>
 
 <script>
