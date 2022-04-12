@@ -7,7 +7,7 @@ const baseURL = window.appInfo && window.appInfo.route || 'http://release.shopee
 // const baseURL = 'http://www-lyj.shopee-native.com/api'
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL,
-  timeout: 5000,
+  timeout: 10000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
   },

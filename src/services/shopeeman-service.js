@@ -419,16 +419,15 @@ export default class NetMessageBridgeService {
       headers: {
         'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99"',
         'Accept': 'application/json, text/plain, */*',
-        'sc-fe-session': '48a3376e-9104-4e04-8d57-6d0016018a4b',
-        'sc-fe-ver': '48661',
-        'sec-ch-ua-mobile': '?0',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Dest': 'empty',
-        referer: '/portal/settings/shop/rating',
+        // 'sc-fe-session': '48a3376e-9104-4e04-8d57-6d0016018a4b',
+        // 'sc-fe-ver': '48661',
+        // 'sec-ch-ua-mobile': '?0',
+        // 'Sec-Fetch-Site': 'same-origin',
+        // 'Sec-Fetch-Mode': 'cors',
+        // 'Sec-Fetch-Dest': 'empty',
+        'referer': '/portal/settings/shop/rating',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'zh-CN,zh;q=0.9'
-
       }
     })
   }

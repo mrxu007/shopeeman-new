@@ -62,58 +62,62 @@
         v-loading="tableLoading"
         :data="tableDataCut"
         tooltip-effect="dark"
-        max-height="665px"
-        :row-height="80"
+        max-height="700"
+        :row-height="70"
         use-virtual
+        :header-cell-style="{ background: '#f7fafa' }"
         :big-data-checkbox="checked"
         :data-changes-scroll-top="false"
-        @selection-change="selectionChange"
-      >
-        <u-table-column type="selection" width="55" />
-        <u-table-column align="center" type="index" label="序号" width="50">
+        @selection-change="selectionChange">
+        <u-table-column type="selection" width="50" align="center" />
+        <u-table-column align="center" type="index" label="序号" width="55">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </u-table-column>
-        <u-table-column width="120px" label="站点" prop="country" align="center">
+        <u-table-column width="80" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </u-table-column>
-        <u-table-column min-width="100px" label="店铺名称" prop="platform_mall_name" align="center">
+        <u-table-column width="120" label="店铺名称" prop="platform_mall_name" align="center">
           <template slot-scope="scope">
             <p>{{ scope.row.mall_alias_name ? scope.row.mall_alias_name : scope.row.platform_mall_name }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="order_sn" label="订单编号" min-width="120">
+        <u-table-column align="center" prop="order_sn" label="订单编号" width="140">
           <template slot-scope="scope">
             <p class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.platform_mall_id)">{{ scope.row.order_sn }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="product_name" label="商品名称" min-width="80" show-overflow-tooltip />
-        <u-table-column align="center" prop="product_id" label="商品ID" width="120">
+        <u-table-column align="center" prop="product_name" label="商品名称" width="150" show-overflow-tooltip >
+          <template slot-scope="scope">
+            <div class="table_height_limit" style="height: 62px">{{scope.row.product_name}}</div>
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="product_id" label="商品ID" width="110">
           <template slot-scope="scope">
             <p class="tableActive" @click="openUrl(scope.row)">{{ scope.row.product_id }}</p>
           </template>
         </u-table-column>
-        <u-table-column label="商品图片" prop="product_cover" align="center">
+        <u-table-column label="商品图片" prop="product_cover" align="center" width="85">
           <template slot-scope="scope">
-            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 60px; height: 60px; display: inline-block">
               <div slot="content">
                 <el-image :src="[scope.row.product_cover] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[scope.row.product_cover,true] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[scope.row.product_cover,true] | imageRender" style="width: 60px; height: 60px" />
             </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column prop="user_name" label="买家姓名" align="center" min-width="90px" />
-        <u-table-column align="center" prop="rating_star" label="评价星数" min-width="100">
+        <u-table-column prop="user_name" label="买家姓名" align="center" min-width="80" />
+        <u-table-column align="center" prop="rating_star" label="评价星数" width="100">
           <template slot-scope="scope">
             <el-rate v-model="scope.row.rating_star" />
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="ctime" label="评价时间" min-width="70">
+        <u-table-column align="center" prop="ctime" label="评价时间" width="125">
           <template slot-scope="scope">
             {{ $dayjs(scope.row.ctime * 1000).format('YYYY-MM-DD HH:MM') }}
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="comment" label="评价内容" min-width="80" show-overflow-tooltip />
+        <u-table-column align="center" prop="comment" label="评价内容" min-width="100" show-overflow-tooltip />
         <u-table-column align="center" label="您的回复" min-width="80" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-if="scope.row.reply && scope.row.reply.comment">{{ scope.row.reply.comment }}</div>
@@ -122,12 +126,12 @@
             </div>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="回复时间" min-width="80">
+        <u-table-column align="center" label="回复时间" width="125">
           <template v-if="scope.row.reply" slot-scope="scope">
             {{ $dayjs(scope.row.reply.ctime * 1000).format('YYYY-MM-DD HH:MM') }}
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="replyStatus" label="操作状态" min-width="70" show-overflow-tooltip>
+        <u-table-column align="center" prop="replyStatus" label="操作状态" width="80" show-overflow-tooltip>
           <template slot-scope="scope">
             <span :style="scope.row.statusColor && 'color:' + scope.row.statusColor"> {{ scope.row.replyStatus }}</span>
           </template>
@@ -248,7 +252,7 @@ export default {
       selectMallList: [],
       cancelAction: false,
       rowInfo: {},
-      mallPageSize: 50,
+      mallPageSize: 60,
       rowIndex: null
     }
   },
@@ -304,9 +308,9 @@ export default {
         page_number: pageNumber,
         page_size: this.mallPageSize,
         cursor: 0,
-        // shop_id: mall.platform_mall_id,
         mallId: mall.platform_mall_id,
-        from_page_number: pageNumber
+        from_page_number: pageNumber + 1,
+        // shop_id: mall.platform_mall_id,
       }
       if (this.assessTime.length) {
         params.ctime_start = Math.round(new Date(this.assessTime[0]).getTime() / 1000)
@@ -330,35 +334,38 @@ export default {
         params.replied = true
       }
       try {
+        console.log('getShopEvaluateList',params)
         const res = await this.$shopeemanService.getShopEvaluateList(mall.country, params)
         const resObj = JSON.parse(res)
         if (resObj.status === 200) {
           const data = JSON.parse(resObj.data)
-          console.log('data', data)
+          console.log('data',mall, data)
           if (data.code === 0) {
-            const count = data.data.list.length
-            data.data.list &&
-              data.data.list.forEach(async(item) => {
-                item.country = mall.country
-                item.platform_mall_name = mall.platform_mall_name
-                item.mall_alias_name = mall.mall_alias_name
-                item.platform_mall_id = mall.platform_mall_id
-                item.replyStatus = ''
-                item.statusColor = ''
-                item.productUrl = await this.productUrl(item)
-                const index = dataArr.filter((i) => i.comment_id === item.comment_id)[0] || ''
-                console.log('index', index)
-                !index && dataArr.push(item)
-                !index && this.tableData.push(item)
+            let list = data.data.list || []
+            let count = 0
+            for (let item of list){
+              item.country = mall.country
+              item.platform_mall_name = mall.platform_mall_name
+              item.mall_alias_name = mall.mall_alias_name
+              item.platform_mall_id = mall.platform_mall_id
+              item.replyStatus = ''
+              item.statusColor = ''
+              item.productUrl = this.productUrl(item)
+              const index = dataArr.findIndex((i) => i.comment_id === item.comment_id)
+              if(index < 0){
+                ++count
+                dataArr.push(item)
+                this.tableData.push(item)
                 this.total = this.tableData.length
                 this.dataCut()
-              })
-            count && this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
-            if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
+              }
+            }
+            this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
+            if (count){
               pageNumber++
-              this.searchSingleMall(pageNumber, mall, dataArr, page)
+              await this.searchSingleMall(pageNumber, mall, dataArr, page)
             } else {
-              this.total += dataArr.length
+              this.total = this.tableData.length
               this.dataCut()
             }
           } else {
@@ -487,14 +494,13 @@ export default {
       }
       this.isBatchReplay = false
     },
-    async productUrl(row) {
+    productUrl(row) {
       const params = {
         platform_mall_id: row.platform_mall_id
       }
-      const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
+      const webUrl = this.$shopeemanService.getWebUrl(row.country, params)
       // const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
-      const url = webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
-      return url
+      return  webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
     },
     // 打开外部窗口
     async openUrl(row) {

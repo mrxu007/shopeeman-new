@@ -1057,25 +1057,29 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
   }
   function getBase64file(url, width, height) {
     return new Promise(async(resolve) => {
-      const image = new Image()
-      image.setAttribute('crossOrigin', 'anonymous')
-      image.src = url
-      image.onload = async function() {
-        image.width = width || image.width
-        image.height = height || image.height
-        const canvas = document.createElement('canvas')
-        canvas.width = image.width
-        canvas.height = image.height
-        const context = canvas.getContext('2d')
-        context.drawImage(image, 0, 0, image.width, image.height)
-        let base64 = canvas.toDataURL('image/png')
-        const base64Size = showSize(base64)
-        if (base64Size > 1024) {
-          const width = Math.floor(image.width / 3 * 2)
-          const height = Math.floor(image.height / 3 * 2)
-          base64 = await getBase64file(base64, width, height)
+      try {
+        const image = new Image()
+        image.setAttribute('crossOrigin', '')
+        image.src = url
+        image.onload = async function() {
+          image.width = width || image.width
+          image.height = height || image.height
+          const canvas = document.createElement('canvas')
+          canvas.width = image.width
+          canvas.height = image.height
+          const context = canvas.getContext('2d')
+          context.drawImage(image, 0, 0, image.width, image.height)
+          let base64 = canvas.toDataURL('image/png')
+          const base64Size = showSize(base64)
+          if (base64Size > 1024) {
+            const width = Math.floor(image.width / 3 * 2)
+            const height = Math.floor(image.height / 3 * 2)
+            base64 = await getBase64file(base64, width, height)
+          }
+          resolve(base64)
         }
-        resolve(base64)
+      }catch (e) {
+        console.log(e)
       }
     })
   }

@@ -382,7 +382,7 @@ export default {
     },
     goodsList: {
       handler(val) {
-        this.showCategory()
+        // this.showCategory()
       },
       deep: true
     }

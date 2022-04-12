@@ -21,19 +21,19 @@
         </div>
         <div class="header-item">
           <div class="item-text">价格区间：</div>
-          <el-input v-model="searchParams.minPrice" style="width: 80px;" size="mini" />
+          <el-input v-model="searchParams.minPrice" class="input_width" size="mini" />
           <div class="heng" />
-          <el-input v-model="searchParams.maxPrice" style="width: 80px;" size="mini" />
+          <el-input v-model="searchParams.maxPrice" class="input_width" size="mini" />
         </div>
-        <div class="header-item">
-          <div class="item-text" style="width: 60px;">创建时间：</div>
-          <el-date-picker style="width: 130px"
-              v-model="searchParams.createTime"
-              size="mini"
-              type="date"
-              placeholder="选择日期">
-          </el-date-picker>
-        </div>
+<!--        <div class="header-item">-->
+<!--          <div class="item-text" style="width: 60px;">创建时间：</div>-->
+<!--          <el-date-picker style="width: 130px"-->
+<!--              v-model="searchParams.createTime"-->
+<!--              size="mini"-->
+<!--              type="date"-->
+<!--              placeholder="选择日期">-->
+<!--          </el-date-picker>-->
+<!--        </div>-->
         <el-button type="primary" size="mini" :disabled="isRunning" @click="categoryVisible = true">选择类目</el-button>
         <el-button type="primary" size="mini" :disabled="isRunning" @click="queryGoods">查询商品</el-button>
         <el-button type="" size="mini" @click="cancelGoods">取消查询</el-button>
@@ -52,9 +52,9 @@
         </div>
         <div class="header-item">
           <div class="item-text" style="width: 72px;">销量区间：</div>
-          <el-input v-model="searchParams.minSales" size="mini" style="width: 80px;" />
+          <el-input v-model="searchParams.minSales" size="mini" class="input_width" />
           <div class="heng" />
-          <el-input v-model="searchParams.maxSales" size="mini" style="width: 80px;" />
+          <el-input v-model="searchParams.maxSales" size="mini" class="input_width" />
         </div>
         <el-button type="primary" size="mini" :disabled="isRunning" @click="changeGoodsItem">添加已选商品</el-button>
         <el-checkbox v-model="isApplyCheck" :disabled="isRunning" style="margin-left: 10px;" size="mini">仅显示适用商品
@@ -411,5 +411,9 @@ export default {
   padding: 0 5px 5px;
   line-height: 1.5;
   overflow: auto;
+}
+
+.input_width{
+  width: 120px;
 }
 </style>

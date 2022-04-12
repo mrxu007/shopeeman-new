@@ -218,7 +218,8 @@
                 disabled
                 placeholder="不翻译"
             />
-            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">
+            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;"
+                       value="" :disabled="isCollectShow">
               <el-option
                   v-for="item in pictureLanguagesList"
                   v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !=='en') || item.free"
@@ -226,7 +227,6 @@
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
-                  :disabled="isCollectShow"
               />
             </el-select>
           </div>
@@ -381,8 +381,8 @@
       <u-table-column align="left" label="操作" width="130">
         <template v-slot="scope">
           <div style="display: flex;align-items: center;">
-            <el-button size="mini" @click="updateGoodsEdit(scope.row)">删除</el-button>
-            <el-button size="mini" type="primary" @click="updateGoodsEdit(scope.row,1)">编辑</el-button>
+            <el-button size="mini" @click="updateGoodsEdit(scope.row)" :disabled="isCollectShow">删除</el-button>
+            <el-button size="mini" type="primary" @click="updateGoodsEdit(scope.row,1)" :disabled="isCollectShow">编辑</el-button>
           </div>
         </template>
       </u-table-column>
@@ -520,8 +520,7 @@
           top="25vh"
           :close-on-click-modal="false"
           :modal="false"
-          :visible.sync="categoryVisible"
-      >
+          :visible.sync="categoryVisible">
         <categoryMapping
             v-if="categoryVisible"
             :goods-current="{}"
@@ -1204,7 +1203,7 @@ export default {
         const descriptionTemplateListJson = await this.$commodityService.descriptionTemplateList()
         const descriptionTemplateListRes = JSON.parse(descriptionTemplateListJson)
         this.describeLabelList = descriptionTemplateListRes.data || []
-        console.log(this.describeLabelList)
+        console.log('describeLabelList',JSON.stringify(this.describeLabelList),this.describeConfigId)
         if (this.describeConfigId) {
           const item = this.describeLabelList.filter(i => i && i.id === this.describeConfigId)[0]
           this.describeConfig.text = item && item.description || this.describeConfig.text
@@ -1352,6 +1351,7 @@ export default {
               }
             }
             if (this.goodsDescribeRadio % 2 === 0) {
+              console.log('describeConfig',this.describeConfig)
               descriptionText += '\n' + this.describeConfig.describe
             }
             param.spec1 = neededTranslateInfoData.spec1
@@ -1600,13 +1600,15 @@ export default {
                 console.log(son.img, this.translationConfig.after)
                 const json = son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after) || ''
                 console.log(json)
-                if (json && json.Code === 200) {
+                if (json && json.Code === 200 || json.Msg.includes('无文字')) {
                   imageData = json.Data && json.Data.Url || son.img
                 } else {
                   imageData = son.img
                   this.$set(this.mallTable[index], 'operation_type', `轮播图(${(i + 1)}/${image1ListLength})失败：${json.Msg}`)
-                  success = false
-                  return
+                  if (Number(this.translationConfig.failureType) !== 3){
+                    success = false
+                    return
+                  }
                 }
               }
               const res = await this.$commodityService.updateGoodsImage('1', item.id, son.id, imageData)
@@ -1645,7 +1647,10 @@ export default {
                 } else {
                   imageData = son
                   this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})：失败${json.Msg}`)
-                  success = false
+                  if (Number(this.translationConfig.failureType) !== 3){
+                    success = false
+                    return
+                  }
                 }
               }
               itemmodels = itemmodels.replaceAll(son, imageData)

@@ -80,7 +80,9 @@ i.close-right{
 .table_height_limit{
   height: 70px;
   width: 100%;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: pre-wrap;
   border: 1px #bcbcbc solid;
   padding: 3px 5px;
   text-align: left;

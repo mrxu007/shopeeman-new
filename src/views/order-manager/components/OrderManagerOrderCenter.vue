@@ -3383,7 +3383,6 @@ export default {
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       const multipleTable = this.$refs.multipleTable
-      console.log(multipleTable)
       const divData = multipleTable && multipleTable.$el.querySelector('.el-table__body-wrapper')
       const scrollTop = divData && divData.scrollTop || 0
       if (!isNo) {
