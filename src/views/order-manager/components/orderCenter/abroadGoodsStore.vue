@@ -10,8 +10,8 @@
   <div class="abroad-store">
     <div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="我的海外仓库存列表" name="myStore"> </el-tab-pane>
-        <el-tab-pane label="共享我的海外仓库存" name="shareStore" v-if="addGiftAbroad!=='gift'"> </el-tab-pane>
+        <el-tab-pane label="我的海外仓库存列表" name="myStore" />
+        <el-tab-pane v-if="addGiftAbroad!=='gift'" label="共享我的海外仓库存" name="shareStore" />
       </el-tabs>
     </div>
     <div class="btn-header">
@@ -26,26 +26,26 @@
         <span style="width: 90px">系统商品编号:</span>
         <el-input v-model="sys_sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
       </div>
-      <div class="item-box" v-if="activeName==='myStore'">
+      <div v-if="activeName==='myStore'" class="item-box">
         <span style="width: 60px">商品编号:</span>
         <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
       </div>
-      <div class="item-box" v-if="activeName==='myStore'">
+      <div v-if="activeName==='myStore'" class="item-box">
         <span style="width: 60px">商品规格:</span>
         <el-input v-model="sku_name" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
       </div>
-       <div class="item-box" v-if="activeName==='myStore'">
-       <el-checkbox v-model="isFilter">过滤0库存</el-checkbox>
+      <div v-if="activeName==='myStore'" class="item-box">
+        <el-checkbox v-model="isFilter">过滤0库存</el-checkbox>
       </div>
       <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" height="500" v-loading="tableLoading">
+    <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" height="500">
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
       <el-table-column align="center" type="index" label="仓库名称" width="80">
         <template slot-scope="scope">
-          <span>{{changeName(scope.row.wid)}}</span>
+          <span>{{ changeName(scope.row.wid) }}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" label="系统商品编号" prop="sys_sku_id" align="center" />
@@ -61,14 +61,14 @@
           </div>
         </template>
       </el-table-column>
-       <el-table-column label="商品图片" width="80">
-        <template slot-scope="scope" v-if="scope.row.sku_image">
-           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
-              <div slot="content">
-                <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" ></el-image>
-              </div>
-              <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" ></el-image>
-            </el-tooltip>
+      <el-table-column label="商品图片" width="80">
+        <template v-if="scope.row.sku_image" slot-scope="scope">
+          <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+            <div slot="content">
+              <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" />
+            </div>
+            <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" />
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="60px">
@@ -94,31 +94,31 @@
 <script>
 export default {
   name: 'AbroadGoodsStore',
+  props: {
+    addGiftAbroad: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       tableData: [],
       total: 0,
       pageSize: 20,
       currentPage: 1,
-      wid: '0', //仓库名
+      wid: '0', // 仓库名
       widList: [],
       sku_id: '',
       sys_sku_id: '',
       sku_name: '',
       activeName: 'myStore',
       tableLoading: false,
-      isFilter:true
-    }
-  },
-  props:{
-    addGiftAbroad:{
-      type:String,
-      default:''
+      isFilter: true
     }
   },
   async mounted() {
@@ -127,26 +127,26 @@ export default {
     await this.searchTableList()
   },
   methods: {
-    changeName(wid){
-      let res = this.widList.find(n=>n.id == wid)
-      return res?res.warehouse_name:''
+    changeName(wid) {
+      const res = this.widList.find(n => n.id == wid)
+      return res ? res.warehouse_name : ''
     },
-    //切换tab
+    // 切换tab
     handleClick() {
       this.currentPage = 1
       this.wid = '0'
       this.sku_id = ''
       this.sys_sku_id = ''
       this.sku_name = ''
-      this.total = 0 
+      this.total = 0
       this.tableData = []
       this.searchTableList()
     },
     async getWareHouseList() {
-      let myMap = new Map()
-      let res = await this.$api.getOverseasWarehouse()
+      const myMap = new Map()
+      const res = await this.$api.getOverseasWarehouse()
       if (res.data.code === 200) {
-        let arr = res.data.data || []
+        const arr = res.data.data || []
         arr.forEach((item) => {
           this.widList = this.widList.concat(item.child)
         })
@@ -156,67 +156,67 @@ export default {
       this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
       console.log(this.widList)
     },
-    //添加到出库单
+    // 添加到出库单
     async addTo(row) {
       this.$emit('getChooseData', row)
     },
-    //获取共享海外仓
+    // 获取共享海外仓
     async getAbroadShareList() {
       this.tableData = []
-      let params = {
+      const params = {
         wid: this.wid,
-        sys_sku_id: this.sys_sku_id,
+        sys_sku_id: this.sys_sku_id
       }
       params['page'] = this.currentPage
       params['page_num'] = this.pageSize
       this.tableLoading = true
-      let res = await this.$XzyNetMessageService.post('xzy.getSharedIndex', params) //item.shared_id = item.id
-      let resObj = res && JSON.parse(res)
-      let data = resObj && JSON.parse(resObj.data)
-      console.log('getSharedIndex',data)
-      let arrList = []
-      if(data.code === 200){
-         this.total = data.data.total
-         let arr = data.data.data
-         arr.forEach(item=>{
-           let id =  item.id
-           let obj = item.stock
-           item = obj
-           item.shared_id = id
-           item.sku_price = item.sku_price/100
-           this.tableData.push(item)
+      const res = await this.$XzyNetMessageService.post('xzy.getSharedIndex', params) // item.shared_id = item.id
+      const resObj = res && JSON.parse(res)
+      const data = resObj && JSON.parse(resObj.data)
+      console.log('getSharedIndex', data)
+      const arrList = []
+      if (data.code === 200) {
+        this.total = data.data.total
+        const arr = data.data.data
+        arr.forEach(item => {
+          const id = item.id
+          const obj = item.stock
+          item = obj
+          item.shared_id = id
+          item.sku_price = item.sku_price / 100
+          this.tableData.push(item)
         })
       }
       this.tableLoading = false
     },
-    //获取海外仓
+    // 获取海外仓
     async getAbroadList() {
-      let params = {
+      const params = {
         wid: this.wid,
         sku_id: this.sku_id,
         sys_sku_id: this.sys_sku_id,
-        sku_name: this.sku_name,
+        sku_name: this.sku_name
       }
       params['page'] = this.currentPage
       params['page_num'] = this.pageSize
-      if(this.wid == '0'){
+      if (this.wid == '0') {
         params['type'] = 'query'
       }
       console.log(params)
       this.tableLoading = true
-      let res = await this.$XzyNetMessageService.post('xzy.stock.index', params)
-      let resObj = res && JSON.parse(res)
-      let data = resObj && JSON.parse(resObj.data)
-      if(data.code===200){
+      const res = await this.$XzyNetMessageService.post('xzy.stock.index', params)
+      const resObj = res && JSON.parse(res)
+      const data = resObj && JSON.parse(resObj.data)
+      if (data.code === 200) {
         this.total = data.data.total
-        let arr = data.data.data
-        arr.forEach(item=>{
+        const arr = data.data.data
+        arr.forEach(item => {
           item.stock_num = item.stock_num
-          item.sku_price = item.sku_price/100
+          item.sku_price = item.sku_price / 100
         })
         this.tableData = arr
-        if(this.isFilter){
-          this.tableData = arr.filter(n=>n.stock_num>0)
+        if (this.isFilter) {
+          this.tableData = arr.filter(n => n.stock_num > 0)
         }
       }
       this.tableLoading = false
@@ -245,8 +245,8 @@ export default {
     handleSizeChange(size) {
       this.pageSize = size
       this.searchTableList()
-    },
-  },
+    }
+  }
 }
 </script>
 
