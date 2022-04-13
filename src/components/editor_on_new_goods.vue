@@ -919,6 +919,9 @@ export default {
         })
         if (goodsList.length > 0) {
           this.$BaseUtilService.gotoUploadTab('gotoUpload', JSON.stringify(goodsList))
+          this.$emit('close','isEditorVisible')
+        }else{
+          this.$message.error('无可上新数据')
         }
       } else if (type === 7) {
         for (const i of this.mallTableSelect) {

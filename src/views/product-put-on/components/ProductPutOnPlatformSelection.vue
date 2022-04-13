@@ -876,12 +876,7 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods
-          v-if="isEditorVisible"
-          ref="editor_on_new_goods"
-          :mall-table="editorSelection"
-          :is-collect="isCollect"
-        />
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="editorSelection" :is-collect="isCollect"  @close="close"/>
       </el-dialog>
     </div>
   </div>
@@ -1874,6 +1869,13 @@ export default {
       console.log('url', url)
       if (url) {
         this.$BaseUtilService.openUrl(url)
+      }
+    },
+    close(name){
+      if (name){
+        this[name] = false
+      }else {
+
       }
     },
     // 全选

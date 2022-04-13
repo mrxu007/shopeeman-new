@@ -248,8 +248,7 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection"
-                             @goodsTagChange="goodsTagChange"/>
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection" @close="close"/>
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :modal="false"
                  :visible.sync="categoryVisible">
@@ -623,13 +622,13 @@ export default {
     },
     async goodsTagChange(val) {
       if (val) {
-        // const mallList = [...this.multipleSelection.map(i => i.id)]
-        // this.goodsList.forEach((item, index) => {
-        //   if (mallList.includes(item.id)) {
-        //     this.$set(this.goodsList[index], 'sys_label_id', val.category && val.category.id)
-        //   }
-        // })
-        // this.labelList = val.goodsTagList || []
+        const mallList = [...this.multipleSelection.map(i => i.id)]
+        this.goodsList.forEach((item, index) => {
+          if (mallList.includes(item.id)) {
+            this.$set(this.goodsList[index], 'sys_label_id', val.category && val.category.id)
+          }
+        })
+        this.labelList = val.goodsTagList || []
       }
       this.goodsLabelVisiable = false
     },
@@ -814,6 +813,13 @@ export default {
     },
     copy(str) {
       copyText(str)
+    },
+    close(name){
+      if (name){
+        this[name] = false
+      }else {
+
+      }
     }
   }
 }
