@@ -830,7 +830,6 @@ export default {
               break
           }
         }
-        this.getUserWarehouse()
       })
     },
     // 添加自有仓库
@@ -916,8 +915,8 @@ export default {
           }else{
             this.isOverseasApplyAddress = resData.data?.length > 0
           }
-          if ((type === 0 && this.flag4) || (type !==0 && !this.flag4)){
-            this.warehouseData = resData.data
+          if (resData.data.length && ((type === 0 && this.flag4) || (type !==0 && !this.flag4))){
+            this.warehouseData = resData.data || ''
             this.sysWarehouseId = resData.data[0].id
             this.warehouseAddress = resData.data[0].full_address
             this.wareHouseTel = resData.data[0].receiving_tel
@@ -1038,6 +1037,8 @@ export default {
       this.receivingName = ''
       this.changeIndex++
       this.$refs.bindMallDataRef.clearSelection()
+      console.log('测试')
+      // await this.xzyAllIndex()
     },
     async handlerChange1() {
       await this.getLazadaDetailAddress(this.itselfProvinceId, 'cityList', 'CityId')

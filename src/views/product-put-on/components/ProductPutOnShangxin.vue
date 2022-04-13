@@ -1446,7 +1446,6 @@ export default {
           this.preorderMinDays = 5
           this.basicConfig.stockUpNumber = 10
           break
-        case 'ID':
         case 'VN':
           this.preorderMaxDays = 15
           this.preorderMinDays = 7

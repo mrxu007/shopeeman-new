@@ -283,7 +283,7 @@
               fixed
           />
           <el-table-column
-              prop="order_sn"
+              prop="oversea_order_sn"
               width="150"
               align="center"
               label="订单编号"
@@ -869,9 +869,9 @@ export default {
     // 查看商品详情
     getDetails(row) {
       this.detailsData = row.sku_list
-      this.detailsData.map(item => {
-        item.order_sn = row.oversea_order_sn
-      })
+      // this.detailsData.map(item => {
+      //   item.order_sn = row.oversea_order_sn
+      // })
     },
     // 导出数据
     async exportTableData() {
