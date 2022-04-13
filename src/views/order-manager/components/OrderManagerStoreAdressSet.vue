@@ -830,6 +830,7 @@ export default {
               break
           }
         }
+        this.getUserWarehouse()
       })
     },
     // 添加自有仓库

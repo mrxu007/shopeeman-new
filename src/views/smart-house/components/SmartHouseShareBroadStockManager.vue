@@ -454,6 +454,10 @@ export default {
           label: 'ShopeeMan'
         },
         {
+          value: '12',
+          label: '星卓越用户'
+        },
+        {
           value: '14',
           label: '店梯货代'
         }

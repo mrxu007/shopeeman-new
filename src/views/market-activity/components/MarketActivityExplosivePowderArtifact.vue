@@ -82,86 +82,87 @@
         </el-table>
       </li>
     </ul>
-    <el-dialog
-      title="店铺搜索"
-      :visible.sync="dialog_mallSearch"
-      width="950px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      class="dialog_mall"
-    >
-      <ul>
-        <!-- row1 -->
-        <li>
-          <label>关键词</label>
-          <el-input v-model="keyword" size="mini" style="width:100px" clearable />
-          <label>评论数</label>
-          <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
-          <label>点赞数</label>
-          <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
-        </li>
-        <!-- row3 -->
-        <li>
-          <label>评分数</label>
-          <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
-          <label style="margin-left:50px">店铺数</label>
-          <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
-          <el-button type="primary" size="mini" style="margin-left:30px" @click="searchMall">搜索</el-button>
-          <el-button type="primary" size="mini" @click="addTargetMall">添加勾选店铺</el-button>
-        </li>
-        <!-- row2 -->
-        <li>
-          <el-table
-            :header-cell-style="{ background: '#f7fafa' }"
-            :data="mallSearchList"
-            :row-style="{ height: '50px' }"
-            max-height="400"
-            @selection-change="handleSelectionChange"
-          >
-            <el-table-column align="center" width="55" type="selection" />
-            <el-table-column align="center" label="序号" width="55" type="index" />
-            <el-table-column prop="shopid" label="店铺ID" min-width="100px" align="center" />
-            <el-table-column prop="name" label="产品标题" min-width="150px" align="center" show-overflow-tooltip />
-            <el-table-column prop="" label="主图" min-width="100px" align="center" fixed="right">
-              <template v-slot="{row}">
-                <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 50px; height: 50px; display: inline-block">
-                  <div slot="content">
-                    <el-image :src="[row.image] | imageRender" style="width: 400px; height: 400px" />
-                  </div>
-                  <el-image :src="[row.image, true] | imageRender" style="width: 50px; height: 50px" />
-                </el-tooltip>
-              </template>
-            </el-table-column>
-            <el-table-column prop="liked_count" label="点赞数" min-width="100px" align="center" fixed="right" />
-            <el-table-column prop="totalRate" label="评论数" min-width="100px" align="center" fixed="right" />
-            <el-table-column prop="rating_star" label="产品评分" min-width="100px" align="center" fixed="right">
-              <template v-slot="{row}">{{ row.item_rating.rating_star.toFixed(2) }}</template>
-            </el-table-column>
-            <el-table-column prop="" label="操作" min-width="200px" align="center" fixed="right">
-              <template v-slot="{row}">
-                <el-button type="primary" size="mini" @click="open(row)">查看产品</el-button>
-                <el-button type="primary" size="mini" @click="addMallIDinfo(row)">添加店铺</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </li>
+    <div class="dialog_shell">
+      <el-dialog
+          title="店铺搜索"
+          :visible.sync="dialog_mallSearch"
+          width="1000px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          class="dialog_mall">
+        <ul>
+          <!-- row1 -->
+          <li>
+            <label>关键词</label>
+            <el-input v-model="keyword" size="mini" style="width:100px" clearable />
+            <label>评论数</label>
+            <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
+            <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
+            <label>点赞数</label>
+            <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
+            <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
+          </li>
+          <!-- row3 -->
+          <li>
+            <label>评分数</label>
+            <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
+            <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
+            <label style="margin-left:50px">店铺数</label>
+            <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
+            <el-button type="primary" size="mini" style="margin-left:30px" @click="searchMall">搜索</el-button>
+            <el-button type="primary" size="mini" @click="addTargetMall">添加勾选店铺</el-button>
+          </li>
+          <!-- row2 -->
+          <li>
+            <el-table
+                :header-cell-style="{ background: '#f7fafa' }"
+                :data="mallSearchList"
+                :row-style="{ height: '50px' }"
+                max-height="400"
+                @selection-change="handleSelectionChange"
+            >
+              <el-table-column align="center" width="50" type="selection" />
+              <el-table-column align="center" label="序号" width="55" type="index" />
+              <el-table-column prop="shopid" label="店铺ID" width="120px" align="center" />
+              <el-table-column prop="name" label="产品标题" min-width="150px" align="center" show-overflow-tooltip />
+              <el-table-column prop="" label="主图" width="80px" align="center" fixed="right">
+                <template v-slot="{row}">
+                  <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 50px; height: 50px; display: inline-block">
+                    <div slot="content">
+                      <el-image :src="[row.image] | imageRender" style="width: 400px; height: 400px" />
+                    </div>
+                    <el-image :src="[row.image, true] | imageRender" style="width: 50px; height: 50px" />
+                  </el-tooltip>
+                </template>
+              </el-table-column>
+              <el-table-column prop="liked_count" label="点赞数" width="100px" align="center" fixed="right" />
+              <el-table-column prop="totalRate" label="评论数" width="100px" align="center" fixed="right" />
+              <el-table-column prop="rating_star" label="产品评分" width="80px" align="center" fixed="right">
+                <template v-slot="{row}">{{ row.item_rating.rating_star.toFixed(2) }}</template>
+              </el-table-column>
+              <el-table-column prop="" label="操作" width="200px" align="center" fixed="right">
+                <template v-slot="{row}">
+                  <el-button type="primary" size="mini" @click="open(row)">查看产品</el-button>
+                  <el-button type="primary" size="mini" @click="addMallIDinfo(row)">添加店铺</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </li>
 
-      </ul>
-    </el-dialog>
-    <!-- 用户设置 -->
-    <el-dialog
-      title="用户设置"
-      :visible.sync="dialog_userInfo"
-      width="700px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      class="dialog_mall"
-    >
-      <autoFollow :user-info="userInfo" :mall="selmallList" @isSave="setSave" />
-    </el-dialog>
+        </ul>
+      </el-dialog>
+      <!-- 用户设置 -->
+      <el-dialog
+          title="用户设置"
+          :visible.sync="dialog_userInfo"
+          width="700px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          class="dialog_mall"
+      >
+        <autoFollow :user-info="userInfo" :mall="selmallList" @isSave="setSave" />
+      </el-dialog>
+    </div>
     <Logs ref="Logs" v-model="showlog" clear />
   </div>
 </template>
@@ -188,7 +189,7 @@ export default {
       isSave: false, // 是否保存
       // 弹窗--用户设置
       dialog_userInfo: false,
-      userInfo: '',
+      userInfo: {},
 
       mallIDinfo: '', // 店铺ID信息
       showlog: false,
@@ -1194,31 +1195,36 @@ export default {
     // 获取用户数据
     async getUserinfo() {
       this.showlog = true
-      const res = await this.$api.userSet()
-      if (res.data.code === 200) {
-        this.userInfo = res.data.data
-      } else {
-        this.$message.warning(`信息获取失败！${res.data.data.message}`)
-      }
-      if (!this.userInfo.auto_attention_set) {
-        this.userInfo.auto_attention_set = {}
-        this.userInfo.auto_attention_set.ProductMax = '5'// 店铺商品上限
-        this.userInfo.auto_attention_set.LastLoginDay = '5'// 最后活跃时间
-        this.userInfo.auto_attention_set.FollowType = '0'// 关注对象
-        this.userInfo.auto_attention_set.FollowNumber = '100'// 关注数量
-        this.userInfo.auto_attention_set.FollowInterval = '10'// 关注间隔
-        this.userInfo.auto_attention_set.MinOrderEvaluation = '4.5'// //不关注订单评价小于等于
-        this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = true// 是否不关注订单评价小于等于最小值的卖家
-        this.userInfo.auto_attention_set.FollowedDay = '30'// 天内关注过的用户
-        this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true // 是否不关注一定天数内已关注的卖家
-        this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
-        this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false // 每日启动时间
-        this.userInfo.auto_attention_set.OpenHour = '10'
-        this.userInfo.auto_attention_set.OpenMinute = '00'
-      }
-      // console.log('useSet', this.userInfo.auto_attention_set)
-      if (!this.userInfo.auto_attention_set) {
-        this.$message.warning(`请先设置参数`)
+      try {
+        const res = await this.$api.userSet()
+        if (res.data.code === 200) {
+          this.userInfo = res.data.data
+        } else {
+          this.$message.warning(`信息获取失败！${res.data.data.message}`)
+        }
+      }catch (e) {
+
+      }finally {
+        if (!this.userInfo.auto_attention_set) {
+          this.userInfo.auto_attention_set = {}
+          this.userInfo.auto_attention_set.ProductMax = '5'// 店铺商品上限
+          this.userInfo.auto_attention_set.LastLoginDay = '5'// 最后活跃时间
+          this.userInfo.auto_attention_set.FollowType = '0'// 关注对象
+          this.userInfo.auto_attention_set.FollowNumber = '100'// 关注数量
+          this.userInfo.auto_attention_set.FollowInterval = '10'// 关注间隔
+          this.userInfo.auto_attention_set.MinOrderEvaluation = '4.5'// //不关注订单评价小于等于
+          this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = true// 是否不关注订单评价小于等于最小值的卖家
+          this.userInfo.auto_attention_set.FollowedDay = '30'// 天内关注过的用户
+          this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true // 是否不关注一定天数内已关注的卖家
+          this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
+          this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false // 每日启动时间
+          this.userInfo.auto_attention_set.OpenHour = '10'
+          this.userInfo.auto_attention_set.OpenMinute = '00'
+        }
+        // console.log('useSet', this.userInfo.auto_attention_set)
+        if (!this.userInfo.auto_attention_set) {
+          this.$message.warning(`请先设置参数`)
+        }
       }
     },
     // 清除日志

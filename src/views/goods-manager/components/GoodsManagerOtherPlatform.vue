@@ -426,7 +426,7 @@ export default {
     async commentFun(item, goods) {
       if (this.iscommentlike) {
         if (!this.btnloading) { return }
-        this.$refs.autoReplyLogs.writeLog(`正在获取获取评论信息`)
+        this.$refs.autoReplyLogs.writeLog(`正在获取评论信息`)
         const sult1 = await this.getRatings(item)
         if (sult1) {
           this.$set(goods, 'liked_count', (goods.liked_count) + 1)
