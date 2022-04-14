@@ -70,7 +70,7 @@ export default {
     // 自动同步面单 8分钟开启，2小时间隔
     async syncShopeeFace() {
       try {
-        let configInfo = await window['ConfigBridgeService'].getUserConfig()
+        let configInfo = await this.$appConfig.getUserConfig()
         configInfo = configInfo && JSON.parse(configInfo) || {}
         this.isApplyShopeeLogistics = (configInfo && configInfo.is_apply_shopee_logistics) || '2'
         if (this.isApplyShopeeLogistics === '1') {
@@ -100,7 +100,7 @@ export default {
       }
     },
     async syncLogis() {
-      let configInfo = await window['ConfigBridgeService'].getUserConfig()
+      let configInfo = await this.$appConfig.getUserConfig()
       configInfo = configInfo && JSON.parse(configInfo) || {}
       this.isAutoLogisitice = (configInfo && configInfo.is_auto_ori_logistics) || '1'
       this.logisiticeTime = (configInfo && configInfo.ori_logistics_interval_time) || 4

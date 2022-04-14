@@ -1201,7 +1201,6 @@ export default class NetMessageBridgeService {
   async getToShipOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_package_list', data)
     const resObj = res && JSON.parse(res)
-    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1940,7 +1939,7 @@ export default class NetMessageBridgeService {
   async sendMessage(country, data, params) {
     const res = await this.postChinese(country, '/webchat/api/v1.2/messages', data, params)
     const resObj = res && JSON.parse(res)
-    // console.log(res,resObj)
+    console.log('sendMessage-resObj',resObj)
     const info = JSON.parse(resObj.data)
     if (resObj && resObj.status === 200) {
       return {

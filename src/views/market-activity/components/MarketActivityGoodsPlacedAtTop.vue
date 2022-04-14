@@ -106,7 +106,7 @@
         </el-table-column>
         <el-table-column prop="mall_name" label="店铺名称" align="center" min-width="150px" />
         <el-table-column prop="sort_type" label="置顶维度" align="center" min-width="150px">
-          <template v-slot="{row}"><span>{{ top_typeList[row.sort_type.toString()] }}</span></template>
+          <template v-slot="{row}"><span>{{ top_typeList[(row.sort_type+'')] }}</span></template>
         </el-table-column>
         <el-table-column prop="top_total_count" label="置顶商品总数" align="center" min-width="100px" />
         <el-table-column prop="toped_count" label="已置顶商品数" align="center" min-width="100px" />

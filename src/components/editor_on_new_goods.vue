@@ -382,7 +382,8 @@
         <template v-slot="scope">
           <div style="display: flex;align-items: center;">
             <el-button size="mini" @click="updateGoodsEdit(scope.row)" :disabled="isCollectShow">删除</el-button>
-            <el-button size="mini" type="primary" @click="updateGoodsEdit(scope.row,1)" :disabled="isCollectShow">编辑</el-button>
+            <el-button size="mini" type="primary" @click="updateGoodsEdit(scope.row,1)" :disabled="isCollectShow">编辑
+            </el-button>
           </div>
         </template>
       </u-table-column>
@@ -464,17 +465,13 @@
           </div>
         </div>
       </el-dialog>
-      <el-dialog
-          title="描述模板"
-          width="500px"
-          :close-on-click-modal="false"
-          :modal="false"
-          :visible.sync="describeVisible">
+      <el-dialog title="描述模板" width="500px" :close-on-click-modal="false"
+                 :modal="false" :visible.sync="describeVisible">
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
             <div style="display: flex;align-items: center;">
               <div>标签：</div>
-              <el-select v-model="describeConfigId" size="mini" style="width: 120px;" value="" @change="">
+              <el-select v-model="describeConfigId" size="mini" style="width: 120px;">
                 <el-option v-for="(item,index) in describeLabelList" :key="index" :label="item.lable" :value="item.id"/>
               </el-select>
             </div>
@@ -637,6 +634,7 @@ export default {
         tag: ''
       },
       describeConfigId: '',
+      oldDescribeConfigId: '',
       describeConfigText: '',
       describeLabelList: [],
       // 标题-描述
@@ -793,10 +791,12 @@ export default {
       deep: true
     },
     describeConfigId(val) {
-      const item = this.describeLabelList.filter(i => i && i.id === val)[0]
+      const item = this.describeLabelList.find(i => i && i.id === val)
+      console.log('describeConfigId', item, val)
       this.describeConfig.text = item && item.description || ''
       this.describeConfig.describe = item && item.description || ''
       this.describeConfig.lable = item && item.lable || ''
+
     },
     goodsDescribeRadio(val) {
       this.translationConfig.describeChecked = val > 0 && val < 4
@@ -919,8 +919,8 @@ export default {
         })
         if (goodsList.length > 0) {
           this.$BaseUtilService.gotoUploadTab('gotoUpload', JSON.stringify(goodsList))
-          this.$emit('close','isEditorVisible')
-        }else{
+          this.$emit('close', 'isEditorVisible')
+        } else {
           this.$message.error('无可上新数据')
         }
       } else if (type === 7) {
@@ -1206,30 +1206,32 @@ export default {
         const descriptionTemplateListJson = await this.$commodityService.descriptionTemplateList()
         const descriptionTemplateListRes = JSON.parse(descriptionTemplateListJson)
         this.describeLabelList = descriptionTemplateListRes.data || []
-        console.log('describeLabelList',JSON.stringify(this.describeLabelList),this.describeConfigId)
         if (this.describeConfigId) {
-          const item = this.describeLabelList.filter(i => i && i.id === this.describeConfigId)[0]
+          const item = this.describeLabelList.find(i => i && i.id === this.describeConfigId)
           this.describeConfig.text = item && item.description || this.describeConfig.text
           this.describeConfig.describe = item && item.description || this.describeConfig.describe
           this.describeConfig.lable = item && item.lable || ''
         } else {
           this.describeConfigId = this.describeLabelList[0] && this.describeLabelList[0].id || ''
         }
+        this.oldDescribeConfigId = this.describeConfigId
         this.describeVisible = true
       } else {
-        if (type === 1) {
-          const label = this.describeConfig.tag || this.describeConfig.lable
+        if (type === 1 || type === 3) {
+          const index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
+          const label = this.describeConfig.tag || this.describeConfig.lable || this.describeLabelList[index].lable
           const descriptionTemplate = await this.$commodityService.uploadDescriptionTemplate(label, this.describeConfig.text)
           const data = JSON.parse(descriptionTemplate)
+          console.log('describeConfig', label, data)
           this.describeConfig.tag = ''
-          this.describeConfigId = parseInt(data.data)
           this.describeConfig.describe = this.describeConfig.text
-          this.describeVisible = false
           if (data.code === 200) {
             this.$message.success('保存成功')
           } else {
             this.$message.error('保存失败【请求异常】')
           }
+          this.describeVisible = type === 1
+
         } else if (type === 2) {
           const resJson = await this.$commodityService.deleteDescriptionTemplate(this.describeConfigId)
           const res = JSON.parse(resJson)
@@ -1242,27 +1244,8 @@ export default {
           } else {
             this.$message.error('删除失败')
           }
-        } else if (type === 3) {
-          if (this.describeConfigId) {
-            const index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
-            const label = this.describeLabelList[index].lable
-            const descriptionTemplate = await this.$commodityService.uploadDescriptionTemplate(label, this.describeConfig.text)
-            const data = JSON.parse(descriptionTemplate)
-            this.describeConfig.tag = ''
-            this.describeConfigId = parseInt(data.data)
-            this.describeConfig.describe = this.describeConfig.text
-            this.describeVisible = false
-            if (data.code === 200) {
-              this.$message.success('保存成功')
-            } else {
-              this.$message.error('保存失败【请求异常】')
-            }
-            this.describeVisible = false
-          } else {
-            this.$message.error('保存失败【参数异常】')
-          }
         } else if (type === 4) {
-          this.describeConfig.text = this.describeConfig.describe
+          this.describeConfigId = this.oldDescribeConfigId
           this.describeVisible = false
         }
       }
@@ -1301,8 +1284,8 @@ export default {
           const neededTranslateInfoJson = await this.$commodityService.getNeededTranslateInfoV2(item.id)
           const neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
           // console.log(neededTranslateInfoData)
-          const title = this.translationConfig.titleChecked && neededTranslateInfoData.title || ''
-          const description = this.translationConfig.describeChecked && neededTranslateInfoData.description || ''
+          const title = neededTranslateInfoData.title || ''
+          const description = neededTranslateInfoData.description || ''
           const spec1 = this.translationConfig.specChecked && neededTranslateInfoData.spec1 || ''
           const spec2 = this.translationConfig.specChecked && neededTranslateInfoData.spec2 || ''
           const fromLanguage = item.language
@@ -1319,42 +1302,52 @@ export default {
           console.log('翻译：', this.userInfo.translate_set)
           const saveGoodsJson = []
           if (Number(this.userInfo.translate_set) === 2) {
-            const goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
-            const getGoodsTitle = JSON.parse(goodsTitleJson)
-            if (getGoodsTitle && getGoodsTitle[title]) {
-              param.title = getGoodsTitle[title]
-            } else {
-              const translationJson1 = title && await this.$translationBridgeService.getGoogleTransResult([title], fromLanguage, toLanguage)
-              console.log('translationJson1', translationJson1)
-              param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
-              saveGoodsJson.push({
-                srcLanguage: fromLanguage,
-                toLanguage: toLanguage,
-                fromText: title,
-                toText: param.title,
-                createdAt: Math.floor(new Date().getTime() / 1000)
-              })
-            }
             let descriptionText = ''
-            if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
-              const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
-              if (getGoodsDescription && getGoodsDescription[description]) {
-                descriptionText = getGoodsDescription[description]
+            if (this.translationConfig.titleChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译标题...')
+              const goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
+              const getGoodsTitle = JSON.parse(goodsTitleJson)
+              if (getGoodsTitle && getGoodsTitle[title]) {
+                param.title = getGoodsTitle[title]
               } else {
-                const translationJson2 = description && await this.$translationBridgeService.getGoogleTransResult([description], fromLanguage, toLanguage)
-                console.log('translationJson2', translationJson2)
-                descriptionText = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
+                const translationJson1 = title && await this.$translationBridgeService.getGoogleTransResult([title], fromLanguage, toLanguage)
+                console.log('translationJson1', translationJson1)
+                param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
                 saveGoodsJson.push({
                   srcLanguage: fromLanguage,
                   toLanguage: toLanguage,
-                  fromText: description,
-                  toText: descriptionText,
+                  fromText: title,
+                  toText: param.title,
                   createdAt: Math.floor(new Date().getTime() / 1000)
                 })
               }
+            } else {
+              param.title = title
+            }
+            if (this.translationConfig.describeChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译描述...')
+              if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+                const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
+                if (getGoodsDescription && getGoodsDescription[description]) {
+                  descriptionText = getGoodsDescription[description]
+                } else {
+                  const translationJson2 = description && await this.$translationBridgeService.getGoogleTransResult([description], fromLanguage, toLanguage)
+                  console.log('translationJson2', translationJson2)
+                  descriptionText = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
+                  saveGoodsJson.push({
+                    srcLanguage: fromLanguage,
+                    toLanguage: toLanguage,
+                    fromText: description,
+                    toText: descriptionText,
+                    createdAt: Math.floor(new Date().getTime() / 1000)
+                  })
+                }
+              }
+            } else if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+              descriptionText = description
             }
             if (this.goodsDescribeRadio % 2 === 0) {
-              console.log('describeConfig',this.describeConfig)
+              console.log('describeConfig', this.describeConfig)
               descriptionText += '\n' + this.describeConfig.describe
             }
             param.spec1 = neededTranslateInfoData.spec1
@@ -1366,6 +1359,7 @@ export default {
             const spec1List = tier_variation[tier_variation.spec1].join('<><>') || ''
             const spec2List = tier_variation[tier_variation.spec2].join('<><>') || ''
             if (this.translationConfig.specChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译规格...')
               const getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec1List))
               let spec1ListDstStr = ''
               if (getGoodsSpec1 && getGoodsSpec1[spec1List]) {
@@ -1425,49 +1419,64 @@ export default {
               } else {
                 // 谷歌翻译失败
               }
+            } else {
+              spec1ListDst = tier_variation[tier_variation.spec1] || []
+              spec2ListDst = tier_variation[tier_variation.spec2] || []
             }
             if (this.goodsDescribeRadio === 0 || this.goodsDescribeRadio === 3) {
-              if(spec1ListDst.length > 0){
-                descriptionText += '\n' + spec1ListDst.split('\n')
-              }if(spec2ListDst.length > 0){
-                descriptionText += '\n' + spec2ListDst.split('\n')
+              if (spec1ListDst.length > 0) {
+                descriptionText += '\n' + spec1ListDst.join('\n')
+              }
+              if (spec2ListDst.length > 0) {
+                descriptionText += '\n' + spec2ListDst.join('\n')
               }
             }
             param.description = descriptionText.trim()
           } else if (Number(this.userInfo.translate_set) === 4) {
-            const goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
-            const getGoodsTitle = JSON.parse(goodsTitleJson)
-            if (getGoodsTitle && getGoodsTitle[title]) {
-              param.title = getGoodsTitle[title]
-            } else {
-              const translationJson1 = title && await this.$translationBridgeService.getAliYunTransResult([title], fromLanguage, toLanguage)
-              console.log('translationJson1', translationJson1)
-              param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
-              saveGoodsJson.push({
-                srcLanguage: fromLanguage,
-                toLanguage: toLanguage,
-                fromText: title,
-                toText: param.title,
-                createdAt: Math.floor(new Date().getTime() / 1000)
-              })
-            }
-            let descriptionText = ''
-            if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
-              const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
-              if (getGoodsDescription && getGoodsDescription[description]) {
-                descriptionText = getGoodsDescription[description]
+            if (this.translationConfig.titleChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译标题...')
+              const goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
+              const getGoodsTitle = JSON.parse(goodsTitleJson)
+              if (getGoodsTitle && getGoodsTitle[title]) {
+                param.title = getGoodsTitle[title]
               } else {
-                const translationJson2 = description && await this.$translationBridgeService.getAliYunTransResult([description], fromLanguage, toLanguage)
-                console.log('translationJson2', translationJson2)
-                descriptionText = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
+                const translationJson1 = title && await this.$translationBridgeService.getAliYunTransResult([title], fromLanguage, toLanguage)
+                console.log('translationJson1', translationJson1)
+                param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
                 saveGoodsJson.push({
                   srcLanguage: fromLanguage,
                   toLanguage: toLanguage,
-                  fromText: description,
-                  toText: param.description,
+                  fromText: title,
+                  toText: param.title,
                   createdAt: Math.floor(new Date().getTime() / 1000)
                 })
               }
+            } else {
+              param.title = title
+            }
+            let descriptionText = ''
+
+            if (this.translationConfig.describeChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译描述...')
+              if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+                const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
+                if (getGoodsDescription && getGoodsDescription[description]) {
+                  descriptionText = getGoodsDescription[description]
+                } else {
+                  const translationJson2 = description && await this.$translationBridgeService.getAliYunTransResult([description], fromLanguage, toLanguage)
+                  console.log('translationJson2', translationJson2)
+                  descriptionText = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
+                  saveGoodsJson.push({
+                    srcLanguage: fromLanguage,
+                    toLanguage: toLanguage,
+                    fromText: description,
+                    toText: param.description,
+                    createdAt: Math.floor(new Date().getTime() / 1000)
+                  })
+                }
+              }
+            } else if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+              descriptionText = description
             }
             if (this.goodsDescribeRadio % 2 === 0) {
               descriptionText += '\n' + this.describeConfig.describe
@@ -1479,6 +1488,7 @@ export default {
             const tier_variation = neededTranslateInfoData.tier_variation
             console.log(neededTranslateInfoData, param)
             if (this.translationConfig.specChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译规格...')
               const spec1List = tier_variation[tier_variation.spec1]
               for (let i = 0; i < spec1List.length; i++) {
                 const item = spec1List[i]
@@ -1527,12 +1537,16 @@ export default {
                 itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":"' + spec2List[item], '"sku_spec2":"' + spec2ResultList[item])
                 itemmodelsJson = itemmodelsJson.replaceAll('=|=' + spec2List[item] + '"', '=|=' + spec2ResultList[item] + '"')
               })
+            } else {
+              spec1ResultList = tier_variation[tier_variation.spec1] || ''
+              spec2ResultList = tier_variation[tier_variation.spec2] || ''
             }
             if (this.goodsDescribeRadio === 0 || this.goodsDescribeRadio === 3) {
-              if(spec1ResultList.length > 0){
-                descriptionText += '\n' + spec1ResultList.split('\n')
-              }if(spec2ResultList.length > 0){
-                descriptionText += '\n' + spec2ResultList.split('\n')
+              if (spec1ResultList.length > 0) {
+                descriptionText += '\n' + spec1ResultList.join('\n')
+              }
+              if (spec2ResultList.length > 0) {
+                descriptionText += '\n' + spec2ResultList.join('\n')
               }
             }
             param.description = descriptionText.trim()
@@ -1608,7 +1622,7 @@ export default {
                 } else {
                   imageData = son.img
                   this.$set(this.mallTable[index], 'operation_type', `轮播图(${(i + 1)}/${image1ListLength})失败：${json.Msg}`)
-                  if (Number(this.translationConfig.failureType) !== 3){
+                  if (Number(this.translationConfig.failureType) !== 3) {
                     success = false
                     return
                   }
@@ -1650,7 +1664,7 @@ export default {
                 } else {
                   imageData = son
                   this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})：失败${json.Msg}`)
-                  if (Number(this.translationConfig.failureType) !== 3){
+                  if (Number(this.translationConfig.failureType) !== 3) {
                     success = false
                     return
                   }
@@ -1835,9 +1849,9 @@ export default {
       console.log('goodsTagChange', val)
       if (val) {
         const mallList = [...this.mallTableSelect.map(i => i.id)]
-        console.log(mallList,this.mallTable)
-        for (let i = 0;i < mallList.length ;i++){
-          let index = this.mallTable.findIndex(son=>son.id === mallList[i])
+        console.log(mallList, this.mallTable)
+        for (let i = 0; i < mallList.length; i++) {
+          let index = this.mallTable.findIndex(son => son.id === mallList[i])
           this.$set(this.mallTable[index], 'sys_label_id', val.category?.id)
         }
         this.labelList = val.goodsTagList || []

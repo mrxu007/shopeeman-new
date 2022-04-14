@@ -175,9 +175,7 @@
             {{ row.status?statusObj[row.status]:'' }}
           </template>
         </el-table-column>
-        <el-table-column label="出库商品详情"
-          align="center"
-          width="120">
+        <el-table-column label="出库商品详情" align="center" width="120">
           <template slot-scope="{row}">
             <el-button size="mini"
               type="primary" style="width: 100px;"
@@ -284,7 +282,7 @@
           />
           <el-table-column
               prop="oversea_order_sn"
-              width="150"
+              width="140"
               align="center"
               label="订单编号"
               fixed

@@ -192,22 +192,15 @@
         </div>
       </div>
     </div>
-    <el-dialog
-        v-if="selfGoodsStoreVisible"
+    <el-dialog v-if="selfGoodsStoreVisible"
         :visible.sync="selfGoodsStoreVisible"
-        width="1200px"
-        append-to-body
-        top="5vh"
-    >
+        width="1200px" append-to-body top="5vh">
       <div slot="title">{{ title[Number(outStoreType)] }}</div>
       <div class="go-out-store">
         <self-goods-store v-if="outStoreType === '1'" @getChooseData="getChooseData"/>
         <product-goods-store v-if="outStoreType === '2'" @getChooseData="getChooseData"/>
-        <abroad-goods-store
-            v-if="outStoreType === '3'"
-            :add-gift-abroad="addGiftAbroad"
-            @getChooseData="getChooseData"
-        />
+        <abroad-goods-store v-if="outStoreType === '3'" :add-gift-abroad="addGiftAbroad"
+                            @getChooseData="getChooseData"/>
         <inLand-goods-store v-if="outStoreType === '4'" @getChooseData="getChooseData"/>
       </div>
     </el-dialog>
@@ -374,6 +367,8 @@ export default {
       }
       const list = []
       const widInfo = {}
+      let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
+      let express_pdf = this.sheetInfo.url
       arr.forEach((item) => {
         widInfo[item.wid] = item.wid
         const obj = {
@@ -397,11 +392,11 @@ export default {
       }
       const params = {
         wid: arr[0].wid,
-        oversea_order_sn: this.orderInfo.main_order_sn,
-        express_pdf: this.sheetInfo.url,
-        type: this.orderInfo.logistics_id,
-        logistic_no: this.orderInfo.tracking_no,
-        country: this.orderInfo.country,
+        oversea_order_sn: orderInfo.main_order_sn,
+        express_pdf: express_pdf,
+        type: orderInfo.logistics_id,
+        logistic_no: orderInfo.tracking_no,
+        country: orderInfo.country,
         sku_list: list
       }
       const res = await this.$api.outOfStockAbroad(params)
@@ -438,6 +433,7 @@ export default {
       const itemF = this.matchOrderList[0]
       const lists = []
       const widInfo = {}
+      let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
       this.matchOrderList.forEach((item) => {
         widInfo[item.wid] = item.wid
         const obj = {
@@ -459,14 +455,14 @@ export default {
       }
       const params = {
         wid: itemF.wid,
-        homeOrderSn: this.orderInfo.main_order_sn,
-        platformTrackingNumber: this.orderInfo.tracking_no,
-        platformLogisticsType: this.orderInfo.logistics_id,
+        homeOrderSn: orderInfo.main_order_sn,
+        platformTrackingNumber: orderInfo.tracking_no,
+        platformLogisticsType: orderInfo.logistics_id,
         goodsList: lists
       }
       const res = await this.$api.homeOutStockOrder(params)
       if (res.data.code === 200) {
-        const main_order_sn = this.orderInfo.main_order_sn
+        const main_order_sn = orderInfo.main_order_sn
         this.$message.success('下单成功')
         this.flagText = '出库成功'
         for (let i = 0; i < this.orderList.length; i++) {
@@ -492,10 +488,11 @@ export default {
         return this.$message.warning('出库数量不能为零！')
       }
       console.log(arr, 'arr')
+      let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
       const paramsList = []
       arr.forEach((item) => {
         const obj = {
-          sys_order_id: this.orderInfo.id, // 系统订单ID
+          sys_order_id: orderInfo.id, // 系统订单ID
           sku_id: item.sku_id, // sku_id
           number: item.outStock // 出库数量
         }
@@ -503,7 +500,7 @@ export default {
       })
       const res = await this.$api.selfOutStock({ lists: paramsList })
       if (res.data.code === 200) {
-        const main_order_sn = this.orderInfo.main_order_sn
+        const main_order_sn = orderInfo.main_order_sn
         this.$message.success('出库成功')
         this.flagText = '出库成功'
         for (let i = 0; i < this.orderList.length; i++) {
@@ -526,10 +523,11 @@ export default {
       if (!arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
+      let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
       const paramsList = []
       arr.forEach((item) => {
         const obj = {
-          sys_order_id: this.orderInfo.id, // 系统订单ID
+          sys_order_id: orderInfo.id, // 系统订单ID
           sku_id: item.sku_id, // sku_id
           sku_price: item.sku_price, // sku价格（RMB）
           number: item.outStock
@@ -538,7 +536,7 @@ export default {
       })
       const res = await this.$api.productOutStock({ lists: paramsList })
       if (res.data.code === 200) {
-        const main_order_sn = this.orderInfo.main_order_sn
+        const main_order_sn = orderInfo.main_order_sn
         this.$message.success('出库成功')
         this.flagText = '出库成功'
         for (let i = 0; i < this.orderList.length; i++) {
@@ -596,14 +594,15 @@ export default {
       }
       const { data } = await this.$api.getDetail(params)
       if (data.code === 200) {
+        let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
         this.orderList = data.data.orderInfos
         this.orderList.forEach((item) => {
-          item.country = this.orderInfo.country
-          item.platform_mall_id = this.orderInfo.mall_info.platform_mall_id
+          item.country = orderInfo.country
+          item.platform_mall_id = orderInfo.mall_info.platform_mall_id
           this.income += Number(item.escrow_amount)
         })
-        console.log(this.income, this.orderInfo.country, this.rateList, Number(this.rateList[this.orderInfo.country]))
-        this.incomeRmb = this.income * Number(this.rateList[this.orderInfo.country])
+        console.log(this.income, orderInfo.country, this.rateList, Number(this.rateList[orderInfo.country]))
+        this.incomeRmb = this.income * Number(this.rateList[orderInfo.country])
       }
       if (this.outStoreType === 3 || this.outStoreType === '3') {
         this.getStockSkuId()
@@ -611,31 +610,26 @@ export default {
       console.log(data, '')
     },
     goNext() {
-      if (this.clickNum === this.chooseData.length) {
+      if (this.clickNum >= this.chooseData.length) {
         this.$confirm('是否关闭窗口', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$emit('close', 'true')
-        })
-            .catch(() => {
-            })
+        }).catch(() => {})
         return
       }
-      console.log(this.orderInfo, 'pp')
       this.orderInfo = {}
       this.orderList = []
       this.matchOrderList = []
       this.grossProfit = null
       this.interestRate = null
-      ++this.clickNum
-      this.orderInfo = this.chooseData[this.clickNum - 1]
+      this.orderInfo = this.chooseData[++this.clickNum]
       if (this.outStoreType === '3' || this.outStoreType === '4') {
         this.getSheetInfo()
       }
       this.getDetail(this.orderInfo)
-      // this.chooseDataCopy.splice(0, 1)
       this.flagText = ''
     },
     changeOrderStatus,
