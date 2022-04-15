@@ -589,6 +589,7 @@ export default {
     },
     // 获取详情
     async getDetail(orderInfo) {
+      console.log(orderInfo)
       const params = {
         mainOrderSn: orderInfo.main_order_sn
       }
@@ -596,6 +597,7 @@ export default {
       if (data.code === 200) {
         let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
         this.orderList = data.data.orderInfos
+        this.income = 0
         this.orderList.forEach((item) => {
           item.country = orderInfo.country
           item.platform_mall_id = orderInfo.mall_info.platform_mall_id
@@ -625,7 +627,7 @@ export default {
       this.matchOrderList = []
       this.grossProfit = null
       this.interestRate = null
-      this.orderInfo = this.chooseData[++this.clickNum]
+      this.orderInfo = this.chooseData[this.clickNum++]
       if (this.outStoreType === '3' || this.outStoreType === '4') {
         this.getSheetInfo()
       }

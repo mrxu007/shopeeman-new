@@ -10,10 +10,6 @@
     </div>
     <div class="buy-content">
       <div v-for="(item, index) in rowBuyLinks" :key="index" class="item-box">
-        <!-- <span class="mar-right spanWidth">采购类型</span>
-        <el-select v-model="item.purchase_platform_id" size="mini" class="inputWidth" @change="changeSourceType($event,index)">
-          <el-option :label="item.label" :value="item.value" v-for="(item, index) in goodsSourceListLink" :key="index"></el-option>
-        </el-select> -->
         <span>采购地址{{ index + 1 }}</span>
         <el-input
           v-model="item.purchase_url"

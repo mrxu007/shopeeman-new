@@ -58,7 +58,7 @@ const orderStatusList = [{
 
 function changeOrderStatus(val, type) {
   const obj = orderStatusList.find(item => item.value == val)
-  if (type == 'color') {
+  if (type === 'color') {
     return obj && obj.color || '#000'
   }
   return obj && obj.label || ''
@@ -109,7 +109,7 @@ const shotStatusList = [{
 
 function changeShotStatus(val, type) {
   const obj = shotStatusList.find(item => item.value == val)
-  if (type == 'color') {
+  if (type === 'color') {
     return obj && obj.color || '#000'
   }
   return obj && obj.label || ''
@@ -190,10 +190,11 @@ const inputTypeList = [{
   }
 ]
 // 商品来源  1:拼多多 2:淘宝 3:天猫 5:自有 8:1688  9: Lazada   10:京喜  11:shopee  12:ALIEXPRESS 15:货老板海外  13: 天猫淘宝海外平台
-const goodsSourceList = [{
-  value: 1,
-  label: '拼多多'
-},
+const goodsSourceList = [
+  {
+    value: 1,
+    label: '拼多多'
+  },
   {
     value: 2,
     label: '淘宝'
@@ -233,9 +234,31 @@ const goodsSourceList = [{
   {
     value: 15,
     label: '货老板海外'
+  },
+  {
+    value: 16,
+    label: 'tokopedia'
   }
 ]
-const goodsSourceListLink = [{
+const goodsSourceNameList = {
+  1: '拼多多',
+  2: '淘宝',
+  3: '天猫',
+  4: '京东',
+  5: '自有产品',
+  6: '皮皮虾供货平台',
+  7: '货源甲',
+  8: '1688',
+  9: 'lazada',
+  10: '京喜',
+  11: 'Shopee',
+  12: '速卖通',
+  13: '天猫淘宝海外平台',
+  15: '货老板云仓',
+  // 16: 'tokopedia'
+}
+const goodsSourceListLink = [
+  {
   value: '1',
   label: '拼多多'
 },
@@ -268,44 +291,16 @@ const goodsSourceListLink = [{
     label: '天猫淘宝海外平台'
   }
 ]
-const goodsSourceListPurchase = [{
-  value: '1',
-  label: '拼多多'
-},
-  {
-    value: '2',
-    label: '淘宝'
-  },
-  {
-    value: '8',
-    label: '1688'
-  },
-  {
-    value: '9',
-    label: 'Lazada'
-  },
-  {
-    value: '10',
-    label: '京喜'
-  },
-  {
-    value: '11',
-    label: 'shopee'
-  },
-  {
-    value: '13',
-    label: '天猫淘宝海外平台'
-  }
-]
 // 各站点物流
-const site_mall = [{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '7000',
-  'ShipName': 'Standard Delivery - ส่งธรรมดาในประเทศ'
-},
+const site_mall = [
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '7000',
+    'ShipName': 'Standard Delivery - ส่งธรรมดาในประเทศ'
+  },
   {
     'Country': '泰国站',
     'CountryCode': 'TH',
@@ -875,10 +870,11 @@ const syncStatus = [
   }
 ]
 // 货物类型
-const packageType = [{
-  label: '普货',
-  value: 1
-},
+const packageType = [
+  {
+    label: '普货',
+    value: 1
+  },
   {
     label: '敏感货',
     value: 2
@@ -895,10 +891,11 @@ function changePackageType(val) {
 }
 
 // 仓库发货状态 //1：待入库 2：等待包裹  3: 紧急入库  4: 待出库 5: 已出库 6: 已完成 7:订单作废 8:暂停发货 9:异常
-const deliveryStatus = [{
-  label: '待入库',
-  value: 1
-},
+const deliveryStatus = [
+  {
+    label: '待入库',
+    value: 1
+  },
   {
     label: '等待包裹',
     value: 2
@@ -1539,7 +1536,13 @@ const platformLinkList = [{
     purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
     purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
     label: '天猫淘宝海外平台'
-  }
+  },
+  // {
+  //   purchase_platform_id: 16,
+  //   purchase_url: 'https://www.tokopedia.com/velove/',
+  //   purchase_url_all: 'https://www.tokopedia.com/velove/v856-malta-dress-3-color-2-size-sage-green-s?extParam=ivf%3Dfalse',
+  //   label: 'tokopedia'
+  // }
 ]
 const warehouseType = [{
   label: '国内中转仓',
@@ -1789,7 +1792,8 @@ const colorList = [{
   'created_at': '2021-06-07 14:44:42',
   'updated_at': '2021-06-07 14:44:42',
   'deleted_at': null
-}]
+}
+]
 const muidList = [
   691349,
   767407,
@@ -2103,7 +2107,8 @@ function changeBuyerType(type) {
 }
 
 function getTransportType(val) {
-  return val == 1 && '空运' || val == 2 && '陆运' || ''
+  val = Number(val) || 0
+  return val === 1 && '空运' || val === 2 && '陆运' || ''
 }
 
 export {
@@ -2112,6 +2117,8 @@ export {
   timeTypeList,
   inputTypeList,
   goodsSourceList,
+  goodsSourceListLink,
+  goodsSourceNameList,
   syncStatusFirst,
   syncStatusAll,
   syncStatus,
@@ -2121,7 +2128,6 @@ export {
   shotStatuForEdit,
   warehouseType,
   columnData,
-  goodsSourceListLink,
   platformLinkList,
   forbidData,
   forbidTHData,
@@ -2131,7 +2137,6 @@ export {
   statusAfterList,
   buyPayMethod,
   platformPayMethod,
-  goodsSourceListPurchase,
   muidList,
   lazadaBuyLinkList,
   lazadaBuyLinkObj,

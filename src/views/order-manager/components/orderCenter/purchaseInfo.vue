@@ -30,7 +30,7 @@
         <el-input v-model="shotAmount" size="mini" class="inputWidth" />
       </el-form-item>
       <el-form-item label="平台类型:" prop="platformId">
-        <el-select v-model="form.platformId" placeholder="请选择活动区域" size="mini" class="inputWidth" @change="changePlatform">
+        <el-select v-model="form.platformId" placeholder="请选择活动区域" filterable size="mini" class="inputWidth" @change="changePlatform">
           <el-option v-for="(item, index) in goodsSourceList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>

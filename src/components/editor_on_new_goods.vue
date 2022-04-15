@@ -1378,9 +1378,8 @@ export default {
               if (spec1ListDstStr) {
                 console.log('itemmodelsJson1', spec1ListDstStr, spec1List)
                 spec1ListDstStr = spec1ListDstStr.replaceAll('> <', '><')
-                spec1ListDstStr = spec1ListDstStr.replaceAll('< ><>', '<><>')
-                spec1ListDstStr = spec1ListDstStr.replaceAll('<>< >', '<><>')
-                spec1ListDstStr = spec1ListDstStr.replaceAll('< >< >', '<><>')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('< ><', '<><')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('>< >', '><>')
                 spec1ListDst = spec1ListDstStr.split('<><>')
                 const spec1ListSrc = spec1List && spec1List.split('<><>')
                 const spec1ListSort = this.getArraySrcLengthSort(spec1ListSrc)

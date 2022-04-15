@@ -9,7 +9,7 @@
             <div class="base-box">
               <span class="base-title">基础操作</span>
               <div class="base-item">
-                <buyer-account :operation="operation" :buyer-account-list="buyerAccountList" />
+                <buyer-account :operation="operation" :buyer-account-list="buyerAccountList"/>
               </div>
             </div>
           </div>
@@ -21,33 +21,33 @@
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <storeChoose
-                      :is-all="true"
-                      :span-width="'80px'"
-                      :select-width="'180px'"
-                      :source="'orderCenter'"
-                      @changeMallList="changeMallList"
+                        :is-all="true"
+                        :span-width="'80px'"
+                        :select-width="'180px'"
+                        :source="'orderCenter'"
+                        @changeMallList="changeMallList"
                     />
                   </div>
                   <div class="tool-item">
                     <el-select v-model="selectForm.timeType" placeholder="" size="mini" filterable style="width: 140px">
                       <el-option
-                        v-for="(item, index) in timeTypeList"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
+                          v-for="(item, index) in timeTypeList"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
                       />
                     </el-select>
                     <el-date-picker
-                      v-model="selectForm.otherTime"
-                      size="mini"
-                      unlink-panels
-                      value-format="yyyy-MM-dd"
-                      type="daterange"
-                      style="width: 300px"
-                      range-separator="-"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                      @change="changeTime($event, 'selectForm', 'otherTime')"
+                        v-model="selectForm.otherTime"
+                        size="mini"
+                        unlink-panels
+                        value-format="yyyy-MM-dd"
+                        type="daterange"
+                        style="width: 200px"
+                        range-separator="-"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        @change="changeTime($event, 'selectForm', 'otherTime')"
                     />
                   </div>
                 </el-row>
@@ -55,133 +55,133 @@
                   <div class="tool-item mar-right">
                     <span>发货状态：</span>
                     <el-select
-                      v-model="orderStatus"
-                      placeholder=""
-                      size="mini"
-                      multiple
-                      collapse-tags
-                      filterable　class="inputBox"
-                      @change="changeSelect($event,'orderStatus', orderStatusList)"
+                        v-model="orderStatus"
+                        placeholder=""
+                        size="mini"
+                        multiple
+                        collapse-tags
+                        filterable　class="inputBox"
+                        @change="changeSelect($event,'orderStatus', orderStatusList)"
                     >
-                      <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)" />
+                      <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)"/>
                       <el-option
-                        v-for="(item, index) in orderStatusList"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
+                          v-for="(item, index) in orderStatusList"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
                       />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购状态：</span>
                     <el-select
-                      v-model="shotStatus"
-                      placeholder=""
-                      size="mini"
-                      multiple
-                      collapse-tags
-                      filterable　class="inputBox"
-                      @change="changeSelect($event,'shotStatus', shotStatusList)"
+                        v-model="shotStatus"
+                        placeholder=""
+                        size="mini"
+                        multiple
+                        collapse-tags
+                        filterable　class="inputBox"
+                        @change="changeSelect($event,'shotStatus', shotStatusList)"
                     >
-                      <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)" />
+                      <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)"/>
                       <el-option
-                        v-for="(item, index) in shotStatusList"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
+                          v-for="(item, index) in shotStatusList"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
                       />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>商品来源：</span>
                     <el-select v-model="selectForm.isOwnOrder" placeholder="" size="mini" filterable　class="inputBox">
-                      <el-option label="全部" :value="''" />
+                      <el-option label="全部" :value="''"/>
                       <el-option
-                        v-for="(item, index) in goodsSourceList"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
+                          v-for="(item, index) in goodsSourceList"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
                       />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>创建时间：</span>
                     <el-date-picker
-                      v-model="createTime"
-                      size="mini"
-                      unlink-panels
-                      value-format="yyyy-MM-dd"
-                      type="daterange"
-                      style="width: 300px"
-                      range-separator="-"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                      :picker-options="pickerOptions"
-                      @change="changeTime($event, 'createTime')"
+                        v-model="createTime"
+                        size="mini"
+                        unlink-panels
+                        value-format="yyyy-MM-dd"
+                        type="daterange"
+                        style="width: 200px"
+                        range-separator="-"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        :picker-options="pickerOptions"
+                        @change="changeTime($event, 'createTime')"
                     />
                   </div>
                 </el-row>
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <span>商品ID：</span>
-                    <el-input v-model="selectForm.goodsId" size="mini" clearable class="inputBox" />
+                    <el-input v-model="selectForm.goodsId" size="mini" clearable class="inputBox"/>
                   </div>
                   <div class="tool-item mar-right">
                     <span>颜色标识：</span>
                     <el-select v-model="selectForm.colorLabelId" placeholder="" size="mini" filterable　class="inputBox">
-                      <el-option label="全部" :value="0" />
-                      <el-option label="未标识" :value="-1" />
-                      <el-option label="已标识" :value="-2" />
+                      <el-option label="全部" :value="0"/>
+                      <el-option label="未标识" :value="-1"/>
+                      <el-option label="已标识" :value="-2"/>
                       <el-option
-                        v-for="item in selectColorList"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id"
-                        :style="{ color: item.color }"
+                          v-for="item in selectColorList"
+                          :key="item.id"
+                          :label="item.name"
+                          :value="item.id"
+                          :style="{ color: item.color }"
                       />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right gross_profit">
                     <span>毛利值：</span>
-                    <el-input v-model="selectForm.minGrossProfit" size="mini" clearable style="width: 63px;" />
+                    <el-input v-model="selectForm.minGrossProfit" size="mini" clearable style="width: 63px;"/>
                     <p style="margin: 0 4px">-</p>
-                    <el-input v-model="selectForm.maxGrossProfit" size="mini" clearable style="width: 64px;" />
+                    <el-input v-model="selectForm.maxGrossProfit" size="mini" clearable style="width: 64px;"/>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购时间：</span>
                     <el-date-picker
-                      v-model="selectForm.shotTime"
-                      size="mini"
-                      unlink-panels
-                      value-format="yyyy-MM-dd"
-                      type="daterange"
-                      style="width: 300px"
-                      range-separator="-"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
-                      :picker-options="pickerOptions"
-                      @change="changeTime($event, 'selectForm', 'shotTime')"
+                        v-model="selectForm.shotTime"
+                        size="mini"
+                        unlink-panels
+                        value-format="yyyy-MM-dd"
+                        type="daterange"
+                        style="width: 200px"
+                        range-separator="-"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                        :picker-options="pickerOptions"
+                        @change="changeTime($event, 'selectForm', 'shotTime')"
                     />
                   </div>
                 </el-row>
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <el-select
-                      v-model="inputType"
-                      placeholder=""
-                      size="mini"
-                      filterable
-                      style="width: 80px"
-                      @change="inputContent = ''"
+                        v-model="inputType"
+                        placeholder=""
+                        size="mini"
+                        filterable
+                        style="width: 80px"
+                        @change="inputContent = ''"
                     >
                       <el-option
-                        v-for="(item, index) in inputTypeList"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
+                          v-for="(item, index) in inputTypeList"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
                       />
                     </el-select>
-                    <el-input v-model="inputContent" size="mini" clearable style="width: 140px" />
+                    <el-input v-model="inputContent" size="mini" clearable style="width: 140px"/>
                     <el-tooltip effect="dark" placement="bottom-start">
                       <div slot="content">
                         查询选项为订单编号时：<br>
@@ -190,57 +190,57 @@
                         1、查询全部数据传空<br>
                         2、查未备注或无商品货号数据时，传‘无’<br>
                       </div>
-                      <i class="el-icon-question" />
+                      <i class="el-icon-question"/>
                     </el-tooltip>
                   </div>
                   <div class="tool-item mar-right">
                     <span style="width: 60px;">物流方式：</span>
                     <el-select
-                      v-model="logisticsIds"
-                      placeholder=""
-                      size="mini"
-                      multiple
-                      collapse-tags
-                      filterable　class="inputBox"
+                        v-model="logisticsIds"
+                        placeholder=""
+                        size="mini"
+                        multiple
+                        collapse-tags
+                        filterable　class="inputBox"
                     >
-                      <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)" />
+                      <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)"/>
                       <el-option
-                        v-for="(item, index) in shipTypeList"
-                        :key="index"
-                        :label="item.ShipName"
-                        :value="item.ShipId"
+                          v-for="(item, index) in shipTypeList"
+                          :key="index"
+                          :label="item.ShipName"
+                          :value="item.ShipId"
                       />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>付款方式：</span>
                     <el-select
-                      v-model="selectForm.paymentMenthod"
-                      placeholder=""
-                      size="mini"
-                      filterable　class="inputBox"
+                        v-model="selectForm.paymentMenthod"
+                        placeholder=""
+                        size="mini"
+                        filterable　class="inputBox"
                     >
                       <!-- <el-option label="全部付款方式" :value="''" /> -->
                       <el-option
-                        v-for="(item, index) in payMethodList"
-                        :key="index"
-                        :label="item.label"
-                        :value="item.value"
+                          v-for="(item, index) in payMethodList"
+                          :key="index"
+                          :label="item.label"
+                          :value="item.value"
                       />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>海外商品：</span>
                     <el-select
-                      v-model="selectForm.isOverseasGoods"
-                      placeholder=""
-                      size="mini"
-                      filterable　class="inputBox"
-                      style="width: 100px"
+                        v-model="selectForm.isOverseasGoods"
+                        placeholder=""
+                        size="mini"
+                        filterable　class="inputBox"
+                        style="width: 100px"
                     >
-                      <el-option label="全部" :value="''" />
-                      <el-option label="是" :value="'1'" />
-                      <el-option label="否" :value="'-1'" />
+                      <el-option label="全部" :value="''"/>
+                      <el-option label="是" :value="'1'"/>
+                      <el-option label="否" :value="'-1'"/>
                     </el-select>
                   </div>
                 </el-row>
@@ -272,10 +272,10 @@
                     国内仓备货商品出库
                   </el-button>
                   <el-button
-                    type="primary"
-                    size="mini"
-                    class="btnMedium mar-right"
-                    @click="batchReplyOrderBuyer(multipleSelection)"
+                      type="primary"
+                      size="mini"
+                      class="btnMedium mar-right"
+                      @click="batchReplyOrderBuyer(multipleSelection)"
                   >批量评价订单买家
                   </el-button>
                   <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
@@ -298,9 +298,9 @@
         </div>
       </transition>
       <div class="showBtn">
-        <p style="margin-right: 10px;" @click="updateTableColumnShow">适配表格高度<i class="el-icon-refresh" /></p>
-        <p v-if="isShow" @click="isShow = false">收起<i class="el-icon-caret-top" /></p>
-        <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
+        <p style="margin-right: 10px;" @click="updateTableColumnShow">适配表格高度<i class="el-icon-refresh"/></p>
+        <p v-if="isShow" @click="isShow = false">收起<i class="el-icon-caret-top"/></p>
+        <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom"/></p>
       </div>
     </header>
     <div class="content" :style="{ height: isShow ? 'calc(100vh - 360px)' : 'calc(100vh - 50px)' }">
@@ -309,77 +309,77 @@
         订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
       </p>
       <u-table
-        v-if="tableColumnShow"
-        ref="multipleTable"
-        v-loading="tableLoading"
-        use-virtual
-        :row-height="60"
-        tooltip-effect="dark"
-        :border="false"
-        :data="tableData"
-        :height="isShow && tableHeight || (tableHeight + 290)"
-        :cell-style="{ padding: '0' }"
-        :header-cell-style="{backgroundColor: '#f5f7fa'}"
-        :resizable="true"
-        :default-sort="sortRule"
-        @selection-change="handleSelectionChange"
-        @sort-change="sortChange"
+          v-if="tableColumnShow"
+          ref="multipleTable"
+          v-loading="tableLoading"
+          use-virtual
+          :row-height="60"
+          tooltip-effect="dark"
+          :border="false"
+          :data="tableData"
+          :height="isShow && tableHeight || (tableHeight + 290)"
+          :cell-style="{ padding: '0' }"
+          :header-cell-style="{backgroundColor: '#f5f7fa'}"
+          :resizable="true"
+          :default-sort="sortRule"
+          @selection-change="handleSelectionChange"
+          @sort-change="sortChange"
       >
-        <u-table-column v-if="tableColumnShow" align="center" type="selection" width="50" fixed="left" />
+        <u-table-column v-if="tableColumnShow" align="center" type="selection" width="50" fixed="left"/>
         <u-table-column v-if="tableColumnShow" align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </u-table-column>
         <u-table-column
-          v-for="item in tableColumnList"
-          v-if="tableColumnShow && item.is_show === 1"
-          :key="item.key"
-          :width="item.width || '80'"
-          :align="item.align||'left'"
-          :label="item.name"
-          :prop="item.prop || ''"
-          :sortable="item.sortable || false"
-          :fixed="item.fixed"
-          :show-overflow-tooltip="item.showOverflowTooltip || false"
-          :resizable="true"
+            v-for="item in tableColumnList"
+            v-if="tableColumnShow && item.is_show === 1"
+            :key="item.key"
+            :width="item.width || '80'"
+            :align="item.align||'left'"
+            :label="item.name"
+            :prop="item.prop || ''"
+            :sortable="item.sortable || false"
+            :fixed="item.fixed"
+            :show-overflow-tooltip="item.showOverflowTooltip || false"
+            :resizable="true"
         >
           <template slot-scope="{row,$index}">
             <i
-              v-if="item.iCopy"
-              class="el-icon-document-copy copyStyle"
-              style="float: left;line-height: 20px;"
-              @click="copyItem(getTableRow(row,item.iCopy))"
+                v-if="item.iCopy"
+                class="el-icon-document-copy copyStyle"
+                style="float: left;line-height: 20px;"
+                @click="copyItem(getTableRow(row,item.iCopy))"
             />
-            <p v-if="item.iColor" :style="{ background: changeColorLabel(row[item.iColor]), height: '20px' }" />
+            <p v-if="item.iColor" :style="{ background: changeColorLabel(row[item.iColor]), height: '20px' }"/>
             <p v-if="item.showType === 0" style="padding: 0;display: flex;flex-flow: column;">
               <span
-                v-if="!item.propList"
-                style="text-overflow: ellipsis; overflow: hidden;"
-                :class="item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle' || ''"
-                @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
-                @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''"
+                  v-if="!item.propList"
+                  style="text-overflow: ellipsis; overflow: hidden;"
+                  :class="item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle' || ''"
+                  @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
+                  @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''"
               >
                 {{ item.filter && item.filter(getTableRow(row, item.prop)) || getTableRow(row, item.prop) }}
               </span>
               <span
-                v-for="(son,i) in item.propList"
-                v-else
-                :key="i"
-                style="text-overflow: ellipsis; overflow: hidden;"
-                :class="son.rowClick && 'tableActive' || son.rowDblClick && 'copyStyle' || ''"
-                @click="son.rowClick && tableRowBound(son.rowClick,row,$index,son) || ''"
-                @dblclick="son.rowDblClick && tableRowBound(son.rowDblClick,row,$index,son) || ''"
+                  v-for="(son,i) in item.propList"
+                  v-else
+                  :key="i"
+                  style="text-overflow: ellipsis; overflow: hidden;"
+                  :class="son.rowClick && 'tableActive' || son.rowDblClick && 'copyStyle' || ''"
+                  @click="son.rowClick && tableRowBound(son.rowClick,row,$index,son) || ''"
+                  @dblclick="son.rowDblClick && tableRowBound(son.rowDblClick,row,$index,son) || ''"
               >
                 {{ son.name }}：{{ son.filter && son.filter(getTableRow(row, son.prop)) || getTableRow(row, son.prop) }}
               </span>
             </p>
             <el-dropdown
-              v-else-if="item.showType === 2"
-              style="width: 90px;"
-              trigger="click"
-              size="mini"
+                v-else-if="item.showType === 2"
+                style="width: 90px;"
+                trigger="click"
+                size="mini"
             >
               <el-button style="width: 100px;margin: 0 " size="mini" plain type="primary"> 操作<i
-                class="el-icon-arrow-down el-icon--right"
+                  class="el-icon-arrow-down el-icon--right"
               /></el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
@@ -402,8 +402,8 @@
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <div
-                    class="dropdownItemdropdownItem"
-                    @click="
+                      class="dropdownItemdropdownItem"
+                      @click="
                       clickRow = row
                       billsDetailVisible = true
                     "
@@ -437,8 +437,8 @@
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <div
-                    class="dropdownItem"
-                    @click="viewDetails('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id)"
+                      class="dropdownItem"
+                      @click="viewDetails('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id)"
                   >
                     商品编辑
                   </div>
@@ -455,39 +455,33 @@
                 <!-- <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">面单打印</div></el-dropdown-item> -->
               </el-dropdown-menu>
             </el-dropdown>
-            <p
-              v-else-if="item.showType === 4"
-              style="display: flex; flex-direction: column;padding: 0;"
-              :style="{ color: item.rowColor && tableRowBound(item.rowColor,row,$index,item) || ''}"
-            >
+            <p v-else-if="item.showType === 4"
+                style="display: flex; flex-direction: column;padding: 0;"
+               :style="{ color: item.rowColor && tableRowBound(item.rowColor,row,$index,item) || ''}">
               <!--              <span v-if="item.rowShow === 'getCategoryName'" style="text-overflow: ellipsis; overflow: hidden;">-->
               <!--                {{ row.goods_info ? getCategoryName(row.goods_info.goods_category_id, row.country) : '未匹配到类目' }}-->
               <!--              </span>-->
               <span style="text-overflow: ellipsis; overflow: hidden;">
                 {{ item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row, item.prop) }}
               </span>
-              <el-link
-                v-if="item.propLink && item.propLinkName"
-                size="mini"
-                type="danger"
-                @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
-              >
+              <el-link v-if="item.propLink && item.propLinkName" size="mini"
+                  type="danger" @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
                 {{ item.propLinkName }}
               </el-link>
               <el-link
-                v-else-if="item.propLink && Number(getTableRow(row,item.propLink)) === 1"
-                size="mini"
-                type="danger"
-                @click="setSKURelation(row)"
+                  v-else-if="item.propLink && Number(getTableRow(row,item.propLink)) === 1"
+                  size="mini"
+                  type="danger"
+                  @click="setSKURelation(row)"
               >
                 {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
               </el-link>
             </p>
             <el-button
-              v-else-if="item.showType === 7"
-              size="mini"
-              type="primary"
-              @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
+                v-else-if="item.showType === 7"
+                size="mini"
+                type="primary"
+                @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
             >
               {{ item.buttonName }}
             </el-button>
@@ -500,17 +494,17 @@
               </el-button>
             </div>
             <el-tooltip
-              v-else-if="item.showType === 10"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 40px; height: 40px; display: inline-block"
+                v-else-if="item.showType === 10"
+                effect="light"
+                placement="right-end"
+                :visible-arrow="false"
+                :enterable="false"
+                style="width: 40px; height: 40px; display: inline-block"
             >
               <div slot="content">
-                <el-image :src="item.filter([getTableRow(row,item.prop)])" style="width: 400px; height: 400px" />
+                <el-image :src="item.filter([getTableRow(row,item.prop)])" style="width: 400px; height: 400px"/>
               </div>
-              <el-image :src="item.filter([getTableRow(row,item.prop),true])" style="width: 40px; height: 40px" />
+              <el-image :src="item.filter([getTableRow(row,item.prop),true])" style="width: 40px; height: 40px"/>
             </el-tooltip>
             <div v-else-if="item.showType === 11">
               <p style="line-height: 20px; padding: 0;color: #000;">
@@ -521,8 +515,8 @@
               </p>
             </div>
             <el-dropdown
-              v-else-if="item.showType === 12"
-              @command="(val) => {soSameItem(val, row)}"
+                v-else-if="item.showType === 12"
+                @command="(val) => {soSameItem(val, row)}"
             >
               <el-button type="primary" size="mini">图搜同款</el-button>
               <el-dropdown-menu slot="dropdown">
@@ -541,40 +535,40 @@
             </div>
             <p v-else-if="item.showType === 19" style="padding: 0">
               <i
-                v-if="getTableRow(row,item.prop)"
-                class="el-icon-document-copy copyStyle tableActive"
-                @click="copyItem(getTableRow(row,item.prop))"
+                  v-if="getTableRow(row,item.prop)"
+                  class="el-icon-document-copy copyStyle tableActive"
+                  @click="copyItem(getTableRow(row,item.prop))"
               />
               <span class="tableActive" @click="clickBuyOrder(row)">{{ getTableRow(row, item.prop) }}</span>
             </p>
             <div v-else-if="item.showType === 23">
               <div
-                v-if="!(row.id === activeRemarkID) "
-                style="cursor: pointer; min-width: 20px"
-                @click.stop="editRemark(row.id)"
+                  v-if="!(row.id === activeRemarkID) "
+                  style="cursor: pointer; min-width: 20px"
+                  @click.stop="editRemark(row.id)"
               >
                 <p class="remark_p" @dblclick="copyItem(row.remark)">{{ row.remark }}</p>
               </div>
               <el-input
-                v-if="row.id === activeRemarkID"
-                v-model="orderRemark"
-                size="mini"
-                @blur="changeRemark(row.id)"
+                  v-if="row.id === activeRemarkID"
+                  v-model="orderRemark"
+                  size="mini"
+                  @blur="changeRemark(row.id)"
               />
             </div>
             <div v-else-if="item.showType === 24">
               <div
-                v-show="!(row.id === activeRemarkIDNode)"
-                style="cursor: pointer"
-                @click="editRemarkNode(row.id)"
+                  v-show="!(row.id === activeRemarkIDNode)"
+                  style="cursor: pointer"
+                  @click="editRemarkNode(row.id)"
               >
-                <el-input v-model="row.note" disabled size="mini" />
+                <el-input v-model="row.note" disabled size="mini"/>
               </div>
               <el-input
-                v-if="row.id === activeRemarkIDNode"
-                v-model="orderRemarkNode"
-                size="mini"
-                @blur="changeRemarkNode(row.id)"
+                  v-if="row.id === activeRemarkIDNode"
+                  v-model="orderRemarkNode"
+                  size="mini"
+                  @blur="changeRemarkNode(row.id)"
               />
             </div>
           </template>
@@ -582,75 +576,74 @@
       </u-table>
       <div class="pagination">
         <el-pagination
-          background
-          :page-sizes="[20, 50, 100, 200]"
-          :page-size="pageSize"
-          :current-page.sync="currentPage"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @current-change="handleCurrentChange"
-          @size-change="handleSizeChange"
+            background
+            :page-sizes="[20, 50, 100, 200]"
+            :page-size="pageSize"
+            :current-page.sync="currentPage"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @current-change="handleCurrentChange"
+            @size-change="handleSizeChange"
         />
       </div>
     </div>
-    <Logs ref="Logs" v-model="showConsole" clear />
+    <Logs ref="Logs" v-model="showConsole" clear/>
     <el-dialog
-      v-if="columnVisible"
-      :visible.sync="columnVisible"
-      width="800px"
-      top="5vh"
-      :close-on-click-modal="false"
+        v-if="columnVisible"
+        :visible.sync="columnVisible"
+        width="800px"
+        top="5vh"
+        :close-on-click-modal="false"
     >
       <template slot="title">
         <div style="display: flex;align-items: center">
           <div style="margin-right: 25px;color: #000; font-weight: 700">配置订单列表显示列</div>
           <div style="display: flex;align-items: center;margin-bottom: -15px">
             列表名定位：
-            <el-input v-model="column_search" size="mini" style="width: 150px" />
+            <el-input v-model="column_search" size="mini" style="width: 150px"/>
             <el-tooltip effect="dark" placement="bottom">
               <div slot="content">
                 用于定位对应订单列所处位置，方便您进行自定义设置（会以红色加粗标注）<br>
               </div>
-              <i class="el-icon-question" style="font-size: 16px!important;margin-left: 5px;" />
+              <i class="el-icon-question" style="font-size: 16px!important;margin-left: 5px;"/>
             </el-tooltip>
           </div>
         </div>
       </template>
       <div class="column-style">
         <draggable
-          v-model="columnConfigShowList"
-          filter=".forbid"
-          handle=".mover"
-          group="columnConfig"
-          @update="datadragEnd"
-        >
+            v-model="columnConfigShowList"
+            filter=".forbid"
+            handle=".mover"
+            group="columnConfig"
+            @update="datadragEnd">
           <transition-group>
             <div
-              v-for="(item, index) in columnConfigShowList"
-              :key="item.id"
-              :class="index < 2 &&'forbid column-item' || 'column-item'"
+                v-for="(item, index) in columnConfigShowList"
+                :key="item.id"
+                :class="index < 2 &&'forbid column-item' || 'column-item'"
             >
               <div class="column-top">
                 <span
-                  :class="column_search && item.column_header.includes(column_search) && 'mover_search mover' || 'mover'"
+                    :class="column_search && item.column_header.includes(column_search) && 'mover_search mover' || 'mover'"
                 >
                   {{ item.column_header }}</span>
                 <el-switch
-                  v-model="item.is_show"
-                  style="display: block"
-                  active-color="#13ce66"
-                  inactive-color="#a9a9a9"
-                  :active-value="1"
-                  :inactive-value="-1"
+                    v-model="item.is_show"
+                    style="display: block"
+                    active-color="#13ce66"
+                    inactive-color="#a9a9a9"
+                    :active-value="1"
+                    :inactive-value="-1"
                 />
               </div>
               <div class="column-bottom">
                 宽度：
                 <el-input
-                  v-model="item.width"
-                  size="mini"
-                  oninput="value=value.replace(/[^\d]/g,'')"
-                  style="width: 80px;margin: 0 5px;"
+                    v-model="item.width"
+                    size="mini"
+                    oninput="value=value.replace(/[^\d]/g,'')"
+                    style="width: 80px;margin: 0 5px;"
                 />
                 PX
               </div>
@@ -665,11 +658,11 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="标记为海外商品"
-      :visible.sync="abroadVisible"
-      width="400px"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
+        title="标记为海外商品"
+        :visible.sync="abroadVisible"
+        width="400px"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
       <div class="abroad-mar">
         <el-radio v-model="isAbroadGood" :label="1">海外商品</el-radio>
@@ -680,47 +673,47 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="批量添加本地备注"
-      :visible.sync="localRamarkVisible"
-      width="400px"
-      :close-on-click-modal="false"
-      @open="openBefore"
+        title="批量添加本地备注"
+        :visible.sync="localRamarkVisible"
+        width="400px"
+        :close-on-click-modal="false"
+        @open="openBefore"
     >
       <div class="remark-style">
         <span>本地备注</span>
-        <el-input v-model="localRamark" type="textarea" resize="none" :rows="4" placeholder="请输入内容" />
+        <el-input v-model="localRamark" type="textarea" resize="none" :rows="4" placeholder="请输入内容"/>
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
     <el-dialog
-      v-if="colorVisible"
-      title="选择颜色标识"
-      :visible.sync="colorVisible"
-      width="600px"
-      :close-on-click-modal="false"
+        v-if="colorVisible"
+        title="选择颜色标识"
+        :visible.sync="colorVisible"
+        width="600px"
+        :close-on-click-modal="false"
     >
       <div class="color-style">
         <el-table
-          ref="colorTable"
-          :data="colorList"
-          tooltip-effect="dark"
-          style="width: 100%"
-          height="500"
-          :loading="colorLoading"
+            ref="colorTable"
+            :data="colorList"
+            tooltip-effect="dark"
+            style="width: 100%"
+            height="500"
+            :loading="colorLoading"
         >
           <el-table-column label="标识选择" width="120">
             <template slot-scope="scope">
-              <el-radio v-model="colorRadio" :label="scope.$index" @change.native="getCurrentRow(scope.row)" />
+              <el-radio v-model="colorRadio" :label="scope.$index" @change.native="getCurrentRow(scope.row)"/>
             </template>
           </el-table-column>
           <el-table-column prop="name" label="颜色">
             <template slot-scope="scope">
-              <div class="colorBox" :style="{ background: scope.row.color }" />
+              <div class="colorBox" :style="{ background: scope.row.color }"/>
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="标识名称" />
+          <el-table-column prop="name" label="标识名称"/>
         </el-table>
       </div>
       <span slot="footer">
@@ -728,58 +721,43 @@
       </span>
     </el-dialog>
     <el-dialog
-      v-if="purchaseInfoVisible"
-      title="添加采购信息"
-      :visible.sync="purchaseInfoVisible"
-      width="500px"
-      top="5vh"
-      :close-on-click-modal="false"
+        v-if="pushOrderToStoreVisible"
+        title="同步数据至仓库"
+        :visible.sync="pushOrderToStoreVisible"
+        width="1200px"
+        top="5vh"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
-      <purchase-info
-        :choose-data="multipleSelection"
-        :buyer-account-list="buyerAccountList"
-        :deal-type="dealType"
+      <push-order :choose-data="multipleSelection"/>
+    </el-dialog>
+    <el-dialog
+        v-if="shipInfoVisible"
+        title="批量添加采购物流单号"
+        :visible.sync="shipInfoVisible"
+        width="400px"
+        :close-on-click-modal="false"
         @close="closeDialog"
-      />
-    </el-dialog>
-    <el-dialog
-      v-if="pushOrderToStoreVisible"
-      title="同步数据至仓库"
-      :visible.sync="pushOrderToStoreVisible"
-      width="1200px"
-      top="5vh"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
-    >
-      <push-order :choose-data="multipleSelection" />
-    </el-dialog>
-    <el-dialog
-      v-if="shipInfoVisible"
-      title="批量添加采购物流单号"
-      :visible.sync="shipInfoVisible"
-      width="400px"
-      :close-on-click-modal="false"
-      @close="closeDialog"
     >
       <div v-loading="shipLoading">
         <div class="item-box">
           <span>绑定仓库：</span>
           <el-select v-model="shipBindStore" size="mini" class="btnLongMax">
             <el-option
-              v-for="(item, index) in shipStoreList"
-              :key="index"
-              :label="item.warehouse_name"
-              :value="item.id"
+                v-for="(item, index) in shipStoreList"
+                :key="index"
+                :label="item.warehouse_name"
+                :value="item.id"
             />
           </el-select>
         </div>
         <div class="item-box">
           <span>采购物流单号：</span>
-          <el-input v-model="shipNo" size="mini" clearable class="btnLongMax" />
+          <el-input v-model="shipNo" size="mini" clearable class="btnLongMax"/>
         </div>
         <div class="item-box">
           <span>采购物流公司：</span>
-          <el-input v-model="shipCompany" size="mini" clearable class="btnLongMax" />
+          <el-input v-model="shipCompany" size="mini" clearable class="btnLongMax"/>
         </div>
       </div>
       <span slot="footer">
@@ -788,36 +766,26 @@
       </span>
     </el-dialog>
     <el-dialog
-      v-if="uploadStoreShipAmountVisible"
-      title="上报仓库发货金额"
-      :visible.sync="uploadStoreShipAmountVisible"
-      width="1200px"
-      :close-on-click-modal="false"
+        v-if="uploadStoreShipAmountVisible"
+        title="上报仓库发货金额"
+        :visible.sync="uploadStoreShipAmountVisible"
+        width="1200px"
+        :close-on-click-modal="false"
     >
-      <upload-store-ship-amount @close="closeDialog" />
+      <upload-store-ship-amount @close="closeDialog"/>
     </el-dialog>
     <!-- 四类商品出库 -->
     <el-dialog
-      v-if="goodsOutStoreVisible"
-      :visible.sync="goodsOutStoreVisible"
-      width="1400px"
-      top="5vh"
-      :close-on-click-modal="false"
+        v-if="goodsOutStoreVisible"
+        :visible.sync="goodsOutStoreVisible"
+        width="1400px"
+        top="5vh"
+        :close-on-click-modal="false"
     >
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @dynamicSet="setTableData"
+      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType"
+                       @dynamicSet="setTableData"
                        @close="closeDialog"/>
-    </el-dialog>
-    <el-dialog
-      v-if="addBuyLinkVisible"
-      title="添加采购链接"
-      :visible.sync="addBuyLinkVisible"
-      width="1200px"
-      append-to-body
-      :close-on-click-modal="false"
-      @close="closeDialog"
-    >
-      <buy-link :link-row="clickRow" @close="closeDialog" />
     </el-dialog>
     <el-dialog title="查看禁运品" :visible.sync="lookForbidVisible" width="1200px" :close-on-click-modal="false">
       <div class="forbid">
@@ -834,42 +802,42 @@
       </div>
     </el-dialog>
     <el-dialog
-      v-if="addMoreTraNumberVisible"
-      title="添加多物流单号"
-      :visible.sync="addMoreTraNumberVisible"
-      width="700px"
-      :close-on-click-modal="false"
-      @close="closeDialog"
+        v-if="addMoreTraNumberVisible"
+        title="添加多物流单号"
+        :visible.sync="addMoreTraNumberVisible"
+        width="700px"
+        :close-on-click-modal="false"
+        @close="closeDialog"
     >
       <div class="tra-style">
         <div class="item-box">
           <span style="width: 60px">绑定仓库</span>
           <el-select v-model="bindStore" size="mini" class="inputWidth">
             <el-option
-              v-for="(item, index) in warehouseData"
-              :key="index"
-              :label="item.warehouse_name"
-              :value="item.id"
+                v-for="(item, index) in warehouseData"
+                :key="index"
+                :label="item.warehouse_name"
+                :value="item.id"
             />
           </el-select>
         </div>
         <div v-for="(item, index) in trackingNumberList" :key="index" class="tra-content">
           <div class="item-box">
             <span style="width: 80px">物流单号{{ index + 1 }}</span>
-            <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth" />
+            <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth"/>
           </div>
           <div class="item-box">
             <span style="width: 80px">物流公司{{ index + 1 }}</span>
-            <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right" />
+            <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right"/>
           </div>
           <el-button type="primary" size="mini" class="item-box mar-right" @click="deleteTraNumber(index,item)">删除
           </el-button>
           <el-button
-            v-if="index === trackingNumberList.length - 1"
-            type="primary"
-            size="mini"
-            class="item-box"
-            @click="addTraNumber"
+              v-if="index === trackingNumberList.length - 1"
+              type="primary"
+              size="mini"
+              class="item-box"
+              @click="addTraNumber"
           >添加
           </el-button>
         </div>
@@ -882,35 +850,35 @@
       </span>
     </el-dialog>
     <el-dialog
-      v-if="billsDetailVisible"
-      title="账单明细"
-      :visible.sync="billsDetailVisible"
-      top="5vh"
-      width="1200px"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
+        v-if="billsDetailVisible"
+        title="账单明细"
+        :visible.sync="billsDetailVisible"
+        top="5vh"
+        width="1200px"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
-      <bill-detail :choose-data="clickRow" />
+      <bill-detail :choose-data="clickRow"/>
     </el-dialog>
     <el-dialog
-      v-if="trackPathVisible"
-      title="物流轨迹"
-      :visible.sync="trackPathVisible"
-      width="400px"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
+        v-if="trackPathVisible"
+        title="物流轨迹"
+        :visible.sync="trackPathVisible"
+        width="400px"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
       <el-steps direction="vertical" :active="1">
-        <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')" />
+        <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')"/>
       </el-steps>
     </el-dialog>
     <el-dialog
-      v-if="spTrackPathVisible"
-      title="虾皮物流轨迹"
-      :visible.sync="spTrackPathVisible"
-      width="500px"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
+        v-if="spTrackPathVisible"
+        title="虾皮物流轨迹"
+        :visible.sync="spTrackPathVisible"
+        width="500px"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
       <div class="track-step">
         <div class="step-header">
@@ -926,68 +894,68 @@
         <div v-loading="shipInfoLoading" class="step-content">
           <el-steps direction="vertical" :active="1" space="80px">
             <el-step
-              v-for="(item, index) in spTrackPath"
-              :key="index"
-              icon="el-icon-s-help"
-              :title="item.description"
-              :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')"
+                v-for="(item, index) in spTrackPath"
+                :key="index"
+                icon="el-icon-s-help"
+                :title="item.description"
+                :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')"
             />
           </el-steps>
         </div>
       </div>
     </el-dialog>
     <el-dialog
-      v-if="orderPathVisible"
-      title="订单轨迹"
-      :visible.sync="orderPathVisible"
-      width="500px"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
+        v-if="orderPathVisible"
+        title="订单轨迹"
+        :visible.sync="orderPathVisible"
+        width="500px"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
       <div class="track-step">
         <div v-loading="orderPathInfoLoading" class="step-content">
           <el-steps direction="vertical" :active="1" space="80px">
             <el-step
-              v-for="(item, index) in orderTrackPath"
-              :key="index"
-              icon="el-icon-s-help"
-              :title="item[0]"
-              :description="item[1]"
+                v-for="(item, index) in orderTrackPath"
+                :key="index"
+                icon="el-icon-s-help"
+                :title="item[0]"
+                :description="item[1]"
             />
           </el-steps>
         </div>
       </div>
     </el-dialog>
     <el-dialog
-      v-if="orderReportVisible"
-      title="订单报表"
-      :visible.sync="orderReportVisible"
-      top="5vh"
-      width="800px"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
+        v-if="orderReportVisible"
+        title="订单报表"
+        :visible.sync="orderReportVisible"
+        top="5vh"
+        width="800px"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
-      <export-report />
+      <export-report/>
     </el-dialog>
     <el-dialog
-      v-if="replayOrderBuyerVisible"
-      title="回复订单买家"
-      :visible.sync="replayOrderBuyerVisible"
-      top="5vh"
-      width="600px"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
+        v-if="replayOrderBuyerVisible"
+        title="回复订单买家"
+        :visible.sync="replayOrderBuyerVisible"
+        top="5vh"
+        width="600px"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
-      <reply-buyer :choose-data="replyBuyerData" @close="closeDialog('noRefresh')" />
+      <reply-buyer :choose-data="replyBuyerData" @close="closeDialog('noRefresh')"/>
     </el-dialog>
     <el-dialog
-      v-if="handOutOrderVisible"
-      title="填写发货单号"
-      :visible.sync="handOutOrderVisible"
-      top="5vh"
-      width="500px"
-      :close-on-click-modal="false"
-      @close="closeDialog"
+        v-if="handOutOrderVisible"
+        title="填写发货单号"
+        :visible.sync="handOutOrderVisible"
+        top="5vh"
+        width="500px"
+        :close-on-click-modal="false"
+        @close="closeDialog"
     >
       <div class="handle-out">
         <div class="item">
@@ -1004,11 +972,11 @@
         </div>
         <div class="item">
           <span>发货物流名称：</span>
-          <el-input v-model="shippingProof" size="mini" class="inputWidth" />
+          <el-input v-model="shippingProof" size="mini" class="inputWidth"/>
         </div>
         <div class="item">
           <span>发货物流单号：</span>
-          <el-input v-model="shippingTraceNo" size="mini" class="inputWidth" />
+          <el-input v-model="shippingTraceNo" size="mini" class="inputWidth"/>
         </div>
       </div>
       <span slot="footer">
@@ -1016,26 +984,26 @@
       </span>
     </el-dialog>
     <el-dialog
-      v-if="secondSaleVisible"
-      title="二次销售"
-      :visible.sync="secondSaleVisible"
-      top="5vh"
-      width="1500px"
-      :close-on-click-modal="false"
-      @close="closeDialog"
+        v-if="secondSaleVisible"
+        title="二次销售"
+        :visible.sync="secondSaleVisible"
+        top="5vh"
+        width="1500px"
+        :close-on-click-modal="false"
+        @close="closeDialog"
     >
-      <second-sale :choose-data="clickRow" :second-order-data="secondOrderList" @close="closeDialog" />
+      <second-sale :choose-data="clickRow" :second-order-data="secondOrderList" @close="closeDialog"/>
     </el-dialog>
     <el-dialog
-      v-if="collectionVisible"
-      title="图搜同款"
-      :visible.sync="collectionVisible"
-      top="5vh"
-      width="1200px"
-      :close-on-click-modal="false"
-      @close="closeDialog('noRefresh')"
+        v-if="collectionVisible"
+        title="图搜同款"
+        :visible.sync="collectionVisible"
+        top="5vh"
+        width="1200px"
+        :close-on-click-modal="false"
+        @close="closeDialog('noRefresh')"
     >
-      <image-collection :choose-data="clickRow" :collect-type="collectType" @close="closeDialog('noRefresh')" />
+      <image-collection :choose-data="clickRow" :collect-type="collectType" @close="closeDialog('noRefresh')"/>
     </el-dialog>
     <div class="dialog_shell">
       <el-dialog
@@ -1046,10 +1014,36 @@
           width="1200px"
           :close-on-click-modal="false"
           :close-on-press-escape="false">
-        <UploadOrdersShipment :select-mall-list="selectMallList" />
+        <UploadOrdersShipment :select-mall-list="selectMallList"/>
+      </el-dialog>
+      <el-dialog
+          v-if="addBuyLinkVisible"
+          title="添加采购链接"
+          :visible.sync="addBuyLinkVisible"
+          width="1200px"
+          append-to-body
+          :close-on-click-modal="false"
+          @close="closeDialog"
+      >
+        <buy-link :link-row="clickRow" @close="closeDialog"/>
+      </el-dialog>
+      <el-dialog
+          v-if="purchaseInfoVisible"
+          title="添加采购信息"
+          :visible.sync="purchaseInfoVisible"
+          width="500px"
+          top="5vh"
+          :close-on-click-modal="false"
+      >
+        <purchase-info
+            :choose-data="multipleSelection"
+            :buyer-account-list="buyerAccountList"
+            :deal-type="dealType"
+            @close="closeDialog"
+        />
       </el-dialog>
     </div>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -2248,17 +2242,17 @@ export default {
       for (let i = 0; i < this.multipleSelection.length; i++) {
         const order = this.multipleSelection[i]
         await dealwithOriginGoodsNum(
-          order.goods_info.ori_goods_id,
-          order.goods_info.ori_platform_id,
-          order.mall_info.platform_mall_id,
-          order.goods_info.goods_id,
-          order.country,
-          order.order_sn,
-          this.$refs.Logs.writeLog,
-          order.goods_info.ori_platform_mall_id,
-          order.goods_info.ori_country,
-          this,
-          order
+            order.goods_info.ori_goods_id,
+            order.goods_info.ori_platform_id,
+            order.mall_info.platform_mall_id,
+            order.goods_info.goods_id,
+            order.country,
+            order.order_sn,
+            this.$refs.Logs.writeLog,
+            order.goods_info.ori_platform_mall_id,
+            order.goods_info.ori_country,
+            this,
+            order
         )
       }
     },
@@ -2379,12 +2373,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
-          setGoodsDelete(this, row)
-          // this.setGoodsDelete(row)
-        })
-        .catch(() => {
-        })
+          .then(() => {
+            setGoodsDelete(this, row)
+            // this.setGoodsDelete(row)
+          })
+          .catch(() => {
+          })
     },
     async goodsDelist(row) {
       this.$confirm('是否下架该商品?', '商品下架', {
@@ -2392,12 +2386,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
-          setGoodsDelist(this, row)
-          // this.setGoodsDelist(row)
-        })
-        .catch(() => {
-        })
+          .then(() => {
+            setGoodsDelist(this, row)
+            // this.setGoodsDelist(row)
+          })
+          .catch(() => {
+          })
     },
     async saveHandleOut() {
       try {
@@ -3777,7 +3771,11 @@ export default {
     }
 
     /deep/ .el-range-input {
-      width: 24%;
+      width: 70px
+    }
+    /deep/ .el-range-separator {
+      width: 5px;
+      padding: 0;
     }
 
     span {
@@ -4052,8 +4050,8 @@ export default {
   }
 }
 
-.gross_profit{
-  .el-input__inner{
+.gross_profit {
+  .el-input__inner {
     padding-left: 8px;
     padding-right: 20px;
   }

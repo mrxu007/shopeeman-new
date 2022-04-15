@@ -95,17 +95,8 @@
                         collapse-tags
                         @change="changeSelect($event, 'source')"
                       >
-                        <el-option
-                          :value="0"
-                          label="全部"
-                          @click.native="selectAll('source', sourceList)"
-                        />
-                        <el-option
-                          v-for="(item,index) in sourceList"
-                          :key="index"
-                          :value="item.value"
-                          :label="item.label"
-                        />
+                        <el-option :value="0" label="全部" @click.native="selectAll('source', sourceList)"/>
+                        <el-option v-for="(item,index) in sourceList" :key="index" :value="item.value" :label="item.label"/>
                       </el-select>
                     </el-form-item>
                     <el-form-item label="更新时间：">
@@ -1042,6 +1033,7 @@ import StoreChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, waitStart, imageCompressionUpload, delay, sleep } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
+import { goodsSourceList,goodsSourceNameList } from '@/views/order-manager/components/orderCenter/orderCenter'
 export default {
   components: {
     StoreChoose,
@@ -1228,22 +1220,7 @@ export default {
         'setLogistics': '物流方式',
         'setCategory': '类目属性'
       },
-      parentTypeObj: {
-        1: '拼多多',
-        2: '淘宝',
-        3: '天猫',
-        4: '京东',
-        5: '自有产品',
-        6: '皮皮虾供货平台',
-        7: '货源甲',
-        8: '1688',
-        9: 'lazada',
-        10: '京喜',
-        11: 'Shopee',
-        12: '速卖通',
-        13: '天猫淘宝海外平台',
-        15: '货老板云仓'
-      },
+      parentTypeObj: goodsSourceNameList,
       searchTypeList: [
         { value: 'name', label: '商品名称' },
         { value: 'sku', label: '主商品货号' },
@@ -1251,21 +1228,7 @@ export default {
         { value: 'id', label: '商品编号' },
         { value: 'originId', label: '上家商品ID' }
       ],
-      sourceList: [
-        { value: '拼多多', label: '拼多多' },
-        { value: '淘宝', label: '淘宝' },
-        { value: '天猫', label: '天猫' },
-        { value: '自有产品', label: '自有产品' },
-        { value: '皮皮虾供货平台', label: '皮皮虾供货平台' },
-        { value: '货老板', label: '货老板' },
-        { value: '1688', label: '1688' },
-        { value: 'Lazada', label: 'Lazada' },
-        { value: '京喜', label: '京喜' },
-        { value: 'Shopee', label: 'Shopee' },
-        { value: '速卖通', label: '速卖通' },
-        { value: '天猫淘宝海外平台', label: '天猫淘宝海外平台' }
-        // { value: 15, label: '货老板海外' }
-      ],
+      sourceList: goodsSourceList,
       countryArr: ['SG', 'GL', 'PH', 'VN', 'TW', 'MY', 'ID', 'TH', 'MX', 'CO', 'CL', 'PL', 'FR', 'ES'], // 更新了数据的站点
       parentTypeList: [
         { value: 1, label: '拼多多' },
@@ -3340,6 +3303,7 @@ export default {
           if (res.data.list?.length) {
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
+            console.log('filterData',res.data.list)
             // 过滤数据
             const { fData, len } = this.filterData(res.data.list)
             if (!this.productNumChecked) {
@@ -3563,7 +3527,7 @@ export default {
             continue
           }
           // 过滤上家来源
-          if (this.source[0] !== 0 && !(this.source.includes(item.platformTypeStr))) {
+          if (this.source[0] !== 0 && !(this.source.includes(item.platform))) {
             continue
           }
           // 过滤更新时间
@@ -3683,8 +3647,10 @@ export default {
               this.platformData['productId'] = itemSku
             }
           }
-        } else {
+        }
+        else {
           const res = await this.$BaseUtilService.decGoodCode(itemSku)
+          console.log('decGoodCode',res,itemSku)
           if (res.indexOf('-') > -1) {
             const arr = res.split('-')
             this.getPlatformSimpleStr(arr[0], arr)
@@ -3708,12 +3674,9 @@ export default {
           this.platformData['platform'] = 2
           this.platformData['productId'] = id
         } else if (name.toLocaleLowerCase() === 'tm') {
-          this.platformData['platform'] = 2
-          this.platformData['productId'] = id
-        } else if (name.toLocaleLowerCase() === 'tb') {
           this.platformData['platform'] = 3
           this.platformData['productId'] = id
-        } else if (name.toLocaleLowerCase() === 'own') {
+        }  else if (name.toLocaleLowerCase() === 'own') {
           this.platformData['platform'] = 5
           this.platformData['productId'] = id
         } else if (name.toLocaleLowerCase() === 'ghpt') {
@@ -3751,6 +3714,9 @@ export default {
           this.platformData['platform'] = 13
           this.platformData['productId'] = id
           this.platformData['userId'] = arr.Length > 2 ? arr[2] : ''
+        }else if (name.toLocaleLowerCase() === 'tokopedia') {
+          this.platformData['platform'] = 16
+          this.platformData['productId'] = id
         }
       } catch (error) {
         console.log('匹配上家异常', error)

@@ -54,7 +54,6 @@ i.close-right{
 }
 
 .dialog_shell{
-
   .el-dialog__header {
     padding: 10px;
 
