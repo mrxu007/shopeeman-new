@@ -1081,7 +1081,7 @@ export default {
         mask: '0'
       }
     },
-    confirmAddresses() {
+    async confirmAddresses() {
       let addressDate = JSON.parse(JSON.stringify(this.addressQuery))
       this.hideConsole = false
       const nameList = addressDate.city.map(son => son.name)
@@ -1118,12 +1118,12 @@ export default {
         defaultCount:0,
         takeCount:0,
       }
-      batchOperation(data, this.setAddresses)
+      await batchOperation(data, this.setAddresses)
       this.$refs.Logs.writeLog(`店铺地址添加成功率为${this.addressesSuccess.addCount}/${data.length}`, true)
       if(addressDate.default){
         this.$refs.Logs.writeLog(`店铺默认地址设置成功率为${this.addressesSuccess.defaultCount}/${data.length}`, true)
       }
-      if(addressDate.take){
+      if(addressDate.take || addressDate.backMail){
         this.$refs.Logs.writeLog(`店铺取件(回邮)地址设置成功率为${this.addressesSuccess.takeCount}/${data.length}`, true)
       }
     },
@@ -1152,59 +1152,62 @@ export default {
         if (addAddressRes.status >= 200 && addAddressRes.status < 300) {
           const addAddressData = JSON.parse(addAddressRes.data)
           const success = addAddressData.code === 0
-          address_id = addAddressData.data.address_id
+          address_id = addAddressData.data?.address_id || ''
           success && ++this.addressesSuccess.addCount
           this.$refs.Logs.writeLog(`店铺【${name}】添加地址${success && '成功' || '失败'}`, success)
         } else if (addAddressRes.status === 403) {
           this.$refs.Logs.writeLog(`店铺【${name}】尚未登录无法设置地址`, false)
           return
         } else {
-          this.$refs.Logs.writeLog(`店铺【${name}】添加地址失败，无法设置`, false)
+          this.$refs.Logs.writeLog(`店铺【${name}】添加地址失败，无法设置,请重新尝试`, false)
           return
         }
-        if (isDefault) {
-          const param = {
-            mallId: item.mallId,
-            address_id: address_id
+        if(address_id){
+          if (isDefault) {
+            const param = {
+              mallId: item.mallId,
+              address_id: address_id
+            }
+            const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param, option)
+            const defaultAddressRes = JSON.parse(defaultAddressJson)
+            console.log('defaultAddressRes', defaultAddressRes)
+            if (defaultAddressRes.status >= 200 && defaultAddressRes.status < 300) {
+              const defaultAddressData = JSON.parse(defaultAddressRes.data)
+              const success = defaultAddressData.code === 0
+              this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success && '成功' || '失败'}`, success)
+              success && ++this.addressesSuccess.defaultCount
+            } else {
+              this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置失败`, false)
+            }
           }
-          const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param, option)
-          const defaultAddressRes = JSON.parse(defaultAddressJson)
-          console.log('defaultAddressRes', defaultAddressRes)
-          if (defaultAddressRes.status >= 200 && defaultAddressRes.status < 300) {
-            const defaultAddressData = JSON.parse(defaultAddressRes.data)
-            const success = defaultAddressData.code === 0
-            success && ++this.addressesSuccess.defaultCount
-            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success && '成功' || '失败'}`, success)
-          } else {
-            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置失败`, false)
-          }
-        }
-        if (isTake || isBackMail) {
-          const param = {
-            mallId: item.mallId,
-            set_as_seller_return_address: false
-          }
-          if (isTake) {
-            param['pick_up_address_id'] = address_id
-          }
-          if (isBackMail) {
-            param['return_address_id'] = address_id
-          }
-          const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param, option)
-          const shopAddressRes = JSON.parse(shopAddressJson)
-          console.log('shopAddressRes', shopAddressRes)
-          if (shopAddressRes.status >= 200 && shopAddressRes.status < 300) {
-            const shopAddressData = JSON.parse(shopAddressRes.data)
-            const success = shopAddressData.code === 0
-            success && ++this.addressesSuccess.takeCount
-            this.$refs.Logs.writeLog(`店铺【${name}】
+          if (isTake || isBackMail) {
+            const param = {
+              mallId: item.mallId,
+              set_as_seller_return_address: false
+            }
+            if (isTake) {
+              param['pick_up_address_id'] = address_id
+            }
+            if (isBackMail) {
+              param['return_address_id'] = address_id
+            }
+            const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param, option)
+            const shopAddressRes = JSON.parse(shopAddressJson)
+            console.log('shopAddressRes', shopAddressRes)
+            if (shopAddressRes.status >= 200 && shopAddressRes.status < 300) {
+              const shopAddressData = JSON.parse(shopAddressRes.data)
+              const success = shopAddressData.code === 0
+              this.$refs.Logs.writeLog(`店铺【${name}】
             ${isTake && '取件地址'}${isBackMail && '回邮地址'}设置${success && '成功' || '失败'}`, success)
-          } else {
-            this.$refs.Logs.writeLog(`店铺【${name}】
+              success && ++this.addressesSuccess.takeCount
+            } else {
+              this.$refs.Logs.writeLog(`店铺【${name}】
             ${isTake && '取件地址'}${isBackMail && '回邮地址'}设置失败`, false)
+            }
           }
         }
       } catch (e) {
+        console.log(e)
         this.$refs.Logs.writeLog(`店铺【${name}】地址设置失败`, false)
       } finally {
         count.count--

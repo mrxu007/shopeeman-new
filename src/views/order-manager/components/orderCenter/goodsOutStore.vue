@@ -361,7 +361,7 @@ export default {
       if (!this.matchOrderList.length) {
         return this.$message.warning('请先选择商品！')
       }
-      const arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
+      const arr = this.matchOrderList.filter(item => Number(item.outStock) > 0) || []
       if (!arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
@@ -424,7 +424,7 @@ export default {
       }
       const arr = this.matchOrderList.filter((item) => Number(item.outStock) == 0)
       if (arr.length) {
-        return this.$message.warning('出库数量不能为零！')
+        return this.$message.warning('出库数量不能为零！！')
       }
       if (this.orderInfo.country != 'TW' && (this.flagBool == false || this.orderInfo.tracking_no == '')) {
         this.flagText = '该订单面单信息或物流单号不存在，无法出库！'
@@ -485,7 +485,7 @@ export default {
       }
       const arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
       if (!arr.length) {
-        return this.$message.warning('出库数量不能为零！')
+        return this.$message.warning('出库数量不能为零！！！')
       }
       console.log(arr, 'arr')
       let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
@@ -521,7 +521,7 @@ export default {
       }
       const arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
       if (!arr.length) {
-        return this.$message.warning('出库数量不能为零！')
+        return this.$message.warning('出库数量不能为零！！！！')
       }
       let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
       const paramsList = []
@@ -560,9 +560,11 @@ export default {
     },
     // 出库数量
     setOutStock(row, index) {
+      console.log(row, index)
       if (Number(this.outStock[index]) > Number(row.stock_num)) {
         this.outStock[index] = 0
-        return this.$message.warning('出库数量不能大于可出库数量！')
+        this.$message.warning('出库数量不能大于可出库数量！')
+        return
       }
       this.$set(this.matchOrderList[index], 'outStock', this.outStock[index])
       this.totalPrice()
@@ -625,6 +627,7 @@ export default {
       this.orderInfo = {}
       this.orderList = []
       this.matchOrderList = []
+      this.outStock = []
       this.grossProfit = null
       this.interestRate = null
       this.orderInfo = this.chooseData[this.clickNum++]
