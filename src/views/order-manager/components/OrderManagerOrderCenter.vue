@@ -1295,7 +1295,6 @@ export default {
         this.tableColumnList.forEach(item => {
           this.columnConfigShowList.push({ ...item })
         })
-        console.log(this.columnConfigShowList, '111111111111', this.tableColumnList)
       }
     },
     tableColumnShow(val) {
