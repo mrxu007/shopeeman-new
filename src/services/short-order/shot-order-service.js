@@ -90,11 +90,7 @@ export default class {
       TaobaoCookieForImg: buyerMap.get(Number(shotOrderPlatform.TaoBao)) && buyerMap.get(Number(shotOrderPlatform.TaoBao)).LoginedCookies || [],
       TaobaoRemark: configInfo.taobao_leave_content, // '请不要放价格单,不要放好评卡', //非固定传参的字段(暂时默认)
       AlibabaRemark: configInfo.ali_leave_content, // 非固定传参的字段(暂时默认)
-<<<<<<< HEAD
-      ZhiFuBaoAwid: '',
-=======
       ZhiFuBaoAwid: configInfo.pay_cookie || '',
->>>>>>> 3eae3c709184eb891644d586b54e10cbbc1302be
       ProfitRate: 100,
       SkipPreSale: false,
       SkipColleague: false,
@@ -255,12 +251,8 @@ export default class {
           }
         }
         // 如果为系统仓库（isUser  0为系统，1为自有）并且仓库绑定的国家（country）和订单信息中的站点信息不匹配
-<<<<<<< HEAD
-        if (warehouseInfo.isUser === 0 && warehouseInfo.country !== itemOrder.country) {
-=======
         const warehouseCountrys = this.arrayToUpperCase(warehouseInfo.countrys) || []
         if (warehouseInfo.isUser === 0 && (!warehouseCountrys.includes(itemOrder.country.toLocaleUpperCase()) && (!warehouseCountrys.length && itemOrder.country.toLocaleUpperCase() !== warehouseInfo.country.toLocaleUpperCase()))) {
->>>>>>> 3eae3c709184eb891644d586b54e10cbbc1302be
           return {
             code: 50006,
             data: `店铺【${itemOrder.mall_info.platform_mall_name}】绑定的仓库地址${warehouseInfo.warehouse_name}站点不一致，请前往【仓库收货地址设置】进行重新选择仓库。`
@@ -901,8 +893,6 @@ export default class {
     console.log(a, b)
     return this.nativeService.jumpHyj(a, b)
   }
-<<<<<<< HEAD
-=======
   arrayToUpperCase(array) {
     if (!array) {
       return []
@@ -912,5 +902,4 @@ export default class {
     })
     return array
   }
->>>>>>> 3eae3c709184eb891644d586b54e10cbbc1302be
 }

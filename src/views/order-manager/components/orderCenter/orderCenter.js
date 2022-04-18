@@ -6,56 +6,56 @@ const orderStatusList = [{
   label: '待支付',
   color: '#000'
 },
-  {
-    value: 2,
-    label: '待发货',
-    color: '#FF0000'
-  },
-  {
-    value: 3,
-    label: '已发货',
-    color: '#32CD32'
-  },
-  {
-    value: 4,
-    label: '已完成',
-    color: '#32CD32'
-  },
-  {
-    value: 5,
-    label: '取消中',
-    color: '#000'
-  },
-  {
-    value: 6,
-    label: '已取消',
-    color: '#000'
-  },
-  {
-    value: 7,
-    label: '退款/退货',
-    color: '#FF0000'
-  },
-  {
-    value: 8,
-    label: '确认签收',
-    color: '#000'
-  },
-  {
-    value: 9,
-    label: '退款成功',
-    color: '#32CD32'
-  },
-  {
-    value: 10,
-    label: '退款失败',
-    color: '#FF0000'
-  },
-  {
-    value: 20,
-    label: '无售后订单',
-    color: '#000'
-  }
+{
+  value: 2,
+  label: '待发货',
+  color: '#FF0000'
+},
+{
+  value: 3,
+  label: '已发货',
+  color: '#32CD32'
+},
+{
+  value: 4,
+  label: '已完成',
+  color: '#32CD32'
+},
+{
+  value: 5,
+  label: '取消中',
+  color: '#000'
+},
+{
+  value: 6,
+  label: '已取消',
+  color: '#000'
+},
+{
+  value: 7,
+  label: '退款/退货',
+  color: '#FF0000'
+},
+{
+  value: 8,
+  label: '确认签收',
+  color: '#000'
+},
+{
+  value: 9,
+  label: '退款成功',
+  color: '#32CD32'
+},
+{
+  value: 10,
+  label: '退款失败',
+  color: '#FF0000'
+},
+{
+  value: 20,
+  label: '无售后订单',
+  color: '#000'
+}
 ]
 
 function changeOrderStatus(val, type) {
@@ -72,41 +72,41 @@ const shotStatusList = [{
   label: '待采购',
   color: '#FF0000'
 },
-  {
-    value: 3,
-    label: '采购成功',
-    color: '#32CD32'
-  },
-  {
-    value: 4,
-    label: '上家已发货',
-    color: '#000'
-  },
-  {
-    value: 5,
-    label: '待支付',
-    color: '#000'
-  },
-  {
-    value: 6,
-    label: '已完成',
-    color: '#32CD32'
-  },
-  {
-    value: 7,
-    label: '已取消',
-    color: '#000'
-  },
-  {
-    value: 8,
-    label: '已申请退款',
-    color: '#FF0000'
-  },
-  {
-    value: 9,
-    label: '退款成功',
-    color: '#000'
-  }
+{
+  value: 3,
+  label: '采购成功',
+  color: '#32CD32'
+},
+{
+  value: 4,
+  label: '上家已发货',
+  color: '#000'
+},
+{
+  value: 5,
+  label: '待支付',
+  color: '#000'
+},
+{
+  value: 6,
+  label: '已完成',
+  color: '#32CD32'
+},
+{
+  value: 7,
+  label: '已取消',
+  color: '#000'
+},
+{
+  value: 8,
+  label: '已申请退款',
+  color: '#FF0000'
+},
+{
+  value: 9,
+  label: '退款成功',
+  color: '#000'
+}
 ]
 
 function changeShotStatus(val, type) {
@@ -121,36 +121,36 @@ const shotStatuForEdit = [{
   value: 1,
   label: '待采购'
 },
-  {
-    value: 3,
-    label: '采购成功'
-  },
-  {
-    value: 4,
-    label: '上家已发货'
-  },
-  {
-    value: 6,
-    label: '已完成'
-  }
+{
+  value: 3,
+  label: '采购成功'
+},
+{
+  value: 4,
+  label: '上家已发货'
+},
+{
+  value: 6,
+  label: '已完成'
+}
 ]
 // 时间类型  timeType : 订单支付时间  shopeeDeliveryTime: 发货时间  sourceShippingTime:采购发货时间   shipByDate: 订单截止发货时间
 const timeTypeList = [{
   value: 'payTime',
   label: '订单支付时间'
 },
-  {
-    value: 'shopeeDeliveryTime',
-    label: '发货时间'
-  },
-  {
-    value: 'sourceShippingTime',
-    label: '采购发货时间'
-  },
-  {
-    value: 'shipByDate',
-    label: '订单截止发货时间'
-  }
+{
+  value: 'shopeeDeliveryTime',
+  label: '发货时间'
+},
+{
+  value: 'sourceShippingTime',
+  label: '采购发货时间'
+},
+{
+  value: 'shipByDate',
+  label: '订单截止发货时间'
+}
 ]
 // 查询类型  订单编号：orderSn ，采购物流单号：originalTrackingNumber，采购单号：patOrderSn，平台物流单号：trackingNo，
 // 备注：remark，商品货号：variationSku，买手号：buyAccount，支付账号:payAccount
@@ -158,38 +158,38 @@ const inputTypeList = [{
   value: 'orderSn',
   label: '订单编号'
 },
-  {
-    value: 'variationId',
-    label: '规格编号'
-  },
-  {
-    value: 'originalTrackingNumber',
-    label: '采购物流单号'
-  },
-  {
-    value: 'patOrderSn',
-    label: '采购单号'
-  },
-  {
-    value: 'trackingNo',
-    label: '平台物流单号'
-  },
-  {
-    value: 'remark',
-    label: '备注'
-  },
-  {
-    value: 'variationSku',
-    label: '商品货号'
-  },
-  {
-    value: 'buyAccount',
-    label: '买手号'
-  },
-  {
-    value: 'payAccount',
-    label: '支付账号'
-  }
+{
+  value: 'variationId',
+  label: '规格编号'
+},
+{
+  value: 'originalTrackingNumber',
+  label: '采购物流单号'
+},
+{
+  value: 'patOrderSn',
+  label: '采购单号'
+},
+{
+  value: 'trackingNo',
+  label: '平台物流单号'
+},
+{
+  value: 'remark',
+  label: '备注'
+},
+{
+  value: 'variationSku',
+  label: '商品货号'
+},
+{
+  value: 'buyAccount',
+  label: '买手号'
+},
+{
+  value: 'payAccount',
+  label: '支付账号'
+}
 ]
 // 商品来源  1:拼多多 2:淘宝 3:天猫 5:自有 8:1688  9: Lazada   10:京喜  11:shopee  12:ALIEXPRESS 15:货老板海外  13: 天猫淘宝海外平台
 const goodsSourceList = [
@@ -256,14 +256,14 @@ const goodsSourceNameList = {
   11: 'Shopee',
   12: '速卖通',
   13: '天猫淘宝海外平台',
-  15: '货老板云仓',
+  15: '货老板云仓'
   // 16: 'tokopedia'
 }
 const goodsSourceListLink = [
   {
-  value: '1',
-  label: '拼多多'
-},
+    value: '1',
+    label: '拼多多'
+  },
   {
     value: '2',
     label: '淘宝'
@@ -351,21 +351,37 @@ const site_mall = [
     'ShipId': '70024',
     'ShipName': 'DHL Bulky'
   },
+  // {
+  //   'Country': '泰国站',
+  //   'CountryCode': 'TH',
+  //   'IsDeafult': false,
+  //   'IsSelected': false,
+  //   'ShipId': '70016',
+  //   'ShipName': 'Thailand Post - Registered Mail'
+  // },
+  // {
+  //   'Country': '泰国站',
+  //   'CountryCode': 'TH',
+  //   'IsDeafult': false,
+  //   'IsSelected': false,
+  //   'ShipId': '70015',
+  //   'ShipName': 'Thailand Post - EMS'
+  // },
   {
     'Country': '泰国站',
     'CountryCode': 'TH',
-    'IsDeafult': false,
+    'IsDeafult': true,
     'IsSelected': false,
-    'ShipId': '70016',
-    'ShipName': 'Thailand Post - Registered Mail'
+    'ShipId': '70017',
+    'ShipName': 'Registered Mail - Thailand Post'
   },
   {
     'Country': '泰国站',
     'CountryCode': 'TH',
-    'IsDeafult': false,
+    'IsDeafult': true,
     'IsSelected': false,
-    'ShipId': '70015',
-    'ShipName': 'Thailand Post - EMS'
+    'ShipId': '70018',
+    'ShipName': 'EMS - Thailand Post'
   },
   {
     'Country': '泰国站',
@@ -942,14 +958,14 @@ const statusListSecond = [{
   label: '待发货',
   value: 'toship'
 },
-  {
-    label: '取消中',
-    value: 'cancelled'
-  },
-  {
-    label: '退款中',
-    value: 'refund'
-  }
+{
+  label: '取消中',
+  value: 'cancelled'
+},
+{
+  label: '退款中',
+  value: 'refund'
+}
 ]
 
 // 每隔60分钟同步一次
@@ -957,19 +973,19 @@ const statusListThird = [{
   label: '已发货',
   value: 'shipping'
 },
-  {
-    label: '已完成',
-    value: 'completed'
-  }
+{
+  label: '已完成',
+  value: 'completed'
+}
 ]
 const statusAfterList = [{
   label: '取消中',
   value: 'cancelled'
 },
-  {
-    label: '退款中',
-    value: 'refund'
-  }
+{
+  label: '退款中',
+  value: 'refund'
+}
 ]
 
 // 物流方式
@@ -1005,14 +1021,14 @@ const upLoadType = [{
   label: '自动',
   value: 'auto'
 },
-  {
-    label: '手动同步',
-    value: 'manual'
-  },
-  {
-    label: '单个同步',
-    value: 'single'
-  }
+{
+  label: '手动同步',
+  value: 'manual'
+},
+{
+  label: '单个同步',
+  value: 'single'
+}
 ]
 const buyPayMethod = {
   0: '',
@@ -1030,30 +1046,30 @@ const platformPayMethod = {
     label: '全部',
     value: ''
   },
-    {
-      label: 'Credit/Debit Card',
-      value: '1'
-    }, {
-      label: 'Indomaret',
-      value: '13'
-    }, {
-      label: 'Bank Transfer',
-      value: '2'
-    }, {
-      label: 'SPayLater',
-      value: '24'
-    },
-    {
-      label: 'ShopeePay',
-      value: '27'
-    },
-    {
-      label: 'Online Payment',
-      value: '41'
-    }, {
-      label: 'COD',
-      value: '6'
-    }
+  {
+    label: 'Credit/Debit Card',
+    value: '1'
+  }, {
+    label: 'Indomaret',
+    value: '13'
+  }, {
+    label: 'Bank Transfer',
+    value: '2'
+  }, {
+    label: 'SPayLater',
+    value: '24'
+  },
+  {
+    label: 'ShopeePay',
+    value: '27'
+  },
+  {
+    label: 'Online Payment',
+    value: '41'
+  }, {
+    label: 'COD',
+    value: '6'
+  }
   ],
   'MY': [{
     label: '全部',
@@ -1084,42 +1100,42 @@ const platformPayMethod = {
     label: '全部',
     value: ''
   },
-    {
-      label: 'Credit',
-      value: '1'
-    },
-    {
-      label: 'Bank Transfer',
-      value: '2'
-    }, {
-      label: 'ShopeePay',
-      value: '27'
-    }, {
-      label: 'Debit Card',
-      value: '4'
-    }, {
-      label: 'COD',
-      value: '6'
-    }
+  {
+    label: 'Credit',
+    value: '1'
+  },
+  {
+    label: 'Bank Transfer',
+    value: '2'
+  }, {
+    label: 'ShopeePay',
+    value: '27'
+  }, {
+    label: 'Debit Card',
+    value: '4'
+  }, {
+    label: 'COD',
+    value: '6'
+  }
   ],
   'SG': [{
     label: '全部',
     value: ''
   },
-    {
-      label: 'Credit/Debit Card',
-      value: '1'
-    },
-    {
-      label: 'Bank Transfer',
-      value: '2'
-    }, {
-      label: 'ShopeePay',
-      value: '27'
-    }, {
-      label: 'Online Payment',
-      value: '49'
-    }
+  {
+    label: 'Credit/Debit Card',
+    value: '1'
+  },
+  {
+    label: 'Bank Transfer',
+    value: '2'
+  }, {
+    label: 'ShopeePay',
+    value: '27'
+  }, {
+    label: 'Online Payment',
+    value: '49'
+  }
   ],
   'TH': [{
     label: '全部',
@@ -1146,14 +1162,14 @@ const platformPayMethod = {
     label: 'free with promotion',
     value: '5'
   },
-    {
-      label: 'Online Payment',
-      value: '50'
-    },
-    {
-      label: 'COD',
-      value: '6'
-    }
+  {
+    label: 'Online Payment',
+    value: '50'
+  },
+  {
+    label: 'COD',
+    value: '6'
+  }
   ],
   'TW': [{
     label: '全部',
@@ -1180,36 +1196,36 @@ const platformPayMethod = {
     label: '接口支付Cross',
     value: '36'
   },
-    {
-      label: '撤销的款项',
-      value: '5'
-    },
-    {
-      label: '货到付款',
-      value: '6'
-    }
+  {
+    label: '撤销的款项',
+    value: '5'
+  },
+  {
+    label: '货到付款',
+    value: '6'
+  }
   ],
   'VN': [{
     label: '全部',
     value: ''
   },
-    {
-      label: 'Credit/Debit Card',
-      value: '1'
-    },
-    {
-      label: 'Seller Balance',
-      value: '20'
-    }, {
-      label: 'AirPay',
-      value: '28'
-    }, {
-      label: 'airpay_giro',
-      value: '30'
-    }, {
-      label: 'COD',
-      value: '6'
-    }
+  {
+    label: 'Credit/Debit Card',
+    value: '1'
+  },
+  {
+    label: 'Seller Balance',
+    value: '20'
+  }, {
+    label: 'AirPay',
+    value: '28'
+  }, {
+    label: 'airpay_giro',
+    value: '30'
+  }, {
+    label: 'COD',
+    value: '6'
+  }
   ]
 }
 
@@ -1224,44 +1240,44 @@ function changePlatformPayMethod(country, key) {
 }
 
 // 配置列表
-const columnData =[{"column_header":"订单编号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"操作","is_show":1,"first_column_is_checkbox":-1},{"column_header":"订单收入","is_show":1,"first_column_is_checkbox":-1},{"column_header":"店铺所属信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"店铺名称","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购绑定仓库","is_show":1,"first_column_is_checkbox":-1},{"column_header":"颜色标识","is_show":1,"first_column_is_checkbox":-1},{"column_header":"发货状态","is_show":1,"first_column_is_checkbox":-1},{"column_header":"订单时间信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购类型","is_show":1,"first_column_is_checkbox":-1},{"column_header":"是否可二次销售","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品ID","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品创建时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品图片","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品单价","is_show":1,"first_column_is_checkbox":-1},{"column_header":"搜同款","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品类目","is_show":1,"first_column_is_checkbox":-1},{"column_header":"规格编号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品规格","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品货号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"买家付款金额","is_show":1,"first_column_is_checkbox":-1},{"column_header":"实际总邮费","is_show":1,"first_column_is_checkbox":-1},{"column_header":"卖家补贴邮费","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购价","is_show":1,"first_column_is_checkbox":-1},{"column_header":"仓库发货金额","is_show":1,"first_column_is_checkbox":-1},{"column_header":"含邮费毛利","is_show":1,"first_column_is_checkbox":-1},{"column_header":"最终毛利","is_show":1,"first_column_is_checkbox":-1},{"column_header":"付款账号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购账号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"拍单","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购状态","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购订单号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购付款方式","is_show":1,"first_column_is_checkbox":-1},{"column_header":"平台付款方式","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购物流信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购发货时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商户订单号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"货物运输及类型","is_show":1,"first_column_is_checkbox":-1},{"column_header":"虾皮物流信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"虾皮物流轨迹","is_show":1,"first_column_is_checkbox":-1},{"column_header":"截止发货时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"仓库发货状态","is_show":1,"first_column_is_checkbox":-1},{"column_header":"仓库时间信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"本地备注","is_show":1,"first_column_is_checkbox":-1},{"column_header":"shopee备注","is_show":1,"first_column_is_checkbox":-1},{"column_header":"shopee备注更新时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"买家信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"买家地址","is_show":1,"first_column_is_checkbox":-1},{"column_header":"订单支付时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"订单更新时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"是否为海外仓商品","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品数量","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品标题","is_show":1,"first_column_is_checkbox":-1},{"column_header":"买家备注","is_show":1,"first_column_is_checkbox":-1}]
+const columnData = [{ 'column_header': '订单编号', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '操作', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '订单收入', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '店铺所属信息', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '店铺名称', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购绑定仓库', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '颜色标识', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '发货状态', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '订单时间信息', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购类型', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '是否可二次销售', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品ID', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品创建时间', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品图片', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品单价', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '搜同款', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品类目', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '规格编号', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品规格', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品货号', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '买家付款金额', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '实际总邮费', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '卖家补贴邮费', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购价', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '仓库发货金额', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '含邮费毛利', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '最终毛利', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '付款账号', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购账号', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '拍单', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购状态', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购时间', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购订单号', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购付款方式', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '平台付款方式', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购物流信息', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '采购发货时间', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商户订单号', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '货物运输及类型', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '虾皮物流信息', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '虾皮物流轨迹', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '截止发货时间', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '仓库发货状态', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '仓库时间信息', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '本地备注', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': 'shopee备注', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': 'shopee备注更新时间', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '买家信息', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '买家地址', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '订单支付时间', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '订单更新时间', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '是否为海外仓商品', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品数量', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '商品标题', 'is_show': 1, 'first_column_is_checkbox': -1 }, { 'column_header': '买家备注', 'is_show': 1, 'first_column_is_checkbox': -1 }]
 const tableColumnListData = [
-    {
-      key: 1,
-      name: '订单编号',
-      width: '170',
-      fixed: 'left',
-      align: '',
-      iCopy: 'order_sn',
-      prop: 'order_sn',
-      rowClick: 'viewDetails_orderDetail',
-      showType: 0
-    },
-    {
-      key: 2,
-      name: '操作',
-      width: '125',
-      fixed: 'left',
-      align: 'center',
-      showType: 2
-    },
-    {
-      key: 3,
-      width: '120',
-      name: '店铺所属信息',
-      align: '',
-      propList: [{
-        name: '站点',
-        filter: $filter.chineseSite,
-        prop: 'country'
-      }, {
-        name: '分组',
-        width: '80',
-        prop: 'group_name'
-      }],
-      showOverflowTooltip: true,
-      showType: 0
+  {
+    key: 1,
+    name: '订单编号',
+    width: '170',
+    fixed: 'left',
+    align: '',
+    iCopy: 'order_sn',
+    prop: 'order_sn',
+    rowClick: 'viewDetails_orderDetail',
+    showType: 0
+  },
+  {
+    key: 2,
+    name: '操作',
+    width: '125',
+    fixed: 'left',
+    align: 'center',
+    showType: 2
+  },
+  {
+    key: 3,
+    width: '120',
+    name: '店铺所属信息',
+    align: '',
+    propList: [{
+      name: '站点',
+      filter: $filter.chineseSite,
+      prop: 'country'
     }, {
+      name: '分组',
+      width: '80',
+      prop: 'group_name'
+    }],
+    showOverflowTooltip: true,
+    showType: 0
+  }, {
     key: 5,
     name: '店铺名称',
     width: '120',
@@ -1741,48 +1757,48 @@ const platformLinkList = [{
   purchase_url_all: 'http://mobile.yangkeduo.com/goods.html?goods_id=2459375892',
   label: '拼多多'
 },
-  {
-    purchase_platform_id: 2,
-    purchase_url: 'https://item.taobao.com/item.htm?id=',
-    purchase_url_all: 'https://item.taobao.com/item.htm?id=561870475654',
-    label: '淘宝'
-  },
-  {
-    purchase_platform_id: 3,
-    purchase_url: 'https://detail.tmall.com/item.htm?id=',
-    purchase_url_all: 'https://detail.tmall.com/item.htm?id=20601016004',
-    label: '天猫'
-  },
-  {
-    purchase_platform_id: 8,
-    purchase_url: 'https://detail.1688.com/offer/',
-    purchase_url_all: 'https://detail.1688.com/offer/635819118296.html',
-    label: '1688'
-  },
-  {
-    purchase_platform_id: 10,
-    purchase_url: 'https://m.jingxi.com/item/view?sku=',
-    purchase_url_all: 'https://m.jingxi.com/item/view?sku=20601016004',
-    label: '京喜'
-  },
-  {
-    purchase_platform_id: 9,
-    purchase_url: 'https://www.lazada.com.my/products/i',
-    purchase_url_all: 'https://www.lazada.com.my/products/i1143594827.html',
-    label: 'lazada'
-  },
-  {
-    purchase_platform_id: 11,
-    purchase_url: 'https://xiapi.xiapibuy.com/product/60119183/',
-    purchase_url_all: 'https://xiapi.xiapibuy.com/product/60119183/2677842767',
-    label: 'shopee'
-  },
-  {
-    purchase_platform_id: 13,
-    purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
-    purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
-    label: '天猫淘宝海外平台'
-  },
+{
+  purchase_platform_id: 2,
+  purchase_url: 'https://item.taobao.com/item.htm?id=',
+  purchase_url_all: 'https://item.taobao.com/item.htm?id=561870475654',
+  label: '淘宝'
+},
+{
+  purchase_platform_id: 3,
+  purchase_url: 'https://detail.tmall.com/item.htm?id=',
+  purchase_url_all: 'https://detail.tmall.com/item.htm?id=20601016004',
+  label: '天猫'
+},
+{
+  purchase_platform_id: 8,
+  purchase_url: 'https://detail.1688.com/offer/',
+  purchase_url_all: 'https://detail.1688.com/offer/635819118296.html',
+  label: '1688'
+},
+{
+  purchase_platform_id: 10,
+  purchase_url: 'https://m.jingxi.com/item/view?sku=',
+  purchase_url_all: 'https://m.jingxi.com/item/view?sku=20601016004',
+  label: '京喜'
+},
+{
+  purchase_platform_id: 9,
+  purchase_url: 'https://www.lazada.com.my/products/i',
+  purchase_url_all: 'https://www.lazada.com.my/products/i1143594827.html',
+  label: 'lazada'
+},
+{
+  purchase_platform_id: 11,
+  purchase_url: 'https://xiapi.xiapibuy.com/product/60119183/',
+  purchase_url_all: 'https://xiapi.xiapibuy.com/product/60119183/2677842767',
+  label: 'shopee'
+},
+{
+  purchase_platform_id: 13,
+  purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
+  purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
+  label: '天猫淘宝海外平台'
+}
   // {
   //   purchase_platform_id: 16,
   //   purchase_url: 'https://www.tokopedia.com/velove/',
@@ -1794,18 +1810,18 @@ const warehouseType = [{
   label: '国内中转仓',
   value: 0
 },
-  {
-    label: '存储转运仓',
-    value: 1
-  },
-  {
-    label: '海外存储仓',
-    value: 2
-  },
-  {
-    label: '海外中转仓',
-    value: 3
-  }
+{
+  label: '存储转运仓',
+  value: 1
+},
+{
+  label: '海外存储仓',
+  value: 2
+},
+{
+  label: '海外中转仓',
+  value: 3
+}
 ]
 const lazadaUrlList = {
   'TH': 'https://acs-m.lazada.co.th',
