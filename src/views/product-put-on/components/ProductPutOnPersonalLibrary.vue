@@ -248,8 +248,7 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection"
-                             @goodsTagChange="goodsTagChange"/>
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection" @close="close"/>
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :modal="false"
                  :visible.sync="categoryVisible">
@@ -382,7 +381,7 @@ export default {
     },
     goodsList: {
       handler(val) {
-        this.showCategory()
+        // this.showCategory()
       },
       deep: true
     }
@@ -814,6 +813,13 @@ export default {
     },
     copy(str) {
       copyText(str)
+    },
+    close(name){
+      if (name){
+        this[name] = false
+      }else {
+
+      }
     }
   }
 }

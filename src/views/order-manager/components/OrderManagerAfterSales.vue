@@ -34,7 +34,7 @@
                   size="mini"
                   value-format="yyyy-MM-dd"
                   type="daterange"
-                  style="width: 300px"
+                  style="width: 200px"
                   range-separator="-"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
@@ -78,7 +78,7 @@
                   size="mini"
                   value-format="yyyy-MM-dd"
                   type="daterange"
-                  style="width: 300px"
+                  style="width: 200px"
                   range-separator="-"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
@@ -811,6 +811,8 @@ export default {
             <td>颜色标识</td>
             <td>订单编号</td>
             <td>退款金额</td>
+            <td>采购价</td>
+            <td>采购价(RMB)</td>
             <td>售后状态</td>
             <td>申请时间</td>
             <td>售后原因</td>
@@ -839,6 +841,8 @@ export default {
                 <td>${item.color_id ? this.changeColorLabel(item.color_id, 'name') : '-' + '\t'}</td>
                 <td style="mso-number-format:'\@';">${item.order_sn ? item.order_sn : '' + '\t'}</td>
                 <td>${item.refund_amount ? item.refund_amount : '' + '\t'}</td>
+                <td>${(item.shot_order_info?.shot_amount || '') + this.$filters.siteCoin(item.country) + '\t'}</td>
+                <td>${(item.shot_order_info?.shot_amount_rmb || '') + '\t'}</td>
                 <td>${item.status ? changeOrderStatus(item.status) : '' + '\t'}</td>
                 <td>${item.update_time ? item.update_time : '' + '\t'}</td>
                 <td>${item.after_reason ? item.after_reason : '' + '\t'}</td>
@@ -1122,6 +1126,14 @@ export default {
     .base-item {
       display: flex;
       flex-wrap: wrap;
+
+      /deep/ .el-range-input {
+        width: 70px
+      }
+      /deep/ .el-range-separator {
+        width: 5px;
+        padding: 0;
+      }
     }
   }
   .table-form {

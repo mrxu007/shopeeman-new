@@ -62,7 +62,7 @@ export default class logisticeSyncService {
         this.writeLog(`【${i + 1}/${orders.length}】订单【${shot_order_sn}】对应的买手号【${buyer_name}】无需同步采购物流！`, true)
         continue
       }
-      const account = buyerAccounts.find(buyer => buyer.name === buyer_name)
+      const account = buyerAccounts.find(buyer => buyer.name === buyer_name && type === buyer.type)
       if (!account) {
         this.writeLog(`【${i + 1}/${orders.length}】订单【${shot_order_sn}】对应的买手号【${buyer_name}】没有找到，请登录对应买手号.`, false)
         continue
@@ -218,13 +218,14 @@ export default class logisticeSyncService {
         continue
       }
       try {
+        console.log(buyerAccount.shotOrderPlatform, shot_order_sn, buyerAccount)
         const logisticInfo = await this.$baseUtilService.getOriginLogistics(buyerAccount.shotOrderPlatform, shot_order_sn, buyerAccount)
         if (logisticInfo.Code !== 200) {
-          this.writeLog(`(${type})订单【${shot_order_sn}】获取上家物流失败, ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
+          this.writeLog(`(${type})订单【${item.order_sn}】获取上家物流失败, ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
           continue
         }
         if (!logisticInfo.TrackingNumber) {
-          this.writeLog(`(${type})订单【${shot_order_sn}】未发货，(买手号: ${buyerAccount.UserName})`, false, '#ff9900')
+          this.writeLog(`(${type})订单【${item.order_sn}】未发货，(买手号: ${buyerAccount.UserName})`, false, '#ff9900')
           continue
         }
         const tbshippingName = this.changetbOrderName(logisticInfo.TrackingName)
@@ -238,10 +239,10 @@ export default class logisticeSyncService {
         }
         const res = await this.saveOrderLogistics(params)
         if (res.code !== 200) {
-          this.writeLog(`(${type})订单【${shot_order_sn}】上报物流失败原因: ${res.code}: ${res.data}`, false)
+          this.writeLog(`(${type})订单【${item.order_sn}】上报物流失败原因: ${res.code}: ${res.data}`, false)
           continue
         }
-        this.writeLog(`(${type})订单【${shot_order_sn}】同步物流成功`, true)
+        this.writeLog(`(${type})订单【${item.order_sn}】同步物流成功`, true)
         if (!item.logistics) {
           item.logistics = {}
         }
@@ -250,7 +251,7 @@ export default class logisticeSyncService {
         item.logistics.logistics_company_code = tbshippingName
       } catch (e) {
         console.log(e)
-        this.writeLog(`订单【${shot_order_sn}获取上家物流失败原因(${type}): ${JSON.stringify(e)}`, false)
+        this.writeLog(`订单【${item.order_sn}获取上家物流失败原因(${type}): ${JSON.stringify(e)}`, false)
         continue
       }
     }

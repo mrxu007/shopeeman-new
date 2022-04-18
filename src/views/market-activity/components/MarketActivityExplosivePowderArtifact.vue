@@ -3,7 +3,7 @@
     <ul>
       <!-- row1 -->
       <li>
-        <storeChoose style="margin-left:-2px" @changeMallList="changeMallList" />
+        <storeChoose style="margin-left:-2px" @changeMallList="changeMallList"/>
         <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
         <el-button type="primary" size="mini" @click="setQurey">参数设置</el-button>
         <!-- <el-button @click="test">aa</el-button> -->
@@ -19,9 +19,11 @@
               <!-- row2.1 -->
               <li style="align-items: center;margin-bottom: 5px;">
                 <label style="width: 128px;">店铺ID信息：</label>
-                <el-input v-model="mallIDinfo" type="textarea" resize="none" :rows="3" placeholder="请输入内容" />
+                <el-input v-model="mallIDinfo" type="textarea" resize="none" :rows="3" placeholder="请输入内容"/>
                 <div>
-                  <el-button type="primary" size="mini" style="margin-left: 10px;margin-bottom: 5px;" @click="addCancerMall">添加关注店铺</el-button>
+                  <el-button type="primary" size="mini" style="margin-left: 10px;margin-bottom: 5px;"
+                             @click="addCancerMall">添加关注店铺
+                  </el-button>
                   <el-button type="primary" size="mini" @click="clearMallIDinfo">清空店铺信息</el-button>
                 </div>
               </li>
@@ -32,7 +34,8 @@
               </li>
             </ul>
           </el-col>
-          <el-col :span="9"><div class="grid-content bg-purple" />
+          <el-col :span="9">
+            <div class="grid-content bg-purple"/>
             <ul>
               <!-- row2.1 -->
               <li>
@@ -44,7 +47,7 @@
                 <el-button type="primary" size="mini" @click="Unfollower(0)">取关所有用户</el-button>
                 <el-button type="primary" size="mini" @click="canCerFollowUnFollowMe">取关未关注我的用户</el-button>
               </li>
-              <li style="height:30px" />
+              <li style="height:30px"/>
             </ul>
           </el-col>
         </el-row>
@@ -54,12 +57,12 @@
       <!-- row4 -->
       <li>
         <el-table
-          :header-cell-style="{ background: '#f7fafa' }"
-          :data="tableList"
-          :row-style="{ height: '50px' }"
-          height="calc(100vh - 220px)"
+            :header-cell-style="{ background: '#f7fafa' }"
+            :data="tableList"
+            :row-style="{ height: '50px' }"
+            height="calc(100vh - 220px)"
         >
-          <el-table-column type="index" label="序列号" min-width="100px" align="center" />
+          <el-table-column type="index" label="序列号" min-width="100px" align="center"/>
           <el-table-column prop="" label="站点" min-width="150px" align="center">
             <template v-slot="{row}">{{ row.country | chineseSite }}</template>
           </el-table-column>
@@ -67,102 +70,107 @@
             <template v-slot="{row}">{{ row.mall_alias_name || row.platform_mall_name }}</template>
           </el-table-column>
           <el-table-column prop="following" label="关注中" min-width="150px" align="center">
-            <template v-slot="{row}">{{ Number(row.following)?Number(row.following):'-' }}</template>
+            <template v-slot="{row}">{{ Number(row.following) ? Number(row.following) : '-' }}</template>
           </el-table-column>
           <el-table-column prop="fence" label="粉丝" min-width="150px" align="center">
-            <template v-slot="{row}">{{ Number(row.fence)?Number(row.fence):'-' }}</template>
+            <template v-slot="{row}">{{ Number(row.fence) ? Number(row.fence) : '-' }}</template>
           </el-table-column>
           <el-table-column prop="newFollow" label="新增关注数量" min-width="150px" align="center">
-            <template v-slot="{row}">{{ Number(row.newFollow)?Number(row.newFollow):'-' }}</template>
+            <template v-slot="{row}">{{ Number(row.newFollow) ? Number(row.newFollow) : '-' }}</template>
           </el-table-column>
           <el-table-column prop="cancerFollow" label="取关数量" min-width="150px" align="center">
-            <template v-slot="{row}">{{ Number(row.cancerFollow)?Number(row.cancerFollow):'-' }}</template>
+            <template v-slot="{row}">{{ Number(row.cancerFollow) ? Number(row.cancerFollow) : '-' }}</template>
           </el-table-column>
-          <el-table-column prop="state" label="操作状态" min-width="150px" align="center" />
+          <el-table-column prop="state" label="操作状态" min-width="150px" align="center"/>
         </el-table>
       </li>
     </ul>
-    <el-dialog
-      title="店铺搜索"
-      :visible.sync="dialog_mallSearch"
-      width="950px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      class="dialog_mall"
-    >
-      <ul>
-        <!-- row1 -->
-        <li>
-          <label>关键词</label>
-          <el-input v-model="keyword" size="mini" style="width:100px" clearable />
-          <label>评论数</label>
-          <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
-          <label>点赞数</label>
-          <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
-        </li>
-        <!-- row3 -->
-        <li>
-          <label>评分数</label>
-          <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />-
-          <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
-          <label style="margin-left:50px">店铺数</label>
-          <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
-          <el-button type="primary" size="mini" style="margin-left:30px" @click="searchMall">搜索</el-button>
-          <el-button type="primary" size="mini" @click="addTargetMall">添加勾选店铺</el-button>
-        </li>
-        <!-- row2 -->
-        <li>
-          <el-table
-            :header-cell-style="{ background: '#f7fafa' }"
-            :data="mallSearchList"
-            :row-style="{ height: '50px' }"
-            max-height="400"
-            @selection-change="handleSelectionChange"
-          >
-            <el-table-column align="center" width="55" type="selection" />
-            <el-table-column align="center" label="序号" width="55" type="index" />
-            <el-table-column prop="shopid" label="店铺ID" min-width="100px" align="center" />
-            <el-table-column prop="name" label="产品标题" min-width="150px" align="center" show-overflow-tooltip />
-            <el-table-column prop="" label="主图" min-width="100px" align="center" fixed="right">
-              <template v-slot="{row}">
-                <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 50px; height: 50px; display: inline-block">
-                  <div slot="content">
-                    <el-image :src="[row.image] | imageRender" style="width: 400px; height: 400px" />
-                  </div>
-                  <el-image :src="[row.image, true] | imageRender" style="width: 50px; height: 50px" />
-                </el-tooltip>
-              </template>
-            </el-table-column>
-            <el-table-column prop="liked_count" label="点赞数" min-width="100px" align="center" fixed="right" />
-            <el-table-column prop="totalRate" label="评论数" min-width="100px" align="center" fixed="right" />
-            <el-table-column prop="rating_star" label="产品评分" min-width="100px" align="center" fixed="right">
-              <template v-slot="{row}">{{ row.item_rating.rating_star.toFixed(2) }}</template>
-            </el-table-column>
-            <el-table-column prop="" label="操作" min-width="200px" align="center" fixed="right">
-              <template v-slot="{row}">
-                <el-button type="primary" size="mini" @click="open(row)">查看产品</el-button>
-                <el-button type="primary" size="mini" @click="addMallIDinfo(row)">添加店铺</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </li>
+    <div class="dialog_shell">
+      <el-dialog
+          title="店铺搜索"
+          :visible.sync="dialog_mallSearch"
+          width="1000px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          class="dialog_mall">
+        <ul>
+          <!-- row1 -->
+          <li>
+            <label>关键词</label>
+            <el-input v-model="keyword" size="mini" style="width:100px" clearable/>
+            <label>评论数</label>
+            <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            -
+            <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <label>点赞数</label>
+            <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            -
+            <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+          </li>
+          <!-- row3 -->
+          <li>
+            <label>评分数</label>
+            <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            -
+            <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <label style="margin-left:50px">店铺数</label>
+            <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <el-button type="primary" size="mini" style="margin-left:30px" @click="searchMall">搜索</el-button>
+            <el-button type="primary" size="mini" @click="addTargetMall">添加勾选店铺</el-button>
+          </li>
+          <!-- row2 -->
+          <li>
+            <el-table
+                :header-cell-style="{ background: '#f7fafa' }"
+                :data="mallSearchList"
+                :row-style="{ height: '50px' }"
+                max-height="400"
+                @selection-change="handleSelectionChange"
+            >
+              <el-table-column align="center" width="50" type="selection"/>
+              <el-table-column align="center" label="序号" width="55" type="index"/>
+              <el-table-column prop="shopid" label="店铺ID" width="120px" align="center"/>
+              <el-table-column prop="name" label="产品标题" min-width="150px" align="center" show-overflow-tooltip/>
+              <el-table-column prop="" label="主图" width="80px" align="center" fixed="right">
+                <template v-slot="{row}">
+                  <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
+                              style="width: 50px; height: 50px; display: inline-block">
+                    <div slot="content">
+                      <el-image :src="[row.image] | imageRender" style="width: 400px; height: 400px"/>
+                    </div>
+                    <el-image :src="[row.image, true] | imageRender" style="width: 50px; height: 50px"/>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
+              <el-table-column prop="liked_count" label="点赞数" width="100px" align="center" fixed="right"/>
+              <el-table-column prop="totalRate" label="评论数" width="100px" align="center" fixed="right"/>
+              <el-table-column prop="rating_star" label="产品评分" width="80px" align="center" fixed="right">
+                <template v-slot="{row}">{{ row.item_rating.rating_star.toFixed(2) }}</template>
+              </el-table-column>
+              <el-table-column prop="" label="操作" width="200px" align="center" fixed="right">
+                <template v-slot="{row}">
+                  <el-button type="primary" size="mini" @click="open(row)">查看产品</el-button>
+                  <el-button type="primary" size="mini" @click="addMallIDinfo(row)">添加店铺</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </li>
 
-      </ul>
-    </el-dialog>
-    <!-- 用户设置 -->
-    <el-dialog
-      title="用户设置"
-      :visible.sync="dialog_userInfo"
-      width="700px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      class="dialog_mall"
-    >
-      <autoFollow :user-info="userInfo" :mall="selmallList" @isSave="setSave" />
-    </el-dialog>
-    <Logs ref="Logs" v-model="showlog" clear />
+        </ul>
+      </el-dialog>
+      <!-- 用户设置 -->
+      <el-dialog
+          title="用户设置"
+          :visible.sync="dialog_userInfo"
+          width="700px"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          class="dialog_mall"
+      >
+        <autoFollow :user-info="userInfo" :mall="selmallList" @isSave="setSave"/>
+      </el-dialog>
+    </div>
+    <Logs ref="Logs" v-model="showlog" clear/>
   </div>
 </template>
 
@@ -173,6 +181,7 @@ import MallManagerAPI from '@/module-api/market-activity-api/ai-addFence'
 import { batchOperation, sleep, terminateThread } from '@/util/util'
 import { AutoAddFence } from '@/views/order-manager/components/orderCenter/powderFence'
 import { waitStart } from '@/util/util'
+
 export default {
   name: 'BusinessAnalyseGoodsDiscount',
   components: {
@@ -188,7 +197,7 @@ export default {
       isSave: false, // 是否保存
       // 弹窗--用户设置
       dialog_userInfo: false,
-      userInfo: '',
+      userInfo: {},
 
       mallIDinfo: '', // 店铺ID信息
       showlog: false,
@@ -313,7 +322,9 @@ export default {
             break
           }
           if (ALLshopDatas.length) {
-            isMyfence = ALLshopDatas.indexOf(el => { return Number(el.userid) === Number(followering.userid) })
+            isMyfence = ALLshopDatas.indexOf(el => {
+              return Number(el.userid) === Number(followering.userid)
+            })
             console.log('fence', isMyfence)
             if (isMyfence >= 0) {
               continue
@@ -337,7 +348,9 @@ export default {
               break
             }
             if (ALLshopDatas.length) {
-              isMyfence = ALLshopDatas.indexOf(el => { return Number(el.userid) === Number(followering2.userid) })
+              isMyfence = ALLshopDatas.indexOf(el => {
+                return Number(el.userid) === Number(followering2.userid)
+              })
               if (isMyfence >= 0) {
                 continue
               }
@@ -476,7 +489,7 @@ export default {
               return
             }
             if (mall.type === 0 || !Number(this.userInfo.auto_attention_set.CancelFollowNumber)) {
-            // 取关全部
+              // 取关全部
               isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id)
               if (isFollow) {
                 totalMallFollow++
@@ -484,7 +497,7 @@ export default {
                 continue
               }
             } else {
-            // 部分取关
+              // 部分取关
               const lineUser = await this.filterShopDatas(shop, mall.country, mall.platform_mall_id)
               if (!lineUser) {
                 continue
@@ -637,7 +650,7 @@ export default {
       }
     },
     // 添加关注店铺--店铺条件过滤
-    async  filterList(goodsMalllist) {
+    async filterList(goodsMalllist) {
       let getList = []
       const map = new Map()
       goodsMalllist.forEach(el => { // 去重
@@ -652,7 +665,7 @@ export default {
           return prev + curr
         }) // 评论总数求和
         if (Number(el.item_basic.liked_count) >= Number(this.minLike) && Number(el.item_basic.liked_count) <= Number(this.maxLike) && // 点赞
-             (el.item_basic.item_rating.rating_star).toFixed(2) >= Number(this.minScore) && el.item_basic.item_rating.rating_star.toFixed(2) <= Number(this.maxScore) && // 评分
+            (el.item_basic.item_rating.rating_star).toFixed(2) >= Number(this.minScore) && el.item_basic.item_rating.rating_star.toFixed(2) <= Number(this.maxScore) && // 评分
             totalRate >= Number(this.minComment) && totalRate <= Number(this.maxComment) && // 评论
             el.item_basic.stock >= Number(this.userInfo.auto_attention_set.ProductMax) // 库存
         ) {
@@ -744,7 +757,9 @@ export default {
       this.showlog = false
       this.$refs.Logs.writeLog(`数据正在处理......`, true)
       const mallIDlist = this.mallIDinfo.split(',')
-      this.tableList.map(item => { item['mallIDlist'] = mallIDlist })
+      this.tableList.map(item => {
+        item['mallIDlist'] = mallIDlist
+      })
       await batchOperation(this.tableList, this.getFllowerInfo)
       this.$refs.Logs.writeLog(`数据处理结束`, true)
     },
@@ -825,7 +840,11 @@ export default {
                 totalMallFollow++
                 this.$set(mall, 'newFollow', totalMallFollow)
                 // 存储数据到壳内
-                const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ 'country': mall.country, 'mall_id': mall.platform_mall_id.toString(), 'attention_shop_id': shop.ShopId })
+                const saveShopID = await BaseUtilBridgeService.saveAttentionUser({
+                  'country': mall.country,
+                  'mall_id': mall.platform_mall_id.toString(),
+                  'attention_shop_id': shop.ShopId
+                })
               } else {
                 this.$set(mall, 'newFollow', totalMallFollow)
                 this.$set(mall, 'state', '关注失败')
@@ -885,7 +904,11 @@ export default {
                 if (isFollow) {
                   totalMallFollow++
                   // 存储数据到壳内
-                  const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ 'country': mall.country, 'mall_id': mall.platform_mall_id.toString(), 'attention_shop_id': shop.ShopId })
+                  const saveShopID = await BaseUtilBridgeService.saveAttentionUser({
+                    'country': mall.country,
+                    'mall_id': mall.platform_mall_id.toString(),
+                    'attention_shop_id': shop.ShopId
+                  })
                 } else {
                   this.$set(mall, 'newFollow', totalMallFollow)
                   this.$set(mall, 'state', '关注失败')
@@ -923,7 +946,9 @@ export default {
             // 关注评价用户
             let flag2 = true
             let RateCustomList = []
-            const itemIDindex = this.mallSearchList.findIndex(el => { return el.shopid === Number(followermallID) })
+            const itemIDindex = this.mallSearchList.findIndex(el => {
+              return el.shopid === Number(followermallID)
+            })
             const itemID = this.mallSearchList[itemIDindex].itemid
             // 关注第一页评价用户
             let offset = 0
@@ -953,7 +978,11 @@ export default {
               if (isFollow) {
                 totalMallFollow++
                 // 存储数据到壳内
-                const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ 'country': mall.country, 'mall_id': mall.platform_mall_id.toString(), 'attention_shop_id': shop.ShopId })
+                const saveShopID = await BaseUtilBridgeService.saveAttentionUser({
+                  'country': mall.country,
+                  'mall_id': mall.platform_mall_id.toString(),
+                  'attention_shop_id': shop.ShopId
+                })
               } else {
                 this.$set(mall, 'newFollow', totalMallFollow)
                 this.$set(mall, 'state', '关注失败')
@@ -1011,7 +1040,11 @@ export default {
                 if (isFollow) {
                   totalMallFollow++
                   // 存储数据到壳内
-                  const saveShopID = await BaseUtilBridgeService.saveAttentionUser({ 'country': mall.country, 'mall_id': mall.platform_mall_id.toString(), 'attention_shop_id': shop.ShopId })
+                  const saveShopID = await BaseUtilBridgeService.saveAttentionUser({
+                    'country': mall.country,
+                    'mall_id': mall.platform_mall_id.toString(),
+                    'attention_shop_id': shop.ShopId
+                  })
                 } else {
                   this.$set(mall, 'newFollow', totalMallFollow)
                   this.$set(mall, 'state', '关注失败')
@@ -1135,7 +1168,11 @@ export default {
     },
     // 筛选活跃关注()
     async filterShopDatas(shop, country, platform_mall_id) {
-      const activetime = await this.getActiveUser({ country: country, mallId: platform_mall_id, userName: shop.UserName })
+      const activetime = await this.getActiveUser({
+        country: country,
+        mallId: platform_mall_id,
+        userName: shop.UserName
+      })
       const nowTime = new Date(new Date().toLocaleDateString()).getTime()
       const setTime = nowTime - nowTime * (Number(this.userInfo.auto_attention_set.LastLoginDay) - 1)
       if (activetime > setTime) {
@@ -1194,12 +1231,8 @@ export default {
     // 获取用户数据
     async getUserinfo() {
       this.showlog = true
-      const res = await this.$api.userSet()
-      if (res.data.code === 200) {
-        this.userInfo = res.data.data
-      } else {
-        this.$message.warning(`信息获取失败！${res.data.data.message}`)
-      }
+      const configInfo = await this.$appConfig.getUserConfig()
+      this.userInfo = configInfo && JSON.parse(configInfo)
       if (!this.userInfo.auto_attention_set) {
         this.userInfo.auto_attention_set = {}
         this.userInfo.auto_attention_set.ProductMax = '5'// 店铺商品上限
@@ -1238,43 +1271,48 @@ export default {
 </script>
 
 <style scoped lang='less'>
-.detail{
+.detail {
   width: 100%;
   height: 100%;
   padding: 5px;
   background-color: white;
-  .dialog_mall{
-    label:not(:first-child){
-        margin-left: 30px;
-      }
-    .el-input{
-        margin:0px 5px;
+
+  .dialog_mall {
+    label:not(:first-child) {
+      margin-left: 30px;
+    }
+
+    .el-input {
+      margin: 0px 5px;
     }
 
   }
-    li{
-     display: flex;
-     margin-bottom: 5px;
-     align-items: center;
-    }
 
-    .row2{
-      ul{
-        border: 1px solid #dcdedc;
-        padding: 10px;
-        border-radius: 5px;
-        margin-top: 10px;
-      }
+  li {
+    display: flex;
+    margin-bottom: 5px;
+    align-items: center;
+  }
+
+  .row2 {
+    ul {
+      border: 1px solid #dcdedc;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
     }
-    .Follow{
-      position: absolute;
+  }
+
+  .Follow {
+    position: absolute;
     padding: 5px;
     background-color: white;
     z-index: 999;
     left: 16px;
     top: 35px;
-    }
-    .cancerFollow{
+  }
+
+  .cancerFollow {
     position: absolute;
     padding: 5px;
     background-color: white;
@@ -1282,8 +1320,8 @@ export default {
     left: 560px;
     top: 35px;
 
-    }
-
   }
+
+}
 
 </style>

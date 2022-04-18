@@ -434,14 +434,14 @@ export default class {
       // if (muidList.includes(this.muid)) {
       //   checkList.push(order)
       // } else {
-        const res = await this.$api.checkOrderSnStatus({
-          orderSn: order.order_sn,
-          orderKey: key,
-          muid: this.muid
-        })
-        if (!res.data.orderKey) {
-          checkList.push(order)
-        }
+      const res = await this.$api.checkOrderSnStatus({
+        orderSn: order.order_sn,
+        orderKey: key,
+        muid: this.muid
+      })
+      if (!res.data.orderKey) {
+        checkList.push(order)
+      }
       // }
     }
     return checkList
@@ -523,7 +523,7 @@ export default class {
           'tax_amount': Math.abs(order.transactionHistoryDetail.buyer_payment_info.tax_amount) || 0,
           'seller_service_fee': Math.abs(order.transactionHistoryDetail.payment_info.fees_and_charges.service_fee),
           'shopee_rebate': Math.abs(order.transactionHistoryDetail.payment_info.rebate_and_voucher.product_discount_rebate_from_shopee),
-          'escrow_amount': Math.abs(order.transactionHistoryDetail.amount),
+          'escrow_amount': order.transactionHistoryDetail.amount,
           'needCheckactualShippingCost': Math.abs(order.transactionHistoryDetail.payment_info.shipping_subtotal.shipping_fee_paid_by_shopee_on_your_behalf),
           'items': this.getItems(order),
           'apply_time': this.getApplyTime(order),

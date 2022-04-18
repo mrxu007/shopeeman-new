@@ -374,7 +374,8 @@ export default {
         this.$refs.Logs.writeLog(`取消退件成功`, true)
       } else {
         res.data.data.forEach((item) => {
-          this.$refs.Logs.writeLog(`【${item.split('：')[0]}】${item.split('：')[1]}`, false)
+          // this.$refs.Logs.writeLog(`【${item.split('：')[0]}】${item.split('：')[1]}`, false)
+          this.$refs.Logs.writeLog(`${item}`, false)
         })
         console.log(res.data.data)
       }

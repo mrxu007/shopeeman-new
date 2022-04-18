@@ -2,12 +2,12 @@ import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 
-const baseURL = window.appInfo && window.appInfo.route
+const baseURL = window.appInfo && window.appInfo.route || 'http://release.shopeeman.com/api'
 // const baseURL = 'http://release.shopeeman.com/api'
 // const baseURL = 'http://www-lyj.shopee-native.com/api'
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL,
-  timeout: 5000,
+  timeout: 10000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
   },
@@ -15,6 +15,14 @@ const AppRequest = axios.create({ // 壳内转发请求
   adapter: config => {
     return jxAdapter(config)
   }
+})
+const locationRequest = axios.create({ // 本地转发请求
+  baseURL: 'http://release.shopeeman.com',
+  timeout: 5000,
+  headers: {
+    'Accept': 'application/vnd.ppxias.v3+json'
+  },
+  withCredentials: true,
 })
 const ycjRequest = axios.create({ // 云采集请求
   baseURL: 'http://129.204.71.240',
@@ -270,6 +278,10 @@ export default {
   updateOrderPrintStatus: (data) => AppRequest.post('/order/updateOrderPrintStatus', data), // 标记面单已打印或已下载
   getNoLogisticsOrders: (data) => AppRequest.get('/order/getNoLogisticsOrders', { params: data }), // 获取订单需要同步面单的订单
   getNotHaveLogisticsInformations: (data) => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations', { params: data }), // 获取仓库需要同步面单的订单
+
+  saveCustomerFaceData: (data) => AppRequest.post('/order/saveCustomerFaceData', data), // 保存临时面单
+  getCustomerFaceData: (data) => locationRequest.get('/getCustomerFaceData', { params: data }), // 获取保存临时面单
+
 
   // 订单详情删除--物流单号
   deleteOrderTrackingNumber: (data) => AppRequest.post('/order/deleteOrderTrackingNumber', data),

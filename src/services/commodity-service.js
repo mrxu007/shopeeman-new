@@ -498,7 +498,7 @@ export default class CommodityService {
       sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas
     } = data
 
-    return this.nativeService.callFunction('SaveListingRecord', sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas)
+    return this.nativeService.callFunction('SaveListingRecord', sysMallId, platformType, itemSku, title, listingId, country, mallId.toString(), categoryId, skuDatas)
   }
 
   /**

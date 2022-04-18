@@ -52,10 +52,60 @@ i.close-right{
 .el-dialog {
   margin-bottom: 10px;
 }
+
+.dialog_shell{
+  .el-dialog__header {
+    padding: 10px;
+
+    .el-dialog__headerbtn {
+      top: 10px;
+
+      .el-icon-close {
+        font-size: 16px !important;
+      }
+    }
+
+    .el-dialog__title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+  }
+
+  .el-dialog__body {
+    padding: 5px 16px 10px;
+  }
+}
+
+.table_height_limit{
+  height: 70px;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  border: 1px #bcbcbc solid;
+  padding: 3px 5px;
+  text-align: left;
+}
 </style>
 <script>
 import './assets/css/reset.css'
 import './assets/css/base.less'
+Array.prototype.zzSort = function(name,isNum) {
+  let newArr = this;
+  for (let i = 0; i < newArr.length; i++) {
+    for (let j = 0; j < newArr.length; j++) {
+      let front = newArr[j] && newArr[j][name] || newArr[j]
+      let after = newArr[j+1] && newArr[j+1][name] || newArr[j+1]
+      front = isNum && Number(isNum) || front
+      if ((front) > (after)) {
+        let pre = newArr[j];
+        newArr[j] = newArr[j+1];
+        newArr[j+1] = pre;
+      }
+    }
+  }
+  return newArr;
+}
 export default {
   name: 'App',
   async mounted() {
@@ -64,23 +114,6 @@ export default {
       console.log('res-appvue', res)
       document.body.style.setProperty('--themeColor', res)
     });
-
-    Array.prototype.zzSort = function(name,isNum) {
-      let newArr = this;
-      for (let i = 0; i < newArr.length; i++) {
-        for (let j = 0; j < newArr.length; j++) {
-          let front = newArr[j] && newArr[j][name] || newArr[j]
-          let after = newArr[j+1] && newArr[j+1][name] || newArr[j+1]
-          front = isNum && Number(isNum) || front
-          if ((front) > (after)) {
-            let pre = newArr[j];
-            newArr[j] = newArr[j+1];
-            newArr[j+1] = pre;
-          }
-        }
-      }
-      return newArr;
-    }
   }
 }
 </script>

@@ -519,7 +519,7 @@
       </span>
     </el-dialog>
     <!-- 批量设置店铺地址 -->
-    <div class="storeAddress_dialog">
+    <div class="storeAddress_dialog dialog_shell">
       <el-dialog title="设置店铺地址" :visible.sync="addressDialog" top="10vh" width="500px" :close-on-click-modal="false">
         <div class="dialog_box">
           <div class="dialog_item">
@@ -541,7 +541,7 @@
               <el-checkbox v-model="isChineseShow" size="mini">翻译成中文</el-checkbox>
             </div>
             <div class="item_content">
-              <div class="inputDiv" @click="isAddress = !isAddress">{{ addressQuery.city }}</div>
+              <div class="inputDiv" @click="isAddress = !isAddress">{{ addressQuery.cityName }}</div>
             </div>
             <div v-if="isAddress" class="dialog_mask">
               <el-tabs v-model="addressQuery.mask" type="card">
@@ -555,7 +555,7 @@
                   </div>
                 </el-tab-pane>
                 <el-tab-pane v-if="maskNumber > 1" label="城市" name="1"
-                             :disabled="!(addressQuery.mask >= 1 || addressQuery.city.split('/').length > 1)">
+                             :disabled="!(addressQuery.mask >= 1 || addressQuery.city.length > 1)">
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block"/>
                     <el-button v-for="item in addressList[1]" v-if="addressList[1]" :key="item.id" type="text"
@@ -565,7 +565,7 @@
                   </div>
                 </el-tab-pane>
                 <el-tab-pane v-if="maskNumber > 2" label="区" name="2"
-                             :disabled="!(addressQuery.mask >= 2 || addressQuery.city.split('/').length > 2)">
+                             :disabled="!(addressQuery.mask >= 2 || addressQuery.city.length > 2)">
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block"/>
                     <el-button v-for="item in addressList[2]" v-if="addressList[2]" :key="item.id" type="text"
@@ -575,7 +575,7 @@
                   </div>
                 </el-tab-pane>
                 <el-tab-pane v-if="maskNumber > 3" label="镇" name="3"
-                             :disabled="!(addressQuery.mask >= 3 || addressQuery.city.split('/').length > 3)">
+                             :disabled="!(addressQuery.mask >= 3 || addressQuery.city.length > 3)">
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block"/>
                     <el-button v-for="item in addressList[3]" v-if="addressList[3]" :key="item.id" type="text"
@@ -756,12 +756,12 @@ export default {
       isAddress: false,
       addressQueryNumber: [],
       addressList: [],
-      addressLevel: [],
+      addressLevel: null,
       maskNumber: 2,
       addressQuery: {
         name: '',
         phone: '',
-        city: '',
+        city: [],
         cityName: '',
         address: '',
         zip_code: '',
@@ -790,7 +790,12 @@ export default {
       isChineseShow: false,
 
       userInfo: null,
-      flat: 1 // 1 一键登录  2 导入店铺
+      flat: 1, // 1 一键登录  2 导入店铺
+      addressesSuccess:{
+        addCount:0,
+        defaultCount:0,
+        takeCount:0,
+      },
     }
   },
   computed: {},
@@ -815,31 +820,20 @@ export default {
       }
     },
     addressLevel(data) {
-      const val = this.isChineseShow && data.chineseName || data.name
-      const valName = data.name
       const id = data.id
-      if (this.addressQuery.mask == '0') {
-        this.addressQuery.city = val + '/'
-        this.addressQuery.cityName = valName + '/'
+      let mask = Number(this.addressQuery.mask) || 0
+      if (mask === 0) {
+        this.addressQuery.city = [data]
       } else {
-        const cityList = this.addressQuery.city.split('/')
-        const cityNameList = this.addressQuery.cityName.split('/')
-        if (this.addressQuery.mask == cityList.length - 1) {
-          this.addressQuery.city += (val + '/')
-          this.addressQuery.cityName += (valName + '/')
-        } else {
-          let city = ''
-          let cityName = ''
-          for (let i = 0; i < this.addressQuery.mask; i++) {
-            city += cityList[i] + '/'
-            cityName += cityNameList[i] + '/'
-          }
-          this.addressQuery.city = city + val + '/'
-          this.addressQuery.cityName = cityName + valName + '/'
+        if (mask < this.addressQuery.city.length - 1) {
+          this.addressQuery.city = this.addressQuery.city.splice(0, mask)
         }
+        this.addressQuery.city.push(data)
       }
-      this.addressQuery.mask = (++this.addressQuery.mask) + ''
-      if (this.addressQuery.mask < this.maskNumber) {
+      let cityName = this.addressQuery.city.map(son => this.isChineseShow && son.chineseName || son.name)
+      this.addressQuery.cityName = cityName.join('/')
+      this.addressQuery.mask = (++mask) + ''
+      if (mask < this.maskNumber) {
         this.getNextLevelAddresses(id)
       } else {
         this.getZipCodeByAddressId(id)
@@ -847,10 +841,9 @@ export default {
         this.addressQuery.mask = '0'
       }
     },
-    isChineseShow(value) {
-      this.addressQuery.city = ''
-      this.addressQuery.mask = 0
-      this.getNextLevelAddresses()
+    isChineseShow() {
+      let cityName = this.addressQuery.city.map(son => this.isChineseShow && son.chineseName || son.name)
+      this.addressQuery.cityName = cityName.join('/')
     }
   },
   created() {
@@ -983,8 +976,8 @@ export default {
     //   const res = await this.$appConfig.getUserConfig()
     // },
     async getNextLevelAddresses(address_id) {
-      const action = this.multipleSelection.filter(i => i.LoginInfo.indexOf('成功') >= 0 && i.country === this.countryVal)
-      if (action && action[0]) {
+      const action = this.multipleSelection.filter(i => i.LoginInfo.indexOf('成功') >= 0 && i.country === this.countryVal) || []
+      if (action.length) {
         const param = {
           mallId: action[0].platform_mall_id,
           region: this.countryVal,
@@ -1012,28 +1005,31 @@ export default {
           const nextLevelAddressesData = JSON.parse(nextLevelAddressesRes.data)
           const list = JSON.parse(JSON.stringify(this.addressList))
           const tempList = nextLevelAddressesData.data.list
-          if (this.isChineseShow) {
-            // tempList.forEach(async (item,index)=>{
-            //   item.chineseName = await this.$BaseUtilService.getLocalTranslationThesaurus(item.name)
-            // })
-            let word = ''
-            tempList.forEach(item => {
-              word += item.name + ' , '
-            })
-            console.log(word)
-            let chineseStr = await this.$BaseUtilService.getLocalTranslationThesaurus(word)
-            console.log(chineseStr)
-            chineseStr = chineseStr.replaceAll('|', '、')
-            chineseStr = chineseStr.replaceAll(',', '、')
-            chineseStr = chineseStr.replaceAll('，', '、')
-            chineseStr = chineseStr.replaceAll('。', '、')
-            const chineseList = chineseStr.split('、')
+          let word = (tempList.map(son=>son.name)).join('<><>') || ''
+          list[this.addressQuery.mask] = tempList
+          this.addressList = list
+          console.log('word',word)
+          let chineseStr = ''
+          let translationNum = 3
+          do{
+            chineseStr = await this.$BaseUtilService.getLocalTranslationThesaurus(word)
+            console.log('chineseStr',chineseStr)
+            if(!chineseStr){
+              await delay(3000)
+            }
+          --translationNum
+          }while (!chineseStr && translationNum > 0)
+          if(chineseStr){
+            chineseStr = chineseStr.replaceAll('> <', '><')
+            chineseStr = chineseStr.replaceAll('< ><', '<><')
+            chineseStr = chineseStr.replaceAll('>< >', '><>')
+            const chineseList = chineseStr.split('<><>')
             tempList.forEach((item, index) => {
               item.chineseName = chineseList[index]
             })
+            list[this.addressQuery.mask] = tempList
+            this.addressList = list
           }
-          list[this.addressQuery.mask] = tempList
-          this.addressList = list
           console.log('nextLevelAddressesData', nextLevelAddressesData, this.addressList)
         } else if (nextLevelAddressesRes.status === 403) {
 
@@ -1076,27 +1072,26 @@ export default {
       this.addressQuery = {
         name: '',
         phone: '',
-        city: '',
-        cityId: '',
+        city: [],
+        cityName: '',
         address: '',
-        number: '',
         default: false,
         take: false,
         backMail: false,
         mask: '0'
       }
     },
-    confirmAddresses() {
+    async confirmAddresses() {
+      let addressDate = JSON.parse(JSON.stringify(this.addressQuery))
       this.hideConsole = false
-      const names = this.addressQuery.cityName
-      const phone = this.$shopeemanService.getTelephoneNumberIsTrue(this.countryVal, this.addressQuery.phone)
-      const nameList = names.split('/')
+      const nameList = addressDate.city.map(son => son.name)
+      const phone = this.$shopeemanService.getTelephoneNumberIsTrue(this.countryVal, addressDate.phone)
       const param = {
-        address: this.addressQuery.address,
+        address: addressDate.address,
         country: this.countryVal,
-        name: this.addressQuery.name,
+        name: addressDate.name,
         phone: phone,
-        zip_code: this.addressQuery.zip_code,
+        zip_code: addressDate.zip_code,
         full_address: '',
         geo_info: '',
         state: nameList[0] || '',
@@ -1108,21 +1103,42 @@ export default {
       this.multipleSelection.forEach(item => {
         if (item.country === param.country) {
           console.log(item)
-          data.push(Object.assign(JSON.parse(JSON.stringify(param)), {
+          data.push(Object.assign(param, {
             mallId: item.platform_mall_id,
             platform_mall_name: item.platform_mall_name,
-            mall_alias_name: item.mall_alias_name
+            mall_alias_name: item.mall_alias_name,
+            default: addressDate.default,
+            take: addressDate.take,
+            backMail: addressDate.backMail
           }))
         }
       })
-      batchOperation(data, this.setAddresses)
+      this.addressesSuccess = {
+        addCount:0,
+        defaultCount:0,
+        takeCount:0,
+      }
+      await batchOperation(data, this.setAddresses)
+      this.$refs.Logs.writeLog(`店铺地址添加成功率为${this.addressesSuccess.addCount}/${data.length}`, true)
+      if(addressDate.default){
+        this.$refs.Logs.writeLog(`店铺默认地址设置成功率为${this.addressesSuccess.defaultCount}/${data.length}`, true)
+      }
+      if(addressDate.take || addressDate.backMail){
+        this.$refs.Logs.writeLog(`店铺取件(回邮)地址设置成功率为${this.addressesSuccess.takeCount}/${data.length}`, true)
+      }
     },
     async setAddresses(item, count = { count: 1 }) {
       console.log(item)
       const name = item.mall_alias_name || item.platform_mall_name || ''
+      const isDefault = item.default
+      const isTake = item.take
+      const isBackMail = item.backMail
       try {
         delete item.mall_alias_name
         delete item.platform_mall_name
+        delete item.take
+        delete item.default
+        delete item.backMail
         const option = {
           headers: {
             'Content-Type': 'application/json;charset=UTF-8',
@@ -1136,56 +1152,62 @@ export default {
         if (addAddressRes.status >= 200 && addAddressRes.status < 300) {
           const addAddressData = JSON.parse(addAddressRes.data)
           const success = addAddressData.code === 0
-          address_id = addAddressData.data.address_id
+          address_id = addAddressData.data?.address_id || ''
+          success && ++this.addressesSuccess.addCount
           this.$refs.Logs.writeLog(`店铺【${name}】添加地址${success && '成功' || '失败'}`, success)
         } else if (addAddressRes.status === 403) {
           this.$refs.Logs.writeLog(`店铺【${name}】尚未登录无法设置地址`, false)
           return
         } else {
-          this.$refs.Logs.writeLog(`店铺【${name}】添加地址失败，无法设置`, false)
+          this.$refs.Logs.writeLog(`店铺【${name}】添加地址失败，无法设置,请重新尝试`, false)
           return
         }
-        if (this.addressQuery.default) {
-          const param = {
-            mallId: item.mallId,
-            address_id: address_id
+        if(address_id){
+          if (isDefault) {
+            const param = {
+              mallId: item.mallId,
+              address_id: address_id
+            }
+            const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param, option)
+            const defaultAddressRes = JSON.parse(defaultAddressJson)
+            console.log('defaultAddressRes', defaultAddressRes)
+            if (defaultAddressRes.status >= 200 && defaultAddressRes.status < 300) {
+              const defaultAddressData = JSON.parse(defaultAddressRes.data)
+              const success = defaultAddressData.code === 0
+              this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success && '成功' || '失败'}`, success)
+              success && ++this.addressesSuccess.defaultCount
+            } else {
+              this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置失败`, false)
+            }
           }
-          const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param, option)
-          const defaultAddressRes = JSON.parse(defaultAddressJson)
-          console.log('defaultAddressRes', defaultAddressRes)
-          if (defaultAddressRes.status >= 200 && defaultAddressRes.status < 300) {
-            const defaultAddressData = JSON.parse(defaultAddressRes.data)
-            const success = defaultAddressData.code === 0
-            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success && '成功' || '失败'}`, success)
-          } else {
-            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置失败`, false)
-          }
-        }
-        if (this.addressQuery.take || this.addressQuery.backMail) {
-          const param = {
-            mallId: item.mallId,
-            set_as_seller_return_address: false
-          }
-          if (this.addressQuery.take) {
-            param['pick_up_address_id'] = address_id
-          }
-          if (this.addressQuery.backMail) {
-            param['return_address_id'] = address_id
-          }
-          const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param, option)
-          const shopAddressRes = JSON.parse(shopAddressJson)
-          console.log('shopAddressRes', shopAddressRes)
-          if (shopAddressRes.status >= 200 && shopAddressRes.status < 300) {
-            const shopAddressData = JSON.parse(shopAddressRes.data)
-            const success = shopAddressData.code === 0
-            this.$refs.Logs.writeLog(`店铺【${name}】
-            ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置${success && '成功' || '失败'}`, success)
-          } else {
-            this.$refs.Logs.writeLog(`店铺【${name}】
-            ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置失败`, false)
+          if (isTake || isBackMail) {
+            const param = {
+              mallId: item.mallId,
+              set_as_seller_return_address: false
+            }
+            if (isTake) {
+              param['pick_up_address_id'] = address_id
+            }
+            if (isBackMail) {
+              param['return_address_id'] = address_id
+            }
+            const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param, option)
+            const shopAddressRes = JSON.parse(shopAddressJson)
+            console.log('shopAddressRes', shopAddressRes)
+            if (shopAddressRes.status >= 200 && shopAddressRes.status < 300) {
+              const shopAddressData = JSON.parse(shopAddressRes.data)
+              const success = shopAddressData.code === 0
+              this.$refs.Logs.writeLog(`店铺【${name}】
+            ${isTake && '取件地址'}${isBackMail && '回邮地址'}设置${success && '成功' || '失败'}`, success)
+              success && ++this.addressesSuccess.takeCount
+            } else {
+              this.$refs.Logs.writeLog(`店铺【${name}】
+            ${isTake && '取件地址'}${isBackMail && '回邮地址'}设置失败`, false)
+            }
           }
         }
       } catch (e) {
+        console.log(e)
         this.$refs.Logs.writeLog(`店铺【${name}】地址设置失败`, false)
       } finally {
         count.count--
@@ -1545,7 +1567,7 @@ export default {
       const params = {}
       this.countryVal ? params['country'] = this.countryVal : ''
       const res = await this.mallListAPIInstance.getGroup(params)
-      console.log('getGroup',res)
+      console.log('getGroup', res)
       if (res.code !== 200) {
         this.$message.error('获取店铺分组失败')
         return
@@ -1565,7 +1587,20 @@ export default {
       if (!this.multipleSelection2.length) {
         return this.$message.error('请勾选店铺')
       }
-      this.alotOfLogined(this.multipleSelection2)
+      let messageStr = this.isIPType && '您选择了使用IP主体，如出现问题请检查您所填写IP主体信息与已有IP主体信息！'
+          || '您选择了不使用IP主体，请注意您所填写的IP信息将不会生效！'
+      this.$confirm(messageStr, '授权提示', {
+        confirmButtonText: '确定',
+        type: 'warning'
+      }).then(() => {
+        this.alotOfLogined(this.multipleSelection2)
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
+      })
+
     },
     editWaterMall(val) {
       this.importType = val
@@ -2483,7 +2518,7 @@ export default {
         const password = item['密码(必填)']
         const mallName = item['店铺真实名称(必填)']
         const GroupName = item['分组(选填)'] || ''
-        const MallMainName = item['店铺主体名称(需申IP隔离必填)'] || ''
+        const MallMainName = this.isIPType && item['店铺主体名称(需申IP隔离必填)'] || ''
         const SPC_FName = item['SPC_F(浏览识别码)'] || ''
         const mall_alias_name = item['店铺别名(选填)'] || ''
         if (!mallName) {
@@ -2693,12 +2728,12 @@ export default {
       }
       target.parentElement.removeChild(target)
     },
-    updateTableHeight(){
+    updateTableHeight() {
       this.Height = 0
-      setTimeout(()=>{
+      setTimeout(() => {
         let height = document.body.offsetHeight - 270
         this.Height = height > 200 && height || 200
-      },200)
+      }, 200)
     }
   }
 }

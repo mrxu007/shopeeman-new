@@ -57,7 +57,7 @@ export default class NetMessageBridgeService {
     return url
   }
 
-  async getWebUrl(country, data) {
+  getWebUrl(country, data) {
     const url = this.site_domain_chinese_pre[country]
     return url
   }
@@ -260,7 +260,7 @@ export default class NetMessageBridgeService {
         'Host': aurl.replace('https://', '')
       })
     }
-    console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
+    console.log('NetMessageBridgeService - post', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -419,16 +419,15 @@ export default class NetMessageBridgeService {
       headers: {
         'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99"',
         'Accept': 'application/json, text/plain, */*',
-        'sc-fe-session': '48a3376e-9104-4e04-8d57-6d0016018a4b',
-        'sc-fe-ver': '48661',
-        'sec-ch-ua-mobile': '?0',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Dest': 'empty',
-        referer: '/portal/settings/shop/rating',
+        // 'sc-fe-session': '48a3376e-9104-4e04-8d57-6d0016018a4b',
+        // 'sc-fe-ver': '48661',
+        // 'sec-ch-ua-mobile': '?0',
+        // 'Sec-Fetch-Site': 'same-origin',
+        // 'Sec-Fetch-Mode': 'cors',
+        // 'Sec-Fetch-Dest': 'empty',
+        'referer': '/portal/settings/shop/rating',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'zh-CN,zh;q=0.9'
-
       }
     })
   }
@@ -1202,7 +1201,6 @@ export default class NetMessageBridgeService {
   async getToShipOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_package_list', data)
     const resObj = res && JSON.parse(res)
-    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1941,7 +1939,7 @@ export default class NetMessageBridgeService {
   async sendMessage(country, data, params) {
     const res = await this.postChinese(country, '/webchat/api/v1.2/messages', data, params)
     const resObj = res && JSON.parse(res)
-    // console.log(res,resObj)
+    console.log('sendMessage-resObj',resObj)
     const info = JSON.parse(resObj.data)
     if (resObj && resObj.status === 200) {
       return {

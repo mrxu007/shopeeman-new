@@ -1,4 +1,6 @@
 // 订单状态  1:待支付 2:待发货 3:已发货 4:已完成  5:取消中 6:已取消 7:退款/退货 8:确认签收 9:退款成功 10:退款失败  20:无售后订单
+import * as $filter from '@/plugins/filters'
+
 const orderStatusList = [{
   value: 1,
   label: '待支付',
@@ -58,7 +60,7 @@ const orderStatusList = [{
 
 function changeOrderStatus(val, type) {
   const obj = orderStatusList.find(item => item.value == val)
-  if (type == 'color') {
+  if (type === 'color') {
     return obj && obj.color || '#000'
   }
   return obj && obj.label || ''
@@ -109,7 +111,7 @@ const shotStatusList = [{
 
 function changeShotStatus(val, type) {
   const obj = shotStatusList.find(item => item.value == val)
-  if (type == 'color') {
+  if (type === 'color') {
     return obj && obj.color || '#000'
   }
   return obj && obj.label || ''
@@ -190,10 +192,11 @@ const inputTypeList = [{
   }
 ]
 // 商品来源  1:拼多多 2:淘宝 3:天猫 5:自有 8:1688  9: Lazada   10:京喜  11:shopee  12:ALIEXPRESS 15:货老板海外  13: 天猫淘宝海外平台
-const goodsSourceList = [{
-  value: 1,
-  label: '拼多多'
-},
+const goodsSourceList = [
+  {
+    value: 1,
+    label: '拼多多'
+  },
   {
     value: 2,
     label: '淘宝'
@@ -233,9 +236,31 @@ const goodsSourceList = [{
   {
     value: 15,
     label: '货老板海外'
+  },
+  {
+    value: 16,
+    label: 'tokopedia'
   }
 ]
-const goodsSourceListLink = [{
+const goodsSourceNameList = {
+  1: '拼多多',
+  2: '淘宝',
+  3: '天猫',
+  4: '京东',
+  5: '自有产品',
+  6: '皮皮虾供货平台',
+  7: '货源甲',
+  8: '1688',
+  9: 'lazada',
+  10: '京喜',
+  11: 'Shopee',
+  12: '速卖通',
+  13: '天猫淘宝海外平台',
+  15: '货老板云仓',
+  // 16: 'tokopedia'
+}
+const goodsSourceListLink = [
+  {
   value: '1',
   label: '拼多多'
 },
@@ -268,44 +293,16 @@ const goodsSourceListLink = [{
     label: '天猫淘宝海外平台'
   }
 ]
-const goodsSourceListPurchase = [{
-  value: '1',
-  label: '拼多多'
-},
-  {
-    value: '2',
-    label: '淘宝'
-  },
-  {
-    value: '8',
-    label: '1688'
-  },
-  {
-    value: '9',
-    label: 'Lazada'
-  },
-  {
-    value: '10',
-    label: '京喜'
-  },
-  {
-    value: '11',
-    label: 'shopee'
-  },
-  {
-    value: '13',
-    label: '天猫淘宝海外平台'
-  }
-]
 // 各站点物流
-const site_mall = [{
-  'Country': '泰国站',
-  'CountryCode': 'TH',
-  'IsDeafult': true,
-  'IsSelected': true,
-  'ShipId': '7000',
-  'ShipName': 'Standard Delivery - ส่งธรรมดาในประเทศ'
-},
+const site_mall = [
+  {
+    'Country': '泰国站',
+    'CountryCode': 'TH',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '7000',
+    'ShipName': 'Standard Delivery - ส่งธรรมดาในประเทศ'
+  },
   {
     'Country': '泰国站',
     'CountryCode': 'TH',
@@ -875,10 +872,11 @@ const syncStatus = [
   }
 ]
 // 货物类型
-const packageType = [{
-  label: '普货',
-  value: 1
-},
+const packageType = [
+  {
+    label: '普货',
+    value: 1
+  },
   {
     label: '敏感货',
     value: 2
@@ -895,10 +893,11 @@ function changePackageType(val) {
 }
 
 // 仓库发货状态 //1：待入库 2：等待包裹  3: 紧急入库  4: 待出库 5: 已出库 6: 已完成 7:订单作废 8:暂停发货 9:异常
-const deliveryStatus = [{
-  label: '待入库',
-  value: 1
-},
+const deliveryStatus = [
+  {
+    label: '待入库',
+    value: 1
+  },
   {
     label: '等待包裹',
     value: 2
@@ -1225,273 +1224,517 @@ function changePlatformPayMethod(country, key) {
 }
 
 // 配置列表
-const columnData = [{
-  column_header: '站点',
-  is_show: 1,
-  first_column_is_checkbox: -1
-},
-  {
-    column_header: '店铺分组',
-    is_show: 1,
-    first_column_is_checkbox: -1
+const columnData =[{"column_header":"订单编号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"操作","is_show":1,"first_column_is_checkbox":-1},{"column_header":"订单收入","is_show":1,"first_column_is_checkbox":-1},{"column_header":"店铺所属信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"店铺名称","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购绑定仓库","is_show":1,"first_column_is_checkbox":-1},{"column_header":"颜色标识","is_show":1,"first_column_is_checkbox":-1},{"column_header":"发货状态","is_show":1,"first_column_is_checkbox":-1},{"column_header":"订单时间信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购类型","is_show":1,"first_column_is_checkbox":-1},{"column_header":"是否可二次销售","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品ID","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品创建时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品图片","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品单价","is_show":1,"first_column_is_checkbox":-1},{"column_header":"搜同款","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品类目","is_show":1,"first_column_is_checkbox":-1},{"column_header":"规格编号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品规格","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品货号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"买家付款金额","is_show":1,"first_column_is_checkbox":-1},{"column_header":"实际总邮费","is_show":1,"first_column_is_checkbox":-1},{"column_header":"卖家补贴邮费","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购价","is_show":1,"first_column_is_checkbox":-1},{"column_header":"仓库发货金额","is_show":1,"first_column_is_checkbox":-1},{"column_header":"含邮费毛利","is_show":1,"first_column_is_checkbox":-1},{"column_header":"最终毛利","is_show":1,"first_column_is_checkbox":-1},{"column_header":"付款账号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购账号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"拍单","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购状态","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购订单号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购付款方式","is_show":1,"first_column_is_checkbox":-1},{"column_header":"平台付款方式","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购物流信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"采购发货时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商户订单号","is_show":1,"first_column_is_checkbox":-1},{"column_header":"货物运输及类型","is_show":1,"first_column_is_checkbox":-1},{"column_header":"虾皮物流信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"虾皮物流轨迹","is_show":1,"first_column_is_checkbox":-1},{"column_header":"截止发货时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"仓库发货状态","is_show":1,"first_column_is_checkbox":-1},{"column_header":"仓库时间信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"本地备注","is_show":1,"first_column_is_checkbox":-1},{"column_header":"shopee备注","is_show":1,"first_column_is_checkbox":-1},{"column_header":"shopee备注更新时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"买家信息","is_show":1,"first_column_is_checkbox":-1},{"column_header":"买家地址","is_show":1,"first_column_is_checkbox":-1},{"column_header":"订单支付时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"订单更新时间","is_show":1,"first_column_is_checkbox":-1},{"column_header":"是否为海外仓商品","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品数量","is_show":1,"first_column_is_checkbox":-1},{"column_header":"商品标题","is_show":1,"first_column_is_checkbox":-1},{"column_header":"买家备注","is_show":1,"first_column_is_checkbox":-1}]
+const tableColumnListData = [
+    {
+      key: 1,
+      name: '订单编号',
+      width: '170',
+      fixed: 'left',
+      align: '',
+      iCopy: 'order_sn',
+      prop: 'order_sn',
+      rowClick: 'viewDetails_orderDetail',
+      showType: 0
+    },
+    {
+      key: 2,
+      name: '操作',
+      width: '125',
+      fixed: 'left',
+      align: 'center',
+      showType: 2
+    },
+    {
+      key: 3,
+      width: '120',
+      name: '店铺所属信息',
+      align: '',
+      propList: [{
+        name: '站点',
+        filter: $filter.chineseSite,
+        prop: 'country'
+      }, {
+        name: '分组',
+        width: '80',
+        prop: 'group_name'
+      }],
+      showOverflowTooltip: true,
+      showType: 0
+    }, {
+    key: 5,
+    name: '店铺名称',
+    width: '120',
+    align: '',
+    rowDblClick: 'copyItem',
+    prop: 'mall_info.mall_alias_name,mall_info.platform_mall_name',
+    showOverflowTooltip: true,
+    showType: 0
   }, {
-    column_header: '店铺名称',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 6,
+    name: '采购绑定仓库',
+    width: '120',
+    align: '',
+    prop: 'shot_order_info.warehouse_name',
+    showOverflowTooltip: true,
+    showType: 0
   }, {
-    column_header: '采购绑定仓库',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 7,
+    name: '颜色标识',
+    width: '120',
+    align: 'center',
+    prop: 'color_id',
+    iColor: 'color_id',
+    rowShow: 'changeColorLabel',
+    showType: 4
   }, {
-    column_header: '颜色标识',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  },
-// {
-//   column_header: '标识名称',
-//   is_show: 1,
-//   first_column_is_checkbox: -1
-// },
-  {
-    column_header: '订单编号',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 9,
+    name: '发货状态',
+    width: '100',
+    align: '',
+    rowColor: 'changeOrderStatus_color',
+    rowShow: 'changeOrderStatus',
+    prop: 'order_status',
+    sortable: true,
+    showType: 4
   }, {
-    column_header: '订单创建时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 8,
+    name: '订单时间信息',
+    width: '180',
+    align: '',
+    prop: 'created_time',
+    sortable: true,
+    propList: [{
+      name: '创建',
+      prop: 'created_time'
+    }, {
+      name: '发货',
+      prop: 'shopee_delivery_time'
+    }],
+    showType: 0
   }, {
-    column_header: '发货状态',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 11,
+    name: '采购类型',
+    width: '120',
+    align: 'center',
+    rowShow: 'changeTypeName',
+    prop: 'goods_info.ori_platform_id',
+    propLink: 'goods_info.ori_url',
+    propLinkName: '查看采购地址',
+    rowClick: 'openUrl',
+    sortable: true,
+    showType: 4
   }, {
-    column_header: '发货时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 13,
+    name: '是否可二次销售',
+    width: '140',
+    prop: 'shot_order_info.buy_account_info.second_sale_num',
+    align: '',
+    showType: 8
   }, {
-    column_header: '采购类型',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 14,
+    name: '商品ID',
+    width: '140',
+    align: '',
+    iCopy: 'goods_info.goods_id',
+    prop: 'goods_info.goods_id',
+    rowClick: 'openUrl_product',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '查看采购地址',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 15,
+    name: '商品创建时间',
+    width: '140',
+    align: '',
+    prop: 'goods_info.platform_create_time',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '是否可二次销售',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 16,
+    name: '商品图片',
+    width: '80',
+    align: 'center',
+    filter: $filter.imageRender,
+    prop: 'goods_info.goods_img',
+    showType: 10
   }, {
-    column_header: '商品ID',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 17,
+    name: '商品单价',
+    width: '120',
+    filter: $filter.siteCoin,
+    align: '',
+    prop: 'goods_info.discounted_price',
+    sortable: true,
+    showType: 11
   }, {
-    column_header: '商品创建时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 18,
+    name: '商品数量',
+    width: '70',
+    prop: 'goods_info.goods_count',
+    showOverflowTooltip: true,
+    showType: 0
   }, {
-    column_header: '商品图片',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 19,
+    name: '商品标题',
+    width: '140',
+    prop: 'goods_info.goods_name',
+    showOverflowTooltip: true,
+    showType: 0
   }, {
-    column_header: '商品单价',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  },
-  {
-    column_header: '商品数量',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 20,
+    name: '搜同款',
+    width: '120',
+    align: '',
+    showType: 12
   }, {
-    column_header: '商品标题',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 21,
+    name: '商品类目',
+    width: '120',
+    align: '',
+    rowShow: 'getCategoryName',
+    prop: 'goods_info.goods_category_id',
+    showOverflowTooltip: true,
+    showType: 4
   }, {
-    column_header: '搜同款',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 22,
+    name: '规格编号',
+    width: '120',
+    align: '',
+    prop: 'goods_info.variation_id',
+    showType: 0
   }, {
-    column_header: '商品类目',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 23,
+    name: '商品规格',
+    width: '100',
+    align: 'center',
+    propLink: 'goods_info.ori_platform_id',
+    prop: 'goods_info.variation_name',
+    showOverflowTooltip: true,
+    showType: 4
   }, {
-    column_header: '规格编号',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 24,
+    name: '商品货号',
+    width: '120',
+    align: '',
+    rowShow: 'replace_=|=',
+    prop: 'goods_info.variation_sku',
+    showOverflowTooltip: true,
+    sortable: true,
+    showType: 4
   }, {
-    column_header: '商品规格',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 25,
+    name: '买家付款金额',
+    width: '120',
+    filter: $filter.siteCoin,
+    prop: 'total_amount',
+    sortable: true,
+    showType: 11
   }, {
-    column_header: '商品货号',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 26,
+    name: '订单收入',
+    width: '120',
+    align: '',
+    filter: $filter.siteCoin,
+    prop: 'escrow_amount',
+    sortable: true,
+    showType: 11
   }, {
-    column_header: '是否为海外仓商品',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 27,
+    name: '实际总邮费',
+    width: '100',
+    align: '',
+    filter: $filter.siteCoin,
+    prop: 'actual_shipping_cost',
+    showType: 11
   }, {
-    column_header: '买家付款金额',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 28,
+    name: '卖家补贴邮费',
+    width: '120',
+    align: '',
+    filter: $filter.siteCoin,
+    prop: 'sell_shipping_cost',
+    showType: 11
   }, {
-    column_header: '订单收入',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 29,
+    name: '采购价',
+    width: '120',
+    align: '',
+    filter: $filter.siteCoin,
+    prop: 'shot_order_info.shot_amount',
+    sortable: true,
+    showType: 11
   }, {
-    column_header: '实际总邮费',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 30,
+    name: '仓库发货金额',
+    width: '120',
+    align: '',
+    filter: $filter.siteCoin,
+    prop: 'warehouse_ship_amount',
+    sortable: true,
+    showType: 16
   }, {
-    column_header: '卖家补贴邮费',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 31,
+    name: '含邮费毛利',
+    width: '120',
+    align: '',
+    filter: $filter.siteCoin,
+    prop: 'gross_profit',
+    showType: 11
   }, {
-    column_header: '采购价',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 32,
+    name: '最终毛利',
+    width: '120',
+    align: '',
+    filter: $filter.siteCoin,
+    prop: 'real_gross_profit',
+    sortable: true,
+    showType: 11
   }, {
-    column_header: '仓库发货金额',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 33,
+    name: '付款账号',
+    width: '120',
+    align: '',
+    prop: 'shot_order_info.pay_account_info.name',
+    showType: 0
   }, {
-    column_header: '含邮费毛利',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 34,
+    name: '采购账号',
+    width: '120',
+    align: '',
+    prop: 'shot_order_info.buy_account_info.name',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '最终毛利',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 35,
+    name: '拍单',
+    width: '80',
+    align: '',
+    showType: 17
   }, {
-    column_header: '付款账号',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 36,
+    name: '采购状态',
+    width: '120',
+    align: '',
+    propLink: 'true',
+    rowColor: 'changeShotStatus_color',
+    rowShow: 'changeShotStatus',
+    prop: 'shot_order_info.shot_status',
+    sortable: true,
+    showType: 4
   }, {
-    column_header: '采购账号',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  },
-  {
-    column_header: '拍单',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 37,
+    name: '采购时间',
+    width: '140',
+    align: '',
+    prop: 'shot_order_info.shotted_at',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '采购状态',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 38,
+    name: '采购订单号',
+    width: '140',
+    align: '',
+    rowClick: 'clickBuyOrder',
+    prop: 'shot_order_info.shot_order_sn',
+    showOverflowTooltip: true,
+    showType: 19
   }, {
-    column_header: '采购时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 39,
+    name: '采购付款方式',
+    width: '120',
+    align: '',
+    rowShow: 'buyPayMethod',
+    prop: 'shot_order_info.shot_payment_method',
+    showType: 4
   }, {
-    column_header: '采购订单号',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 40,
+    name: '平台付款方式',
+    width: '120',
+    align: '',
+    rowShow: 'changePlatformPayMethod',
+    prop: 'payment_method',
+    showType: 4
   }, {
-    column_header: '采购付款方式',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 41,
+    name: '采购物流信息',
+    width: '140',
+    align: '',
+    prop: 'shot_order_info.shot_logistics_company',
+    propList: [{
+      name: '公司',
+      prop: 'shot_order_info.shot_logistics_company'
+    }, {
+      name: '单号',
+      prop: 'shot_order_info.shot_tracking_number'
+    }],
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '平台付款方式',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 43,
+    name: '采购发货时间',
+    width: '140',
+    align: '',
+    prop: 'shot_order_info.shot_shipping_time',
+    showType: 0
   }, {
-    column_header: '采购物流公司',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 44,
+    name: '商户订单号',
+    width: '140',
+    align: '',
+    prop: 'shot_order_info.merchant_no',
+    showOverflowTooltip: true,
+    showType: 0
   }, {
-    column_header: '采购物流单号',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 45,
+    name: '货物运输及类型',
+    width: '120',
+    align: '',
+    propList: [{
+      name: '运输方式',
+      filter: getTransportType,
+      prop: 'transport_type'
+    }, {
+      name: '货物类型',
+      filter: changePackageType,
+      prop: 'package_type'
+    }],
+    showType: 0
   }, {
-    column_header: '采购发货时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  },
-//  {
-//   column_header: '采购物流轨迹',
-//   is_show: 1,
-//   first_column_is_checkbox: -1
-// },
-  {
-    column_header: '商户订单号',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 47,
+    name: '虾皮物流信息',
+    width: '170',
+    align: '',
+    propList: [{
+      name: '公司',
+      prop: 'logistics_name'
+    }, {
+      name: '单号',
+      prop: 'tracking_no'
+    }],
+    prop: 'logistics_name',
+    showOverflowTooltip: true,
+    showType: 0
   }, {
-    column_header: '运输方式',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 48,
+    name: '买家备注',
+    width: '140',
+    align: '',
+    prop: 'message_to_seller',
+    showOverflowTooltip: true,
+    showType: 0
   }, {
-    column_header: '货物类型',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 49,
+    name: '虾皮物流轨迹',
+    width: '130',
+    align: '',
+    rowClick: 'getSHtrackPath',
+    buttonName: '虾皮物流轨迹',
+    prop: '123456',
+    showType: 7
   }, {
-    column_header: '虾皮物流',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 50,
+    name: '截止发货时间',
+    width: '140',
+    align: '',
+    prop: 'ship_by_date',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '虾皮物流单号',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 51,
+    name: '仓库发货状态',
+    width: '120',
+    align: '',
+    filter: changeDeliveryStatus,
+    prop: 'delivery_status',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '虾皮物流轨迹',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 52,
+    name: '仓库时间信息',
+    width: '180',
+    propList: [{
+      name: '入库',
+      prop: 'storage_time'
+    }, {
+      name: '出库',
+      prop: 'outbound_time'
+    }],
+    prop: 'outbound_time',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '截止发货时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 54,
+    name: '本地备注',
+    width: '120',
+    align: '',
+    prop: 'remark',
+    showOverflowTooltip: true,
+    sortable: true,
+    showType: 23
   }, {
-    column_header: '仓库发货状态',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 55,
+    name: 'shopee备注',
+    width: '120',
+    align: '',
+    showOverflowTooltip: true,
+    showType: 24
   }, {
-    column_header: '入库时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 56,
+    name: 'shopee备注更新时间',
+    width: '140',
+    align: '',
+    prop: 'note_update_time',
+    showType: 0
   }, {
-    column_header: '出库时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 57,
+    name: '买家信息',
+    width: '150',
+    align: '',
+    propList: [{
+      prop: 'name',
+      name: '姓名',
+      rowDblClick: 'copyItem'
+    }, {
+      name: '手机',
+      prop: 'phone',
+      rowDblClick: 'copyItem'
+    }],
+    showOverflowTooltip: true,
+    showType: 0
   }, {
-    column_header: '本地备注',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 58,
+    name: '买家地址',
+    width: '120',
+    align: '',
+    prop: 'receiver_info.address',
+    showOverflowTooltip: true,
+    rowDblClick: 'copyItem',
+    showType: 0
   }, {
-    column_header: 'shopee备注',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 60,
+    name: '订单支付时间',
+    width: '140',
+    align: '',
+    prop: 'pay_time',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: 'shopee备注更新时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
+    key: 61,
+    name: '订单更新时间',
+    width: '140',
+    align: '',
+    prop: 'update_time',
+    sortable: true,
+    showType: 0
   }, {
-    column_header: '买家姓名',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
-    column_header: '买家地址',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
-    column_header: '手机号',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
-    column_header: '订单支付时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  },
-  {
-    column_header: '订单更新时间',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
-    column_header: '操作',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }
-]
-
+    key: 62,
+    name: '是否为海外仓商品',
+    width: '120',
+    rowShow: '1_or_true',
+    align: '',
+    prop: 'goods_info.is_overseas_goods',
+    showType: 4
+  }]
 const platformLinkList = [{
   purchase_platform_id: 1,
   purchase_url: 'http://mobile.yangkeduo.com/goods.html?goods_id=',
@@ -1539,7 +1782,13 @@ const platformLinkList = [{
     purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
     purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
     label: '天猫淘宝海外平台'
-  }
+  },
+  // {
+  //   purchase_platform_id: 16,
+  //   purchase_url: 'https://www.tokopedia.com/velove/',
+  //   purchase_url_all: 'https://www.tokopedia.com/velove/v856-malta-dress-3-color-2-size-sage-green-s?extParam=ivf%3Dfalse',
+  //   label: 'tokopedia'
+  // }
 ]
 const warehouseType = [{
   label: '国内中转仓',
@@ -1789,7 +2038,8 @@ const colorList = [{
   'created_at': '2021-06-07 14:44:42',
   'updated_at': '2021-06-07 14:44:42',
   'deleted_at': null
-}]
+}
+]
 const muidList = [
   691349,
   767407,
@@ -2103,7 +2353,8 @@ function changeBuyerType(type) {
 }
 
 function getTransportType(val) {
-  return val == 1 && '空运' || val == 2 && '陆运' || ''
+  val = Number(val) || 0
+  return val === 1 && '空运' || val === 2 && '陆运' || ''
 }
 
 export {
@@ -2112,6 +2363,8 @@ export {
   timeTypeList,
   inputTypeList,
   goodsSourceList,
+  goodsSourceListLink,
+  goodsSourceNameList,
   syncStatusFirst,
   syncStatusAll,
   syncStatus,
@@ -2121,7 +2374,6 @@ export {
   shotStatuForEdit,
   warehouseType,
   columnData,
-  goodsSourceListLink,
   platformLinkList,
   forbidData,
   forbidTHData,
@@ -2131,10 +2383,10 @@ export {
   statusAfterList,
   buyPayMethod,
   platformPayMethod,
-  goodsSourceListPurchase,
   muidList,
   lazadaBuyLinkList,
   lazadaBuyLinkObj,
+  tableColumnListData,
   changePlatformPayMethod,
   changeShotStatus,
   changeBuyerType,

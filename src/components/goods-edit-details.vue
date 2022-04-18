@@ -19,7 +19,7 @@
                       v-model="goodsDetails.description"></el-input>
           </div>
           <div style="color: red;width: 60px;padding-left: 10px;">
-            {{goodsDetails.description && goodsDetails.description.length || 0}}
+            {{ goodsDetails.description && goodsDetails.description.length || 0 }}
           </div>
         </div>
         <div class="goods-detail-block">
@@ -47,12 +47,13 @@
           <div class="keepRight keepTop">活动主图：</div>
           <div class="goods-detail-box">
             <div class="goods-image-detail">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false"
+                          v-if="goodsDetails.images1.length > 0"
                           :enterable="false" style="width: 160px; height: 160px; display: inline-block">
                 <div slot="content">
-                  <el-image :src="goodsDetails.images1[0].img" style="width: 400px; height: 400px" />
+                  <el-image :src="goodsDetails.images1[0].img" style="width: 400px; height: 400px"/>
                 </div>
-                <el-image :src="goodsDetails.images1[0].img" />
+                <el-image :src="goodsDetails.images1[0].img"/>
               </el-tooltip>
               <div class="goods-image-footer">
                 <el-button class="footer-but" type="" size="mini" @click="updateImage(2,0)">编辑</el-button>
@@ -75,10 +76,11 @@
           <div class="goods-detail-box">
             <div class="goods-image-detail" v-if="goodsDetails.spec_image.length > 0"
                  v-for="(item,index) in goodsDetails.spec_image" :key="index">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false"
+                          v-if="goodsDetails.images1.length > 0"
                           :enterable="false" style="width: 160px; height: 160px; display: inline-block">
                 <div slot="content">
-                  <el-image :src="item" style="width: 400px; height: 400px" />
+                  <el-image :src="item" style="width: 400px; height: 400px"/>
                 </div>
                 <el-image v-if="item" :src="item" @click.native="multipleCheckClick(index,1)"/>
               </el-tooltip>
@@ -110,28 +112,35 @@
             </el-button>
           </div>
           <div class="goods-detail-box">
-            <div class="goods-image-detail" v-if="goodsDetails.images1.length > 0"
-                 v-for="(item,index) in goodsDetails.images1" :key="item.id">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
-                          :enterable="false" style="width: 160px; height: 160px; display: inline-block">
-                <div slot="content">
-                  <el-image :src="item.img" style="width: 400px; height: 400px" />
+            <draggable v-model="goodsDetails.images1" group="imagesDetails" dragClass="dragClass" class="draggable_box"
+                       ghostClass="ghostClass" chosenClass="chosenClass" @start="onStart" @end="onEnd">
+              <transition-group>
+                <div class="goods-image-detail" v-show="goodsDetails.images1.length > 0"
+                     v-for="(item,index) in goodsDetails.images1" :key="item.id">
+                  <el-tooltip effect="light" placement="right-end" :visible-arrow="false"
+                              v-if="goodsDetails.images1.length > 0"
+                              :enterable="false" style="width: 160px; height: 160px; display: inline-block">
+                    <div slot="content">
+                      <el-image :src="item.img" style="width: 400px; height: 400px"/>
+                    </div>
+                    <el-image :src="item.img" @click.native="multipleCheckClick(index,2)"/>
+                  </el-tooltip>
+                  <div class="goods-image-top-right">
+                    <el-checkbox v-model="carouselImageCheck[index]" size="small"></el-checkbox>
+                  </div>
+                  <div class="goods-image-top">
+                    <el-button class="footer-but" type="primary" size="mini" @click="setMasterMap(item)">设为主图
+                    </el-button>
+                  </div>
+                  <div class="goods-image-footer">
+                    <el-button class="footer-but" type="" size="mini" @click="updateImage(2,index)">编辑</el-button>
+                    <el-button class="footer-but" type="" size="mini" @click="replaceImage(2,index)">替换</el-button>
+                    <el-button class="footer-but" type="" size="mini" @click="deleteImages(2,index)">删除</el-button>
+                    <el-button class="footer-but" type="" size="mini">以图搜图</el-button>
+                  </div>
                 </div>
-                <el-image :src="item.img" @click.native="multipleCheckClick(index,2)"/>
-              </el-tooltip>
-              <div class="goods-image-top-right">
-                <el-checkbox v-model="carouselImageCheck[index]" size="small"></el-checkbox>
-              </div>
-              <div class="goods-image-top">
-                <el-button class="footer-but" type="primary" size="mini" @click="setMasterMap(item)">设为主图</el-button>
-              </div>
-              <div class="goods-image-footer">
-                <el-button class="footer-but" type="" size="mini" @click="updateImage(2,index)">编辑</el-button>
-                <el-button class="footer-but" type="" size="mini" @click="replaceImage(2,index)">替换</el-button>
-                <el-button class="footer-but" type="" size="mini" @click="deleteImages(2,index)">删除</el-button>
-                <el-button class="footer-but" type="" size="mini">以图搜图</el-button>
-              </div>
-            </div>
+              </transition-group>
+            </draggable>
             <div class="goods-image-detail goods-image-add" @click="addImage(2)">
               <div class="image-add image-add-cross"></div>
               <div class="image-add image-add-vertical"></div>
@@ -154,28 +163,35 @@
             </el-button>
           </div>
           <div class="goods-detail-box">
-            <div class="goods-image-detail" v-if="goodsDetails.descImages.length > 0"
-                 v-for="(item,index) in goodsDetails.descImages" :key="item.id">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
-                          :enterable="false" style="width: 160px; height: 160px; display: inline-block">
-                <div slot="content">
-                  <el-image :src="item.img" style="width: 400px; height: 400px" />
+            <draggable v-model="goodsDetails.descImages" group="imagesDetails" dragClass="dragClass" class="draggable_box"
+                       ghostClass="ghostClass" chosenClass="chosenClass" @start="onStart" @end="onEnd">
+              <transition-group>
+                <div class="goods-image-detail" v-show="goodsDetails.descImages.length > 0"
+                     v-for="(item,index) in goodsDetails.descImages" :key="item.id">
+                  <el-tooltip effect="light" placement="right-end" :visible-arrow="false"
+                              v-if="goodsDetails.images1.length > 0"
+                              :enterable="false" style="width: 160px; height: 160px; display: inline-block">
+                    <div slot="content">
+                      <el-image :src="item.img" style="width: 400px; height: 400px"/>
+                    </div>
+                    <el-image :src="item.img" @click.native="multipleCheckClick(index,3)"/>
+                  </el-tooltip>
+                  <div class="goods-image-top-right">
+                    <el-checkbox v-model="descImageCheck[index]" size="small"></el-checkbox>
+                  </div>
+                  <div class="goods-image-top">
+                    <el-button class="footer-but" type="primary" size="mini" @click="setMasterMap(item)">设为主图
+                    </el-button>
+                  </div>
+                  <div class="goods-image-footer">
+                    <el-button class="footer-but" type="" size="mini" @click="updateImage(3,index)">编辑</el-button>
+                    <el-button class="footer-but" type="" size="mini" @click="replaceImage(3,index)">替换</el-button>
+                    <el-button class="footer-but" type="" size="mini" @click="deleteImages(3,index)">删除</el-button>
+                    <el-button class="footer-but" type="" size="mini">以图搜图</el-button>
+                  </div>
                 </div>
-                <el-image :src="item.img" @click.native="multipleCheckClick(index,3)"/>
-              </el-tooltip>
-              <div class="goods-image-top-right">
-                <el-checkbox v-model="descImageCheck[index]" size="small"></el-checkbox>
-              </div>
-              <div class="goods-image-top">
-                <el-button class="footer-but" type="primary" size="mini" @click="setMasterMap(item)">设为主图</el-button>
-              </div>
-              <div class="goods-image-footer">
-                <el-button class="footer-but" type="" size="mini" @click="updateImage(3,index)">编辑</el-button>
-                <el-button class="footer-but" type="" size="mini" @click="replaceImage(3,index)">替换</el-button>
-                <el-button class="footer-but" type="" size="mini" @click="deleteImages(3,index)">删除</el-button>
-                <el-button class="footer-but" type="" size="mini">以图搜图</el-button>
-              </div>
-            </div>
+              </transition-group>
+            </draggable>
             <div class="goods-image-detail goods-image-add" @click="addImage(3)">
               <div class="image-add image-add-cross"></div>
               <div class="image-add image-add-vertical"></div>
@@ -186,10 +202,11 @@
           <div class="keepRight keepTop">尺寸图：</div>
           <div class="goods-detail-box">
             <div v-if="goodsDetails.sizeImages[0] && goodsDetails.sizeImages[0].img" class="goods-image-detail">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false"
+                          v-if="goodsDetails.images1.length > 0"
                           :enterable="false" style="width: 160px; height: 160px; display: inline-block">
                 <div slot="content">
-                  <el-image :src="goodsDetails.sizeImages[0].img" style="width: 400px; height: 400px" />
+                  <el-image :src="goodsDetails.sizeImages[0].img" style="width: 400px; height: 400px"/>
                 </div>
                 <el-image :src="goodsDetails.sizeImages[0].img"/>
               </el-tooltip>
@@ -221,10 +238,11 @@
                  v-for="(item,index) in goodsDetails.tier_variation[goodsDetails.tier_variation.spec1]" :key="index"
                  v-if="goodsDetails.tier_variation && goodsDetails.tier_variation[goodsDetails.tier_variation.spec1]"
                  @click="multipleCheckClick(index,4)">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false"
+                          v-if="goodsDetails.images1.length > 0"
                           :enterable="false" style="width: 160px; height: 160px; display: inline-block">
                 <div slot="content">
-                  <el-image :src="goodsDetails.tier_variation.images[index]" style="width: 400px; height: 400px" />
+                  <el-image :src="goodsDetails.tier_variation.images[index]" style="width: 400px; height: 400px"/>
                 </div>
                 <el-image class="sku_describe_image" v-if="goodsDetails.tier_variation.images[index]"
                           :src="goodsDetails.tier_variation.images[index]"/>
@@ -304,12 +322,14 @@
             </u-table-column>
             <u-table-column align="left" label="规格图" width="80">
               <template slot-scope="{row}">
-                <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+                <el-tooltip effect="light" placement="right-end" :visible-arrow="false"
+                            v-if="goodsDetails.images1.length > 0"
                             :enterable="false" style="width: 56px; height: 56px; display: inline-block">
                   <div slot="content">
-                    <el-image :src="row.sku_image" style="width: 400px; height: 400px" />
+                    <el-image :src="row.sku_image" style="width: 400px; height: 400px"/>
                   </div>
-                  <el-image style="width: 60px;height: 60px" :src="{url:row.sku_image,source:goodsDetails.source} | changeImgSizeFilter"></el-image>
+                  <el-image style="width: 60px;height: 60px"
+                            :src="{url:row.sku_image,source:goodsDetails.source} | changeImgSizeFilter"></el-image>
                 </el-tooltip>
               </template>
             </u-table-column>
@@ -322,7 +342,7 @@
       <el-button size="mini" @click="$emit('goodsEditorCancel','')">关闭</el-button>
     </div>
     <div class="on_new_dialog upload_new">
-      <el-dialog class="goods-edit-details" title="图片选择" width="830px" :close-on-click-modal="false"
+      <el-dialog class="goods-edit-details" title="图片选择" width="880px" :close-on-click-modal="false"
                  :modal="false" :visible.sync="picturesChooseVisible" top="10vh">
         <div v-if="picturesChooseVisible" class="goods-detail-block"
              style="background: white;margin-bottom: 0;padding: 0;">
@@ -396,18 +416,22 @@
 <script>
 import JSZip from 'jszip'
 import FileSaver from 'file-saver'
-import { createImageEditor } from '@gaoding/editor-sdk';
+import { createImageEditor } from '@gaoding/editor-sdk'
 import { randomWord, waitStart, getArraySrcLengthSort } from '../util/util'
+import draggable from 'vuedraggable'
 
 export default {
   name: 'goods-edit-details',
+  components: {
+    draggable
+  },
   data() {
     return {
       goodsDetails: null,
       activeName: 'information',
       imageList: [],
-      editor:null, //编辑
-      GdEditorSdkVisible:false,
+      editor: null, //编辑
+      GdEditorSdkVisible: false,
       editorImg: '',
       //图片选择
       picturesChooseStart: false,
@@ -441,7 +465,8 @@ export default {
       presetPrice: '',
       presetTypeRadio: 1,
       lodSpecImage: [],
-      tier_variation: []
+      tier_variation: [],
+      drag: false
     }
   },
   props: {
@@ -639,8 +664,8 @@ export default {
         console.log(this.goodsDetails)
       }
     },
-    picturesChooseVisible(val){
-      if(val){
+    picturesChooseVisible(val) {
+      if (val) {
         let image = [...this.goodsDetails.spec_image, ...this.goodsDetails.images, ...this.goodsDetails.descImages.map(i => i.img)]
         this.imageList = [...new Set(image)]
       }
@@ -650,9 +675,9 @@ export default {
     let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(this.goodsEditor.id)
     let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
     console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
-    if(!neededTranslateInfoData){
+    if (!neededTranslateInfoData) {
       this.$message.error('不存在该商品信息，请确认后重试')
-      this.$emit('goodsEditorCancel','')
+      this.$emit('goodsEditorCancel', '')
       return
     }
     this.goodsDetails = neededTranslateInfoData
@@ -660,6 +685,12 @@ export default {
     this.lodSpecImage = this.goodsDetails.spec_image
   },
   methods: {
+    onStart() {
+      this.drag = true
+    },
+    onEnd() {
+      this.drag = false
+    },
     async replaceImage(type, index) {
       let image = await this.selectImage()
       console.log(index, image)
@@ -715,7 +746,7 @@ export default {
           this.goodsDetails.spec_image.push(image)
           let specList = this.goodsDetails.tier_variation[spec2Name]
           if (!JSON.stringify(this.goodsDetails.itemmodels).includes('"sku_spec1":""')) {
-            specList.forEach((item, index) => {
+            specList.forEach((item) => {
               let temp = {
                 sku: this.spec_name1 + '=|=' + item,
                 sku_image: image,
@@ -778,37 +809,37 @@ export default {
         }
       }
     },
-    async cancelBackground(){
+    async cancelBackground() {
       let image = this.goodsDetails.images1[0] && this.goodsDetails.images1[0].img
-      let byUrlRes = await this.$MattingService.getDrawbotMattingByUrl(image,new Date().getTime()+'.png')
-      if (byUrlRes.Code === 200){
+      let byUrlRes = await this.$MattingService.getDrawbotMattingByUrl(image, new Date().getTime() + '.png')
+      if (byUrlRes.Code === 200) {
         let byUrlData = byUrlRes.Data
         let ImageURL = byUrlData.Data && byUrlData.Data.ImageURL
-        this.$set(this.goodsDetails.images1,0,{id:'0',img:ImageURL})
-        this.$set(this.goodsDetails.images,0,ImageURL)
-      }else{
+        this.$set(this.goodsDetails.images1, 0, { id: '0', img: ImageURL })
+        this.$set(this.goodsDetails.images, 0, ImageURL)
+      } else {
         this.$message.error('去背景失败，请稍后重试！')
       }
     },
-    async updateImage(type,index){
-      this.GdEditorSdkVisible =true
+    async updateImage(type, index) {
+      this.GdEditorSdkVisible = true
       let oldImage = ''
       this.editorImg = ''
-      if(type === 1){
+      if (type === 1) {
         oldImage = this.goodsDetails.spec_image[index]
-      }else if(type === 2){
+      } else if (type === 2) {
         oldImage = this.goodsDetails.images1[index].img
-      }else if(type === 3){
+      } else if (type === 3) {
         oldImage = this.goodsDetails.descImages[index].img
       }
       this.editor = createImageEditor({
         appId: 'YMEQYU442168',
-        container:'#editorApp'
-      });
-      this.editor.importImage([oldImage]);
+        container: '#editorApp'
+      })
+      this.editor.importImage([oldImage])
       let newImg = await this.getEditorImage()
-      if (newImg){
-        if(type === 1){
+      if (newImg) {
+        if (type === 1) {
           let itemmodels = JSON.stringify(this.goodsDetails.itemmodels)
           let spec1 = this.goodsDetails.tier_variation[this.goodsDetails.tier_variation.spec1][index]
           let oldReg = new RegExp('"sku_image":"' + oldImage + '",(((?!sku_image).)*)"sku_spec1":"' + spec1 + '","', 'gi')
@@ -817,43 +848,43 @@ export default {
           this.goodsDetails.itemmodels = JSON.parse(itemmodels)
           this.$set(this.goodsDetails.tier_variation.images, index, newImg)
           this.$set(this.goodsDetails.spec_image, index, newImg)
-        }else if(type === 2){
+        } else if (type === 2) {
           this.goodsDetails.images[index] = newImg
           this.$set(this.goodsDetails.images1[index], 'img', newImg)
-        }else if(type === 3){
+        } else if (type === 3) {
           this.$set(this.goodsDetails.descImages[index], 'img', newImg)
         }
       }
     },
-    getEditorImage(){
+    getEditorImage() {
       this.saveEditor()
-      return new Promise(resolve=>{
-        let setIn = setInterval(()=>{
-          if (!this.GdEditorSdkVisible){
+      return new Promise(resolve => {
+        let setIn = setInterval(() => {
+          if (!this.GdEditorSdkVisible) {
             clearInterval(setIn)
             resolve(this.editorImg)
           }
-        },300)
+        }, 300)
       })
     },
-    saveEditor(){
+    saveEditor() {
       this.editor.onSave(({ files, workId, type, title }) => {
-        const file = files[0];
-        const url = URL.createObjectURL(file);
+        const file = files[0]
+        const url = URL.createObjectURL(file)
         let image = new Image()
         image.src = url
         image.onload = async() => {
           let canvas = document.createElement('canvas')
           let cxt = canvas.getContext('2d')
-          canvas.width = image.width;
-          canvas.height = image.height;
-          cxt.drawImage(image,0,0,image.width,image.height)
+          canvas.width = image.width
+          canvas.height = image.height
+          cxt.drawImage(image, 0, 0, image.width, image.height)
           let dataURL = canvas.toDataURL('image/png')
-          console.log('dataURL',image)
+          console.log('dataURL', image)
           const name = randomWord(false, 32) + '_' + new Date().getTime()
           this.editorImg = await this.$ossService.uploadFile(dataURL, name + '.png')
           this.GdEditorSdkVisible = false
-          this.editor.close();
+          this.editor.close()
           // const a = document.createElement('a');
           // a.href = url;
           // a.download = `${title}.${type}`
@@ -861,9 +892,9 @@ export default {
         }
       })
     },
-    closeEditor(){
+    closeEditor() {
       this.GdEditorSdkVisible = false
-      this.editor.close();
+      this.editor.close()
     },
     updateSpec(item, type, index) {
       let itemmodelsJson = JSON.stringify(this.goodsDetails.itemmodels)
@@ -1057,7 +1088,7 @@ export default {
           })
           this.carouselImageCheck = []
           this.goodsDetails.images1 = imageUrls
-          this.goodsDetails.images = [...imageUrls.map(i=>i.img)]
+          this.goodsDetails.images = [...imageUrls.map(i => i.img)]
         }
       } else if (type === 3) {
         if (index > -1) {
@@ -1259,10 +1290,10 @@ export default {
         weight
       })
       let updateGoodsRes = JSON.parse(updateGoodsJson)
-      if(updateGoodsRes.code === 200){
+      if (updateGoodsRes.code === 200) {
         let andUpdateSkuJson = await this.$commodityService.saveAndUpdateSkuDatas(sysGoodsId, itemmodels)
         let andUpdateSkuRes = JSON.parse(andUpdateSkuJson)
-        if (andUpdateSkuRes.code === 200){
+        if (andUpdateSkuRes.code === 200) {
           let descImages = [...this.goodsDetails.descImages.map(i => {
             return { id: i.id + '', imageUrl: i.img }
           })]
@@ -1285,10 +1316,10 @@ export default {
           })
           this.$message.success('保存成功')
           this.$emit('goodsEditorCancel', { sysGoodsId, title, description, width, height, long, weight })
-        }else{
+        } else {
           this.$message.error('保存失败')
         }
-      }else{
+      } else {
         this.$message.error('保存失败')
       }
     },
@@ -1299,7 +1330,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-.updateImgBox{
+.updateImgBox {
   position: fixed;
   z-index: 99999999;
   display: flex;
@@ -1309,15 +1340,17 @@ export default {
   background: #FFF;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow:  0 0 15px #666;
+  box-shadow: 0 0 15px #666;
   min-height: 648px;
   height: 96vh;
   width: 90vw;
-  .updateImg{
+
+  .updateImg {
     flex: 1;
     width: 100%;
   }
-  .updateImgBut{
+
+  .updateImgBut {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1325,6 +1358,7 @@ export default {
 
   }
 }
+
 .goods-edit-details {
   padding: 0;
   margin: 0;
@@ -1514,9 +1548,17 @@ export default {
     .el-upload {
       width: auto;
       height: auto;
-      padding: auto;
+      padding: 0;
       border: none;
     }
+  }
+}
+
+.draggable_box{
+  >span{
+    display: flex;
+    flex-flow: wrap;
+    width: 100%;
   }
 }
 </style>

@@ -27,6 +27,31 @@ export default class MarketManagerAPI {
       return { code: -2, data: `getSkuList-catch: ${error}` }
     }
   }
+  // 已置顶的商品
+  async topedGoods(goodsinfo) {
+    try {
+      const { country, mallId } = goodsinfo
+      const params = {
+        mallId: mallId,
+        version: '3.1.0'
+      }
+      const res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/get_boost_product_id_list/?', params, {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Encoding': 'gzip, deflate, br',
+          referer: '/portal/product/list/all'
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      const ecode = des.code
+      const message = des.message
+      const data = des.data.list
+      return { ecode, message, data }
+    } catch (error) {
+      return { code: -2, data: `getSkuList-catch: ${error}` }
+    }
+  }
   // 店铺优惠卷
   async Mallvoucher(goodsinfo) {
     try {

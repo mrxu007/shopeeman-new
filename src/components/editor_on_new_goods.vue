@@ -8,20 +8,20 @@
             <el-button class="button_mini" size="mini" type="primary" disabled @click="batchDealWith(1)">收藏数据
             </el-button>
             <el-button
-              class="button_mini"
-              size="mini"
-              type="primary"
-              :disabled="isCollectShow"
-              @click="batchDealWith(2,1)"
+                class="button_mini"
+                size="mini"
+                type="primary"
+                :disabled="isCollectShow"
+                @click="batchDealWith(2,1)"
             >翻译数据
             </el-button>
           </div>
           <el-button
-            style="flex: 1;margin-left: 10px;"
-            size="mini"
-            type="primary"
-            :disabled="isCollectShow"
-            @click="batchDealWith(3)"
+              style="flex: 1;margin-left: 10px;"
+              size="mini"
+              type="primary"
+              :disabled="isCollectShow"
+              @click="batchDealWith(3)"
           >批量编辑标题/描述
           </el-button>
           <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(4)">
@@ -41,11 +41,11 @@
         </div>
         <div class="basisInstall-box">
           <el-button
-            style="flex: 1"
-            size="mini"
-            type="primary"
-            :disabled="!isCollect || isCollectShow"
-            @click="batchDealWith(8)"
+              style="flex: 1"
+              size="mini"
+              type="primary"
+              :disabled="!isCollect || isCollectShow"
+              @click="batchDealWith(8)"
           >收藏失败产品重试
           </el-button>
           <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(9)">取消操作</el-button>
@@ -81,15 +81,15 @@
           </el-button>
         </div>
         <el-upload
-          v-if="uploadImgAdd"
-          v-show="false"
-          style="margin-right: 10px"
-          action="#"
-          :drag="true"
-          :show-file-list="false"
-          :limit="1"
-          :auto-upload="false"
-          :on-change="imageUpload"
+            v-if="uploadImgAdd"
+            v-show="false"
+            style="margin-right: 10px"
+            action="#"
+            :drag="true"
+            :show-file-list="false"
+            :limit="1"
+            :auto-upload="false"
+            :on-change="imageUpload"
         >
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
@@ -103,18 +103,18 @@
         <div class="basisInstall-box">
           <div>标签列表：</div>
           <el-select
-            v-model="configLabel"
-            value=""
-            size="mini"
-            filterable
-            allow-create
-            style="width: 120px;margin-right: 5px;"
-            :disabled="isCollectShow"
+              v-model="configLabel"
+              value=""
+              size="mini"
+              filterable
+              allow-create
+              style="width: 120px;margin-right: 5px;"
+              :disabled="isCollectShow"
           >
             <el-option v-for="(item,index) in configLabelList" :key="index" :value="item">
               <div style="display: flex;justify-content: space-between;align-items: center">
                 <div>{{ item }}</div>
-                <i class="el-icon-circle-close close-right" @click.stop="deleteConfigClick(item,index)" />
+                <i class="el-icon-circle-close close-right" @click.stop="deleteConfigClick(item,index)"/>
               </div>
             </el-option>
           </el-select>
@@ -140,43 +140,43 @@
           <el-checkbox v-model="translationConfig.describeChecked" size="mini" :disabled="isCollectShow">翻译描述
           </el-checkbox>
           <el-tooltip class="item" effect="dark" content="如果选择付费翻译描述，将会产生大量扣费" placement="top">
-            <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
+            <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
           </el-tooltip>
         </div>
         <div class="basisInstall-box">
           <div>翻译语种：</div>
           <el-select
-            v-model="translationConfig.languages"
-            size="mini"
-            style="width: 80px;"
-            value=""
-            :disabled="isCollectShow"
+              v-model="translationConfig.languages"
+              size="mini"
+              style="width: 80px;"
+              value=""
+              :disabled="isCollectShow"
           >
             <el-option
-              v-for="item in languagesList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+                v-for="item in languagesList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
             />
           </el-select>
           <div style="margin-left: 10px;">失败类型：</div>
           <el-select
-            v-model="translationConfig.failureType"
-            size="mini"
-            style="width: 110px;"
-            value=""
-            :disabled="isCollectShow"
+              v-model="translationConfig.failureType"
+              size="mini"
+              style="width: 110px;"
+              value=""
+              :disabled="isCollectShow"
           >
-            <el-option :label="'全部'" :value="0" />
-            <el-option :label="'文字翻译失败'" :value="'3'" />
-            <el-option :label="'图片翻译失败'" :value="'5'" />
+            <el-option :label="'全部'" :value="0"/>
+            <el-option :label="'文字翻译失败'" :value="'3'"/>
+            <el-option :label="'图片翻译失败'" :value="'5'"/>
           </el-select>
           <div style="margin-left: 10px;">线程数量：</div>
           <el-input
-            v-model="threadNumber"
-            size="mini"
-            style="width: 40px;margin-right: 10px;"
-            :disabled="isCollectShow"
+              v-model="threadNumber"
+              size="mini"
+              style="width: 40px;margin-right: 10px;"
+              :disabled="isCollectShow"
           />
           <el-checkbox v-model="filterSimplifiedChecked" size="mini" :disabled="isCollectShow">上新过滤简体数据</el-checkbox>
         </div>
@@ -187,7 +187,7 @@
           <div>删除条件：</div>
           <el-checkbox v-model="pictureConfig.deleteGoodsChecked" size="mini" :disabled="isCollectShow">删除库存低于设定值的商品
           </el-checkbox>
-          <el-input v-model="pictureConfig.inventoryNumber" size="mini" style="width: 80px;" :disabled="isCollectShow" />
+          <el-input v-model="pictureConfig.inventoryNumber" size="mini" style="width: 80px;" :disabled="isCollectShow"/>
         </div>
         <div class="basisInstall-box">
           <div style="display: flex;align-items: center">
@@ -197,34 +197,36 @@
               阿里付费翻译
             </el-radio>
             <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
             </el-tooltip>
             <el-radio v-model="pictureConfig.typeRadio" :label="2" :disabled="isCollectShow">云图像翻译</el-radio>
           </div>
           <div style="display: flex;align-items: center">
             <div>图片翻译：</div>
-            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="" :disabled="isCollectShow">
-              <el-option label="不翻译" :value="'no'" />
-              <el-option label="中文" :value="'zh'" />
-              <el-option label="英文" :value="'en'" />
+            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value=""
+                       :disabled="isCollectShow">
+              <el-option label="不翻译" :value="'no'"/>
+              <el-option label="中文" :value="'zh'"/>
+              <el-option label="英文" :value="'en'"/>
             </el-select>
-            <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;" />
+            <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"/>
             <el-select
-              v-if="translationConfig.before === 'no'"
-              size="mini"
-              style="width: 100px;"
-              value=""
-              disabled
-              placeholder="不翻译"
+                v-if="translationConfig.before === 'no'"
+                size="mini"
+                style="width: 100px;"
+                value=""
+                disabled
+                placeholder="不翻译"
             />
-            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">
+            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;"
+                       value="" :disabled="isCollectShow">
               <el-option
-                v-for="item in pictureLanguagesList"
-                v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !=='en') || item.free"
-                v-if="item.isShow.indexOf(translationConfig.before)>=0"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                  v-for="item in pictureLanguagesList"
+                  v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !=='en') || item.free"
+                  v-if="item.isShow.indexOf(translationConfig.before)>=0"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
               />
             </el-select>
           </div>
@@ -288,32 +290,32 @@
       </div>
     </div>
     <u-table
-      ref="mallTableRef"
-      :data="mallTable"
-      use-virtual
-      :data-changes-scroll-top="false"
-      :header-cell-style="{backgroundColor: '#f5f7fa',}"
-      row-key="index"
-      :border="false"
-      :big-data-checkbox="true"
-      :height="isNoFoldShow && 430 || 680"
-      @selection-change="handleSelectionChange"
+        ref="mallTableRef"
+        :data="mallTable"
+        use-virtual
+        :data-changes-scroll-top="false"
+        :header-cell-style="{backgroundColor: '#f5f7fa',}"
+        row-key="index"
+        :border="false"
+        :big-data-checkbox="true"
+        :height="isNoFoldShow && 430 || 680"
+        @selection-change="handleSelectionChange"
     >
-      <u-table-column align="center" show-overflow-tooltip width="55" type="selection" />
-      <u-table-column align="left" show-overflow-tooltip type="index" width="55" label="序号" />
+      <u-table-column align="center" show-overflow-tooltip width="55" type="selection"/>
+      <u-table-column align="left" show-overflow-tooltip type="index" width="55" label="序号"/>
       <u-table-column align="left" show-overflow-tooltip label="主图" width="80" prop="Sales">
         <template v-slot="{ row }">
           <el-tooltip
-            effect="light"
-            placement="right-end"
-            :visible-arrow="false"
-            :enterable="false"
-            style="width: 56px; height: 56px; display: inline-block"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 56px; height: 56px; display: inline-block"
           >
             <div slot="content">
-              <el-image :src="row.image " style="width: 400px; height: 400px" />
+              <el-image :src="row.image " style="width: 400px; height: 400px"/>
             </div>
-            <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px" />
+            <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px"/>
           </el-tooltip>
         </template>
       </u-table-column>
@@ -325,8 +327,10 @@
       <u-table-column align="left" label="商品编码" width="130" show-overflow-tooltip>
         <template v-slot="{ row }">
           <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
-            <i class="el-icon-document-copy" /></el-button>
-          <span class="goToGoods" style="color: red;cursor: pointer" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
+            <i class="el-icon-document-copy"/></el-button>
+          <span class="goToGoods" style="color: red;cursor: pointer" @click.stop="goToGoods(row)">{{
+              row.goods_id
+            }}</span>
         </template>
       </u-table-column>
       <u-table-column align="left" label="采购来源" width="70">
@@ -337,22 +341,22 @@
       <u-table-column align="left" label="标题" width="140">
         <template v-slot="{ row }">
           <el-input
-            v-model="row.title"
-            resize="none"
-            type="textarea"
-            :autosize="{ minRows: 4, maxRows: 4}"
-            placeholder="请输入标题"
-            @blur="goodsListUpdate(row)"
+              v-model="row.title"
+              resize="none"
+              type="textarea"
+              :autosize="{ minRows: 4, maxRows: 4}"
+              placeholder="请输入标题"
+              @blur="goodsListUpdate(row)"
           />
         </template>
       </u-table-column>
       <u-table-column align="left" show-overflow-tooltip label="类目" width="80">
         <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
       </u-table-column>
-      <u-table-column align="left" label="价格" prop="price" width="70" />
+      <u-table-column align="left" label="价格" prop="price" width="70"/>
       <u-table-column align="left" label="重量(kg)" width="75">
         <template v-slot="{ row }">
-          <el-input v-model="row.weight" size="mini" @keyup.enter.native="goodsListUpdate(row)" />
+          <el-input v-model="row.weight" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
         </template>
       </u-table-column>
       <u-table-column align="left" label="体积" width="115">
@@ -360,34 +364,35 @@
           <ul>
             <li style="display: flex;align-items: center;">
               <p style="white-space: nowrap;margin-right: 5px;">长(cm) </p>
-              <el-input v-model="row.long" size="mini" @keyup.enter.native="goodsListUpdate(row)" />
+              <el-input v-model="row.long" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
             </li>
             <li style="display: flex;align-items: center;">
               <p style="white-space: nowrap;padding-right: 5px;">宽(cm) </p>
-              <el-input v-model="row.width" size="mini" @keyup.enter.native="goodsListUpdate(row)" />
+              <el-input v-model="row.width" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
             </li>
             <li style="display: flex;align-items: center;">
               <p style="white-space: nowrap;padding-right: 5px;">高(cm) </p>
-              <el-input v-model="row.height" size="mini" @keyup.enter.native="goodsListUpdate(row)" />
+              <el-input v-model="row.height" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
             </li>
           </ul>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="库存" width="80" prop="stock" />
+      <u-table-column align="left" label="库存" width="80" prop="stock"/>
       <u-table-column align="left" label="操作" width="130">
         <template v-slot="scope">
           <div style="display: flex;align-items: center;">
-            <el-button size="mini" @click="updateGoodsEdit(scope.row)">删除</el-button>
-            <el-button size="mini" type="primary" @click="updateGoodsEdit(scope.row,1)">编辑</el-button>
+            <el-button size="mini" @click="updateGoodsEdit(scope.row)" :disabled="isCollectShow">删除</el-button>
+            <el-button size="mini" type="primary" @click="updateGoodsEdit(scope.row,1)" :disabled="isCollectShow">编辑
+            </el-button>
           </div>
         </template>
       </u-table-column>
       <u-table-column align="left" label="操作状态" width="100">
         <template v-slot="{row}">
           <div
-            class="goodsTableLine"
-            style="height: 80px"
-            :style="`color:${(row.operation_type || '').includes('失败') && 'red' || '#000'}`"
+              class="goodsTableLine"
+              style="height: 80px"
+              :style="`color:${(row.operation_type || '').includes('失败') && 'red' || '#000'}`"
           >
             {{ row.operation_type || '' }}
           </div>
@@ -396,26 +401,26 @@
     </u-table>
     <div class="on_new_dialog">
       <el-dialog
-        title="商品编辑"
-        width="1000px"
-        top="2vh"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        :modal="false"
-        :visible.sync="goodsEditorVisible"
+          title="商品编辑"
+          width="1000px"
+          top="2vh"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          :modal="false"
+          :visible.sync="goodsEditorVisible"
       >
         <goods-edit-details
-          v-if="goodsEditorVisible"
-          :goods-editor="goodsEditor"
-          @goodsEditorCancel="goodsEditorCancel"
+            v-if="goodsEditorVisible"
+            :goods-editor="goodsEditor"
+            @goodsEditorCancel="goodsEditorCancel"
         />
       </el-dialog>
       <el-dialog
-        title="编辑标题描述"
-        width="620px"
-        :close-on-click-modal="false"
-        :modal="false"
-        :visible.sync="titleDescribeVisible"
+          title="编辑标题描述"
+          width="620px"
+          :close-on-click-modal="false"
+          :modal="false"
+          :visible.sync="titleDescribeVisible"
       >
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
@@ -434,24 +439,24 @@
           <div class="on_new_dialog_box" style="margin: 10px 0;">
             <div class="keepRight" style="width: 60px;">关键词：</div>
             <el-input
-              v-model="titleDescribeKey"
-              type="textarea"
-              :rows="6"
-              resize="none"
-              style="width: 100%"
-              size="mini"
-              placeholder="请输入关键词，每个单词以逗号','隔开"
+                v-model="titleDescribeKey"
+                type="textarea"
+                :rows="6"
+                resize="none"
+                style="width: 100%"
+                size="mini"
+                placeholder="请输入关键词，每个单词以逗号','隔开"
             />
           </div>
           <div class="on_new_dialog_box">
-            <div class="keepRight" style="width: 50px;" />
+            <div class="keepRight" style="width: 50px;"/>
             <el-radio v-model="titleDescribeHandleRadio" :label="0" size="mini">删除关键词</el-radio>
             <el-radio v-model="titleDescribeHandleRadio" :label="1" size="mini">添加到标题/描述前</el-radio>
             <el-radio v-model="titleDescribeHandleRadio" :label="2" size="mini">添加到标题/描述后</el-radio>
             <el-radio v-model="titleDescribeHandleRadio" :label="3" size="mini">替换标题</el-radio>
             <el-radio v-model="titleDescribeHandleRadio" :label="4" size="mini" style="margin-right: 0">替换关键词</el-radio>
             <el-tooltip class="item" effect="dark" content="原词与新词间用';'隔开，需替换多个关键词时用','间隔" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
             </el-tooltip>
           </div>
           <div style="display:flex;justify-content: space-evenly;margin: 15px 0;">
@@ -460,36 +465,31 @@
           </div>
         </div>
       </el-dialog>
-      <el-dialog
-        title="描述模板"
-        width="500px"
-        :close-on-click-modal="false"
-        :modal="false"
-        :visible.sync="describeVisible"
-      >
+      <el-dialog title="描述模板" width="500px" :close-on-click-modal="false"
+                 :modal="false" :visible.sync="describeVisible">
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
             <div style="display: flex;align-items: center;">
               <div>标签：</div>
-              <el-select v-model="describeConfigId" size="mini" style="width: 120px;" value="" @change="">
-                <el-option v-for="(item,index) in describeLabelList" :key="index" :label="item.lable" :value="item.id" />
+              <el-select v-model="describeConfigId" size="mini" style="width: 120px;">
+                <el-option v-for="(item,index) in describeLabelList" :key="index" :label="item.lable" :value="item.id"/>
               </el-select>
             </div>
             <div style="display: flex;align-items: center;margin-left: 15px;">
               新增标签：
-              <el-input v-model="describeConfig.tag" size="mini" style="width: 120px;" />
+              <el-input v-model="describeConfig.tag" size="mini" style="width: 120px;"/>
             </div>
           </div>
           <div class="on_new_dialog_box">
             <div style="white-space: nowrap">描述：</div>
             <el-input
-              v-model="describeConfig.text"
-              type="textarea"
-              :rows="6"
-              resize="none"
-              style="width: 100%"
-              placeholder=""
-              size="mini"
+                v-model="describeConfig.text"
+                type="textarea"
+                :rows="6"
+                resize="none"
+                style="width: 100%"
+                placeholder=""
+                size="mini"
             />
           </div>
           <div style="display:flex;justify-content: space-evenly;margin-top: 15px;">
@@ -501,39 +501,39 @@
         </div>
       </el-dialog>
       <el-dialog
-        title="商品标签"
-        width="300px"
-        top="25vh"
-        :close-on-click-modal="false"
-        :modal="false"
-        :visible.sync="goodsTagVisible"
+          title="商品标签"
+          width="300px"
+          top="25vh"
+          :close-on-click-modal="false"
+          :modal="false"
+          :visible.sync="goodsTagVisible"
       >
-        <goodsLabel v-if="goodsTagVisible" :goods-table-select="mallTableSelect" @goodsTagChange="goodsTagChange" />
+        <goodsLabel v-if="goodsTagVisible" :goods-table-select="mallTableSelect"
+                    :select-label="sys_label" @goodsTagChange="goodsTagChange"/>
       </el-dialog>
       <el-dialog
-        title="类目映射"
-        width="700px"
-        top="25vh"
-        :close-on-click-modal="false"
-        :modal="false"
-        :visible.sync="categoryVisible"
-      >
+          title="类目映射"
+          width="700px"
+          top="25vh"
+          :close-on-click-modal="false"
+          :modal="false"
+          :visible.sync="categoryVisible">
         <categoryMapping
-          v-if="categoryVisible"
-          :goods-current="{}"
-          :mall-list="[]"
-          @categoryChange="categoryChange"
+            v-if="categoryVisible"
+            :goods-current="{}"
+            :mall-list="[]"
+            @categoryChange="categoryChange"
         />
       </el-dialog>
       <el-dialog
-        title="设置商品重量和体积"
-        width="300px"
-        top="25vh"
-        :close-on-click-modal="false"
-        :modal="false"
-        :visible.sync="goodsSizeVisible"
+          title="设置商品重量和体积"
+          width="300px"
+          top="25vh"
+          :close-on-click-modal="false"
+          :modal="false"
+          :visible.sync="goodsSizeVisible"
       >
-        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange" />
+        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange"/>
       </el-dialog>
     </div>
   </el-row>
@@ -574,32 +574,38 @@ export default {
       type: Boolean,
       default() {
         return false
-      } },
+      }
+    },
     IsDefaultFilterSkuCount: {
       type: Boolean,
       default() {
         return true
-      } },
+      }
+    },
     IsFilterLazadaDeliveryDay: {
       type: Boolean,
       default() {
         return false
-      } },
+      }
+    },
     IsFilterShopeeDeliveryDay: {
       type: Boolean,
       default() {
         return false
-      } },
+      }
+    },
     MinShoppeDeliveryDay: {
       type: Number,
       default() {
         return 0
-      } },
+      }
+    },
     MaxShoppeDeliveryDay: {
       type: Number,
       default() {
         return 20
-      } }
+      }
+    }
   },
   data() {
     return {
@@ -628,6 +634,7 @@ export default {
         tag: ''
       },
       describeConfigId: '',
+      oldDescribeConfigId: '',
       describeConfigText: '',
       describeLabelList: [],
       // 标题-描述
@@ -755,7 +762,8 @@ export default {
       configLabelList: [],
       configLabel: '',
       isReplaceSize: true,
-      isCollectShow: false
+      isCollectShow: false,
+      sys_label: ''
     }
   },
   computed: {
@@ -783,10 +791,12 @@ export default {
       deep: true
     },
     describeConfigId(val) {
-      const item = this.describeLabelList.filter(i => i && i.id === val)[0]
+      const item = this.describeLabelList.find(i => i && i.id === val)
+      console.log('describeConfigId', item, val)
       this.describeConfig.text = item && item.description || ''
       this.describeConfig.describe = item && item.description || ''
       this.describeConfig.lable = item && item.lable || ''
+
     },
     goodsDescribeRadio(val) {
       this.translationConfig.describeChecked = val > 0 && val < 4
@@ -849,6 +859,7 @@ export default {
         })
         this.mallTableSelect = list
       }
+      this.isCollectShow = true
       if (type === 1) {
         const list = []
         this.mallTableSelect.forEach(item => {
@@ -856,9 +867,7 @@ export default {
             list.push(item)
           }
         })
-        this.isCollectShow = true
         await batchOperation(list, this.saveGoods)
-        this.isCollectShow = false
       } else if (type === 2) {
         await this.translationPrepare(1)
       } else if (type === 3) {
@@ -910,6 +919,9 @@ export default {
         })
         if (goodsList.length > 0) {
           this.$BaseUtilService.gotoUploadTab('gotoUpload', JSON.stringify(goodsList))
+          this.$emit('close', 'isEditorVisible')
+        } else {
+          this.$message.error('无可上新数据')
         }
       } else if (type === 7) {
         for (const i of this.mallTableSelect) {
@@ -1011,6 +1023,7 @@ export default {
           })
         })
       }
+      this.isCollectShow = false
     },
     // 商品编辑控制
     async updateGoodsEdit(item, type) {
@@ -1193,30 +1206,32 @@ export default {
         const descriptionTemplateListJson = await this.$commodityService.descriptionTemplateList()
         const descriptionTemplateListRes = JSON.parse(descriptionTemplateListJson)
         this.describeLabelList = descriptionTemplateListRes.data || []
-        console.log(this.describeLabelList)
         if (this.describeConfigId) {
-          const item = this.describeLabelList.filter(i => i && i.id === this.describeConfigId)[0]
+          const item = this.describeLabelList.find(i => i && i.id === this.describeConfigId)
           this.describeConfig.text = item && item.description || this.describeConfig.text
           this.describeConfig.describe = item && item.description || this.describeConfig.describe
           this.describeConfig.lable = item && item.lable || ''
         } else {
           this.describeConfigId = this.describeLabelList[0] && this.describeLabelList[0].id || ''
         }
+        this.oldDescribeConfigId = this.describeConfigId
         this.describeVisible = true
       } else {
-        if (type === 1) {
-          const label = this.describeConfig.tag || this.describeConfig.lable
+        if (type === 1 || type === 3) {
+          const index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
+          const label = this.describeConfig.tag || this.describeConfig.lable || this.describeLabelList[index].lable
           const descriptionTemplate = await this.$commodityService.uploadDescriptionTemplate(label, this.describeConfig.text)
           const data = JSON.parse(descriptionTemplate)
+          console.log('describeConfig', label, data)
           this.describeConfig.tag = ''
-          this.describeConfigId = parseInt(data.data)
           this.describeConfig.describe = this.describeConfig.text
-          this.describeVisible = false
           if (data.code === 200) {
             this.$message.success('保存成功')
           } else {
             this.$message.error('保存失败【请求异常】')
           }
+          this.describeVisible = type === 1
+
         } else if (type === 2) {
           const resJson = await this.$commodityService.deleteDescriptionTemplate(this.describeConfigId)
           const res = JSON.parse(resJson)
@@ -1229,27 +1244,8 @@ export default {
           } else {
             this.$message.error('删除失败')
           }
-        } else if (type === 3) {
-          if (this.describeConfigId) {
-            const index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
-            const label = this.describeLabelList[index].lable
-            const descriptionTemplate = await this.$commodityService.uploadDescriptionTemplate(label, this.describeConfig.text)
-            const data = JSON.parse(descriptionTemplate)
-            this.describeConfig.tag = ''
-            this.describeConfigId = parseInt(data.data)
-            this.describeConfig.describe = this.describeConfig.text
-            this.describeVisible = false
-            if (data.code === 200) {
-              this.$message.success('保存成功')
-            } else {
-              this.$message.error('保存失败【请求异常】')
-            }
-            this.describeVisible = false
-          } else {
-            this.$message.error('保存失败【参数异常】')
-          }
         } else if (type === 4) {
-          this.describeConfig.text = this.describeConfig.describe
+          this.describeConfigId = this.oldDescribeConfigId
           this.describeVisible = false
         }
       }
@@ -1288,8 +1284,8 @@ export default {
           const neededTranslateInfoJson = await this.$commodityService.getNeededTranslateInfoV2(item.id)
           const neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
           // console.log(neededTranslateInfoData)
-          const title = this.translationConfig.titleChecked && neededTranslateInfoData.title || ''
-          const description = this.translationConfig.describeChecked && neededTranslateInfoData.description || ''
+          const title = neededTranslateInfoData.title || ''
+          const description = neededTranslateInfoData.description || ''
           const spec1 = this.translationConfig.specChecked && neededTranslateInfoData.spec1 || ''
           const spec2 = this.translationConfig.specChecked && neededTranslateInfoData.spec2 || ''
           const fromLanguage = item.language
@@ -1305,45 +1301,65 @@ export default {
           let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
           console.log('翻译：', this.userInfo.translate_set)
           const saveGoodsJson = []
-          if (this.userInfo.translate_set == '2') {
-            const goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
-            const getGoodsTitle = JSON.parse(goodsTitleJson)
-            if (getGoodsTitle && getGoodsTitle[title]) {
-              param.title = getGoodsTitle[title]
+          if (Number(this.userInfo.translate_set) === 2) {
+            let descriptionText = ''
+            if (this.translationConfig.titleChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译标题...')
+              const goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
+              const getGoodsTitle = JSON.parse(goodsTitleJson)
+              if (getGoodsTitle && getGoodsTitle[title]) {
+                param.title = getGoodsTitle[title]
+              } else {
+                const translationJson1 = title && await this.$translationBridgeService.getGoogleTransResult([title], fromLanguage, toLanguage)
+                console.log('translationJson1', translationJson1)
+                param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
+                saveGoodsJson.push({
+                  srcLanguage: fromLanguage,
+                  toLanguage: toLanguage,
+                  fromText: title,
+                  toText: param.title,
+                  createdAt: Math.floor(new Date().getTime() / 1000)
+                })
+              }
             } else {
-              const translationJson1 = title && await this.$translationBridgeService.getGoogleTransResult([title], fromLanguage, toLanguage)
-              console.log('translationJson1', translationJson1)
-              param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
-              saveGoodsJson.push({
-                srcLanguage: fromLanguage,
-                toLanguage: toLanguage,
-                fromText: title,
-                toText: param.title,
-                createdAt: Math.floor(new Date().getTime() / 1000)
-              })
+              param.title = title
             }
-            const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
-            if (getGoodsDescription && getGoodsDescription[description]) {
-              param.description = getGoodsTitle[description]
-            } else {
-              const translationJson2 = description && await this.$translationBridgeService.getGoogleTransResult([description], fromLanguage, toLanguage)
-              console.log('translationJson2', translationJson2)
-              param.description = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
-              saveGoodsJson.push({
-                srcLanguage: fromLanguage,
-                toLanguage: toLanguage,
-                fromText: description,
-                toText: param.description,
-                createdAt: Math.floor(new Date().getTime() / 1000)
-              })
+            if (this.translationConfig.describeChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译描述...')
+              if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+                const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
+                if (getGoodsDescription && getGoodsDescription[description]) {
+                  descriptionText = getGoodsDescription[description]
+                } else {
+                  const translationJson2 = description && await this.$translationBridgeService.getGoogleTransResult([description], fromLanguage, toLanguage)
+                  console.log('translationJson2', translationJson2)
+                  descriptionText = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
+                  saveGoodsJson.push({
+                    srcLanguage: fromLanguage,
+                    toLanguage: toLanguage,
+                    fromText: description,
+                    toText: descriptionText,
+                    createdAt: Math.floor(new Date().getTime() / 1000)
+                  })
+                }
+              }
+            } else if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+              descriptionText = description
+            }
+            if (this.goodsDescribeRadio % 2 === 0) {
+              console.log('describeConfig', this.describeConfig)
+              descriptionText += '\n' + this.describeConfig.describe
             }
             param.spec1 = neededTranslateInfoData.spec1
             param.spec2 = neededTranslateInfoData.spec2
+            let spec1ListDst = ''
+            let spec2ListDst = ''
             const tier_variation = neededTranslateInfoData.tier_variation
             console.log(neededTranslateInfoData, param)
             const spec1List = tier_variation[tier_variation.spec1].join('<><>') || ''
             const spec2List = tier_variation[tier_variation.spec2].join('<><>') || ''
             if (this.translationConfig.specChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译规格...')
               const getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec1List))
               let spec1ListDstStr = ''
               if (getGoodsSpec1 && getGoodsSpec1[spec1List]) {
@@ -1362,10 +1378,9 @@ export default {
               if (spec1ListDstStr) {
                 console.log('itemmodelsJson1', spec1ListDstStr, spec1List)
                 spec1ListDstStr = spec1ListDstStr.replaceAll('> <', '><')
-                spec1ListDstStr = spec1ListDstStr.replaceAll('< ><>', '<><>')
-                spec1ListDstStr = spec1ListDstStr.replaceAll('<>< >', '<><>')
-                spec1ListDstStr = spec1ListDstStr.replaceAll('< >< >', '<><>')
-                const spec1ListDst = spec1ListDstStr.split('<><>')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('< ><', '<><')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('>< >', '><>')
+                spec1ListDst = spec1ListDstStr.split('<><>')
                 const spec1ListSrc = spec1List && spec1List.split('<><>')
                 const spec1ListSort = this.getArraySrcLengthSort(spec1ListSrc)
                 spec1ListSort.forEach(item => {
@@ -1393,7 +1408,7 @@ export default {
               if (spec2ListDstStr) {
                 console.log('itemmodelsJson2', spec2ListDstStr, spec2List)
                 spec2ListDstStr = spec2ListDstStr.replaceAll('<> <>', '<><>')
-                const spec2ListDst = spec2ListDstStr.split('<><>')
+                spec2ListDst = spec2ListDstStr.split('<><>')
                 const spec2ListSrc = spec2List && spec2List.split('<><>')
                 const spec2ListSort = this.getArraySrcLengthSort(spec2ListSrc)
                 spec2ListSort.forEach(item => {
@@ -1403,35 +1418,77 @@ export default {
               } else {
                 // 谷歌翻译失败
               }
+            } else {
+              spec1ListDst = tier_variation[tier_variation.spec1] || []
+              spec2ListDst = tier_variation[tier_variation.spec2] || []
             }
-          } else if (this.userInfo.translate_set == '4') {
-            const translationJson1 = title && await this.$translationBridgeService.getAliYunTransResult([title], fromLanguage, toLanguage)
-            console.log('translationJson1', translationJson1)
-            param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
-            saveGoodsJson.push({
-              srcLanguage: fromLanguage,
-              toLanguage: toLanguage,
-              fromText: title,
-              toText: param.title,
-              createdAt: Math.floor(new Date().getTime() / 1000)
-            })
-            const translationJson2 = description && await this.$translationBridgeService.getAliYunTransResult([description], fromLanguage, toLanguage)
-            console.log('translationJson2', translationJson2)
-            param.description = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
-            saveGoodsJson.push({
-              srcLanguage: fromLanguage,
-              toLanguage: toLanguage,
-              fromText: description,
-              toText: param.description,
-              createdAt: Math.floor(new Date().getTime() / 1000)
-            })
+            if (this.goodsDescribeRadio === 0 || this.goodsDescribeRadio === 3) {
+              if (spec1ListDst.length > 0) {
+                descriptionText += '\n' + spec1ListDst.join('\n')
+              }
+              if (spec2ListDst.length > 0) {
+                descriptionText += '\n' + spec2ListDst.join('\n')
+              }
+            }
+            param.description = descriptionText.trim()
+          } else if (Number(this.userInfo.translate_set) === 4) {
+            if (this.translationConfig.titleChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译标题...')
+              const goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
+              const getGoodsTitle = JSON.parse(goodsTitleJson)
+              if (getGoodsTitle && getGoodsTitle[title]) {
+                param.title = getGoodsTitle[title]
+              } else {
+                const translationJson1 = title && await this.$translationBridgeService.getAliYunTransResult([title], fromLanguage, toLanguage)
+                console.log('translationJson1', translationJson1)
+                param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
+                saveGoodsJson.push({
+                  srcLanguage: fromLanguage,
+                  toLanguage: toLanguage,
+                  fromText: title,
+                  toText: param.title,
+                  createdAt: Math.floor(new Date().getTime() / 1000)
+                })
+              }
+            } else {
+              param.title = title
+            }
+            let descriptionText = ''
+
+            if (this.translationConfig.describeChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译描述...')
+              if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+                const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
+                if (getGoodsDescription && getGoodsDescription[description]) {
+                  descriptionText = getGoodsDescription[description]
+                } else {
+                  const translationJson2 = description && await this.$translationBridgeService.getAliYunTransResult([description], fromLanguage, toLanguage)
+                  console.log('translationJson2', translationJson2)
+                  descriptionText = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
+                  saveGoodsJson.push({
+                    srcLanguage: fromLanguage,
+                    toLanguage: toLanguage,
+                    fromText: description,
+                    toText: param.description,
+                    createdAt: Math.floor(new Date().getTime() / 1000)
+                  })
+                }
+              }
+            } else if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+              descriptionText = description
+            }
+            if (this.goodsDescribeRadio % 2 === 0) {
+              descriptionText += '\n' + this.describeConfig.describe
+            }
             param.spec1 = neededTranslateInfoData.spec1
             param.spec2 = neededTranslateInfoData.spec2
+            let spec1ResultList = []
+            let spec2ResultList = []
             const tier_variation = neededTranslateInfoData.tier_variation
             console.log(neededTranslateInfoData, param)
             if (this.translationConfig.specChecked) {
+              this.$set(this.mallTable[index], 'operation_type', '正在翻译规格...')
               const spec1List = tier_variation[tier_variation.spec1]
-              const spec1ResultList = []
               for (let i = 0; i < spec1List.length; i++) {
                 const item = spec1List[i]
                 const getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, item))
@@ -1456,7 +1513,6 @@ export default {
                 itemmodelsJson = itemmodelsJson.replaceAll('"sku":"' + spec1List[item], '"sku":"' + spec1ResultList[item])
               })
               const spec2List = tier_variation[tier_variation.spec2]
-              const spec2ResultList = []
               for (let i = 0; i < spec2List.length; i++) {
                 const item = spec2List[i]
                 const getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, item))
@@ -1480,7 +1536,19 @@ export default {
                 itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":"' + spec2List[item], '"sku_spec2":"' + spec2ResultList[item])
                 itemmodelsJson = itemmodelsJson.replaceAll('=|=' + spec2List[item] + '"', '=|=' + spec2ResultList[item] + '"')
               })
+            } else {
+              spec1ResultList = tier_variation[tier_variation.spec1] || ''
+              spec2ResultList = tier_variation[tier_variation.spec2] || ''
             }
+            if (this.goodsDescribeRadio === 0 || this.goodsDescribeRadio === 3) {
+              if (spec1ResultList.length > 0) {
+                descriptionText += '\n' + spec1ResultList.join('\n')
+              }
+              if (spec2ResultList.length > 0) {
+                descriptionText += '\n' + spec2ResultList.join('\n')
+              }
+            }
+            param.description = descriptionText.trim()
           }
           await this.$BaseUtilService.saveGoodsTranslation(JSON.stringify(saveGoodsJson))
           itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":', '"spec1":')
@@ -1548,13 +1616,15 @@ export default {
                 console.log(son.img, this.translationConfig.after)
                 const json = son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after) || ''
                 console.log(json)
-                if (json && json.Code === 200) {
+                if (json && json.Code === 200 || json.Msg.includes('无文字')) {
                   imageData = json.Data && json.Data.Url || son.img
                 } else {
                   imageData = son.img
                   this.$set(this.mallTable[index], 'operation_type', `轮播图(${(i + 1)}/${image1ListLength})失败：${json.Msg}`)
-                  success = false
-                  return
+                  if (Number(this.translationConfig.failureType) !== 3) {
+                    success = false
+                    return
+                  }
                 }
               }
               const res = await this.$commodityService.updateGoodsImage('1', item.id, son.id, imageData)
@@ -1593,7 +1663,10 @@ export default {
                 } else {
                   imageData = son
                   this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})：失败${json.Msg}`)
-                  success = false
+                  if (Number(this.translationConfig.failureType) !== 3) {
+                    success = false
+                    return
+                  }
                 }
               }
               itemmodels = itemmodels.replaceAll(son, imageData)
@@ -1775,13 +1848,14 @@ export default {
       console.log('goodsTagChange', val)
       if (val) {
         const mallList = [...this.mallTableSelect.map(i => i.id)]
-        this.mallTable.forEach((item, index) => {
-          if (mallList.includes(item.id)) {
-            this.$set(this.mallTable[index], 'sys_label_id', val.category && val.category.id)
-          }
-        })
+        console.log(mallList, this.mallTable)
+        for (let i = 0; i < mallList.length; i++) {
+          let index = this.mallTable.findIndex(son => son.id === mallList[i])
+          this.$set(this.mallTable[index], 'sys_label_id', val.category?.id)
+        }
         this.labelList = val.goodsTagList || []
         this.$emit('goodsTagChange', val)
+        this.sys_label = val.category?.label_name
       }
       this.goodsTagVisible = false
     },
@@ -1809,6 +1883,7 @@ export default {
           const save = await this.$commodityService.saveCategoryRelation(param)
           console.log('saveCategoryRelation', save)
         })
+        this.$message.success('类目映射成功')
       }
       this.categoryVisible = false
     },

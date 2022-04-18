@@ -228,7 +228,6 @@ export default {
     },
     async batchUpload() {
       await batchOperation(this.tableSelect, this.saveHandleOut, 3)
-      this.$refs.ordersShipmentTable.toggleAllSelection()
     },
     async saveHandleOut(data, count = { count: 1 }) {
       let index = this.ordersShipmentData.findIndex(son=>son.order_id === data.order_id)
@@ -237,14 +236,14 @@ export default {
           const params = {
             order_id: data.order_id,
             shipping_proof: data.logistics_name,
-            shipping_trace_no: data.shippingTraceNo,
+            shipping_trace_no: data.shippingTraceNo+'',
             channel_id: 79900,
             integrated: '',
             shop_id: data.mall_info.platform_mall_id
           }
           const res = await this.$shopeemanService.handleOutOrder(data.country, params)
-          if (res.data === 200) {
-            this.$refs.ordersShipmentTable.toggleRowSelection(data);
+          if (res.code === 200) {
+            this.$refs.ordersShipmentTable.toggleRowSelection([{ row: data, selected:false }]);
             this.$set(this.ordersShipmentData[index],'operation_status','发货成功！')
           } else {
             this.$set(this.ordersShipmentData[index],'operation_status','发货失败！')
@@ -295,6 +294,7 @@ export default {
         margin-top: 10px;
         height: 550px;
         padding: 10px;
+        overflow: auto;
       }
     }
 

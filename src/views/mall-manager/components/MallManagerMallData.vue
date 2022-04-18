@@ -82,57 +82,57 @@
           }"
           @selection-change="handleSelectionChange"
         >
-          <u-table-column align="center" type="selection" width="50" />
-          <u-table-column align="center" type="index" label="序列号" width="80" />
-          <u-table-column align="center" prop="country" label="站点">
+          <u-table-column align="center" fixed type="selection" width="50" />
+          <u-table-column align="center" fixed type="index" label="序列号" width="60" />
+          <u-table-column align="center" fixed prop="country"  label="站点" width="70">
             <template slot-scope="{ row }">
               {{ row.country | chineseSite }}
             </template>
           </u-table-column>
-          <u-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
-          <u-table-column align="center" label="店铺名称" min-width="130">
+          <u-table-column align="center" fixed prop="platform_mall_id" label="店铺ID" width="100" />
+          <u-table-column align="center" label="店铺名称" width="120" show-overflow-tooltip>
             <template slot-scope="{ row }">
               {{ row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name }}
             </template>
           </u-table-column>
-          <u-table-column align="center" label="店铺分组" min-width="100">
+          <u-table-column align="center" label="店铺分组" width="100">
             <template slot-scope="{ row }">
               {{ row.group_name === 'All' ? '' : row.group_name }}
             </template>
           </u-table-column>
-          <u-table-column align="center" label="操作状态" min-width="100" show-overflow-tooltip>
+          <u-table-column align="center" fixed="right" label="操作状态" width="130" show-overflow-tooltip>
             <template slot-scope="{ row }">
               <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
             </template>
           </u-table-column>
-          <u-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" min-width="150" />
+          <u-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" width="150" />
           <!-- <u-table-column align="center" label="距今无订单天数" min-width="150">
             <template slot-scope="{ row }">
               {{ row.not_order_time }}
             </template>
           </u-table-column> -->
-          <u-table-column align="center" prop="yesterday_order_num" label="昨日订单数" min-width="90" />
-          <u-table-column align="center" prop="week_order_num" label="近7天订单数" min-width="100" />
-          <u-table-column align="center" prop="history_order_num" label="历史订单数" min-width="90" />
-          <u-table-column align="center" prop="mall_quota" label="店铺额度" min-width="100" sortable />
-          <u-table-column align="center" prop="all_product_num" label="全部产品数" min-width="90" />
-          <u-table-column align="center" prop="active_product_num" label="上架产品数" min-width="100" />
-          <u-table-column align="center" prop="soldout_product_num" label="售空产品数" min-width="90" />
-          <u-table-column align="center" prop="banned_product_num" label="禁卖产品数" min-width="90" />
-          <u-table-column align="center" prop="unlisted_product_num" label="未上架产品数" min-width="110" />
-          <u-table-column align="center" prop="chat_response_rate" label="聊聊回复率" min-width="90" />
-          <u-table-column align="center" prop="rating_star" label="卖场评价" />
-          <u-table-column align="center" prop="order_non_fulfillment_rate" label="订单未完成率" min-width="110" />
-          <u-table-column align="center" prop="followers_number" label="关注量" />
-          <u-table-column align="center" prop="fans_number" label="粉丝量" />
-          <u-table-column align="center" prop="today_view_product_count" label="商品浏览量" min-width="90" />
-          <u-table-column align="center" prop="yesterday_view_product_count" label="昨日商品浏览量" min-width="120" />
-          <u-table-column align="center" prop="week_view_product_count" label="近7天商品浏览量" min-width="130" />
-          <u-table-column align="center" prop="month_view_product_count" label="近30天商品浏览量" min-width="140" />
-          <u-table-column align="center" prop="today_view_person_count" label="访客数" />
-          <u-table-column align="center" prop="yesterday_view_person_count" label="昨日访客数" min-width="90" />
-          <u-table-column align="center" prop="week_view_person_count" label="近7日访客数" min-width="100" />
-          <u-table-column align="center" prop="month_view_person_count" label="近30日访客数" min-width="110" />
+          <u-table-column align="center" prop="yesterday_order_num" label="昨日订单数" width="90" />
+          <u-table-column align="center" prop="week_order_num" label="近7天订单数" width="90" />
+          <u-table-column align="center" prop="history_order_num" label="历史订单数" width="90" />
+          <u-table-column align="center" prop="mall_quota" label="店铺额度" width="100" sortable />
+          <u-table-column align="center" prop="all_product_num" label="全部产品数" width="90" />
+          <u-table-column align="center" prop="active_product_num" label="上架产品数" width="90" />
+          <u-table-column align="center" prop="soldout_product_num" label="售空产品数" width="90" />
+          <u-table-column align="center" prop="banned_product_num" label="禁卖产品数" width="90" />
+          <u-table-column align="center" prop="unlisted_product_num" label="未上架产品数" width="100" />
+          <u-table-column align="center" prop="chat_response_rate" label="聊聊回复率" width="90" />
+          <u-table-column align="center" prop="rating_star" label="卖场评价" width="80"/>
+          <u-table-column align="center" prop="order_non_fulfillment_rate" label="订单未完成率" width="100" />
+          <u-table-column align="center" prop="followers_number" label="关注量" width="60"/>
+          <u-table-column align="center" prop="fans_number" label="粉丝量" width="60" />
+          <u-table-column align="center" prop="today_view_product_count" label="商品浏览量" width="90" />
+          <u-table-column align="center" prop="yesterday_view_product_count" label="昨日浏览量" width="90" />
+          <u-table-column align="center" prop="week_view_product_count" label="近7天浏览量" width="90" />
+          <u-table-column align="center" prop="month_view_product_count" label="近30天浏览量" width="100" />
+          <u-table-column align="center" prop="today_view_person_count" label="访客数" width="60"/>
+          <u-table-column align="center" prop="yesterday_view_person_count" label="昨日访客数" width="90" />
+          <u-table-column align="center" prop="week_view_person_count" label="近7日访客数" width="90" />
+          <u-table-column align="center" prop="month_view_person_count" label="近30日访客数" width="100" />
           <u-table-column align="center" label="客服不重复访客数" min-width="140">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatShopUvData ? row.mall_datas.ChatShopUvData : '-' }}
@@ -297,7 +297,8 @@ export default {
           this.$set(item, 'color', 'red')
           return
         }
-        const res2 = await this.mallDataApiInstance.getShopProfile(item, '/api/marketing/v4/shop/profile/')
+        const res2 = await this.mallDataApiInstance.getShopProfile(item, '/api/marketing/v4/shop/profile/get/')
+        // const res2 = await this.mallDataApiInstance.getShopProfile(item, '/api/v3/general/get_shop_info')
         console.log(res2, 'res2')
         if (res2.code === 403) {
           this.$set(item, 'status', '店铺未登录')
@@ -334,8 +335,8 @@ export default {
         // 昨日访客
         const paramsYesterday = {
           mallId: item.platform_mall_id,
-          start_time: Math.round((todayStart - 1 * 24 * 60 * 60) / 1000),
-          end_time: Math.round((todayEnd - 1 * 24 * 60 * 60) / 1000),
+          start_time: Math.round((todayStart - 24 * 60 * 60) / 1000),
+          end_time: Math.round((todayEnd -  24 * 60 * 60) / 1000),
           period: 'yesterday',
           fetag: 'fetag'
         }
@@ -350,8 +351,8 @@ export default {
         // 近七天访客
         const params7 = {
           mallId: item.platform_mall_id,
-          start_time: Math.round(todayEnd / 1000),
-          end_time: Math.round((todayEnd - 7 * 24 * 60 * 60) / 1000),
+          start_time: Math.round((todayStart - 7 * 24 * 60 * 60) / 1000),
+          end_time: Math.round(todayEnd / 1000),
           period: 'past7days',
           fetag: 'fetag'
         }
@@ -366,8 +367,8 @@ export default {
         // 近30天访客
         const params30 = {
           mallId: item.platform_mall_id,
-          start_time: Math.round(todayEnd / 1000),
-          end_time: Math.round((todayEnd - 30 * 24 * 60 * 60) / 1000),
+          start_time: Math.round((todayStart- 30 * 24 * 60 * 60)  / 1000),
+          end_time: Math.round(todayEnd / 1000),
           period: 'past30days',
           fetag: 'fetag'
         }

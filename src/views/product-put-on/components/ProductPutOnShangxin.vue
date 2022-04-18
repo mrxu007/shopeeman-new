@@ -433,13 +433,13 @@
              :header-cell-style="{backgroundColor: '#f5f7fa',}"
              :border="false" :big-data-checkbox="true"
              :height="isNoFoldShow && (associatedConfig.dimensionRadio === 2 && 321 || 320) || 729">
-      <u-table-column align="left" type="selection" width="50"/>
-      <u-table-column align="left" label="序列号" type="index" width="60">
+      <u-table-column align="center" type="selection" width="50"/>
+      <u-table-column align="center" label="序列号" type="index" width="60">
         <template slot-scope="scope">
           {{ scope.$index + 1 }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="商品主图" width="80">
+      <u-table-column align="center" label="商品主图" width="80">
         <template slot-scope="{ row }">
           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                       style="width: 56px; height: 56px; display: inline-block">
@@ -453,18 +453,18 @@
       <u-table-column align="left" label="上家商品Id" width="130">
         <template v-slot="{ row }">
           <div style="display: flex">
-            <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
             <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
               <i class="el-icon-document-copy"/></el-button>
+            <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
           </div>
         </template>
       </u-table-column>
       <u-table-column align="left" label="shopee-Id" width="130">
         <template slot-scope="{ row }">
           <div style="display: flex">
-            <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
             <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
               <i class="el-icon-document-copy"/></el-button>
+            <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
           </div>
         </template>
       </u-table-column>
@@ -515,6 +515,12 @@
       <u-table-column align="left" label="销量" prop="sales" width="80"/>
       <u-table-column align="left" label="标签" prop="sys_label_name" width="80" show-overflow-tooltip/>
       <u-table-column align="left" label="来源" prop="sourceName" width="80"/>
+      <u-table-column align="center" label="操作" prop="sourceName" width="80">
+        <template slot-scope="{ row }">
+          <el-button size="mini" type="primary" @click="updateGoodsEdit(row,1)" :disabled="isBanPerform">编辑
+          </el-button>
+        </template>
+      </u-table-column>
     </u-table>
     <div class="on_new_dialog">
       <el-dialog title="水印配置" width="500px" :close-on-click-modal="false"
@@ -1078,6 +1084,10 @@
           </div>
         </div>
       </el-dialog>
+      <el-dialog title="商品编辑" width="1000px" top="2vh" :close-on-click-modal="false" :close-on-press-escape="false"
+                 :modal="false" :visible.sync="goodsEditorVisible">
+        <goods-edit-details v-if="goodsEditorVisible" :goods-editor="goodsEditor" @goodsEditorCancel="goodsEditorCancel"/>
+      </el-dialog>
     </div>
   </el-row>
 </template>
@@ -1098,10 +1108,13 @@ import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
 import GoodsManagerAPI from '@/module-api/goods-manager-api/goods-data'
 import GoodsDiscount from '@/module-api/market-activity-api/goods-discount'
+import goodsEditDetails from '@/components/goods-edit-details'
 
 export default {
   data() {
     return {
+      goodsEditorVisible:false,
+      goodsEditor: null,
       mallListAPIInstance: new MallListAPI(this),
       goodsTable: [], // 商品列表
       goodsTableSelect: [], // 商品列表所选
@@ -1430,7 +1443,7 @@ export default {
     }
   },
   computed: {},
-  components: { storeChoose, categoryMapping, goodsLabel },
+  components: { goodsEditDetails,storeChoose, categoryMapping, goodsLabel },
   watch: {
     country(value) {
       this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
@@ -1446,7 +1459,6 @@ export default {
           this.preorderMinDays = 5
           this.basicConfig.stockUpNumber = 10
           break
-        case 'ID':
         case 'VN':
           this.preorderMaxDays = 15
           this.preorderMinDays = 7
@@ -2043,8 +2055,8 @@ export default {
                 }
                 console.log(saveListingRecordParma)
                 let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
+                console.log('saveListingRecordParmaRes', saveListingRecordParmaJson)
                 let saveListingRecordParmaRes = JSON.parse(saveListingRecordParmaJson)
-                console.log('saveListingRecordParmaRes', saveListingRecordParmaRes)
                 this.updateAttributeName(item, product_id, 'product_id')
                 this.updateAttributeName(item, mallId, 'mallId')
                 this.updateAttributeName(item, this.country, 'country')
@@ -3088,11 +3100,46 @@ export default {
             publish_config : JSON.stringify(publishConfigObj)
           }
           let setConfig = await this.$collectService.saveCronPublishConfig(param)
-
+          let goodsList = JSON.parse(JSON.stringify(this.goodsTableSelect))
+          goodsList = [...goodsList.map(item=>{
+            return {
+              task_id,
+              ori_goods_id: item.goods_id,
+              pri_goods_id: '',
+              ori_category_id: item.category_id,
+              ori_category_name: item.category_name,
+              shopee_category_id: '',
+              shopee_category_name: '',
+              mall_id: '',
+              mall_name: '',
+              shopee_goods_id: '',
+              status: 1,
+              message: '',
+              goods_info:JSON.stringify(item)
+            }
+          })]
+          console.log('goodsList',goodsList)
+          let setGoodsConfig = await this.$collectService.saveCronPublishGoods(goodsList)
+          console.log(setConfig,setGoodsConfig)
         }
       }
       this.setTimeVisible = false
-    }
+    },
+    goodsEditorCancel(data) {
+      if (data) {
+        const index = this.goodsTable.findIndex(i => i.id === data.sysGoodsId)
+        const temp = Object.assign(this.goodsTable[index], data)
+        this.$set(this.goodsTable, index, temp)
+      }
+      this.goodsEditorVisible = false
+    },
+    // 商品编辑控制
+    async updateGoodsEdit(item, type) {
+      if (type) {
+        this.goodsEditor = item
+        this.goodsEditorVisible = true
+      }
+    },
   }
 }
 </script>

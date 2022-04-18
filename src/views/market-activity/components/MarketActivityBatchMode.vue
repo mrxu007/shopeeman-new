@@ -89,7 +89,7 @@
           <div class="base-box mar-top">
             <span class="base-title">发送设置</span>
             <div class="base-item">
-              发送私聊数量<el-input v-model="sendNum" size="mini" style="width: 50px" />（0标表示无限制）发送间隔 <div v-model="sendTime" size="mini" style="width: 50px" />秒
+              发送私聊数量<el-input v-model="sendNum" size="mini" style="width: 50px" />（0标表示无限制）发送间隔 <input v-model="sendTime" size="mini" style="width: 50px" />秒
             </div>
           </div>
         </div>
@@ -198,7 +198,6 @@ export default {
   methods: {
     cancel() {
       this.isStop = true
-      this.btnLoading = false
       terminateThread()
       this.$refs.Logs.writeLog(`停止操作,可能需要一些时间！`, false)
       this.$alert('正在停止操作，可能需要一些时间！', '提示', {
@@ -227,19 +226,19 @@ export default {
     async orderBatchMessage(mall, count = { count: 5 }) {
       try {
         if (this.isStop) {
-          this.btnLoading = false
           return
         }
         let mallOrderList = []
         let status = ''
+        this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】正在获取订单用户`, true)
         for (let i = 0; i < this.orderType.length; i++) {
           // 同步状态
           status = this.orderType[i]
-          mallOrderList = (await this.getOrderUser(mall, status)) || []
+          let orderUserList = await this.getOrderUser(mall, status) || []
+          mallOrderList = [...mallOrderList,...orderUserList]
         }
-
+        console.log('mallOrderList',mallOrderList)
         if (mallOrderList.length) {
-          // let fi = mallOrderList.slice(0, 1)
           let filterList = mallOrderList
           if (this.sendNum > 0) {
             if (this.sendNum >= mallOrderList.length) {
@@ -250,7 +249,7 @@ export default {
           }
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到订单用户${filterList.length}条`, true)
           await this.batchSendMessage(filterList, mall, status)
-          await delay(this.sendTime * 1000)
+          await delay((this.sendTime || 1) * 1000)
         } else {
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未获取到订单用户，聊天结束`, true)
         }
@@ -262,7 +261,6 @@ export default {
     async fansBatchMessage(mall, count = { count: 5 }) {
       try {
         if (this.isStop) {
-          this.btnLoading = false
           return
         }
         const status = 'fans'
@@ -280,7 +278,7 @@ export default {
           }
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到粉丝用户${filterList.length}条`, true)
           await this.batchSendMessage(filterList, mall, status)
-          await delay(this.sendTime * 1000)
+          await delay((this.sendTime || 1) * 1000)
         } else {
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未获取到粉丝用户，聊天结束`, true)
         }
@@ -310,23 +308,19 @@ export default {
         }
         this.btnLoading = true
         this.showConsole = false
-        if (this.isStop) {
-          this.btnLoading = false
-          return
-        }
         if (this.radio == 'order') {
           await batchOperation(this.selectMallList, this.orderBatchMessage)
         } else {
           await batchOperation(this.selectMallList, this.fansBatchMessage)
         }
-        this.btnLoading = false
       } catch (error) {
-        this.btnLoading = false
         console.log(error)
         this.$alert('出现错误，已停止执行', '提示', {
           confirmButtonText: '确定',
           callback: (action) => {}
         })
+      }finally {
+        this.btnLoading = false
       }
     },
     // 取随机数组
@@ -367,7 +361,6 @@ export default {
     // 获取粉丝列表
     async getFans(mall, page, limit) {
       if (this.isStop) {
-        this.btnLoading = false
         return
       }
       const arrList = []
@@ -413,11 +406,11 @@ export default {
     },
     async batchSendMessage(mallOrderList, mall, status) {
       if (this.isStop) {
-        this.btnLoading = false
         return
       }
       try {
-        const mallInfo = await window['ConfigBridgeService'].getGlobalCacheInfo('mallInfo', mall.platform_mall_id)
+        this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】正在登陆客服系统`, true)
+        const mallInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mall.platform_mall_id)
         const mallInfoObj = mallInfo && JSON.parse(mallInfo)
         const ShopeeUid = mallInfoObj.web_login_info.ShopeeUid
         console.log(mallInfoObj, 'mallInfoObj')
@@ -433,169 +426,197 @@ export default {
           shop_id: mall.platform_mall_id
         }
         const loginRes = await this.$shopeemanService.loginMessage(mall.country, data, params)
-        const token = loginRes.data.token
-        let oldMsg = ''
-        for (let i = 0; i < mallOrderList.length; i++) {
-          if (this.isStop) {
-            this.btnLoading = false
-            return
-          }
-          const order = mallOrderList[i]
-          const userName = order.buyer_user ? order.buyer_user.user_name.trim() : order.username.trim()
-          const userId = Number(order.user_id)
-          if (!token) {
-            continue
-          }
-          // text
-          if (this.messageList.length) {
-            const index = this.tableData.findIndex((n) => n.userName == userName)
-            if (index < 0) {
-              const params = {
-                country: mall.country,
-                mallInfo: mall,
-                userName: userName,
-                userType: status,
-                chatMessage: '',
-                chatDiscount: '',
-                chatGoods: '',
-                remark: ''
+        console.log('loginRes',loginRes)
+        const token = loginRes.data.token || ''
+        if (token){
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】正在登录客服系统`, true)
+          let oldMsg = ''
+          for (let i = 0; i < mallOrderList.length; i++) {
+            if (this.isStop) {
+              return
+            }
+            const order = mallOrderList[i]
+            const userName = order.buyer_user ? order.buyer_user.user_name.trim() : order.username.trim()
+            const userId = Number(order.user_id)
+            const orderId = Number(order.order_id)
+            if (!token) {
+              continue
+            }
+            // text
+            if (this.messageList.length) {
+              const index = this.tableData.findIndex((n) => n.userName == userName)
+              if (index < 0) {
+                const params = {
+                  country: mall.country,
+                  mallInfo: mall,
+                  userName: userName,
+                  userType: status,
+                  chatMessage: '',
+                  chatDiscount: '',
+                  chatGoods: '',
+                  remark: ''
+                }
+                this.tableData.push(params)
               }
-              this.tableData.push(params)
-            }
-            let msg = ''
-            if (this.messageList.length == 1) {
-              msg = this.messageList[0]
-            } else {
-              const filterArr = this.messageList.filter((n) => n !== oldMsg)
-              const randomIndex = Math.floor(Math.random() * filterArr.length)
-              msg = filterArr[randomIndex]
-            }
-            const timestamp = new Date().getTime()
-            const msgRes = await this.sendMessage('text', msg, {}, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
-            const indexA = this.tableData.findIndex((n) => n.userName == userName)
-            if (msgRes.code === 200) {
-              oldMsg = msg
-              this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送成功】`)
-              this.$set(this.tableData[indexA], 'chatMessage', msg)
-            } else {
-              this.$set(
-                this.tableData[indexA],
-                'remark',
-                `${this.tableData[indexA].remark}【消息发送失败  ${msgRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`
-              )
-            }
-            console.log(msgRes, 'msgRes')
-          }
-          // 发优惠券
-          if (this.isSendDiscount) {
-            const vouchers = await this.sendDiscount(mall.country, mall.platform_mall_id)
-            const index = this.tableData.findIndex((n) => n.userName == userName)
-            if (index < 0) {
-              const params = {
-                country: mall.country,
-                mallInfo: mall,
-                userName: userName,
-                userType: status,
-                chatMessage: '',
-                chatDiscount: '',
-                chatGoods: '',
-                remark: ''
-              }
-              this.tableData.push(params)
-            }
-            let voucherInfo = null
-            let note = ''
-            if (!vouchers.length) {
-              voucherInfo = null
-              note = '【没有可以使用的优惠券】'
-            } else {
-              if (this.radioDiscountType === 'random') {
-                const randomIndex = Math.floor(Math.random() * vouchers.length)
-                voucherInfo = vouchers[randomIndex]
+              let msg = ''
+              if (this.messageList.length === 1) {
+                msg = this.messageList[0]
               } else {
-                voucherInfo = vouchers.find((n) => n.name == this.discountName.trim())
-                if (!voucherInfo) {
-                  note = `【没有找到名为${this.discountName}】的优惠券`
+                const filterArr = this.messageList.filter((n) => n !== oldMsg)
+                const randomIndex = Math.floor(Math.random() * filterArr.length)
+                msg = filterArr[randomIndex]
+              }
+              const msgRes = await this.sendMessage('text', msg, {}, userId, Number(mall.platform_mall_id), token, mall.country, orderId, ShopeeUid)
+              const indexA = this.tableData.findIndex((n) => n.userName == userName)
+              if (msgRes.code === 200) {
+                oldMsg = msg
+                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送成功】`)
+                this.$set(this.tableData[indexA], 'chatMessage', msg)
+              } else {
+                let messageError = ''
+                if (msgRes.data.message.includes('user_is_forbiddenUser is forbidden for this action')){
+                  messageError = '该用户禁止发送消息'
+                }else if (!msgRes.data.message){
+                  messageError = '此消息被平台屏蔽'
+                }
+                this.$set(
+                    this.tableData[indexA],
+                    'remark',
+                    `${this.tableData[indexA].remark}【消息发送失败  ${messageError}】`
+                )
+              }
+              console.log(msgRes, 'msgRes')
+            }
+            // 发优惠券
+            if (this.isSendDiscount) {
+              const vouchers = await this.sendDiscount(mall.country, mall.platform_mall_id)
+              const index = this.tableData.findIndex((n) => n.userName == userName)
+              if (index < 0) {
+                const params = {
+                  country: mall.country,
+                  mallInfo: mall,
+                  userName: userName,
+                  userType: status,
+                  chatMessage: '',
+                  chatDiscount: '',
+                  chatGoods: '',
+                  remark: ''
+                }
+                this.tableData.push(params)
+              }
+              let voucherInfo = null
+              let note = ''
+              if (!vouchers.length) {
+                voucherInfo = null
+                note = '【没有可以使用的优惠券】'
+              } else {
+                if (this.radioDiscountType === 'random') {
+                  const randomIndex = Math.floor(Math.random() * vouchers.length)
+                  voucherInfo = vouchers[randomIndex]
+                } else {
+                  voucherInfo = vouchers.find((n) => n.name == this.discountName.trim())
+                  if (!voucherInfo) {
+                    note = `【没有找到名为${this.discountName}】的优惠券`
+                  }
+                }
+              }
+              const indexA = this.tableData.findIndex((n) => n.userName == userName)
+              if (!voucherInfo) {
+                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}${note}`)
+              } else {
+                const voucherRes = await this.sendMessage('voucher', '', voucherInfo, userId, Number(mall.platform_mall_id), token, mall.country, orderId, ShopeeUid)
+                if (voucherRes.code === 200) {
+                  this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【优惠券发送成功】`)
+                  this.$set(this.tableData[indexA], 'chatDiscount', `${voucherInfo.name}`)
+                } else {
+                  let messageError = ''
+                  if (voucherRes.data.message.includes('user_is_forbiddenUser is forbidden for this action')){
+                    messageError = '该用户禁止发送消息'
+                  }else if (!msgRes.data.message){
+                    messageError = '此消息被平台屏蔽'
+                  }
+                  this.$set(this.tableData[indexA],
+                      'remark',
+                      `${this.tableData[indexA].remark}【消息发送失败  ${messageError}】`
+                  )
+                }
+              }
+              console.log(vouchers, 'vouchers')
+            }
+            // 发送商品
+            if (this.isSendGoods) {
+              const index = this.tableData.findIndex((n) => n.userName == userName)
+              if (index < 0) {
+                const params = {
+                  country: mall.country,
+                  mallInfo: mall,
+                  userName: userName,
+                  userType: status,
+                  chatMessage: '',
+                  chatDiscount: '',
+                  chatGoods: '',
+                  remark: ''
+                }
+                this.tableData.push(params)
+              }
+              let goodsInfo = null
+              let note = ''
+              const params = {
+                offset: 0,
+                limit: 100,
+                need_brand: 0,
+                need_item_model: 0,
+                is_ads: 0,
+                platform_mall_id: mall.platform_mall_id,
+                country: mall.country
+              }
+              if (this.radioGoodsType == 'random') {
+                const res = await this.StoreSelection.productSelector(params)
+                if (res.code == 200 && res.data.length) {
+                  const randomIndex = Math.floor(Math.random() * res.data.length)
+                  goodsInfo = res.data[randomIndex]
+                } else {
+                  note = '【没有可以发送的商品】'
+                }
+              } else {
+                params['id'] = this.GoodsId
+                const res = await this.StoreSelection.productSelector(params)
+                if (res.code == 200 && res.data.length) {
+                  goodsInfo = res.data[0]
+                } else note = `【没有找到商品ID为${this.GoodsId}的商品】`
+              }
+              const indexA = this.tableData.findIndex((n) => n.userName == userName)
+              if (!goodsInfo) {
+                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}${note}`)
+              } else {
+                const voucherRes = await this.sendMessage('product', '', goodsInfo, userId, Number(mall.platform_mall_id), token, mall.country, orderId, ShopeeUid)
+                if (voucherRes.code === 200) {
+                  this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【商品发送成功】`)
+                  this.$set(this.tableData[indexA], 'chatGoods', `${goodsInfo.itemid}`)
+                } else {
+                  let messageError = ''
+                  if (voucherRes.data.message.includes('user_is_forbiddenUser is forbidden for this action')){
+                    messageError = '该用户禁止发送消息'
+                  }else if (!msgRes.data.message){
+                    messageError = '此消息被平台屏蔽'
+                  }
+                  this.$set(this.tableData[indexA],
+                      'remark',
+                      `${this.tableData[indexA].remark}【消息发送失败  ${messageError}】`
+                  )
                 }
               }
             }
-            const indexA = this.tableData.findIndex((n) => n.userName == userName)
-            if (!voucherInfo) {
-              this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}${note}`)
-            } else {
-              const timestamp = new Date().getTime()
-              const voucherRes = await this.sendMessage('voucher', '', voucherInfo, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
-              if (voucherRes.code === 200) {
-                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【优惠券发送成功】`)
-                this.$set(this.tableData[indexA], 'chatDiscount', `${voucherInfo.name}`)
-              } else {
-                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败  ${voucherRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`)
-              }
-            }
-            console.log(vouchers, 'vouchers')
+            const indexE = this.tableData.findIndex((n) => n.userName == userName)
+            this.$set(this.tableData[indexE], 'remark', `${this.tableData[indexE].remark}【操作结束】`)
+            await delay((this.sendTime || 1) * 1000)
+            // sleep(this.sendTime)
           }
-          // 发送商品
-          if (this.isSendGoods) {
-            const index = this.tableData.findIndex((n) => n.userName == userName)
-            if (index < 0) {
-              const params = {
-                country: mall.country,
-                mallInfo: mall,
-                userName: userName,
-                userType: status,
-                chatMessage: '',
-                chatDiscount: '',
-                chatGoods: '',
-                remark: ''
-              }
-              this.tableData.push(params)
-            }
-            let goodsInfo = null
-            let note = ''
-            const params = {
-              offset: 0,
-              limit: 100,
-              need_brand: 0,
-              need_item_model: 0,
-              is_ads: 0,
-              platform_mall_id: mall.platform_mall_id,
-              country: mall.country
-            }
-            if (this.radioGoodsType == 'random') {
-              const res = await this.StoreSelection.productSelector(params)
-              if (res.code == 200 && res.data.length) {
-                const randomIndex = Math.floor(Math.random() * res.data.length)
-                goodsInfo = res.data[randomIndex]
-              } else {
-                note = '【没有可以发送的商品】'
-              }
-            } else {
-              params['id'] = this.GoodsId
-              const res = await this.StoreSelection.productSelector(params)
-              if (res.code == 200 && res.data.length) {
-                goodsInfo = res.data[0]
-              } else note = `【没有找到商品ID为${this.GoodsId}的商品】`
-            }
-            const indexA = this.tableData.findIndex((n) => n.userName == userName)
-            if (!goodsInfo) {
-              this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}${note}`)
-            } else {
-              const timestamp = new Date().getTime()
-              const voucherRes = await this.sendMessage('product', '', goodsInfo, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
-              if (voucherRes.code === 200) {
-                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【商品发送成功】`)
-                this.$set(this.tableData[indexA], 'chatGoods', `${goodsInfo.itemid}`)
-              } else {
-                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败  ${voucherRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`)
-              }
-            }
-          }
-          const indexE = this.tableData.findIndex((n) => n.userName == userName)
-          this.$set(this.tableData[indexE], 'remark', `${this.tableData[indexE].remark}【操作结束】`)
-          await delay(this.sendTime * 1000)
-          // sleep(this.sendTime)
+        }else{
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】客服系统登录失败`, false)
         }
       } catch (error) {
+        this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】出现异常结束私聊`, false)
         console.log(error)
       }
     },
@@ -611,7 +632,6 @@ export default {
       let { voucher_list } = res.data
       while (voucher_list.length) {
         if (this.isStop) {
-          this.btnLoading = false
           break
         }
         vouchersList = vouchersList.concat(voucher_list)
@@ -625,7 +645,8 @@ export default {
       }
       return vouchersList
     },
-    async sendMessage(type, msg, obj, userId, mallId, token, country, timestamp, uid) {
+    async sendMessage(type, msg, obj, userId, mallId, token, country, orderId, uid) {
+      let timestamp = new Date().getTime()
       // 发送消息
       let contentInfo = {}
       if (type == 'text') {
@@ -657,6 +678,14 @@ export default {
         device_id: guid(),
         shop_id: mallId
       }
+      if(orderId){
+        message['source_type'] = 'order'
+        message['order_id'] = orderId
+        message['source_content'] = {
+          order_id: orderId,
+          shop_id: mallId,
+        }
+      }
       const apiToMd5 = this.sha256('/webchat/api/v1.2/messages', message, timestamp, uid)
       const query = {
         headers: {
@@ -669,7 +698,7 @@ export default {
         params: {
           _uid: `0-${uid}`,
           _ts: timestamp,
-          _v: '6.1.1'
+          _v: '6.3.4'
         }
       }
       const res = await this.$shopeemanService.sendMessage(country, message, query)
@@ -707,7 +736,7 @@ export default {
     // 获取订单用户
     async getOrderUser(mall, status) {
       let resList = []
-      if (status == 'shipping') {
+      if (status === 'shipping') {
         const params = {
           page_size: 40,
           page_number: 1,
@@ -721,7 +750,6 @@ export default {
           let { package_list, total } = res.data
           while (package_list.length) {
             if (this.isStop) {
-              this.btnLoading = false
               break
             }
             // orderLen-a<5
@@ -761,16 +789,21 @@ export default {
               console.log('toShip翻页--------------------')
               params.page_number++
               params.total = total
-              const pageUp = await this.$shopeemanService.getToShipOrderIdList(this.mall.country, params)
+              const pageUp = await this.$shopeemanService.getToShipOrderIdList(mall.country, params)
               package_list = (pageUp && pageUp.data && pageUp.data.package_list) || []
+              console.log('------下一页数量',package_list)
             }
           }
-        } else if (res.code === 403) {
-          return this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未登录`, false)
-        } else {
-          return this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】${res.code}-${res.data}`, false)
         }
-      } else {
+      else if (res.code === 403) {
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未登录`, false)
+          return false
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】${res.code}-${res.data}`, false)
+          return false
+        }
+      }
+      else {
         const params = {
           from_page_number: 1,
           source: status,
@@ -787,10 +820,8 @@ export default {
           let { orders, page_info } = res.data
           while (orders.length) {
             if (this.isStop) {
-              this.btnLoading = false
               break
             }
-            // orderLen-a<5
             let orderDetailListFa = []
             for (let a = 0; a < orders.length; a = a + 5) {
               const orderArr = orders.slice(a, a + 5)
@@ -834,9 +865,11 @@ export default {
             }
           }
         } else if (res.code === 403) {
-          return this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未登录`, false)
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未登录`, false)
+          return false
         } else {
-          return this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】${res.code}-${res.data}`, false)
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】${res.code}-${res.data}`, false)
+          return false
         }
       }
       return resList

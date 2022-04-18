@@ -10,15 +10,9 @@
             width="60"
             type="index"
           />
-          <el-table-column
-            v-for="(gPros,index) in goodsProps"
-            v-if="gPros.propName!=='goods_img'"
-            :key="index"
-            align="center"
-            :prop="gPros.propName"
-            :label="gPros.label"
-            :width="gPros.width"
-          />
+          <el-table-column v-for="(gPros,index) in goodsProps"
+            v-if="gPros.propName!=='goods_img'" :key="index" align="center" :prop="gPros.propName"
+                           :label="gPros.label" :width="gPros.width"/>
           <el-table-column v-else align="center" :prop="gPros.propName" :label="gPros.label" :width="gPros.width">
             <template slot-scope="scope">
               <el-image :src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
@@ -34,35 +28,113 @@
 import html2Canvas from 'html2canvas'
 import JsPDF from 'jspdf'
 import md5 from 'js-md5'
+import { Base64 } from 'js-base64'
 export default {
   data() {
     return {
-      goodsProps: [
-        // { propName: 'goods_name', label: '商品编号', width: 150 },
-        // { propName: 'goods_img', label: '商品图片', width: 80, goods_img: '' }
-      ],
-      goodsList: [
-        //   { goods_name: 'aaa', goods_aaa: 'ggg' }
-      ],
+      goodsProps: [],
+      goodsList: [],
       headTitle: '',
-      table_width: 0
+      table_width: 0,
+      column:{
+        country:{
+          label: '站点',
+          width: 60
+        },
+        platform_mall_name:{
+          label: '店铺名称',
+          width: 200
+        },
+        goods_name:{
+          label: '商品名称',
+          width: 300
+        },
+        outer_goods_id:{
+          label: 'parentSKU',
+          width: 200
+        },
+        order_sn:{
+          label: '订单编号',
+          width: 150
+        },
+        goods_count:{
+          label: '商品数量',
+          width: 100,
+        },
+        variation_name:{
+          label: '商品规格',
+          width: 150,
+        },
+        goodsLink:{
+          label: '商品链接',
+          width: 200,
+        },
+        goods_img:{
+          label: '商品图片',
+          width: 80,
+        },
+        created_time:{
+          label: '订单创建时间',
+          width: 180,
+        },
+        ship_by_date:{
+          label: '截止发货时间',
+          width: 180,
+        },
+        is_apply_tracking_no:{
+          label: '是否已申请物流单号',
+          width: 60,
+        },
+        hasLogistics:{
+          label: '是否同步面单信息',
+          width: 60,
+        },
+        order_status:{
+          label: '发货状态',
+          width: 80,
+        },
+        logistics_name:{
+          label: '虾皮物流',
+          width: 180,
+        },
+      },
     }
   },
 
-  created() {
+  async created() {
     console.log(this.$route, '测试')
     if (this.$route.query) {
-      const goodsProps = this.$route.query.goodsProps || ''
-      const goodsList = this.$route.query.goodsList || ''
-      const goodsPropsJson = unescape(goodsProps)
-      const goodsListJson = unescape(goodsList)
-      this.goodsProps = goodsPropsJson[0] === '"' ? JSON.parse(goodsPropsJson.replace(/^(\s|")+|(\s|")+$/g, '')) : JSON.parse(goodsPropsJson)
-      this.goodsList = goodsListJson[0] === '"' ? JSON.parse(goodsListJson.replace(/^(\s|")+|(\s|")+$/g, '')) : JSON.parse(goodsListJson)
+      const uid = this.$route.query.uid || ''
+      const uuid = this.$route.query.uuid || ''
+      const code = this.$route.query.code || ''
+      let { data } = await this.$api.getCustomerFaceData({uid,uuid,code})
+      console.log('goodsListJson' , data)
+      let goodsList = []
+      if (data.code === 200){
+        let faceDataJson = data.data?.face_data || null
+        if(faceDataJson){
+          let faceData = JSON.parse(faceDataJson)
+          this.goodsList = faceData
+        }
+        this.headTitle = '拣货清单(' + this.formatTime(new Date().getTime()) + ')'
+        if (this.goodsList.length > 0){
+          for (let key in this.goodsList[0]){
+            let temp = {
+              label: this.column[key]?.label || '',
+              width: this.column[key]?.width || 120,
+              propName: key
+            }
+            goodsList.push(temp)
+          }
+          this.goodsProps = goodsList
+          const array = this.goodsProps.map(son => (son.width || 120))
+          const width = eval(array.join('+')) + 2
+          this.table_width = width || this.table_width
+        }
+      }else{
+        this.$message.error(data.message || '无效面单数据')
+      }
     }
-    this.headTitle = '拣货清单(' + this.formatTime(new Date().getTime()) + ')'
-    const array = this.goodsProps.map(son => (son.width || 120))
-    const width = eval(array.join('+')) + 2
-    this.table_width = width || this.table_width
   },
   methods: {
     async point() {
@@ -87,8 +159,6 @@ export default {
         allowTaint: true,
         taintTest: false,
         useCORS: true,
-        // width: 300,
-        // height: 300,
         dpi: window.devicePixelRatio * 2, // 将分辨率提高到特定的DPI
         scale: 2 // 按比例增加分辨率
       }).then(canvas => {

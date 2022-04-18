@@ -3,11 +3,11 @@
   <div class="store-address">
     <!-- tab区 -->
     <div class="tab-box">
-      <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tabs v-model="activeName">
         <el-tab-pane label="国内仓设置" name="landStore">
           <div class="btn-tool">
             <el-button type="primary" size="mini" class="mar-right" @click="homeAddress">添加国内自有仓库地址</el-button>
-            <el-button v-if="isHomeApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress()">申请系统仓库地址</el-button>
+            <el-button v-if="isHomeApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress">申请系统仓库地址</el-button>
             <div class="warning-text activeColor">
               <p>温馨提示：1、绑定自有仓库时，订单信息将不会推送至对应站点的系统仓库，如使用软件合作物流，请申请绑定系统仓库！</p>
               <p>温馨提示：2、拍单平台为京喜时，收件人姓名只能由中文和字母组成，且在拍单时，软件不会自动增加买家姓名的拍单标识！</p>
@@ -17,7 +17,7 @@
         <el-tab-pane label="海外仓设置" name="abroadStore">
           <div class="btn-tool">
             <el-button type="primary" size="mini" class="mar-right" @click="oversearAddress">添加国外自有仓库地址</el-button>
-            <el-button v-if="isOverseasApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress()">申请系统仓库地址</el-button>
+            <el-button v-if="isOverseasApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress">申请国外系统仓库地址</el-button>
             <div class="warning-text activeColor">
               <p>温馨提示：1、绑定自有仓库时，订单信息将不会推送至对应站点的系统仓库，如使用软件合作物流，请申请绑定系统仓库！</p>
               <p>温馨提示：2、拍单平台为lazada时，收件人姓名不能带有特殊字符，如下划线，加号等，且菲律宾站点不能带有#字符！</p>
@@ -30,12 +30,11 @@
         <u-table
           ref="multipleTable"
           :data="tableData"
+          v-loading="isShowLoading"
           use-virtual
           height="640"
           tooltip-effect="dark"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa'}"
-        >
+          :header-cell-style="{backgroundColor: '#f5f7fa'}">
           <u-table-column type="index" label="序号" min-width="50px" align="center" fixed />
           <u-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
           <u-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip>
@@ -193,7 +192,8 @@
       </div>
     </el-dialog>
     <!--系统仓库地址弹窗-->
-    <el-dialog :close-on-click-modal="false" class="sys-store-dialog" :title="flag1 ? '申请系统仓库地址' : '修改仓库地址信息'" width="1000px" :visible.sync="sysAdderssVisible" @close="handleClose2">
+    <el-dialog :close-on-click-modal="false" class="sys-store-dialog" :title="flag1 ? '申请系统仓库地址' : '修改仓库地址信息'"
+               width="1000px" :visible.sync="sysAdderssVisible" @close="handleClose2">
       <div class="dialog-left">
         <!--?-->
         <div v-if="!flag4 && flag1" class="header">
@@ -425,6 +425,22 @@ export default {
 
     }
   },
+  watch:{
+    activeName(val){
+      this.flag4 = val === 'landStore'
+      console.log(this.tableDataAll)
+      if (this.flag4) {
+        this.tableData = this.tableDataAll.filter((item) => {
+          return item.type === 0
+        })
+      } else {
+        this.tableData = this.tableDataAll.filter((item) => {
+          return item.type === 2 || item.type === 3
+        })
+      }
+      this.xzyIndex([!this.flag4 && 3 || 0])
+    }
+  },
   mounted() {
     this.getUserWarehouse()
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
@@ -526,7 +542,11 @@ export default {
         if (this.activeName === 'landStore' && this.itemData.countrys) {
           for (const el of this.multipleSelection) {
             if (this.itemData.countrys.findIndex(ol => { return el.country === ol }) < 0) {
-              this.$message(`当前仓库只能绑定${this.$filters.chineseSite(this.itemData.countrys)}的店铺，请重新选择`)
+              const msgList = []
+              this.itemData.countrys.forEach(al => {
+                msgList.push(this.$filters.chineseSite(al))
+              })
+              this.$message(`当前仓库只能绑定${msgList}的店铺，请重新选择`)
               return
             }
           }
@@ -560,6 +580,7 @@ export default {
       await this.updateData(params)
       await this.getBindMall()
       this.butLoading = false
+      this.sysAdderssVisible = false
     },
     // 修改数据
     async updateData(params) {
@@ -583,8 +604,21 @@ export default {
       sysNewData = this.warehouseData.filter((item) => {
         return item.id === this.sysWarehouseId
       })
-      if (!this.multipleSelection.every((item) => item.country === sysNewData[0].country)) {
-        return this.$message(`当前仓库只能绑定${this.$filters.chineseSite(sysNewData[0].country)}的店铺，请重新选择`)
+      if (this.activeName === 'landStore') {
+        for (const el of this.multipleSelection) {
+          if (sysNewData[0].countrys.findIndex(ol => { return el.country === ol }) < 0) {
+            const msgList = []
+            sysNewData[0].countrys.forEach(al => {
+              msgList.push(this.$filters.chineseSite(al))
+            })
+            this.$message(`当前仓库只能绑定${this.$filters.chineseSite(msgList)}的店铺，请重新选择`)
+            return
+          }
+        }
+      } else {
+        if (!this.multipleSelection.every((item) => item.country === sysNewData[0].country)) {
+          return this.$message(`当前仓库只能绑定${this.$filters.chineseSite(sysNewData[0].country)}的店铺，请重新选择`)
+        }
       }
       this.multipleSelection.forEach((item) => {
         sysMallId.push(item.sysMallId)
@@ -604,6 +638,7 @@ export default {
         this.$message.error(res.data)
       }
       this.butLoading = false
+      this.sysAdderssVisible = false
     },
     // 仓库名称Change
     sysWarehouseChange() {
@@ -867,51 +902,27 @@ export default {
       })
       return arr.toString()
     },
-    // 切换tab
-    handleClick() {
-      if (this.activeName === 'landStore') {
-        this.flag4 = true
-        this.tableData = this.tableDataAll.filter((item) => {
-          return item.type === 0
-        })
-      } else {
-        this.flag4 = false
-        this.tableData = this.tableDataAll.filter((item) => {
-          return item.type === 2 || item.type === 3
-        })
-      }
-    },
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
     async xzyIndex(typeLists) {
-      let resData = []
       const typeList = typeLists || [0, 3]
       for (let index = 0; index < typeList.length; index++) {
         const type = typeList[index]
         const res = await this.AddressSet.xzyIndex(type)
         if (res.code === 200) {
-          resData = resData.concat(res)
+          let resData = res
+          if(type === 0){
+            this.isHomeApplyAddress =resData.data?.length > 0
+          }else{
+            this.isOverseasApplyAddress = resData.data?.length > 0
+          }
+          if (resData.data.length && ((type === 0 && this.flag4) || (type !==0 && !this.flag4))){
+            this.warehouseData = resData.data || ''
+            this.sysWarehouseId = resData.data[0].id
+            this.warehouseAddress = resData.data[0].full_address
+            this.wareHouseTel = resData.data[0].receiving_tel
+          }
         } else {
           this.$message.error(res.data)
-        }
-      }
-      if (resData?.length) {
-        if (resData[0].data?.length > 0) {
-          this.isHomeApplyAddress = true
-          this.warehouseData = resData[0].data
-          this.sysWarehouseId = resData[0].data[0].id
-          this.warehouseAddress = resData[0].data[0].full_address
-          this.wareHouseTel = resData[0].data[0].receiving_tel
-        } else {
-          this.isHomeApplyAddress = false
-        }
-        if (resData[1] && resData[1].data?.length > 0) {
-          this.isOverseasApplyAddress = true
-          this.warehouseData = resData[1].data
-          this.sysWarehouseId = resData[1].data[0].id
-          this.warehouseAddress = resData[1].data[0].full_address
-          this.wareHouseTel = resData[1].data[0].receiving_tel
-        } else {
-          this.isOverseasApplyAddress = false
         }
       }
     },
@@ -924,13 +935,20 @@ export default {
         this.tableDataAll.map((item) => {
           if (item.countrys) {
             item.sites = this.$filters.chineseSite(item.countrys)
-            console.log(item.countrys)
-          }else{
+          } else {
             item.sites = ''
           }
           item.is_use_own_phone = item.is_use_own_phone === '1'
         })
-        this.handleClick()
+        if (this.flag4) {
+          this.tableData = this.tableDataAll.filter((item) => {
+            return item.type === 0
+          })
+        } else {
+          this.tableData = this.tableDataAll.filter((item) => {
+            return item.type === 2 || item.type === 3
+          })
+        }
       } else {
         this.$message.error(res.data)
       }
@@ -1012,13 +1030,15 @@ export default {
       this.isSG = false
       this.itselfPostCode = ''
     },
-    handleClose2() {
+    async handleClose2() {
       const type = this.flag4 ? [0] : [3]
-      this.xzyIndex(type)
-      this.getUserWarehouse()
+      await this.xzyIndex(type)
+      await this.getUserWarehouse()
       this.receivingName = ''
-      this.$refs.bindMallDataRef.clearSelection()
       this.changeIndex++
+      this.$refs.bindMallDataRef.clearSelection()
+      console.log('测试')
+      // await this.xzyAllIndex()
     },
     async handlerChange1() {
       await this.getLazadaDetailAddress(this.itselfProvinceId, 'cityList', 'CityId')

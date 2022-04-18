@@ -278,6 +278,9 @@ const changeImgSizeFilter = (value) => {
   if (/pinxiaoe.oss-cn-shenzhen.aliyuncs.com/g.test(url)) {
     return url
   }
+  if (/ap-guangzhou.myqcloud.com/g.test(url)) {
+    return url
+  }
   let resUrl = ''
   switch (source) {
     case 1: // 拼多多

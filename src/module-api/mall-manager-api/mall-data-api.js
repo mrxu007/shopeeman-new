@@ -60,7 +60,7 @@ class MallDataApi {
       }
     }
   }
-  // 店铺数据（同步店铺数据）-获取店铺详情 /api/v3/general/get_shop/
+  // 店铺数据（同步店铺数据）-获取店铺详情 api/marketing/v4/shop/profile/get
   async getShopProfile(item, api) {
     try {
       const {
@@ -78,7 +78,7 @@ class MallDataApi {
         const resData = res && res.data && JSON.parse(res.data) && JSON.parse(res.data).data
         if (resData) {
           item['chat_response_rate'] = resData.shop.display_response_rate + '%' // 聊天回应率
-          item['rating_star'] = parseFloat(item.rating_star).toFixed(2) // 店铺评分（值保留两位小数 需上报）
+          item['rating_star'] = parseFloat(resData.shop.rating_star).toFixed(2) // 店铺评分（值保留两位小数 需上报）
           item['fans_number'] = resData.shop.follower_count // 关注店铺的粉丝数量（需上报） --粉丝量
           item['followers_number'] = resData.user.following_count // 店铺关注粉丝数量（需上报）--关注量
           item['display_response_rate'] = resData.shop.display_response_rate + '%'// 聊聊回复率（需上报）（需要加百分号）

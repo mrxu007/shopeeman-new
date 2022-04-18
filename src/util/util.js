@@ -678,7 +678,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
   let msg = ''
   let flag = false
   const _that = that
-  console.log('dealwithOriginGoodsNum ',oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country)
+  console.log('dealwithOriginGoodsNum ', oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country)
   try {
     // 1、同步shopee库存
     const params = {
@@ -773,14 +773,14 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
                 skuName = ''
               }
             } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
-              let originPropsArray = skuInfo.originProps.map(son=>son.name)
-              skuName = originPropsArray.splice(0,2).toString()
+              const originPropsArray = skuInfo.originProps.map(son => son.name)
+              skuName = originPropsArray.splice(0, 2).toString()
             } else {
               skuName = ''
             }
             // ----------------------------------------------------------------//
             const spIndex = shopeeSkuList.findIndex((n) => {
-              return n.sku.replace('=|=', ',') === skuName || n.name.replace('=|=', ',') ===skuName
+              return n.sku.replace('=|=', ',') === skuName || n.name.replace('=|=', ',') === skuName
             })
             if (spIndex > -1) {
               flag = true
@@ -857,8 +857,10 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
         }
         console.log(country, data, [editParams])
         const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
+        console.log('++++++', editRes)
+        console.log('++++++', _that)
         if (editRes.code === 200) {
-          _that.$set(shopeeItem,'stock',totalStock)
+          _that.$set(shopeeItem, 'stock', totalStock)
           if (orderSn) {
             return writeLog(`同步库存成功，订单【${orderSn}】同步库存成功！`, true)
           } else {
@@ -1055,25 +1057,29 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
   }
   function getBase64file(url, width, height) {
     return new Promise(async(resolve) => {
-      const image = new Image()
-      image.setAttribute('crossOrigin', 'anonymous')
-      image.src = url
-      image.onload = async function() {
-        image.width = width || image.width
-        image.height = height || image.height
-        const canvas = document.createElement('canvas')
-        canvas.width = image.width
-        canvas.height = image.height
-        const context = canvas.getContext('2d')
-        context.drawImage(image, 0, 0, image.width, image.height)
-        let base64 = canvas.toDataURL('image/png')
-        const base64Size = showSize(base64)
-        if (base64Size > 1024) {
-          const width = Math.floor(image.width / 3 * 2)
-          const height = Math.floor(image.height / 3 * 2)
-          base64 = await getBase64file(base64, width, height)
+      try {
+        const image = new Image()
+        image.setAttribute('crossOrigin', '')
+        image.src = url
+        image.onload = async function() {
+          image.width = width || image.width
+          image.height = height || image.height
+          const canvas = document.createElement('canvas')
+          canvas.width = image.width
+          canvas.height = image.height
+          const context = canvas.getContext('2d')
+          context.drawImage(image, 0, 0, image.width, image.height)
+          let base64 = canvas.toDataURL('image/png')
+          const base64Size = showSize(base64)
+          if (base64Size > 1024) {
+            const width = Math.floor(image.width / 3 * 2)
+            const height = Math.floor(image.height / 3 * 2)
+            base64 = await getBase64file(base64, width, height)
+          }
+          resolve(base64)
         }
-        resolve(base64)
+      }catch (e) {
+        console.log(e)
       }
     })
   }

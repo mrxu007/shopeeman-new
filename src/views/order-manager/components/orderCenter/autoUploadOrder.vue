@@ -10,9 +10,11 @@ import orderSync from '../../../../services/timeOrder'
 import surFaceService from '../../../../services/surfaceOrder'
 import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
 import { AutoAddFence } from '@/views/order-manager/components/orderCenter/powderFence'
+import { topGoods } from '@/views/market-activity/components/topGoods'
 export default {
   data() {
     return {
+      topGoodsInstance: new topGoods(),
       AutoAddFenceInstance: new AutoAddFence(this),
       showConsole: false,
       mallList: [],
@@ -68,7 +70,7 @@ export default {
     // 自动同步面单 8分钟开启，2小时间隔
     async syncShopeeFace() {
       try {
-        let configInfo = await window['ConfigBridgeService'].getUserConfig()
+        let configInfo = await this.$appConfig.getUserConfig()
         configInfo = configInfo && JSON.parse(configInfo) || {}
         this.isApplyShopeeLogistics = (configInfo && configInfo.is_apply_shopee_logistics) || '2'
         if (this.isApplyShopeeLogistics === '1') {
@@ -98,7 +100,7 @@ export default {
       }
     },
     async syncLogis() {
-      let configInfo = await window['ConfigBridgeService'].getUserConfig()
+      let configInfo = await this.$appConfig.getUserConfig()
       configInfo = configInfo && JSON.parse(configInfo) || {}
       this.isAutoLogisitice = (configInfo && configInfo.is_auto_ori_logistics) || '1'
       this.logisiticeTime = (configInfo && configInfo.ori_logistics_interval_time) || 4
@@ -165,8 +167,10 @@ export default {
       }, 10 * 60 * 1000)
     },
     // 商品置顶
-    topGoods() {
-
+    goodsTop() {
+      setTimeout(() => {
+        this.topGoodsInstance.init()
+      }, 8 * 60 * 1000)
     },
     // 仓库中没有面单
     async syncFaceStore() {
