@@ -360,11 +360,11 @@ export default class MarketManagerAPI {
       const params = {
         mallId: mallId,
         status: datainfo.status,
-        tiers: [datainfo.tiers[0]],
+        tiers: [{...datainfo.tiers[0],discount_type: 1}],
         channel_ids: datainfo.channel_ids,
         start_time: datainfo.start_time,
         end_time: datainfo.end_time,
-        group_id: datainfo.group_id,
+        group_rule_id: datainfo.group_rule_id,
         promotion_name: datainfo.promotion_name,
         all_channels: {
           channels: [datainfo.channalData],
@@ -373,6 +373,7 @@ export default class MarketManagerAPI {
         },
         expire_now: true
       }
+      console.log('logistics_promotion-stop',params,datainfo)
       const res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v3/logistics_promotion/?', params, {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
@@ -397,11 +398,11 @@ export default class MarketManagerAPI {
       const params = {
         mallId: mallId,
         status: datainfo.status,
-        tiers: [datainfo.tiers[0]],
+        tiers: [{...datainfo.tiers[0],discount_type: 1}],
         channel_ids: datainfo.channel_ids,
         start_time: datainfo.start_time,
         end_time: datainfo.end_time,
-        group_id: datainfo.group_id,
+        group_rule_id: datainfo.group_rule_id,
         promotion_name: datainfo.promotion_name,
         all_channels: {
           channels: [datainfo.channalData],
@@ -410,6 +411,7 @@ export default class MarketManagerAPI {
         },
         expire_now: true
       }
+      console.log('logistics_promotion-del',params)
       const res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v3/logistics_promotion/?', params, {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',

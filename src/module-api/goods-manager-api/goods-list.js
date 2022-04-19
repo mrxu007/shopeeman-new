@@ -292,9 +292,9 @@ export default class GoodsList {
         page_number: mItem.pageNumber,
         page_size: pageSize,
         mallId: mItem.platform_mall_id,
-        search_type: searchType,
-        keyword: keyword,
-        category_id: categoryId,
+        search_type: searchType !== 'originId' && searchType || '',
+        keyword: searchType !== 'originId' && keyword || '' ,
+        category_id: categoryId || '',
         stock_min: goodsMin,
         stock_max: goodsMax,
         sold_min: soldMin,
@@ -305,6 +305,7 @@ export default class GoodsList {
         cursor: cursor,
         version: '4.0.0'
       }
+      console.log(params)
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/v3/product/search_product_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})
       const jsonData = this.isJsonString(res)
       if (jsonData.status === 200) {

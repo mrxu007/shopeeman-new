@@ -415,7 +415,8 @@
           </div></li>
       </ul>
       <ul v-if="isFold">
-        <span class="red-span">说明：库存公式：设置后的库存 = 原库存 +（填写的库存）；如果填写的库存为零将会把商品的库存置为0； 价格公式：设置后的价格 = 原价 +（原价*填写的百分比）+（填写的价格）</span>
+        <span class="red-span">说明：库存公式：设置后的库存 = 原库存 +（填写的库存）；如果填写的库存为零将会把商品的库存置为0； 价格公式：设置后的价格 = 原价 +（原价*填写的百分比）+（填写的价格）。</span>
+        <span class="red-span">温馨提示：无流量代表粉丝数和销量为零</span>
       </ul>
     </el-row>
     <el-row id="article">
@@ -3248,7 +3249,7 @@ export default {
     },
     // 获取数据
     async getTableData(mItem, count = { count: 1 }) {
-      await sleep(8000)
+      await sleep(4000)
       if (this.flag) {
         this.stop()
         return
@@ -3266,6 +3267,7 @@ export default {
           }
           params['listOrderType'] = 'list_time_asc'
         }
+        console.log(this.searchType)
         if ((this.searchType !== 'originId' && this.keyword) ||
             (this.goodsMax < 99999999 && this.goodsMax >= 0) ||
             (this.goodsMin > 0 && this.goodsMin < 99999999) ||
@@ -3295,7 +3297,8 @@ export default {
             }
             res = await this.GoodsList.searchProductList(params) // 有条件搜索
           }
-        } else {
+        }
+        else {
           res = await this.GoodsList.getMpskuList(params) // 无条件搜索
         }
         if (res.code === 200) {

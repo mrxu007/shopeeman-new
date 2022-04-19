@@ -351,17 +351,6 @@ export default {
               }
             })
           }
-          // array?.forEach(el => {
-          //   if (this.deliverWayList.length) {
-          //     // 过滤重复物流
-          //     const index = this.deliverWayList.findIndex(ol => { return ol === el })
-          //     if (index < 0) {
-          //       this.deliverWayList = this.deliverWayList.push(el)
-          //     }
-          //   } else {
-          //     this.deliverWayList = this.deliverWayList.concat(array)
-          //   }
-          // })
         } else {
           let mes = ''
           if (res.message === 'token not found') {
@@ -801,6 +790,7 @@ export default {
       this.freightlist.forEach((el, index) => {
         const tier = {
           discount_flag: el.freightType === '0' ? 4 : 2, // 2 免运费 4 运费减免
+          discount_type: 1,
           placeholder: el.freightLimit,
           index: index,
           min_order_total: Number(el.minCost),
@@ -818,7 +808,7 @@ export default {
           channel_ids: this.deliverWay,
           promotion_name: this.proName
         }
-        console.log(params.channel_ids)
+        console.log('checkPromotionTest-params ', params)
         const result = await this.MarketManagerAPIInstance.checkPromotionTest(params)// 创建优惠券
         if (result.ecode !== 0) {
           let mes = ''
