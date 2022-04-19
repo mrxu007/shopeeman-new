@@ -199,11 +199,9 @@
             <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
             </el-tooltip>
+            <el-radio v-model="pictureConfig.typeRadio" :label="3" :disabled="isCollectShow">免费翻译</el-radio>
             <el-radio v-model="pictureConfig.typeRadio" :label="2" :disabled="isCollectShow">云图像翻译</el-radio>
-          </div>
-          <div style="display: flex;align-items: center">
-            <div>图片翻译：</div>
-            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value=""
+            <el-select v-model="translationConfig.before" size="mini" style="width: 80px;" value=""
                        :disabled="isCollectShow">
               <el-option label="不翻译" :value="'no'"/>
               <el-option label="中文" :value="'zh'"/>
@@ -213,12 +211,12 @@
             <el-select
                 v-if="translationConfig.before === 'no'"
                 size="mini"
-                style="width: 100px;"
+                style="width: 80px;"
                 value=""
                 disabled
                 placeholder="不翻译"
             />
-            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;"
+            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 80px;"
                        value="" :disabled="isCollectShow">
               <el-option
                   v-for="item in pictureLanguagesList"
@@ -1614,6 +1612,21 @@ export default {
                 imageData = Data.Data && Data.Data.Url || son.img
               } else if (this.pictureConfig.typeRadio === 2) {
                 console.log(son.img, this.translationConfig.after)
+                const json = son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after,'ali') || ''
+                console.log(json)
+                if (json && json.Code === 200 || json.Msg.includes('无文字')) {
+                  imageData = json.Data && json.Data.Url || son.img
+                } else {
+                  imageData = son.img
+                  this.$set(this.mallTable[index], 'operation_type', `轮播图(${(i + 1)}/${image1ListLength})失败：${json.Msg}`)
+                  if (Number(this.translationConfig.failureType) !== 3) {
+                    success = false
+                    return
+                  }
+                }
+              }
+              else if (this.pictureConfig.typeRadio === 3) {
+                 console.log(son.img, this.translationConfig.after)
                 const json = son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after) || ''
                 console.log(json)
                 if (json && json.Code === 200 || json.Msg.includes('无文字')) {
@@ -1656,6 +1669,19 @@ export default {
                 const { Data } = await this.$translationBridgeService.getAliYunTranslateImg(son, fromLa, this.translationConfig.after)
                 imageData = Data.Data && Data.Data.Url || son
               } else if (this.pictureConfig.typeRadio === 2) {
+                const json = son && await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after) || ''
+                console.log(json)
+                if (json && json.Code === 200 || json.Msg.includes('无文字')) {
+                  imageData = json.Data && json.Data.Url || son
+                } else {
+                  imageData = son
+                  this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})：失败${json.Msg}`)
+                  if (Number(this.translationConfig.failureType) !== 3) {
+                    success = false
+                    return
+                  }
+                }
+              }else if (this.pictureConfig.typeRadio === 3) {
                 const json = son && await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after) || ''
                 console.log(json)
                 if (json && json.Code === 200 || json.Msg.includes('无文字')) {

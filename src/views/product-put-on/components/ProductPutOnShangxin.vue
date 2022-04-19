@@ -285,8 +285,7 @@
             <div class="keepRight">重复上新维度：</div>
             <el-radio v-model="associatedConfig.dimensionRadio" :label="1" :disabled="isBanPerform">站点</el-radio>
             <el-radio v-model="associatedConfig.dimensionRadio" :label="0" :disabled="isBanPerform">店铺</el-radio>
-            <el-radio v-model="associatedConfig.dimensionRadio" :label="2" :disabled="isBanPerform"
-                      style="margin-right: 0">一商品多店铺
+            <el-radio v-model="associatedConfig.dimensionRadio" @click="accountPermissions" :label="2" :disabled="isBanPerform" style="margin-right: 0">一商品多店铺
             </el-radio>
             <el-tooltip class="item" effect="dark" content="同一商品上新到不同店铺中，为避免重复铺货，请配合热搜词使用" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
@@ -650,14 +649,18 @@
             添加活动商品，请配置折扣活动信息或商店分类信息
           </div>
           <div class="on_new_dialog_box">
-            <el-button size="mini" @click="" type="primary">下载模板</el-button>
-            <el-button size="mini" @click="">导入模板</el-button>
+            <el-button size="mini" @click="downloadTemplate" type="primary" style="margin-right: 10px;">下载模板</el-button>
+            <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/"
+                       :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+              <el-button :data="importTemplateData" size="mini" type="primary"> 导入模板
+              </el-button>
+            </el-upload>
           </div>
           <div class="on_new_dialog_box">
             <u-table :data="sellActiveTable" tooltip-effect="dark" height="450">
               <u-table-column label="店铺名称" align="left" :show-overflow-tooltip="true" min-width="120px">
                 <template slot-scope="{row}">
-                  {{ row.mall_alias_name || row.platform_mall_name }}
+                  {{row.country}}-{{ row.mall_alias_name || row.platform_mall_name }}
                 </template>
               </u-table-column>
               <u-table-column label="活动折扣配置" align="left" width="350px">
@@ -1102,13 +1105,14 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  sleep, copyText, dateFormat
+  sleep, copyText, dateFormat, importOrder
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
 import GoodsManagerAPI from '@/module-api/goods-manager-api/goods-data'
 import GoodsDiscount from '@/module-api/market-activity-api/goods-discount'
 import goodsEditDetails from '@/components/goods-edit-details'
+import xlsx from 'xlsx'
 
 export default {
   data() {
@@ -1439,7 +1443,8 @@ export default {
         time: new Date(new Date().getTime() + 3600 * 1000 * 24)
       },
       isRefreshTable: true,
-      isCancelRelease: true
+      isCancelRelease: true,
+      importTemplateData: null
     }
   },
   computed: {},
@@ -1582,26 +1587,17 @@ export default {
   },
   async mounted() {
     try {
-      this.$IpcMain.on('gotoUpload', async e => { // 点听
-        console.log('gotoUpload', e)
-        let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
-        let goodsList = JSON.parse(goodsListJSON)
-        console.log('goodsListJSON', goodsList)
-        for (let item of goodsList) {
-          let index = this.goodsTable.findIndex(i => i.id === item.id)
-          index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
-        }
-        this.statistics.count = this.goodsTable.length
-        let sourceCategoryList = new Set()
-        this.goodsTable.forEach(item => {
-          sourceCategoryList.add(item.category_name)
-        })
-        this.sourceCategoryList = [...sourceCategoryList]
-        this.sourceCategory = [0, ...sourceCategoryList]
-        localStorage.setItem('goodsTableJson', JSON.stringify(this.goodsTable))
-        await this.$BaseUtilService.gotoUploadTab('updateId', '')
+      this.$IpcMain.on('gotoUpload', async e => { // 上新监听
+        console.log('gotoUpload-e',e)
+        await this.getUploadGoodsId()
       })
-      let info = await this.$appConfig.getUserInfo()
+      let firstOnNewKey = await this.$appConfig.temporaryCacheInfo('get','firstOnNewKey','')
+      if(!firstOnNewKey){
+        console.log('gotoUpload-firstOnNewKey',firstOnNewKey)
+        await this.$appConfig.temporaryCacheInfo('save','firstOnNewKey','true')
+        await this.getUploadGoodsId()
+      }
+      let info = this.$userInfo
       this.rateList = info.ExchangeRates || {}
       let valuationConfigRes = await this.$api.valuationConfigGetAll()
       this.valuationLabelList = valuationConfigRes && valuationConfigRes.data.data || []
@@ -1611,6 +1607,24 @@ export default {
     }
   },
   methods: {
+    async getUploadGoodsId(){
+      let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
+      let goodsList = JSON.parse(goodsListJSON)
+      console.log('goodsListJSON', goodsList)
+      for (let item of goodsList) {
+        let index = this.goodsTable.findIndex(i => i.id === item.id)
+        index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
+      }
+      this.statistics.count = this.goodsTable.length
+      let sourceCategoryList = new Set()
+      this.goodsTable.forEach(item => {
+        sourceCategoryList.add(item.category_name)
+      })
+      this.sourceCategoryList = [...sourceCategoryList]
+      this.sourceCategory = [0, ...sourceCategoryList]
+      localStorage.setItem('goodsTableJson', JSON.stringify(this.goodsTable))
+      await this.$BaseUtilService.gotoUploadTab('updateId', '')
+    },
     async startRelease() {
       if (this.goodsTableSelect.length < 1) {
         this.$message.error('请选择商品后再操作')
@@ -3140,6 +3154,89 @@ export default {
         this.goodsEditorVisible = true
       }
     },
+    //  下载模板
+    async downloadTemplate() {
+      const jsonData = []
+      let importOrderName = '上新行销活动配置模板'
+      // 上新行销活动配置模板
+      let titleData = ['店铺名称','店铺ID', '折扣活动ID', '折扣折数', '折扣活动限购数量', '商店分类ID']
+        this.mallList.map((item) => {
+          const temp = []
+          let country = item.country
+          let name = item.mall_alias_name || item.platform_mall_name
+          temp.push(country+'-'+name)
+          temp.push(item.platform_mall_id)
+          jsonData.push(temp)
+        })
+      await importOrder(titleData, jsonData, importOrderName)
+    },
+    // 表格导入
+    importTemplateEvent(file) {
+      const files = { 0: file.raw }
+      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
+        this.writeLog('上传格式不对,请上传xls、xls格式的文件', false)
+        return
+      }
+      if (files.length <= 0) {
+        this.writeLog('表格为空', false)
+        return
+      }
+      const fileReader = new FileReader()
+      fileReader.onload = (ev) => {
+        const data = ev.target.result
+        const workbook = xlsx.read(data, {
+          type: 'binary'
+        })
+        const wsname = workbook.SheetNames[0] // 去第一张表
+        let ws = xlsx.utils.sheet_to_json(workbook.Sheets[wsname]) // 生成Json表格
+        // console.log('ws表格里面的数据，且是json格式', ws)
+        this.importTemplateData = ws || []
+        ws = null
+        this.importDataAssembly()
+        // 重写数据
+        this.$refs.importRef.value = ''
+      }
+      fileReader.readAsBinaryString(files[0])
+    },
+    importDataAssembly(){
+      console.log(this.sellActiveTable,this.importTemplateData)
+      let count = this.importTemplateData.length
+      if(count){
+        this.importTemplateData.forEach(item=>{
+          let name = item['店铺名称'] || ''
+          let id = item['店铺ID'] || ''
+          if(name || id){
+            let discountId = item['折扣活动ID']
+            let discount = item['折扣折数']
+            let number = item['折扣活动限购数量']
+            let goodsId = item['商店分类ID']
+            let nameList = name.split('-')
+            let country = nameList.splice(0,1).toString()
+            name = nameList.join('-')
+            let index = this.sellActiveTable.findIndex(i=>id ===i.platform_mall_id ||
+                (i.country === country && (i.mall_alias_name === name || i.platform_mall_name === name)))
+            if(index >= 0){
+              let son = this.sellActiveTable[index]
+              this.$set(this.sellActiveTable,index,Object.assign(son,{
+                discountId: discountId || son.discountId,
+                discount: discount || son.discount,
+                number: number || son.number,
+                goodsId: goodsId || son.goodsId,
+              }))
+            }
+          }
+        })
+      }else{
+        this.$message.error('列表数据为空')
+      }
+    },
+    //账户权限
+    accountPermissions(){
+      let accountType = Number(this.$userInfo.AccountType)
+      if(accountType === 1 || accountType === 4 || accountType === 5 ){
+
+      }
+    }
   }
 }
 </script>
@@ -3179,8 +3276,8 @@ export default {
     padding: 5px 16px 10px;
 
     .el-upload {
-      width: 60px;
-      height: 60px;
+      //width: 60px;
+      height: auto;
 
       .el-upload-dragger {
         width: 100%;

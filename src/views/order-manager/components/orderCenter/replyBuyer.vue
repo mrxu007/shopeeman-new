@@ -53,9 +53,9 @@ export default {
   },
   methods: {
     async getReplyData() {
-      const userInfo = await window['ConfigBridgeService'].getUserInfo()
+      const userInfo = await this.$appConfig.getUserInfo()
       this.key = userInfo.Usernam + '_replyconfig'
-      const info = await window['ConfigBridgeService'].temporaryCacheInfo('get', this.key, '')
+      const info = await this.$appConfig.temporaryCacheInfo('get', this.key, '')
       if (info == '{}') {
         console.log('6456')
         const res = await this.$api.getUserInfo()

@@ -30,8 +30,8 @@ export default class TranslationBridgeService {
   /**
    * 云图片翻译
    */
-  getYunTranslateImg(content, toLanguage) {
-    return this.nativeService.getYunTranslateImg(content, toLanguage)
+  getYunTranslateImg(content, toLanguage,type = '') {
+    return this.nativeService.getYunTranslateImg(content, toLanguage,type)
   }
 
 }

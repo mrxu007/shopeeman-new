@@ -378,21 +378,6 @@ export default {
         jsonData.push(temp)
       })
       await importOrder(titleData,jsonData,'分组模板')
-      // let template = `<tr>
-      // <td style="width: 200px; text-align:left;">店铺名称<span style="color:red">(必填)</span></td>
-      // <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
-      // <td style="width: 200px; text-align:left;">分组名称<span style="color:red">(必填)</span></td>
-      // </tr>`
-      // this.mallListTemp.map(item => {
-      //   template += `
-      //     <tr>
-      //       <td style="width: 200px; text-align:left;">${item.platform_mall_name}</td>
-      //       <td style="width: 200px; text-align:left;">${item.platform_mall_id}</td>
-      //       <td style="width: 200px; text-align:left;">${item.group_name || ''}</td>
-      //     </tr>
-      //   `
-      // })
-      // exportExcelDataCommon('批量导入分组', template)
     },
     async openExcelDialog() {
       this.ExcelDialogVisible = true

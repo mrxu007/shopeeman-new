@@ -3569,6 +3569,12 @@ export default {
             continue
           }
         }
+        else{
+          // 过滤粉丝量
+          if (Number(item.like_count) > Number(0)) {
+            continue
+          }
+        }
         // 过滤无流量商品
         if (this.queryType === 100) {
           if (((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) ||
