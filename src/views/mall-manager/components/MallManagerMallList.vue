@@ -545,7 +545,7 @@
             </div>
             <div v-if="isAddress" class="dialog_mask">
               <el-tabs v-model="addressQuery.mask" type="card">
-                <el-tab-pane label="州/省" name="0">
+                <el-tab-pane label="州/省" name="0" @click="">
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block"/>
                     <el-button v-for="item in addressList[0]" :key="item.id" type="text" style="margin-top: 5px"
@@ -991,6 +991,7 @@ export default {
         return this.$message.error('选择店铺中有店铺未登录')
       }
       const action = this.multipleSelection.filter(i => i.LoginInfo.includes('成功')&& i.country === this.countryVal)
+      let mask = this.addressQuery.mask
       if (action.length) {
         const param = {
           mallId: action[0].platform_mall_id,
@@ -1020,7 +1021,7 @@ export default {
           const list = JSON.parse(JSON.stringify(this.addressList))
           const tempList = nextLevelAddressesData.data.list
           let word = (tempList.map(son=>son.name)).join('<><>') || ''
-          list[this.addressQuery.mask] = tempList
+          list[mask] = tempList
           this.addressList = list
           console.log('word',word)
           let chineseStr = ''
@@ -1041,7 +1042,7 @@ export default {
             tempList.forEach((item, index) => {
               item.chineseName = chineseList[index]
             })
-            list[this.addressQuery.mask] = tempList
+            list[mask] = tempList
             this.addressList = list
           }
           console.log('nextLevelAddressesData', nextLevelAddressesData, this.addressList)
