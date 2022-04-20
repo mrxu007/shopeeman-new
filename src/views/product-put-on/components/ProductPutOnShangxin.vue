@@ -285,7 +285,7 @@
             <div class="keepRight">重复上新维度：</div>
             <el-radio v-model="associatedConfig.dimensionRadio" :label="1" :disabled="isBanPerform">站点</el-radio>
             <el-radio v-model="associatedConfig.dimensionRadio" :label="0" :disabled="isBanPerform">店铺</el-radio>
-            <el-radio v-model="associatedConfig.dimensionRadio" @click="accountPermissions" :label="2" :disabled="isBanPerform" style="margin-right: 0">一商品多店铺
+            <el-radio v-model="associatedConfig.dimensionRadio" @change="accountPermissions" :label="2" :disabled="isBanPerform" style="margin-right: 0">一商品多店铺
             </el-radio>
             <el-tooltip class="item" effect="dark" content="同一商品上新到不同店铺中，为避免重复铺货，请配合热搜词使用" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
@@ -1105,7 +1105,7 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  sleep, copyText, dateFormat, importOrder
+  sleep, copyText, dateFormat, importOrder, accountPermissions
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
@@ -3232,10 +3232,10 @@ export default {
     },
     //账户权限
     accountPermissions(){
-      let accountType = Number(this.$userInfo.AccountType)
-      if(accountType === 1 || accountType === 4 || accountType === 5 ){
-
-      }
+      return accountPermissions(4,()=>{
+        this.associatedConfig.dimensionRadio = 1
+        this.$message.error('个人版不支持一商品多店铺，请购买或升级进阶、企业、终生版！')
+      })
     }
   }
 }

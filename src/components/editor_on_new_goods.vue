@@ -199,8 +199,8 @@
             <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
             </el-tooltip>
-            <el-radio v-model="pictureConfig.typeRadio" :label="3" :disabled="isCollectShow">免费翻译</el-radio>
-            <el-radio v-model="pictureConfig.typeRadio" :label="2" :disabled="isCollectShow">云图像翻译</el-radio>
+            <el-radio v-model="pictureConfig.typeRadio" :label="3" @change="accountPermissions" :disabled="isCollectShow">免费翻译</el-radio>
+            <el-radio v-model="pictureConfig.typeRadio" :label="2"  :disabled="isCollectShow">云图像翻译</el-radio>
             <el-select v-model="translationConfig.before" size="mini" style="width: 80px;" value=""
                        :disabled="isCollectShow">
               <el-option label="不翻译" :value="'no'"/>
@@ -543,7 +543,15 @@ import goodsEditDetails from './goods-edit-details'
 import categoryMapping from './category-mapping'
 import goodsLabel from './goods-label'
 import goodsSize from './goods-size'
-import { batchOperation, copyText, getGoodsUrl, randomWord, selfAliYunTransImage, terminateThread } from '../util/util'
+import {
+  accountPermissions,
+  batchOperation,
+  copyText,
+  getGoodsUrl,
+  randomWord,
+  selfAliYunTransImage,
+  terminateThread
+} from '../util/util'
 import CollectKeyWordApI from '@/views/product-put-on/components/collection-keyword-api'
 import CollectLinkApI from '@/views/product-put-on/components/collection-link-api'
 import CollectPublicApI from '@/views/product-put-on/components/collection-public-api'
@@ -2049,6 +2057,15 @@ export default {
       const index = this.mallTable.findIndex(son => son.id === item.id)
       this.$set(this.mallTable[index], 'operation_type', msg)
       // this.$set(item, 'color', status ? 'green' : 'red')
+    },
+    //账户权限
+    accountPermissions(){
+      accountPermissions(2,()=>{
+        this.pictureConfig.typeRadio = 2
+        this.$set(this.pictureConfig,'typeRadio',2)
+        console.log('accountPermissions',this.pictureConfig)
+        this.$message.error('个人版不支持图片翻译，请购买或升级进阶、企业、终生版！')
+      })
     }
   }
 }

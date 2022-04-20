@@ -976,7 +976,21 @@ export default {
     //   const res = await this.$appConfig.getUserConfig()
     // },
     async getNextLevelAddresses(address_id) {
-      const action = this.multipleSelection.filter(i => i.LoginInfo.indexOf('成功') >= 0 && i.country === this.countryVal) || []
+      if (!this.multipleSelection.length) {
+        this.addressDialog = false
+        this.$message.error('请选择店铺')
+        return
+      }
+      let countryList = [...new Set([...this.multipleSelection.map(son=>son.country)])] || []
+      if (countryList.length !== 1 || countryList.toString() !== this.countryVal) {
+        this.addressDialog = false
+        return this.$message.error('批量修改地址方式只支持选择单个站点, 请重新选择')
+      }
+      if (this.multipleSelection.find(son=> son.loginStatus !== 'success')) {
+        this.addressDialog = false
+        return this.$message.error('选择店铺中有店铺未登录')
+      }
+      const action = this.multipleSelection.filter(i => i.LoginInfo.includes('成功')&& i.country === this.countryVal)
       if (action.length) {
         const param = {
           mallId: action[0].platform_mall_id,
@@ -1038,11 +1052,10 @@ export default {
         }
       } else {
         this.$message.error(address_id && '登录失效无法获取列表' || '暂无登录店铺登录')
-        this.addressDialog = false
       }
     },
     async getZipCodeByAddressId(address_id) {
-      const action = this.multipleSelection.filter(i => i.LoginInfo.indexOf('成功') >= 0 && i.country === this.countryVal)
+      const action = this.multipleSelection.filter(i => i.LoginInfo.includes('成功') && i.country === this.countryVal)
       if (action && action[0]) {
         const param = {
           mallId: action[0].platform_mall_id,
@@ -1102,15 +1115,15 @@ export default {
       const data = []
       this.multipleSelection.forEach(item => {
         if (item.country === param.country) {
-          console.log(item)
-          data.push(Object.assign(param, {
-            mallId: item.platform_mall_id,
-            platform_mall_name: item.platform_mall_name,
-            mall_alias_name: item.mall_alias_name,
-            default: addressDate.default,
-            take: addressDate.take,
-            backMail: addressDate.backMail
-          }))
+          let temp = {...param,...{
+              mallId: item.platform_mall_id,
+              platform_mall_name: item.platform_mall_name,
+              mall_alias_name: item.mall_alias_name,
+              default: addressDate.default,
+              take: addressDate.take,
+              backMail: addressDate.backMail
+            }}
+          data.push(temp)
         }
       })
       this.addressesSuccess = {
@@ -1403,29 +1416,15 @@ export default {
       }
     },
     openUpdateExpressdialog() { // 批量更改店铺物流
-      // if (this.countryVal === '') {
-      //   this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
-      //   return
-      // }
-      const len = this.multipleSelection.length
-      let success = 0
-      const siteMap = {}
       if (!this.multipleSelection.length) {
         this.$message.error('请选择店铺')
         return
       }
-      this.multipleSelection.filter(item => {
-        if (!siteMap[item.country]) {
-          siteMap[item.country] = '123'
-        }
-        if (item.loginStatus === 'success') {
-          success++
-        }
-      })
-      if (Object.keys(siteMap).length > 1) {
+      let countryList = [...new Set([...this.multipleSelection.map(son=>son.country)])] || []
+      if (countryList.length !== 1 || countryList.toString() !== this.countryVal) {
         return this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
       }
-      if (len !== success) {
+      if (this.multipleSelection.find(son=> son.loginStatus !== 'success')) {
         return this.$message.error('选择店铺中有店铺未登录')
       }
 

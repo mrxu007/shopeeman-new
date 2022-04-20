@@ -122,7 +122,7 @@ async function getUserInfo() {
   const payProjectInfo = await new applicationConfig().getPayProjectInfo()
   Vue.prototype.$userInfo = userInfo
   Vue.prototype.$userConfig = userConfig && JSON.parse(userConfig)
-  Vue.prototype.$payProjectInfo = payProjectInfo && JSON.parse(payProjectInfo)
+  Vue.prototype.$payProjectInfo = payProjectInfo || []
 }
 getUserInfo()
 

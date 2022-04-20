@@ -831,7 +831,10 @@
           下载插件
         </el-button>
       </p>
-      <el-form label-position="right" label-width="190px">
+      <div style="color: red;text-align: center;margin: 10px;font-weight: 700" v-if="!accountPermissions()">
+        个人版不支持插件采集，请购买或升级进阶、企业、终生版！
+      </div>
+      <el-form v-else label-position="right" label-width="190px">
         <el-form-item label="拼多多关键词采集推送地址：">
           <div class="item">
             <span>{{ port }}/api/pddGoodsKeyword</span>
@@ -888,7 +891,7 @@ import CollectLinkApI from './collection-link-api'
 import CollectEntireApI from './collection-entire-api'
 import CollectOtherApI from './collection-other-api'
 import CollectPublicApI from './collection-public-api'
-import { batchOperation, dateFormat, exportExcelDataCommon, terminateThread } from '../../../util/util'
+import { batchOperation, dateFormat, exportExcelDataCommon, terminateThread,accountPermissions } from '../../../util/util'
 // getSiteRelation
 import editorOnNewGoods from '../../../components/editor_on_new_goods'
 import {
@@ -1916,6 +1919,11 @@ export default {
           }
         }
       }
+    },
+    accountPermissions(){
+      return accountPermissions(3,()=>{
+        this.$message.error('个人版不支持插件采集，请购买或升级进阶、企业、终生版！')
+      })
     }
   }
 }

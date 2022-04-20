@@ -1294,7 +1294,21 @@ export function getGoodLinkModel(link) {
   if (!data.GoodsId) return { code: 201, data: `链接:${link}识别商品ID失败` }
   return { code: 200, data }
 }
-
+export function accountPermissions(type= -1,callback){
+  let accountType = Number(instance.$userInfo.AccountType)
+  let success = true
+  if( type > -1 && (accountType === 1 || accountType === 4 || accountType === 6)){
+    success = false
+    let payProjectInfo = instance.$payProjectInfo
+    if(payProjectInfo.length && (payProjectInfo.includes(Number(type)) || payProjectInfo.includes((type+'')))){
+      success = true
+    }
+  }
+  if(!success){
+    callback()
+  }
+  return success
+}
 /**
  * 复制字符串
  * @param attr String

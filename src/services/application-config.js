@@ -38,7 +38,7 @@ export default class applicationConfig {
     }
     // 获取权限
     async getPayProjectInfo() {
-      return await this.nativeService?.getPayProjectInfo()
+      return await this.nativeService?.getPayProjectInfo && this.nativeService?.getPayProjectInfo()
     }
     /**
    * 获取店铺信息 买手号信息 type: buyerInfo
