@@ -1059,7 +1059,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
     return new Promise(async(resolve) => {
       try {
         const image = new Image()
-        image.setAttribute('crossOrigin', '')
+        image.setAttribute('crossOrigin', 'anonymous')
         image.src = url
         image.onload = async function() {
           image.width = width || image.width

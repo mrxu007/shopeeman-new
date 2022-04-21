@@ -32,7 +32,7 @@
         ref="multipleTable"
         v-loading="tableLoading"
         :data="tableList"
-        height="800px"
+        height="740"
         use-virtual
         :border="false"
         :header-cell-style="{ background: '#f7fafa' }"

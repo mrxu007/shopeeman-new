@@ -160,11 +160,12 @@ export default class MallListAPI {
         'platform_mall_id': platform_mall_id,
         'cover': resource_id
       }
-      let res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v4/shop/profile/?', params, {
+      let res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v4/shop/profile/update/?', params, {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8'
         }
       })
+      console.log(res)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: '更新店铺背景图片成功' }// Errors within expectations  开启关闭太频繁，需冷却三小时

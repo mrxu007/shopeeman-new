@@ -234,6 +234,7 @@
     >
       <goodsLabel
           v-if="goodsLabelVisiable"
+          :select-label="sys_label"
           :goods-table-select="multipleSelection"
           @goodsTagChange="goodsTagChange"
       />
@@ -351,7 +352,8 @@ export default {
       // 设置大小
       goodsSizeVisible: false,
       categoryList: {},
-      isReplaceSize: true
+      isReplaceSize: true,
+      sys_label: ''
     }
   },
   computed: {
@@ -629,6 +631,7 @@ export default {
           }
         })
         this.labelList = val.goodsTagList || []
+        this.sys_label = val.category?.label_name
       }
       this.goodsLabelVisiable = false
     },
@@ -710,10 +713,7 @@ export default {
       }
       this.labelType = type
       if (type === '1') { // 标记商品标签
-        // this.goodsLabelVisiable = true
         this.goodsLabelVisiable = true
-        // this.labelId2 = this.labelList[0].id
-        // this.currentLabelName = this.labelList[0].label_name
       } else { // 取消
         this.markGoodsLabel()
       }

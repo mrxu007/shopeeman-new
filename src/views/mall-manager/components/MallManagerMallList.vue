@@ -726,7 +726,7 @@ export default {
       batchExpressDialog: false,
       imageOrigin: '1',
       imageSiteVal: '3',
-      imageUrl: 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png',
+      imageUrl: 'https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220420/20220420170535625fccdfb3171.jpg',
       imageType: 'png',
       imageInfo: null,
       delMallDialog: false,
@@ -1259,9 +1259,9 @@ export default {
       console.log('this.imageOrigin', this.imageOrigin)
       if (this.imageOrigin === '1') {
         if (this.imageSiteVal === '3') {
-          this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png'
+          this.imageUrl = 'https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220420/20220420170535625fccdfb3171.jpg'
         } else {
-          this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/76528659.png'
+          this.imageUrl = 'https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220420/20220420170607625fccff6eb73.jpg'
         }
       } else {
         this.imageUrl = ''
@@ -1273,9 +1273,9 @@ export default {
     selectImageSiteVal() {
       if (this.imageOrigin === '1') {
         if (this.imageSiteVal === '3') {
-          this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png'
+          this.imageUrl = 'https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220420/20220420170535625fccdfb3171.jpg'
         } else {
-          this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/76528659.png'
+          this.imageUrl = 'https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220420/20220420170607625fccff6eb73.jpg'
         }
       }
     },
@@ -1337,14 +1337,13 @@ export default {
       canvas.height = img.height
       var ctx = canvas.getContext('2d')
       ctx.drawImage(img, 0, 0, img.width, img.height)
-      var ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase()
-      var dataURL = canvas.toDataURL('image/' + ext)
+      var dataURL = canvas.toDataURL('image/png')
       return {
         code: 200,
         data: {
           dataURL: dataURL,
           // type: 'image/' + ext,
-          ext
+          ext:'png'
         }
       }
     },
@@ -1352,7 +1351,7 @@ export default {
     getUrlToBolb() {
       return new Promise((resolve, reject) => {
         const image = new Image()
-        image.crossOrigin = ''
+        image.setAttribute('crossOrigin', 'anonymous')
         image.src = this.imageUrl
         const that = this
         image.onload = function() {
@@ -1403,6 +1402,7 @@ export default {
           return
         }
         const updateInfo = await this.mallListAPIInstance.updateMallBK(item, resourceInfo.data)
+        console.log(updateInfo)
         if (updateInfo.code !== 200) {
           this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(2)：${updateInfo.data}`, false)
           return
@@ -1550,7 +1550,7 @@ export default {
     reset2() {
       this.imageOrigin = '1'
       this.imageSiteVal = '3'
-      this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png'
+      this.imageUrl = 'https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220420/20220420170535625fccdfb3171.jpg'
     },
     reset3() {
       this.LogisticsList = {}
