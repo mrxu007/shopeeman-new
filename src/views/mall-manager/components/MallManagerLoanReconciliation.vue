@@ -315,8 +315,7 @@ export default {
     },
     // 获取汇率
     async exchangeRateList() {
-      let info = await window['ConfigBridgeService'].getUserInfo()
-      this.rateList = info.ExchangeRates || {}
+      this.rateList =this.$userInfo.ExchangeRates || {}
       console.log(this.rateList)
       this.site_query.rate_coin = this.rateList[this.site_query.country]
       // const data = await this.$api.exchangeRateList()

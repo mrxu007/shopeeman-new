@@ -44,9 +44,9 @@
       </div>
     </div>
     <div class="on_new_dialog_box" style="margin-top: 25px;justify-content: space-evenly">
-      <el-button v-if="mallList[0]" type="primary" size="mini" @click="confirmCategory(0)">　刷　新　</el-button>
-      <el-button type="primary" size="mini" @click="confirmCategory()">　确　定　</el-button>
-      <el-button size="mini" @click="$emit('categoryChange','')">　取　消　</el-button>
+      <el-button v-if="mallList[0]" type="primary" size="mini" @click="confirmCategory(0)" :disabled="isConfirmCategory">　刷　新　</el-button>
+      <el-button type="primary" size="mini" @click="confirmCategory()" :disabled="isConfirmCategory">　确　定　</el-button>
+      <el-button size="mini" @click="$emit('categoryChange','')" :disabled="isConfirmCategory">　取　消　</el-button>
     </div>
   </div>
 </template>
@@ -81,7 +81,8 @@ export default {
       categoryAction: [],
       attributesCurrent: [],
       categoryList: [],
-      attributesList: []
+      attributesList: [],
+      isConfirmCategory:false,
     }
   },
   watch: {
@@ -129,6 +130,7 @@ export default {
           country: country || this.countryOption
         })
       } else {
+        this.isConfirmCategory = true
         index = index < 0 ? 0 : index
         let mall = this.mallList[index]
         let category_ids = this.categoryAction[this.categoryAction.length - 1]
@@ -201,6 +203,8 @@ export default {
           await this.confirmCategory(++index)
         }
       }
+
+      this.isConfirmCategory = false
     },
     async getAttribute() {
       let categoryId = this.categoryAction[this.categoryAction.length - 1] || this.categoryAction[this.categoryAction.length - 2] || '0'

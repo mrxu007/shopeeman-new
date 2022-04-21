@@ -285,7 +285,8 @@
             <div class="keepRight">重复上新维度：</div>
             <el-radio v-model="associatedConfig.dimensionRadio" :label="1" :disabled="isBanPerform">站点</el-radio>
             <el-radio v-model="associatedConfig.dimensionRadio" :label="0" :disabled="isBanPerform">店铺</el-radio>
-            <el-radio v-model="associatedConfig.dimensionRadio" @change="accountPermissions" :label="2" :disabled="isBanPerform" style="margin-right: 0">一商品多店铺
+            <el-radio v-model="associatedConfig.dimensionRadio" @change="accountPermissions" :label="2"
+                      :disabled="isBanPerform" style="margin-right: 0">一商品多店铺
             </el-radio>
             <el-tooltip class="item" effect="dark" content="同一商品上新到不同店铺中，为避免重复铺货，请配合热搜词使用" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
@@ -429,9 +430,9 @@
              ref="goodsTable" row-key="id"
              @selection-change="handleSelectionChange"
              use-virtual :data-changes-scroll-top="false"
-             :header-cell-style="{backgroundColor: '#f5f7fa',}"
+             :header-cell-style="{backgroundColor: '#f5f7fa'}"
              :border="false" :big-data-checkbox="true"
-             :height="isNoFoldShow && (associatedConfig.dimensionRadio === 2 && 321 || 320) || 729">
+             :height="isNoFoldShow && (associatedConfig.dimensionRadio === 2 && 340 || 341) || 745">
       <u-table-column align="center" type="selection" width="50"/>
       <u-table-column align="center" label="序列号" type="index" width="60">
         <template slot-scope="scope">
@@ -489,7 +490,7 @@
       <u-table-column align="left" label="shopee类目" show-overflow-tooltip prop="categoryName" width="114">
         <template slot-scope="scope">
           <el-button type="text" @click="enterCategory(0,scope.row)">
-            {{ scope.row.categoryName || goodsClassName[scope.row.category_id] || '请选择类目' }}
+            {{ scope.row.categoryName || getGoodsClassName(scope.row.category_id) || '请选择类目' }}
           </el-button>
         </template>
       </u-table-column>
@@ -660,7 +661,7 @@
             <u-table :data="sellActiveTable" tooltip-effect="dark" height="450">
               <u-table-column label="店铺名称" align="left" :show-overflow-tooltip="true" min-width="120px">
                 <template slot-scope="{row}">
-                  {{row.country}}-{{ row.mall_alias_name || row.platform_mall_name }}
+                  {{ row.country }}-{{ row.mall_alias_name || row.platform_mall_name }}
                 </template>
               </u-table-column>
               <u-table-column label="活动折扣配置" align="left" width="350px">
@@ -1089,7 +1090,8 @@
       </el-dialog>
       <el-dialog title="商品编辑" width="1000px" top="2vh" :close-on-click-modal="false" :close-on-press-escape="false"
                  :modal="false" :visible.sync="goodsEditorVisible">
-        <goods-edit-details v-if="goodsEditorVisible" :goods-editor="goodsEditor" @goodsEditorCancel="goodsEditorCancel"/>
+        <goods-edit-details v-if="goodsEditorVisible" :goods-editor="goodsEditor"
+                            @goodsEditorCancel="goodsEditorCancel"/>
       </el-dialog>
     </div>
   </el-row>
@@ -1117,7 +1119,7 @@ import xlsx from 'xlsx'
 export default {
   data() {
     return {
-      goodsEditorVisible:false,
+      goodsEditorVisible: false,
       goodsEditor: null,
       mallListAPIInstance: new MallListAPI(this),
       goodsTable: [], // 商品列表
@@ -1185,7 +1187,7 @@ export default {
           label: '中间',
           value: 5
         }
-        ],
+      ],
       imgSizeList: [
         {
           label: '按比例缩放',
@@ -1199,7 +1201,7 @@ export default {
           label: '与商品图高一致',
           value: 3
         }
-        ],
+      ],
       locateClass: 'watermark_image_left watermark_image_top',
       logistics: [],  //所选物流
       logisticsList: [], // 物流列表
@@ -1435,7 +1437,6 @@ export default {
       newOnDetails: {},
       newOnDetailsList: [],
       setTimeVisible: false,
-      goodsClassName: {},
       setTimeConfig: {
         onNewInterval: '40',
         onNewThread: '5',
@@ -1444,11 +1445,18 @@ export default {
       },
       isRefreshTable: true,
       isCancelRelease: true,
-      importTemplateData: null
+      importTemplateData: null,
+      goodsClassName: {},
     }
   },
-  computed: {},
-  components: { goodsEditDetails,storeChoose, categoryMapping, goodsLabel },
+  computed: {
+    getGoodsClassName() {
+      return function(id) {
+        return this.goodsClassName[id] || ''
+      }
+    }
+  },
+  components: { goodsEditDetails, storeChoose, categoryMapping, goodsLabel },
   watch: {
     country(value) {
       this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
@@ -1588,42 +1596,43 @@ export default {
   async mounted() {
     try {
       this.$IpcMain.on('gotoUpload', async e => { // 上新监听
-        console.log('gotoUpload-e',e)
+        console.log('gotoUpload-e', e)
         await this.getUploadGoodsId()
       })
-      let firstOnNewKey = await this.$appConfig.temporaryCacheInfo('get','firstOnNewKey','')
-      if(!firstOnNewKey){
-        console.log('gotoUpload-firstOnNewKey',firstOnNewKey)
-        await this.$appConfig.temporaryCacheInfo('save','firstOnNewKey','true')
+      let firstOnNewKey = await this.$appConfig.temporaryCacheInfo('get', 'firstOnNewKey', '')
+      if (firstOnNewKey != true) {
+        console.log('gotoUpload-firstOnNewKey', firstOnNewKey)
+        await this.$appConfig.temporaryCacheInfo('save', 'firstOnNewKey', true)
         await this.getUploadGoodsId()
       }
-      let info = this.$userInfo
-      this.rateList = info.ExchangeRates || {}
+    } catch (error) {
+    } finally {
+      this.rateList = this.$userInfo.ExchangeRates || {}
       let valuationConfigRes = await this.$api.valuationConfigGetAll()
       this.valuationLabelList = valuationConfigRes && valuationConfigRes.data.data || []
       await this.publishGoodsConfigGet()
-      console.log(this.valuationLabelList)
-    } catch (error) {
     }
   },
   methods: {
-    async getUploadGoodsId(){
+    async getUploadGoodsId() {
       let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
-      let goodsList = JSON.parse(goodsListJSON)
-      console.log('goodsListJSON', goodsList)
-      for (let item of goodsList) {
-        let index = this.goodsTable.findIndex(i => i.id === item.id)
-        index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
+      let goodsList = goodsListJSON && JSON.parse(goodsListJSON) || []
+      if (goodsList.length) {
+        console.log('goodsListJSON', goodsList)
+        for (let item of goodsList) {
+          let index = this.goodsTable.findIndex(i => i.id === item.id)
+          index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
+        }
+        this.statistics.count = this.goodsTable.length
+        let sourceCategoryList = new Set()
+        this.goodsTable.forEach(item => {
+          sourceCategoryList.add(item.category_name)
+        })
+        this.sourceCategoryList = [...sourceCategoryList]
+        this.sourceCategory = [0, ...sourceCategoryList]
+        localStorage.setItem('goodsTableJson', JSON.stringify(this.goodsTable))
+        await this.$BaseUtilService.gotoUploadTab('updateId', '')
       }
-      this.statistics.count = this.goodsTable.length
-      let sourceCategoryList = new Set()
-      this.goodsTable.forEach(item => {
-        sourceCategoryList.add(item.category_name)
-      })
-      this.sourceCategoryList = [...sourceCategoryList]
-      this.sourceCategory = [0, ...sourceCategoryList]
-      localStorage.setItem('goodsTableJson', JSON.stringify(this.goodsTable))
-      await this.$BaseUtilService.gotoUploadTab('updateId', '')
     },
     async startRelease() {
       if (this.goodsTableSelect.length < 1) {
@@ -1712,8 +1721,9 @@ export default {
           let mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
           let goodsCount = this.goodsTableSelect.length
-          for (let i = 0; mallIndex < goodsCount; i++) {
-            mallIndex = mallIndex + mallCount * i
+          goodsList = mallIndex < goodsCount &&  [this.goodsTableSelect[mallIndex]] || []
+          while (mallIndex < goodsCount) {
+            mallIndex = mallIndex + mallCount
             if (mallIndex < goodsCount) {
               goodsList = [...goodsList, this.goodsTableSelect[mallIndex]]
             }
@@ -1993,7 +2003,6 @@ export default {
                 }
                 return son
               })
-              console.log('goodsParam', goodsParam)
               this.updateAttributeName(item, '正在上传轮播图', '', mall)
               console.log('正在上传轮播图', goodsParam['images'])
               let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
@@ -2030,6 +2039,14 @@ export default {
               //   continue
               // }
               goodsParam['tier_variation'] = JSON.parse(tier_variationJSON)
+              if (goodsParam['tier_variation'][0]?.images) {
+                if (goodsParam['tier_variation'][0]?.images.includes('')) {
+                  goodsParam['tier_variation'][0] = {
+                    name: goodsParam['tier_variation'][0].name,
+                    options: goodsParam['tier_variation'][0].options
+                  }
+                }
+              }
               if (goodsParam['size_chart']) {
                 this.updateAttributeName(item, '正在上传尺寸图', '', mall)
                 let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
@@ -2067,7 +2084,6 @@ export default {
                   categoryId: categoryId + '',
                   skuDatas: ''
                 }
-                console.log(saveListingRecordParma)
                 let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
                 console.log('saveListingRecordParmaRes', saveListingRecordParmaJson)
                 let saveListingRecordParmaRes = JSON.parse(saveListingRecordParmaJson)
@@ -2576,8 +2592,9 @@ export default {
         let categoryName = category && `${category.category_name}(${category.category_cn_name})` || ''
         if (this.goodsCurrent && this.goodsCurrent.id) {
           let index = this.goodsTable.findIndex(son => son.id === this.goodsCurrent.id)
-          this.goodsTable[index]['categoryName'] = categoryName
-          this.$set(this.goodsTable[index], 'categoryName', categoryName)
+          console.log('index',index,categoryName)
+          let temp = Object.assign(this.goodsTable[index],{ categoryName : categoryName })
+          this.$set(this.goodsTable, index, temp)
           this.goodsClassName[this.goodsTable[index].category_id] = categoryName
         } else {
           let attributesList = []
@@ -2600,21 +2617,12 @@ export default {
             }
             await this.$commodityService.saveCategoryRelation(param)
             let index = this.goodsTable.findIndex(son => son.id === item.id)
-            this.$set(this.goodsTable[index], 'categoryName', categoryName)
+            let temp = Object.assign(this.goodsTable[index],{ categoryName : categoryName })
+            this.$set(this.goodsTable, index, temp)
             this.goodsClassName[this.goodsTable[index].category_id] = categoryName
           })
         }
       }
-      let tableDom = this.$refs.goodsTable
-      let scrollTop = tableDom && tableDom.scrollTop
-      this.isRefreshTable = false
-      this.$nextTick(() => {
-        this.isRefreshTable = true
-        this.$nextTick(() => {
-          let tableDom = this.$refs.goodsTable
-          tableDom.scrollTop = scrollTop
-        })
-      })
       this.categoryVisible = false
     },
     enterGoodsTag() {
@@ -3074,8 +3082,10 @@ export default {
       let success_count = 0
       let fail_count = 0
       let created_at = Math.floor(new Date().getTime() / 1000)
-      let setTimeSetting = { ext_info, country, exec_time, mall_Ids, mall_names,
-        status, task_name, success_count, fail_count, goods_count, created_at }
+      let setTimeSetting = {
+        ext_info, country, exec_time, mall_Ids, mall_names,
+        status, task_name, success_count, fail_count, goods_count, created_at
+      }
       console.log('saveCronPublishTask - parma', setTimeSetting)
       let setConfig = await this.$collectService.saveCronPublishTask(setTimeSetting)
       console.log('setConfig', setConfig)
@@ -3091,31 +3101,31 @@ export default {
         if (task) {
           let task_id = task.id
           let publishConfigObj = {
-            "country" : this.country,
-            "rateList" : this.rateList,
-            "logistics" : this.logistics,
-            "customLogistics" : this.customLogistics,
-            "storeConfig" : this.storeConfig,
-            "watermarkSetting" : this.watermarkSetting,
-            "sellActiveTable" : this.sellActiveTable,
-            "sellActiveSetting" : this.sellActiveSetting,
-            "valuationRadio" : this.valuationRadio,
-            "basicConfig" : this.basicConfig,
-            "valuationSetting" : this.valuationSetting,
-            "freightList" : this.freightList,
-            "titleInterval" : this.titleInterval,
-            "descriptionInterval" : this.descriptionInterval,
-            "mewOnProgress" : this.mewOnProgress,
-            "calculateResults" : this.calculateResults,
-            "associatedConfig" : this.associatedConfig,
+            'country': this.country,
+            'rateList': this.rateList,
+            'logistics': this.logistics,
+            'customLogistics': this.customLogistics,
+            'storeConfig': this.storeConfig,
+            'watermarkSetting': this.watermarkSetting,
+            'sellActiveTable': this.sellActiveTable,
+            'sellActiveSetting': this.sellActiveSetting,
+            'valuationRadio': this.valuationRadio,
+            'basicConfig': this.basicConfig,
+            'valuationSetting': this.valuationSetting,
+            'freightList': this.freightList,
+            'titleInterval': this.titleInterval,
+            'descriptionInterval': this.descriptionInterval,
+            'mewOnProgress': this.mewOnProgress,
+            'calculateResults': this.calculateResults,
+            'associatedConfig': this.associatedConfig
           }
           let param = {
             task_id,
-            publish_config : JSON.stringify(publishConfigObj)
+            publish_config: JSON.stringify(publishConfigObj)
           }
           let setConfig = await this.$collectService.saveCronPublishConfig(param)
           let goodsList = JSON.parse(JSON.stringify(this.goodsTableSelect))
-          goodsList = [...goodsList.map(item=>{
+          goodsList = [...goodsList.map(item => {
             return {
               task_id,
               ori_goods_id: item.goods_id,
@@ -3129,12 +3139,12 @@ export default {
               shopee_goods_id: '',
               status: 1,
               message: '',
-              goods_info:JSON.stringify(item)
+              goods_info: JSON.stringify(item)
             }
           })]
-          console.log('goodsList',goodsList)
+          console.log('goodsList', goodsList)
           let setGoodsConfig = await this.$collectService.saveCronPublishGoods(goodsList)
-          console.log(setConfig,setGoodsConfig)
+          console.log(setConfig, setGoodsConfig)
         }
       }
       this.setTimeVisible = false
@@ -3159,15 +3169,15 @@ export default {
       const jsonData = []
       let importOrderName = '上新行销活动配置模板'
       // 上新行销活动配置模板
-      let titleData = ['店铺名称','店铺ID', '折扣活动ID', '折扣折数', '折扣活动限购数量', '商店分类ID']
-        this.mallList.map((item) => {
-          const temp = []
-          let country = item.country
-          let name = item.mall_alias_name || item.platform_mall_name
-          temp.push(country+'-'+name)
-          temp.push(item.platform_mall_id)
-          jsonData.push(temp)
-        })
+      let titleData = ['店铺名称', '店铺ID', '折扣活动ID', '折扣折数', '折扣活动限购数量', '商店分类ID']
+      this.mallList.map((item) => {
+        const temp = []
+        let country = item.country
+        let name = item.mall_alias_name || item.platform_mall_name
+        temp.push(country + '-' + name)
+        temp.push(item.platform_mall_id)
+        jsonData.push(temp)
+      })
       await importOrder(titleData, jsonData, importOrderName)
     },
     // 表格导入
@@ -3198,41 +3208,41 @@ export default {
       }
       fileReader.readAsBinaryString(files[0])
     },
-    importDataAssembly(){
-      console.log(this.sellActiveTable,this.importTemplateData)
+    importDataAssembly() {
+      console.log(this.sellActiveTable, this.importTemplateData)
       let count = this.importTemplateData.length
-      if(count){
-        this.importTemplateData.forEach(item=>{
+      if (count) {
+        this.importTemplateData.forEach(item => {
           let name = item['店铺名称'] || ''
           let id = item['店铺ID'] || ''
-          if(name || id){
+          if (name || id) {
             let discountId = item['折扣活动ID']
             let discount = item['折扣折数']
             let number = item['折扣活动限购数量']
             let goodsId = item['商店分类ID']
             let nameList = name.split('-')
-            let country = nameList.splice(0,1).toString()
+            let country = nameList.splice(0, 1).toString()
             name = nameList.join('-')
-            let index = this.sellActiveTable.findIndex(i=>id ===i.platform_mall_id ||
+            let index = this.sellActiveTable.findIndex(i => id === i.platform_mall_id ||
                 (i.country === country && (i.mall_alias_name === name || i.platform_mall_name === name)))
-            if(index >= 0){
+            if (index >= 0) {
               let son = this.sellActiveTable[index]
-              this.$set(this.sellActiveTable,index,Object.assign(son,{
+              this.$set(this.sellActiveTable, index, Object.assign(son, {
                 discountId: discountId || son.discountId,
                 discount: discount || son.discount,
                 number: number || son.number,
-                goodsId: goodsId || son.goodsId,
+                goodsId: goodsId || son.goodsId
               }))
             }
           }
         })
-      }else{
+      } else {
         this.$message.error('列表数据为空')
       }
     },
     //账户权限
-    accountPermissions(){
-      return accountPermissions(4,()=>{
+    accountPermissions() {
+      return accountPermissions(4, () => {
         this.associatedConfig.dimensionRadio = 1
         this.$message.error('个人版不支持一商品多店铺，请购买或升级进阶、企业、终生版！')
       })

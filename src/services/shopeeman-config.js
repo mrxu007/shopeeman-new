@@ -636,6 +636,14 @@ export default class ShopeemanConfig {
           'CountryCode': 'SG',
           'IsDeafult': true,
           'IsSelected': true,
+          'ShipId': '1000',
+          'ShipName': 'Standard Delivery (Local)'
+        },
+        {
+          'Country': '新加坡站',
+          'CountryCode': 'SG',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '10014',
           'ShipName': 'J&T Express'
         },

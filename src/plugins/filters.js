@@ -350,6 +350,14 @@ const errorMsg = function(userMessage) {
       msg = '未设置物流，请商家后台至少开启一种物流方式'
     } else if (userMessage.indexOf('product has invalid weight') > -1) {
       msg = '产品重量无效请设置重量或调整重量后再试'
+    } else if (userMessage.includes('brand is mandatory')) {
+      msg = '未能创建产品:品牌是必须的'
+    } else if (userMessage.includes('tier variation option duplicated')) {
+      msg = '未能创建产品:层变体选项重复'
+    } else if (userMessage.includes('image not exists')) {
+      msg = '未能创建产品:图片不存在'
+    } else if (userMessage.includes('dimension is mandatory : width or height or length is empty or 0')) {
+      msg = '未能创建产品:尺寸是强制性的:宽度、高度或长度为空或0'
     } else {
       msg = userMessage
     }
