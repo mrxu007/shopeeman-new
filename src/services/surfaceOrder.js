@@ -177,7 +177,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo, country)
+      const trackInfo = await this.checkTrackInfo(orderInfo, country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
@@ -478,7 +478,7 @@ export default class {
   async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType, logisticsChannel) {
     try {
       let trackNo = ''
-      let channelId = logisticsChannel
+      const channelId = logisticsChannel
       for (let i = 0; i < 3; i++) {
         trackNo = await this.getDropOff(orderId, mallId, country)
         if (trackNo === '') {
@@ -1046,7 +1046,7 @@ export default class {
   }
   blobToDataURL(blob, callBack) {
     var a = new FileReader()
-    a.onload = function (e) {
+    a.onload = function(e) {
       callBack(e.target.result)
     }
     a.readAsDataURL(blob)
