@@ -1800,7 +1800,10 @@ export default {
               let neededTranslateInfoData = neededTranslateInfoRes.data
               if (Number(neededTranslateInfoRes.code) !== 200) {
                 messageName = neededTranslateInfoRes.msg || ''
+                this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
+                return
               }
+              console.log('neededTranslateInfoData',neededTranslateInfoData)
               let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
               this.updateAttributeName(item, '正在匹配类目', '', mall)
               let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
@@ -2003,6 +2006,19 @@ export default {
                 }
                 return son
               })
+              if(this.storeConfig.priceRadio > 0){
+                let model_price_list = goodsParam['model_list'].map(son => son.price)
+                model_price_list = [...new Set([...model_price_list])]
+                let min = model_price_list[0]
+                let max = model_price_list[0]
+                for (let i=0;i<model_price_list.length;i++){
+                  min = min > model_price_list[i] && model_price_list[i] || min
+                  max = max < model_price_list[i] && model_price_list[i] || max
+                }
+                if(min * 1.5 < max){
+
+                }
+              }
               this.updateAttributeName(item, '正在上传轮播图', '', mall)
               console.log('正在上传轮播图', goodsParam['images'])
               let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
