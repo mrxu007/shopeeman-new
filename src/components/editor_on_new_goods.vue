@@ -193,14 +193,25 @@
           <div style="display: flex;align-items: center">
             <div>图片翻译：</div>
             <!--          <el-radio v-model="pictureConfig.typeRadio" :label="0">阿里免费翻译</el-radio>-->
-            <el-radio v-model="pictureConfig.typeRadio" style="margin-right: 0;" :label="1" :disabled="isCollectShow">
-              阿里付费翻译
+            <el-radio v-model="pictureConfig.typeRadio" :label="1" :disabled="isCollectShow">
+              阿里付费翻译<span style="color: red">(0.06元一张图片)</span>
             </el-radio>
-            <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
-            </el-tooltip>
-            <el-radio v-model="pictureConfig.typeRadio" :label="3" @change="accountPermissions" :disabled="isCollectShow">免费翻译</el-radio>
-            <el-radio v-model="pictureConfig.typeRadio" :label="2"  :disabled="isCollectShow">云图像翻译</el-radio>
+            <el-radio v-model="pictureConfig.typeRadio" :label="3" @change="accountPermissions"
+                      :disabled="isCollectShow">免费云图像翻译
+            </el-radio>
+            <el-radio v-model="pictureConfig.typeRadio" :label="2" :disabled="isCollectShow">
+              云图像翻译<span style="color: red">(0.004元一张图片)</span>
+            </el-radio>
+          </div>
+          <div v-if="false && !pictureConfig.typeRadio" style="display: flex;">
+            <div style="margin-left: 5px;">图片翻译检验：</div>
+            <el-radio v-model="pictureConfig.checkedRadio" :label="1" :disabled="isCollectShow">检验</el-radio>
+            <el-radio v-model="pictureConfig.checkedRadio" :label="0" :disabled="isCollectShow">不检验</el-radio>
+          </div>
+        </div>
+        <div class="basisInstall-box">
+          <div style="display: flex;align-items: center">
+            <div>图片翻译：</div>
             <el-select v-model="translationConfig.before" size="mini" style="width: 80px;" value=""
                        :disabled="isCollectShow">
               <el-option label="不翻译" :value="'no'"/>
@@ -228,45 +239,17 @@
               />
             </el-select>
           </div>
-          <div v-if="false && !pictureConfig.typeRadio" style="display: flex;">
-            <div style="margin-left: 5px;">图片翻译检验：</div>
-            <el-radio v-model="pictureConfig.checkedRadio" :label="1" :disabled="isCollectShow">检验</el-radio>
-            <el-radio v-model="pictureConfig.checkedRadio" :label="0" :disabled="isCollectShow">不检验</el-radio>
+          <div v-if="!pictureConfig.typeRadio" style="display: flex;align-items: center;margin-left: 10px;">
+            <div>阿里翻译账号：</div>
+            <el-select v-model="aLiUsername" class="select-right-30" size="mini" style="width: 120px;" value="">
+              <el-option v-for="item in aLiUsernameList" :key="item.id" :label="item.name" :value="item.name">
+                <span>{{ item.name }}</span>
+                <span class="span-but" @click.stop="deleteAliTranslation(item.id)">X</span>
+              </el-option>
+            </el-select>
+            <el-button size="mini" style="margin-left: 5px" @click="joinAliTranslation">账号个人中心</el-button>
           </div>
         </div>
-        <!--        <div class="basisInstall-box">-->
-        <!--          <div style="display: flex;align-items: center">-->
-        <!--            <div>图片翻译：</div>-->
-        <!--            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="">-->
-        <!--              <el-option label="不翻译" :value="'no'"/>-->
-        <!--              <el-option label="中文" :value="1"/>-->
-        <!--              <el-option label="英文" :value="2"/>-->
-        <!--            </el-select>-->
-        <!--            <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"/>-->
-        <!--            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 100px;" value="" disabled placeholder="不翻译">-->
-        <!--            </el-select>-->
-        <!--            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">-->
-        <!--              <el-option-->
-        <!--                  v-for="item in pictureLanguagesList"-->
-        <!--                  v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"-->
-        <!--                  v-if="item.isShow.indexOf(translationConfig.before)>=0"-->
-        <!--                  :key="item.value"-->
-        <!--                  :label="item.label"-->
-        <!--                  :value="item.value"-->
-        <!--              />-->
-        <!--            </el-select>-->
-        <!--          </div>-->
-        <!--          <div v-if="!pictureConfig.typeRadio" style="display: flex;align-items: center;margin-left: 10px;">-->
-        <!--            <div>阿里翻译账号：</div>-->
-        <!--            <el-select v-model="aLiUsername" class="select-right-30" size="mini" style="width: 120px;" value="">-->
-        <!--              <el-option v-for="item in aLiUsernameList" :key="item.id" :label="item.name" :value="item.name">-->
-        <!--                <span>{{ item.name }}</span>-->
-        <!--                <span class="span-but" @click.stop="deleteAliTranslation(item.id)">X</span>-->
-        <!--              </el-option>-->
-        <!--            </el-select>-->
-        <!--            <el-button size="mini" style="margin-left: 5px" @click="joinAliTranslation">账号个人中心</el-button>-->
-        <!--          </div>-->
-        <!--        </div>-->
         <div style="color: red;display: flex; justify-content: space-between;margin-top: -5px;">
           马来站和菲律宾的部分类目需要设置体积和重量后才能上新
         </div>
@@ -1386,6 +1369,9 @@ export default {
                 spec1ListDstStr = spec1ListDstStr.replaceAll('> <', '><')
                 spec1ListDstStr = spec1ListDstStr.replaceAll('< ><', '<><')
                 spec1ListDstStr = spec1ListDstStr.replaceAll('>< >', '><>')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('<><>', '><>')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('><>', '<><')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('<><', '<><>')
                 spec1ListDst = spec1ListDstStr.split('<><>')
                 const spec1ListSrc = spec1List && spec1List.split('<><>')
                 const spec1ListSort = this.getArraySrcLengthSort(spec1ListSrc)
@@ -1413,7 +1399,12 @@ export default {
               }
               if (spec2ListDstStr) {
                 console.log('itemmodelsJson2', spec2ListDstStr, spec2List)
-                spec2ListDstStr = spec2ListDstStr.replaceAll('<> <>', '<><>')
+                spec2ListDstStr = spec2ListDstStr.replaceAll('> <', '><')
+                spec2ListDstStr = spec2ListDstStr.replaceAll('< ><', '<><')
+                spec2ListDstStr = spec2ListDstStr.replaceAll('>< >', '><>')
+                spec2ListDstStr = spec2ListDstStr.replaceAll('<><>', '><>')
+                spec2ListDstStr = spec2ListDstStr.replaceAll('><>', '<><')
+                spec2ListDstStr = spec2ListDstStr.replaceAll('<><', '<><>')
                 spec2ListDst = spec2ListDstStr.split('<><>')
                 const spec2ListSrc = spec2List && spec2List.split('<><>')
                 const spec2ListSort = this.getArraySrcLengthSort(spec2ListSrc)
@@ -1620,7 +1611,7 @@ export default {
                 imageData = Data.Data && Data.Data.Url || son.img
               } else if (this.pictureConfig.typeRadio === 2) {
                 console.log(son.img, this.translationConfig.after)
-                const json = son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after,'ali') || ''
+                const json = son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after, 'ali') || ''
                 console.log(json)
                 if (json && json.Code === 200 || json.Msg.includes('无文字')) {
                   imageData = json.Data && json.Data.Url || son.img
@@ -1632,9 +1623,8 @@ export default {
                     return
                   }
                 }
-              }
-              else if (this.pictureConfig.typeRadio === 3) {
-                 console.log(son.img, this.translationConfig.after)
+              } else if (this.pictureConfig.typeRadio === 3) {
+                console.log(son.img, this.translationConfig.after)
                 const json = son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after) || ''
                 console.log(json)
                 if (json && json.Code === 200 || json.Msg.includes('无文字')) {
@@ -1683,20 +1673,20 @@ export default {
                   imageData = json.Data && json.Data.Url || son
                 } else {
                   imageData = son
-                  this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})：失败${json.Msg}`)
+                  this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${spec_imageListLength})：失败${json.Msg}`)
                   if (Number(this.translationConfig.failureType) !== 3) {
                     success = false
                     return
                   }
                 }
-              }else if (this.pictureConfig.typeRadio === 3) {
+              } else if (this.pictureConfig.typeRadio === 3) {
                 const json = son && await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after) || ''
                 console.log(json)
                 if (json && json.Code === 200 || json.Msg.includes('无文字')) {
                   imageData = json.Data && json.Data.Url || son
                 } else {
                   imageData = son
-                  this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})：失败${json.Msg}`)
+                  this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${spec_imageListLength})：失败${json.Msg}`)
                   if (Number(this.translationConfig.failureType) !== 3) {
                     success = false
                     return
@@ -2059,11 +2049,11 @@ export default {
       // this.$set(item, 'color', status ? 'green' : 'red')
     },
     //账户权限
-    accountPermissions(){
-      accountPermissions(2,()=>{
+    accountPermissions() {
+      accountPermissions(2, () => {
         this.pictureConfig.typeRadio = 2
-        this.$set(this.pictureConfig,'typeRadio',2)
-        console.log('accountPermissions',this.pictureConfig)
+        this.$set(this.pictureConfig, 'typeRadio', 2)
+        console.log('accountPermissions', this.pictureConfig)
         this.$message.error('个人版不支持图片翻译，请购买或升级进阶、企业、终生版！')
       })
     }

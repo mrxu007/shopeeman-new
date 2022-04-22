@@ -1044,11 +1044,13 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
         imageUrl = that.$filters.imageRender([imageUrl]) || imageUrl
       }
       const base64File = await getBase64file(imageUrl)
-      const country = that.country || mall.country
-      const imageFileJSON = await that.$shopeemanService.upload_image(country, { mallId: item.platform_mall_id }, '', base64File)
-      const imageFileRes = JSON.parse(imageFileJSON)
-      const imageFileData = JSON.parse(imageFileRes.data)
-      newImage[item.url] = imageFileData?.data?.resource_id || ''
+      if (base64File){
+        const country = that.country || mall.country
+        const imageFileJSON = await that.$shopeemanService.upload_image(country, { mallId: item.platform_mall_id }, '', base64File)
+        const imageFileRes = JSON.parse(imageFileJSON)
+        const imageFileData = JSON.parse(imageFileRes.data)
+        newImage[item.url] = imageFileData?.data?.resource_id || ''
+      }
     } catch (e) {
       console.log(e)
     } finally {
@@ -1077,6 +1079,9 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
             base64 = await getBase64file(base64, width, height)
           }
           resolve(base64)
+        }
+        image.onerror = async function() {
+          resolve('')
         }
       }catch (e) {
         console.log(e)

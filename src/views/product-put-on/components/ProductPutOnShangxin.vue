@@ -1446,7 +1446,7 @@ export default {
       isRefreshTable: true,
       isCancelRelease: true,
       importTemplateData: null,
-      goodsClassName: {},
+      goodsClassName: {}
     }
   },
   computed: {
@@ -1690,7 +1690,7 @@ export default {
         let loginSuccess = loginRes.code === 200
         if (loginSuccess) {
           const params = {}
-          params['mallId'] = mall.platform_mall_id
+          params['mallId'] = mallId
           const channelListJSON = await this.$shopeemanService.getChinese(mall.country, '/api/v3/logistics/get_channel_list/?', params)
           const channelListRes = JSON.parse(channelListJSON)
           const channelListData = JSON.parse(channelListRes.data)
@@ -1721,7 +1721,7 @@ export default {
           let mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
           let goodsCount = this.goodsTableSelect.length
-          goodsList = mallIndex < goodsCount &&  [this.goodsTableSelect[mallIndex]] || []
+          goodsList = mallIndex < goodsCount && [this.goodsTableSelect[mallIndex]] || []
           while (mallIndex < goodsCount) {
             mallIndex = mallIndex + mallCount
             if (mallIndex < goodsCount) {
@@ -1803,10 +1803,11 @@ export default {
                 this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
                 return
               }
-              console.log('neededTranslateInfoData',neededTranslateInfoData)
+              console.log('neededTranslateInfoData', neededTranslateInfoData)
               let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
               this.updateAttributeName(item, '正在匹配类目', '', mall)
               let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
+              console.log('getCategoryRelation - data',categoryRelationJson)
               let categoryRelationRes = JSON.parse(categoryRelationJson)
               let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
               console.log('categoryId', categoryId)
@@ -1828,6 +1829,7 @@ export default {
                     goodsParam['brand_id'] = Math.floor(son.value_id) || 0
                   }
                 })
+                goodsParam['brand_id'] = goodsParam['brand_id'] || 0
               } else {
                 this.updateAttributeName(item, '发布失败：无类目映射，请选择类目', '', mall)
                 this.updateAttributeName(item, 3, 'resultsFilter')
@@ -1868,7 +1870,7 @@ export default {
               let extrainfo = item.extra_info && JSON.parse(item.extra_info)
               let tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
               goodsParam['parent_sku'] = await this.$BaseUtilService.buildGoodCode(platformId,
-                  item.goods_id, this.country, mall.platform_mall_id, tmall_cross_border_user_id)
+                  item.goods_id, this.country, mallId, tmall_cross_border_user_id)
               let guid = new GUID()
               goodsParam['ds_cat_rcmd_id'] = guid.newGUID() + '|c|EN'
               goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
@@ -1987,7 +1989,6 @@ export default {
                 goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ''
               }
               // model_list
-
               let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
               goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
                 let price = this.getValuationPrice(son.price, neededTranslateInfoData)
@@ -2006,17 +2007,83 @@ export default {
                 }
                 return son
               })
-              if(this.storeConfig.priceRadio > 0){
-                let model_price_list = goodsParam['model_list'].map(son => son.price)
-                model_price_list = [...new Set([...model_price_list])]
-                let min = model_price_list[0]
-                let max = model_price_list[0]
-                for (let i=0;i<model_price_list.length;i++){
-                  min = min > model_price_list[i] && model_price_list[i] || min
-                  max = max < model_price_list[i] && model_price_list[i] || max
+              if (goodsParam['model_list'].length) {
+                let spec1 = goodsParam['tier_variation'][0] && goodsParam['tier_variation'][0].options || []
+                let spec2 = goodsParam['tier_variation'][1] && goodsParam['tier_variation'][1].options || []
+                let spec1Num = spec1.length && spec1.length || 1
+                let spec2Num = spec2.length && spec2.length || 1
+                if (goodsParam['model_list'].length !== spec1Num * spec2Num) {
+                  this.updateAttributeName(item, '发布失败：商品规格与商品SKU数量不符', '', mall)
+                  continue
                 }
-                if(min * 1.5 < max){
+              }
 
+              if (this.storeConfig.priceRadio > 0) {
+                let model_price_list = goodsParam['model_list'].map(son => Number(son.price))
+                model_price_list = [...new Set([...model_price_list])]
+                if (model_price_list.length > 1) {
+                  let min = model_price_list[0]
+                  let max = model_price_list[0]
+                  for (let i = 0; i < model_price_list.length; i++) {
+                    min = min > model_price_list[i] && model_price_list[i] || min
+                    max = max < model_price_list[i] && model_price_list[i] || max
+                  }
+                  if (min * 2 < max) {
+                    let designate = Number(this.storeConfig.priceRadio) === 1 && min || max
+                    let spec1_list = new Set()
+                    let spec2_list = new Set()
+                    let temp_model_list = []
+                    goodsParam['model_list'].forEach(item => {
+                      if (Number(item.price) !== designate) {
+                        item.tier_index[0] && spec1_list.add(item.tier_index[0])
+                        item.tier_index[1] && spec2_list.add(item.tier_index[1])
+                        temp_model_list.push(item)
+                      }
+                    })
+                    spec1_list = [...spec1_list]
+                    spec2_list = [...spec2_list]
+                    temp_model_list = temp_model_list.map(son => {
+                      if (spec1_list.length && son.tier_index.length) {
+                        let index = spec1_list.findIndex(i => i === son.tier_index[0])
+                        son.tier_index[0] = index
+                      }
+                      if (spec2_list.length && son.tier_index.length > 1) {
+                        let index = spec2_list.findIndex(i => i === son.tier_index[1])
+                        son.tier_index[1] = index
+                      }
+                      return son
+                    })
+                    if (spec1_list.length) {
+                      let spec = goodsParam['tier_variation'][0]
+                      let tempOptions = []
+                      let tempImage = []
+                      for (let i = 0; i < spec1_list.length; i++) {
+                        if (spec.options.length) {
+                          spec.options[spec1_list[i]] && tempOptions.push(spec.options[spec1_list[i]])
+                        }
+                        if (spec.images.length) {
+                          spec.images[spec1_list[i]] && tempImage.push(spec.images[spec1_list[i]])
+                        }
+                      }
+                      goodsParam['tier_variation'][0].options = tempOptions
+                      goodsParam['tier_variation'][0].images = tempImage
+                    }
+                    if (spec2_list.length) {
+                      let spec = goodsParam['tier_variation'][1]
+                      let tempOptions = []
+                      let tempImage = []
+                      for (let i = 0; i < spec1_list.length; i++) {
+                        if (spec.options.length) {
+                          spec.options[spec1_list[i]] && tempOptions.push(spec.options[spec1_list[i]])
+                        }
+                        if (spec.images.length) {
+                          spec.images[spec1_list[i]] && tempImage.push(spec.images[spec1_list[i]])
+                        }
+                      }
+                      goodsParam['tier_variation'][1].options = tempOptions
+                      goodsParam['tier_variation'][1].images = tempImage
+                    }
+                  }
                 }
               }
               this.updateAttributeName(item, '正在上传轮播图', '', mall)
@@ -2077,10 +2144,10 @@ export default {
               console.log('goodsParam', goodsParam)
               this.updateAttributeName(item, '正在创建商品信息', '', mall)
               await sleep(this.associatedConfig.onNewInterval * 1000)
-              let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
+              let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mallId }, [goodsParam])
               console.log('createProduct', resJSON)
               if (resJSON.code === 200) {
-                let product_id = resJSON.data && resJSON.data.product_id
+                let product_id = resJSON?.data?.product_id
                 ++this.statistics.success
                 this.updateAttributeName(item, '发布完成', '', mall)
                 this.updateOnNewDetails(item.id, mallId, {
@@ -2096,26 +2163,26 @@ export default {
                   title: item.title,
                   listingId: product_id + '',
                   country: this.country,
-                  mallId: mall.platform_mall_id,
+                  mallId: mallId,
                   categoryId: categoryId + '',
                   skuDatas: ''
                 }
                 let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
                 console.log('saveListingRecordParmaRes', saveListingRecordParmaJson)
-                let saveListingRecordParmaRes = JSON.parse(saveListingRecordParmaJson)
                 this.updateAttributeName(item, product_id, 'product_id')
                 this.updateAttributeName(item, mallId, 'mallId')
                 this.updateAttributeName(item, this.country, 'country')
                 if (this.storeConfig.activityChecked) {
-                  let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mall.platform_mall_id)
+                  let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mallId)
                   if (sellActive.goodsId) {
                     const params = {
                       country: this.country,
-                      mallId: mall.platform_mall_id,
+                      mallId: mallId,
                       collection_id: Number(sellActive.goodsId), // 分类id
                       product_id_list: [product_id] // 商品id
                     }
                     const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
+                    console.log('addCollectionGoods - data',res)
                     if (res.ecode === 0) {
                       this.$message.success('添加成功')
                     } else {
@@ -2126,8 +2193,9 @@ export default {
                     const params = {}
                     params['product_id'] = product_id
                     params['version'] = '3.2.0'
-                    params['shop_id'] = item.platform_mall_id
+                    params['shop_id'] = mallId
                     const detailRes = await this.$shopeemanService.searchProductDetail(item.country, params)
+                    console.log('searchProductDetail - data',detailRes)
                     if (detailRes.code === 200) {
                       const discount_model_list = []
                       detailRes.data.model_list.forEach(i => {
@@ -2152,7 +2220,8 @@ export default {
                         discount_model_list,
                         mallId: item.platform_mall_id
                       }
-                      await this.GoodsDiscount.putModelActive(item.country, creatParams)
+                      let putModelActive = await this.GoodsDiscount.putModelActive(item.country, creatParams)
+                      console.log('putModelActive - data', putModelActive)
                     }
                   }
                 }
@@ -2163,6 +2232,7 @@ export default {
                 this.updateAttributeName(item, meg, '', mall)
               }
             } catch (e) {
+              console.log(e)
               this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
             } finally {
               let progressItem = progress / goodsList.length
@@ -2608,8 +2678,8 @@ export default {
         let categoryName = category && `${category.category_name}(${category.category_cn_name})` || ''
         if (this.goodsCurrent && this.goodsCurrent.id) {
           let index = this.goodsTable.findIndex(son => son.id === this.goodsCurrent.id)
-          console.log('index',index,categoryName)
-          let temp = Object.assign(this.goodsTable[index],{ categoryName : categoryName })
+          console.log('index', index, categoryName)
+          let temp = Object.assign(this.goodsTable[index], { categoryName: categoryName })
           this.$set(this.goodsTable, index, temp)
           this.goodsClassName[this.goodsTable[index].category_id] = categoryName
         } else {
@@ -2633,7 +2703,7 @@ export default {
             }
             await this.$commodityService.saveCategoryRelation(param)
             let index = this.goodsTable.findIndex(son => son.id === item.id)
-            let temp = Object.assign(this.goodsTable[index],{ categoryName : categoryName })
+            let temp = Object.assign(this.goodsTable[index], { categoryName: categoryName })
             this.$set(this.goodsTable, index, temp)
             this.goodsClassName[this.goodsTable[index].category_id] = categoryName
           })
@@ -2676,6 +2746,7 @@ export default {
           }).then(() => {
             this.sellActiveTable.forEach(item => {
               let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
+              console.log(item,index)
               if (item.discount && item.number || item.goodsId) {
                 if (index > -1) {
                   this.sellActiveSetting[index] = item
@@ -2688,7 +2759,7 @@ export default {
                 }
               }
             })
-            console.log(this.sellActiveSetting)
+            console.log('sellActiveSetting',this.sellActiveSetting)
             this.sellActiveVisible = false
           }).catch(() => {
           })

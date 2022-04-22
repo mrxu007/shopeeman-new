@@ -650,17 +650,15 @@
               </li>
               <li>
                 <el-checkbox v-model="IsFilterLazadaDeliveryDay" label="启动lazada发货天数过滤商品" />
-                <p class="tip2">lazada发货天数：</p>
-                <el-input v-model="MinLazadaDeliveryDay" placeholder="" size="mini" />
-                <span>--</span>
-                <el-input v-model="MaxLazadaDeliveryDay" placeholder="" size="mini" />
+                <p class="tip2">只收藏lazada发货天数小于</p>
+                <el-input v-model="MaxLazadaDeliveryDay" style="width: 60px;margin: 0 5px;" placeholder="" size="mini" />
+                天的商品
               </li>
               <li>
-                <el-checkbox v-model="IsFilterShopeeDeliveryDay" label="启动虾皮发货天数过滤商品" />
-                <p class="tip2">虾皮发货天数：</p>
-                <el-input v-model="MinShoppeDeliveryDay" placeholder="" size="mini" />
-                <span>--</span>
-                <el-input v-model="MaxShoppeDeliveryDay" placeholder="" size="mini" />
+                <el-checkbox v-model="IsFilterShopeeDeliveryDay" label="启动shopee发货天数过滤商品" />
+                <p class="tip2">只收藏shopee发货天数小于</p>
+                <el-input v-model="MaxShoppeDeliveryDay" style="width: 60px;margin: 0 5px;" placeholder="" size="mini" />
+                天的商品
               </li>
               <li>
                 <p class="tip">收藏时过滤掉不在此发货天数区间的商品</p>
