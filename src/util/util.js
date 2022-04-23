@@ -1302,7 +1302,7 @@ export function getGoodLinkModel(link) {
 export function accountPermissions(type= -1,callback){
   let accountType = Number(instance.$userInfo.AccountType)
   let success = true
-  if( type > -1 && (accountType === 1 || accountType === 4 || accountType === 6)){
+  if( type > -1 && (accountType === 1 || accountType === 4 || accountType === 5)){
     success = false
     let payProjectInfo = instance.$payProjectInfo
     if(payProjectInfo.length && (payProjectInfo.includes(Number(type)) || payProjectInfo.includes((type+'')))){

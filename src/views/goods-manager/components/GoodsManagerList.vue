@@ -2013,10 +2013,10 @@ export default {
       const res = await this.$shopeemanService.searchProductDetail(item.country, params)
       if (res.code === 200 && res.data) {
         if (Number(res.data.id) === Number(item.id)) {
-          console.log('原始商品详情数据', res.data)
           productInfo = JSON.parse(JSON.stringify(res.data))
           // 处理数据
           await this.getProductInfo(productInfo, item)
+          console.log('原始商品详情数据', res.data)
           return { code: 200, data: productInfo }
         } else {
           return { code: 201, data: '获取到的产品id不一致' }
@@ -2636,6 +2636,7 @@ export default {
         // 获取商家后台的物流方式
         let res = await this.$shopeemanService.getChinese(item.country, '/api/v3/logistics/get_channel_list/?', params)
         res = JSON.parse(JSON.parse(res).data)
+        console.log('get_channel_list',res)
         if (res?.data?.list) {
           idDatas = res.data.list
         }
@@ -2654,6 +2655,7 @@ export default {
         obj.parent_channel_id = Number(logistics.parent_channel_id)
         logModelList.push(obj)
       }
+      console.log('getLogisticsInfo',logModelList)
       return logModelList
     },
     // 过滤无效物流

@@ -327,7 +327,7 @@
                 </el-checkbox>
               </div>
               <div style="width: 100%;">
-                将
+                将第
                 <el-input style="width: 60px;margin: 0 5px;" size="mini"
                           v-model="associatedConfig.pictureSetting.index"></el-input>
                 张设为封面

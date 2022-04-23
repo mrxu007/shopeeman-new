@@ -444,7 +444,7 @@ const site_mall = [
     'CountryCode': 'TW',
     'IsDeafult': true,
     'IsSelected': true,
-    'ShipId': '30008',
+    'ShipId': '30014',
     'ShipName': 'OK Mart'
   },
   {

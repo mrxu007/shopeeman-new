@@ -661,9 +661,6 @@
                 天的商品
               </li>
               <li>
-                <p class="tip">收藏时过滤掉不在此发货天数区间的商品</p>
-              </li>
-              <li>
                 <el-checkbox v-model="IsCollectDescriptionIsNull " label="采集描述为空的数据" />
               </li>
               <li>
