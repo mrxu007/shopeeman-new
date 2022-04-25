@@ -1107,7 +1107,7 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  sleep, copyText, dateFormat, importOrder, accountPermissions
+  sleep, copyText, dateFormat, importOrder, accountPermissions, getRandSymbol
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
@@ -1659,6 +1659,23 @@ export default {
         this.$message.error('配置水印后再操作')
         return
       }
+      if (this.storeConfig.activityChecked){
+        let noSell = this.sellActiveSetting.find(i => {
+          console.log(this.sellActiveSetting,i)
+          if (!i.goodsId) {
+            if (!i.discountId || !i.discount || !i.number) {
+              return i
+            }
+          }
+        })
+        if (noSell) {
+          this.$alert('部分折扣活动未配置折扣信息', '提示', {
+            confirmButtonText: '确定',
+            type: 'warning'
+          }).then(() => {})
+
+        }
+      }
       this.isBanPerform = true
       this.isCancelRelease = false
       this.mewOnProgress = 0
@@ -1877,16 +1894,45 @@ export default {
               // name description tier_variation price
               let tier_variation = neededTranslateInfoData.tier_variation
               if (tier_variation[tier_variation.spec1].length > 0) {
+                let tempList = []
+                tier_variation[tier_variation.spec1].forEach(son=>{
+                  let temp = son.substring(0, 20).trim()
+                  while(tempList.includes(temp)){
+                    if(temp.length === 20){
+                      let list = [...temp]
+                      list[19] = getRandSymbol()
+                      temp = list.toString()
+                    }else{
+                      temp = temp + getRandSymbol()
+                    }
+                  }
+                  tempList.push(temp)
+                })
                 goodsParam['tier_variation'].push({
                   name: tier_variation.spec1,
-                  options: [...tier_variation[tier_variation.spec1].map(i => i.substring(0, 20).trim())],
+                  options: tempList,
                   images: tier_variation.images
                 })
               }
               if (tier_variation[tier_variation.spec2].length > 0) {
+
+                let tempList = []
+                tier_variation[tier_variation.spec1].forEach(son=>{
+                  let temp = son.substring(0, 20).trim()
+                  while(tempList.includes(temp)){
+                    if(temp.length === 20){
+                      let list = [...temp]
+                      list[19] = getRandSymbol()
+                      temp = list.toString()
+                    }else{
+                      temp = temp + getRandSymbol()
+                    }
+                  }
+                  tempList.push(temp)
+                })
                 goodsParam['tier_variation'].push({
                   name: tier_variation.spec2,
-                  options: [...tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
+                  options: tempList,
                   images: []
                 })
               }
@@ -2174,7 +2220,7 @@ export default {
                 this.updateAttributeName(item, this.country, 'country')
                 if (this.storeConfig.activityChecked) {
                   let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mallId)
-                  if (sellActive.goodsId) {
+                  if (sellActive?.goodsId) {
                     const params = {
                       country: this.country,
                       mallId: mallId,

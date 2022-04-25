@@ -1358,8 +1358,12 @@ export default {
           const base64File = that.getBase64Image(image)
           resolve({ code: 200, data: base64File.data })
         }
-        image.onerror = function(e) {
-          resolve({ code: -2, data: e })
+
+        image.onerror = async ()=> {
+          let base64Value = await that.$BaseUtilService.imageToBase64String(this.imageUrl)
+          let base64 = 'data:image/png;base64,' + base64Value
+          image.src = base64
+
         }
       })
     },

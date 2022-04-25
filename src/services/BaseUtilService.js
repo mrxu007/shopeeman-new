@@ -184,4 +184,13 @@ export default class BaseUtilService {
   async saveGoodsTranslation(jsonStr) {
     return this.nativeService.saveGoodsTranslation(jsonStr)
   }
+
+  /**
+   * 图片转base64
+   * @param url
+   * @returns {Promise<*>}
+   */
+  async imageToBase64String(url){
+    return this.nativeService.imageToBase64String(url)
+  }
 }

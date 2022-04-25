@@ -885,10 +885,16 @@ export default {
           this.editorImg = await this.$ossService.uploadFile(dataURL, name + '.png')
           this.GdEditorSdkVisible = false
           this.editor.close()
-          // const a = document.createElement('a');
-          // a.href = url;
-          // a.download = `${title}.${type}`
-          // a.click();
+        }
+
+        image.onerror = async ()=> {
+          let base64Value = await this.$BaseUtilService.imageToBase64String(url)
+          let base64 = 'data:image/png;base64,' + base64Value
+          console.log('dataURL', image)
+          const name = randomWord(false, 32) + '_' + new Date().getTime()
+          this.editorImg = await this.$ossService.uploadFile(base64, name + '.png')
+          this.GdEditorSdkVisible = false
+          this.editor.close()
         }
       })
     },
@@ -1182,6 +1188,21 @@ export default {
         // 触发a的单击事件
         a.dispatchEvent(event)
       }
+
+      image.onerror = async ()=> {
+        let base64Value = await this.$BaseUtilService.imageToBase64String(src)
+        let base64 = 'data:image/png;base64,' + base64Value
+        // 生成一个a元素
+        const a = document.createElement('a')
+        // 创建一个单击事件
+        const event = new MouseEvent('click')
+        // 将a的download属性设置为我们想要下载的图片名称，若name不存在则使用‘下载图片名称’作为默认名称
+        a.download = name || Math.round(Math.random() * 100000000) + '.png'
+        // 将生成的URL设置为a.href属性
+        a.href = base64
+        // 触发a的单击事件
+        a.dispatchEvent(event)
+      }
     }, // 下载图片
     downloadImages(type) {
       let imageUrls = []
@@ -1230,8 +1251,21 @@ export default {
           canvas.height = image.height
           const context = canvas.getContext('2d')
           context.drawImage(image, 0, 0, image.width, image.height)
-          const url = canvas.toDataURL() // 得到图片的base64编码数据
-          canvas.toDataURL('image/png')
+          const url = canvas.toDataURL('image/png') // 得到图片的base64编码数据
+          baseList.push(url.substring(22)) // 去掉base64编码前的 data:image/png;base64,
+          if (baseList.length === arr.length && baseList.length > 0) {
+            for (let k = 0; k < baseList.length; k++) {
+              imgs.file(imgNameList[k] + '.png', baseList[k], { base64: true })
+            }
+            zip.generateAsync({ type: 'blob' }).then(function(content) {
+              // see FileSaver.js
+              FileSaver.saveAs(content, blogTitle + '.zip')
+            })
+          }
+        }
+        image.onerror = async ()=> {
+          let base64Value = await this.$BaseUtilService.imageToBase64String(arr[i])
+          let url = 'data:image/png;base64,' + base64Value
           baseList.push(url.substring(22)) // 去掉base64编码前的 data:image/png;base64,
           if (baseList.length === arr.length && baseList.length > 0) {
             for (let k = 0; k < baseList.length; k++) {
@@ -1503,8 +1537,8 @@ export default {
       }
 
       .sku_describe_image {
-        height: 80px;
-        width: 80px;
+        height: 80px!important;
+        width: 80px!important;
       }
 
     }

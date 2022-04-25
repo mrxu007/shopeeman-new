@@ -1216,11 +1216,17 @@ export default {
           this.describeConfig.describe = this.describeConfig.text
           if (data.code === 200) {
             this.$message.success('保存成功')
+            if (type === 1){
+              const descriptionTemplateListJson = await this.$commodityService.descriptionTemplateList()
+              const descriptionTemplateListRes = JSON.parse(descriptionTemplateListJson)
+              this.describeLabelList = descriptionTemplateListRes.data || []
+              this.describeConfigId = this.describeLabelList[0] && this.describeLabelList[0].id || ''
+              this.oldDescribeConfigId = this.describeConfigId
+            }
           } else {
             this.$message.error('保存失败【请求异常】')
           }
           this.describeVisible = type === 1
-
         } else if (type === 2) {
           const resJson = await this.$commodityService.deleteDescriptionTemplate(this.describeConfigId)
           const res = JSON.parse(resJson)

@@ -1059,6 +1059,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
   }
   function getBase64file(url, width, height) {
     return new Promise(async(resolve) => {
+      let base64 = ''
       try {
         const image = new Image()
         image.setAttribute('crossOrigin', 'anonymous')
@@ -1071,7 +1072,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
           canvas.height = image.height
           const context = canvas.getContext('2d')
           context.drawImage(image, 0, 0, image.width, image.height)
-          let base64 = canvas.toDataURL('image/png')
+          base64 = canvas.toDataURL('image/png')
           const base64Size = showSize(base64)
           if (base64Size > 1024) {
             const width = Math.floor(image.width / 3 * 2)
@@ -1081,9 +1082,18 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
           resolve(base64)
         }
         image.onerror = async function() {
-          resolve('')
+          let base64Value = await instance.$BaseUtilService.imageToBase64String(url)
+          base64 = 'data:image/png;base64,' + base64Value
+          const base64Size = showSize(base64)
+          if (base64Size > 1024) {
+            const width = Math.floor(image.width / 3 * 2)
+            const height = Math.floor(image.height / 3 * 2)
+            base64 = await getBase64file(base64, width, height)
+          }
+          resolve(base64)
         }
       }catch (e) {
+        base64 = ''
         console.log(e)
       }
     })
@@ -1091,6 +1101,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
   function showSize(base64url) {
     // 把头部去掉
     let str = base64url.replace('data:image/png;base64,', '')
+    str = str.replace('data:image/jpg;base64,', '')
     // 找到等号，把等号也去掉
     const equalIndex = str.indexOf('=')
     if (str.indexOf('=') > 0) {
@@ -1336,4 +1347,13 @@ export function copyText(attr) {
     // console.log('复制失败')
   }
   target.parentElement.removeChild(target)
+}
+
+/**
+ * 获取随机符号
+ */
+export function getRandSymbol() {
+  let symbolList = ['~','!','@','#','$','%','^','&','*','(',')','-','_','=','+','?','<','>',',','.',';',':','[',']','{','}','|']
+  let index = Math.random() * symbolList
+  return symbolList[Math.floor(index)]
 }

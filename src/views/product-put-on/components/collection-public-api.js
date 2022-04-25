@@ -536,6 +536,11 @@ export default class CollectionPublicApi {
           dataURL = canvas.toDataURL('image/jpeg')
           res(dataURL || null)
         }
+        Img.onerror = async ()=> {
+          let base64Value = await this.$BaseUtilService.imageToBase64String(this.imageUrl)
+          let base64 = 'data:image/png;base64,' + base64Value
+          res(base64 || null)
+        }
       })
     }
     /**

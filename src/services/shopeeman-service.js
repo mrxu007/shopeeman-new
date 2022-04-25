@@ -324,7 +324,7 @@ export default class NetMessageBridgeService {
 
   async postChineseShop(country, api, data, params, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getUrlPrefix(country, data) + api
+    const url = await this.getUrlPrefix(country, data)
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
@@ -337,7 +337,7 @@ export default class NetMessageBridgeService {
       })
     }
     // console.log(url, JSON.stringify(options), JSON.stringify(params))
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(params))
+    return this.NetMessageBridgeService().post(url + api, JSON.stringify(options), JSON.stringify(params))
   }
   async postChineseImageFile(country, api, data, options = {}, base64File) {
     data = JSON.parse(JSON.stringify(data))
@@ -2111,7 +2111,8 @@ export default class NetMessageBridgeService {
   async createProduct(country, data, params) {
     const res = await this.postChineseShop(country, '/api/v3/product/create_product/', data, params, {
       headers: {
-        'Content-Type': ' application/json'
+        'Content-Type': ' application/json',
+        'referer': '/portal/product/new'
       },
       params: {
         version: '3.1.0'

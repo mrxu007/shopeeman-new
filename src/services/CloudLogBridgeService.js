@@ -1,7 +1,7 @@
 export default class CloudLogBridgeService {
   constructor() {
     this.nativeService = window['CloudLogBridgeService']
-    console.log("window['BaseUtilBridgeService']", window['BaseUtilBridgeService'])
+    // console.log("window['BaseUtilBridgeService']", window['BaseUtilBridgeService'])
   }
   upLoadWebError(message, noteJson, route) { // 上报 web端抛出异常
     return this.nativeService.upLoadWebError(message, noteJson, route)
