@@ -1054,6 +1054,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
     } catch (e) {
       console.log(e)
     } finally {
+      newImage[item.url] = newImage[item.url] || ''
       --count.count
     }
   }

@@ -1351,24 +1351,32 @@ export default {
             let spec2ListDst = ''
             const tier_variation = neededTranslateInfoData.tier_variation
             console.log(neededTranslateInfoData, param)
-            const spec1List = tier_variation[tier_variation.spec1].join('<><>') || ''
-            const spec2List = tier_variation[tier_variation.spec2].join('<><>') || ''
+            const spec1List = tier_variation[tier_variation.spec1].join(' <><> ') || ''
+            const spec2List = tier_variation[tier_variation.spec2].join(' <><> ') || ''
             if (this.translationConfig.specChecked) {
               this.$set(this.mallTable[index], 'operation_type', '正在翻译规格...')
-              const getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec1List))
+              let groupCount1 = Math.ceil(spec1List.length / 150)
+              let groupSize1 =  Math.ceil(tier_variation[tier_variation.spec1].length / groupCount1)
               let spec1ListDstStr = ''
-              if (getGoodsSpec1 && getGoodsSpec1[spec1List]) {
-                spec1ListDstStr = getGoodsSpec1[spec1List]
-              } else {
-                const spec1ListJson = await this.$translationBridgeService.getGoogleTransResult([spec1List], fromLanguage, toLanguage)
-                spec1ListDstStr = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText
-                saveGoodsJson.push({
-                  srcLanguage: fromLanguage,
-                  toLanguage: toLanguage,
-                  fromText: spec1List,
-                  toText: spec1ListDstStr,
-                  createdAt: Math.floor(new Date().getTime() / 1000)
-                })
+              for(let i =0 ;i<groupCount1;i++){
+                let tempList = tier_variation[tier_variation.spec1].slice(i * groupSize1,(i+1) * groupSize1) || []
+                let tempStr = tempList.join(' <><> ') || ''
+                let tempDstStr = ''
+                const getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, tempStr))
+                if (getGoodsSpec1 && getGoodsSpec1[tempStr]) {
+                  tempDstStr = getGoodsSpec1[tempStr]
+                } else {
+                  const spec1ListJson = await this.$translationBridgeService.getGoogleTransResult([tempStr], fromLanguage, toLanguage)
+                  tempDstStr = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText
+                  saveGoodsJson.push({
+                    srcLanguage: fromLanguage,
+                    toLanguage: toLanguage,
+                    fromText: tempStr,
+                    toText: tempDstStr,
+                    createdAt: Math.floor(new Date().getTime() / 1000)
+                  })
+                }
+                spec1ListDstStr += (tempDstStr + '<><>')
               }
               if (spec1ListDstStr) {
                 console.log('itemmodelsJson1', spec1ListDstStr, spec1List)
@@ -1379,30 +1387,41 @@ export default {
                 spec1ListDstStr = spec1ListDstStr.replaceAll('><>', '<><')
                 spec1ListDstStr = spec1ListDstStr.replaceAll('<><', '<><>')
                 spec1ListDst = spec1ListDstStr.split('<><>')
-                const spec1ListSrc = spec1List && spec1List.split('<><>')
-                const spec1ListSort = this.getArraySrcLengthSort(spec1ListSrc)
+                const spec1ListStr = spec1List && spec1List.split('<><>')
+                const spec1ListSort = this.getArraySrcLengthSort(spec1ListStr)
                 spec1ListSort.forEach(item => {
-                  itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":"' + spec1ListSrc[item], '"sku_spec1":"' + spec1ListDst[item])
-                  itemmodelsJson = itemmodelsJson.replaceAll('"sku":"' + spec1ListSrc[item], '"sku":"' + spec1ListDst[item])
+                  let specStr = spec1ListStr[item]
+                  let specDst = spec1ListDst[item] || ''
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":"' + specStr, '"sku_spec1":"' + specDst)
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku":"' + specStr, '"sku":"' + specDst)
                 })
               } else {
                 // 谷歌翻译失败
               }
-              const getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec2List))
+              let groupCount2 = Math.ceil(spec2List.length / 150)
+              let groupSize2 =  Math.ceil(tier_variation[tier_variation.spec2].length / groupCount2)
               let spec2ListDstStr = ''
-              if (getGoodsSpec2 && getGoodsSpec2[spec2List]) {
-                spec2ListDstStr = getGoodsSpec2[spec2List]
-              } else {
-                const spec2ListJson = await this.$translationBridgeService.getGoogleTransResult([spec2List], fromLanguage, toLanguage)
-                spec2ListDstStr = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].DstText
-                saveGoodsJson.push({
-                  srcLanguage: fromLanguage,
-                  toLanguage: toLanguage,
-                  fromText: spec2List,
-                  toText: spec2ListDstStr,
-                  createdAt: Math.floor(new Date().getTime() / 1000)
-                })
+              for(let i =0 ;i<groupCount2;i++) {
+                let tempList = tier_variation[tier_variation.spec1].slice(i * groupSize2, (i + 1) * groupSize2) || []
+                let tempStr = tempList.join(' <><> ') || ''
+                let tempDstStr = ''
+                const getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, tempStr))
+                if (getGoodsSpec2 && getGoodsSpec2[tempStr]) {
+                  tempDstStr = getGoodsSpec2[tempStr]
+                } else {
+                  const spec2ListJson = await this.$translationBridgeService.getGoogleTransResult([tempStr], fromLanguage, toLanguage)
+                  tempDstStr = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].DstText
+                  saveGoodsJson.push({
+                    srcLanguage: fromLanguage,
+                    toLanguage: toLanguage,
+                    fromText: tempStr,
+                    toText: tempDstStr,
+                    createdAt: Math.floor(new Date().getTime() / 1000)
+                  })
+                }
+                spec2ListDstStr += (tempDstStr + '<><>')
               }
+
               if (spec2ListDstStr) {
                 console.log('itemmodelsJson2', spec2ListDstStr, spec2List)
                 spec2ListDstStr = spec2ListDstStr.replaceAll('> <', '><')

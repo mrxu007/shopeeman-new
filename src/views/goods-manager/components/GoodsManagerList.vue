@@ -509,7 +509,7 @@
         <u-table-column align="center" min-width="100" label="访客量" prop="view_count" sortable />
         <!-- <u-table-column align="center" min-width="100" label="评星数" /> -->
         <u-table-column align="center" min-width="100" label="粉丝量" prop="like_count" sortable />
-        <u-table-column align="center" min-width="120" label="操作状态" show-overflow-tooltip fixed="right">
+        <u-table-column align="center" min-width="120" label="操作状态" prop="batchStatus" sortable show-overflow-tooltip fixed="right">
           <template v-slot="{ row }">
             <span :style="row.color && 'color:' + row.color">{{ row.batchStatus | errorMsg }}</span>
           </template>
@@ -957,7 +957,7 @@
             <el-button size="mini" type="primary" @click="getMoveDetails(row)">查看详情</el-button>
           </template>
         </el-table-column>
-        <el-table-column align="center" min-width="150" label="操作状态" show-overflow-tooltip fixed="right">
+        <el-table-column align="center" min-width="150" label="操作状态" prop="moveStatus" sortable show-overflow-tooltip fixed="right">
           <template v-slot="{ row }">
             <span :style="row.color && 'color:' + row.color">{{ row.moveStatus | errorMsg }}</span>
           </template>
