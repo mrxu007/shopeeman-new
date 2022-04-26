@@ -481,7 +481,7 @@
       </u-table-column>
       <u-table-column align="left" label="状态" width="120">
         <template slot-scope="{ row }">
-          <div class="goodsTableLine">
+          <div class="goodsTableLine" :style="'color:'+row.color ">
             {{ row.statusName }}
           </div>
         </template>
@@ -1107,7 +1107,7 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  sleep, copyText, dateFormat, importOrder, accountPermissions, getRandSymbol
+  sleep, copyText, dateFormat, importOrder, accountPermissions, getRandSymbol, randomWord
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
@@ -1115,6 +1115,7 @@ import GoodsManagerAPI from '@/module-api/goods-manager-api/goods-data'
 import GoodsDiscount from '@/module-api/market-activity-api/goods-discount'
 import goodsEditDetails from '@/components/goods-edit-details'
 import xlsx from 'xlsx'
+import { errorMsg } from '@/plugins/filters'
 
 export default {
   data() {
@@ -1761,7 +1762,7 @@ export default {
           }
         }
         ratio = Number(ratio / 100)
-        console.log(goodsList)
+        console.log('goodsList -1',goodsList)
         if (goodsList.length > 0) {
           for (let item of goodsList) {
             if (this.isCancelRelease) {
@@ -1820,7 +1821,7 @@ export default {
                 this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
                 return
               }
-              console.log('neededTranslateInfoData', neededTranslateInfoData)
+              console.log('neededTranslateInfoData -2', neededTranslateInfoData)
               let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
               this.updateAttributeName(item, '正在匹配类目', '', mall)
               let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
@@ -1893,7 +1894,7 @@ export default {
               goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
               // name description tier_variation price
               let tier_variation = neededTranslateInfoData.tier_variation
-              if (tier_variation[tier_variation.spec1].length > 0) {
+              if (tier_variation[tier_variation.spec1].length) {
                 let tempList = []
                 tier_variation[tier_variation.spec1].forEach(son=>{
                   let temp = son.substring(0, 20).trim()
@@ -1901,7 +1902,7 @@ export default {
                     if(temp.length === 20){
                       let list = [...temp]
                       list[19] = getRandSymbol()
-                      temp = list.toString()
+                      temp = list.join('')
                     }else{
                       temp = temp + getRandSymbol()
                     }
@@ -1914,10 +1915,9 @@ export default {
                   images: tier_variation.images
                 })
               }
-              if (tier_variation[tier_variation.spec2].length > 0) {
-
+              if (tier_variation[tier_variation.spec2].length) {
                 let tempList = []
-                tier_variation[tier_variation.spec1].forEach(son=>{
+                tier_variation[tier_variation.spec2].forEach(son=>{
                   let temp = son.substring(0, 20).trim()
                   while(tempList.includes(temp)){
                     if(temp.length === 20){
@@ -1936,6 +1936,7 @@ export default {
                   images: []
                 })
               }
+              console.log('tier_variation',goodsParam['tier_variation'])
               let goodsPrice = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
               goodsParam['price'] = Math.ceil(goodsPrice / this.rateList[this.country] * ratio) + ''
               goodsParam['description'] = neededTranslateInfoData.description || ''
@@ -1965,8 +1966,9 @@ export default {
                 name = mall.platform_mall_name + ' ' + name
               }
               goodsParam['name'] = name
-              this.updateAttributeName(item, '检测商品数据是否合格', '', mall)
+              this.updateAttributeName(item, '正在检测商品数据', '', mall)
               let isFieldFilter = await this.fieldFilter(goodsParam, item)
+              console.log('isFieldFilter',isFieldFilter)
               if (!isFieldFilter) {
                 this.updateAttributeName(item, 3, 'resultsFilter')
                 this.updateOnNewDetails(item.id, mallId, { state: `检查到商品已经刊登` })
@@ -2002,7 +2004,8 @@ export default {
                   let newMain = imagesList.splice(index, 1)
                   imagesList = [...newMain, ...imagesList]
                 }
-              } else {
+              }
+              else {
                 let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index, 1)
                 imagesList = [...newMain, ...imagesList]
               }
@@ -2053,17 +2056,17 @@ export default {
                 }
                 return son
               })
+              console.log('model_list',goodsParam['model_list'])
               if (goodsParam['model_list'].length) {
                 let spec1 = goodsParam['tier_variation'][0] && goodsParam['tier_variation'][0].options || []
                 let spec2 = goodsParam['tier_variation'][1] && goodsParam['tier_variation'][1].options || []
                 let spec1Num = spec1.length && spec1.length || 1
                 let spec2Num = spec2.length && spec2.length || 1
-                if (goodsParam['model_list'].length !== spec1Num * spec2Num) {
+                if (goodsParam['model_list'].length !== (spec1Num * spec2Num)) {
                   this.updateAttributeName(item, '发布失败：商品规格与商品SKU数量不符', '', mall)
                   continue
                 }
               }
-
               if (this.storeConfig.priceRadio > 0) {
                 let model_price_list = goodsParam['model_list'].map(son => Number(son.price))
                 model_price_list = [...new Set([...model_price_list])]
@@ -2161,12 +2164,6 @@ export default {
                 tier_variationJSON = tier_variationJSON.replaceAll('"' + itemName + '"', '"' + spec_imageMapping[itemName] + '"')
                 spec_list.push(spec_imageMapping[itemName])
               }
-              // if (spec_list.includes('')) {
-              //   this.updateAttributeName(item, '发布失败：规格图上传缺失', '', mall)
-              //   this.updateAttributeName(item, 3, 'resultsFilter')
-              //   ++this.statistics.failure
-              //   continue
-              // }
               goodsParam['tier_variation'] = JSON.parse(tier_variationJSON)
               if (goodsParam['tier_variation'][0]?.images) {
                 if (goodsParam['tier_variation'][0]?.images.includes('')) {
@@ -2195,7 +2192,7 @@ export default {
               if (resJSON.code === 200) {
                 let product_id = resJSON?.data?.product_id
                 ++this.statistics.success
-                this.updateAttributeName(item, '发布完成', '', mall)
+                this.updateAttributeName(item, '发布成功', '', mall)
                 this.updateOnNewDetails(item.id, mallId, {
                   name: goodsParam['name'],
                   product_id: product_id,
@@ -2218,6 +2215,7 @@ export default {
                 this.updateAttributeName(item, product_id, 'product_id')
                 this.updateAttributeName(item, mallId, 'mallId')
                 this.updateAttributeName(item, this.country, 'country')
+                console.log('sellActiveSetting',this.sellActiveSetting,mallId)
                 if (this.storeConfig.activityChecked) {
                   let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mallId)
                   if (sellActive?.goodsId) {
@@ -2254,7 +2252,7 @@ export default {
                           promotion_price: (i.price * sellActive.discount / 100).toFixed(2),
                           promotionid: sellActive.discountId,
                           selected: true,
-                          shopid: Number(item.platform_mall_id),
+                          shopid: Number(mallId),
                           status: 1,
                           total_item_limit: 0,
                           user_item_limit: sellActive.number
@@ -2264,10 +2262,18 @@ export default {
                       const creatParams = {
                         discount_id: sellActive.discountId,
                         discount_model_list,
-                        mallId: item.platform_mall_id
+                        mallId: mallId
                       }
                       let putModelActive = await this.GoodsDiscount.putModelActive(item.country, creatParams)
+                      if(putModelActive?.code === 200){
+                        this.updateAttributeName(item, '发布成功：行销活动添加成功', '', mall)
+                      }else{
+                        let msg = '发布成功：行销活动添加失败'+errorMsg(putModelActive.messages || putModelActive.data)
+                        this.updateAttributeName(item ,msg ,'' , mall)
+                      }
                       console.log('putModelActive - data', putModelActive)
+                    }else{
+                      this.updateAttributeName(item, '发布成功：行销活动商品详情获取失败', '', mall)
                     }
                   }
                 }
@@ -2279,7 +2285,7 @@ export default {
               }
             } catch (e) {
               console.log(e)
-              this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
+              this.updateAttributeName(item,  '', '', mall)
             } finally {
               let progressItem = progress / goodsList.length
               let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
@@ -2412,12 +2418,14 @@ export default {
     //附加水印图
     additionalWatermarking(url, mall) {
       let that = this
-      return new Promise(resolve => {
+      return new Promise(async resolve => {
+        let base64Value = await this.$BaseUtilService.imageToBase64String(url)
+        let base64Url = 'data:image/png;base64,' + base64Value
         let setting = this.watermarkSetting
         console.log('additionalWatermarking', setting)
         const image = new Image()
         image.setAttribute('crossOrigin', 'anonymous')
-        image.src = url
+        image.src = base64Url
         image.onload = async function() {
           const canvas = document.createElement('canvas')
           canvas.width = image.width
@@ -2462,7 +2470,8 @@ export default {
             context.fillText(text, dx, dy)
             let base64 = canvas.toDataURL('image/png')
             resolve(base64)
-          } else {
+          }
+          else {
             if (setting.watermarkImg) {
               let watermark = new Image()
               watermark.src = setting.watermarkImg
@@ -2516,6 +2525,7 @@ export default {
             }
           }
         }
+
       })
     },
     getValuationPrice(price, data, setting = null) {
@@ -2611,11 +2621,16 @@ export default {
       attributeName = attributeName || 'statusName'
       let index = this.goodsTable.findIndex(i => i.id === item.id)
       if (index >= 0) {
+        if(attributeName === 'statusName' && !value){
+          value = (this.goodsTable[index]?.statusName || '出现未知错误导致')+'失败在发布过程中遇到了未知的问题，请联系客服'
+        }
         this.$set(this.goodsTable[index], attributeName, value)
         if (attributeName === 'statusName' && mall) {
           let mallId = mall.platform_mall_id
           let mallName = mall.mall_alias_name || mall.platform_mall_name
           this.$set(this.goodsTable[index], 'mallName', mallName)
+          let color = value.includes('失败') && 'red' || value.includes('成功') && 'green' || ''
+          this.$set(this.goodsTable[index], 'color', color)
           this.updateOnNewDetails(item.id, mallId, { state: value })
         }
       }

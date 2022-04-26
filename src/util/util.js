@@ -1354,6 +1354,6 @@ export function copyText(attr) {
  */
 export function getRandSymbol() {
   let symbolList = ['~','!','@','#','$','%','^','&','*','(',')','-','_','=','+','?','<','>',',','.',';',':','[',']','{','}','|']
-  let index = Math.random() * symbolList
+  let index = Math.random() * symbolList.length
   return symbolList[Math.floor(index)]
 }

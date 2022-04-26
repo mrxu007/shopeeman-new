@@ -358,6 +358,8 @@ const errorMsg = function(userMessage) {
       msg = '未能创建产品:图片不存在'
     } else if (userMessage.includes('dimension is mandatory : width or height or length is empty or 0')) {
       msg = '未能创建产品:尺寸是强制性的:宽度、高度或长度为空或0'
+    }else if (userMessage.includes('discount is end')) {
+      msg = '该折扣已结束'
     } else {
       msg = userMessage
     }
