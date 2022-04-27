@@ -293,7 +293,7 @@ export default class ShopeemanConfig {
           'CountryCode': 'TW',
           'IsDeafult': true,
           'IsSelected': true,
-          'ShipId': '30013',
+          'ShipId': '30015',
           'ShipName': '蝦皮店到店'
         },
         {

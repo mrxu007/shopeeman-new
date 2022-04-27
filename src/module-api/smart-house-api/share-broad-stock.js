@@ -147,5 +147,10 @@ export default class ShareBroadStock {
       return str
     }
   }
+  //获积分
+  searchIntegralNumberRecord(){
+
+  }
+
 }
 

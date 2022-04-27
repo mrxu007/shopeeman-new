@@ -1791,7 +1791,7 @@ export default {
                   height: item.height > 1 && item.width || 1,
                   length: item.long > 1 && item.long || 1
                 },
-                condition: 1,
+                condition: this.basicConfig.usedChecked && 4 || 1,
                 dangerous_goods: 0, //待修改
                 min_purchase_limit: this.country === 'TW' && parseInt(this.basicConfig.min_purchase_limit) || 1,
                 input_normal_price: null,
@@ -2006,7 +2006,7 @@ export default {
                 }
               }
               else {
-                let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index, 1)
+                let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index - 1, 1)
                 imagesList = [...newMain, ...imagesList]
               }
               if (this.associatedConfig.pictureSetting.whiteChecked) {

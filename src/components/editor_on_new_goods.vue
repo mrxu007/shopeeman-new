@@ -657,7 +657,7 @@ export default {
         shuffleChecked: true,
         deleteGoodsChecked: false,
         inventoryNumber: '10', // 翻译语种
-        typeRadio: 2, // 单选
+        typeRadio: 3, // 单选
         checkedRadio: 0 // 单选
       }, // 图片
       languagesList: [
