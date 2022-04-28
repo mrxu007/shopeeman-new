@@ -1976,12 +1976,8 @@ export default {
                 continue
               }
               if (this.storeConfig.wordsHeavy) {
-                let nameList = goodsParam['name'].split(' ')
-                let setName = new Set()
-                nameList.forEach(i => {
-                  setName.add(i)
-                })
-                goodsParam['name'] = [...setName].join('')
+                let setName = new Set([...goodsParam['name'].split(' ')])
+                goodsParam['name'] = [...setName].join(' ').trim()
               }
               // images size_chart
               let imagesList = neededTranslateInfoData.images
@@ -2211,6 +2207,9 @@ export default {
                   skuDatas: ''
                 }
                 let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
+                if(this.basicConfig.deleteCollectChecked && this.associatedConfig.dimensionRadio < 2){
+                  this.$commodityService.deleteCollectGoodsInfo([item.id])
+                }
                 console.log('saveListingRecordParmaRes', saveListingRecordParmaJson)
                 this.updateAttributeName(item, product_id, 'product_id')
                 this.updateAttributeName(item, mallId, 'mallId')
@@ -2329,27 +2328,42 @@ export default {
           if (keyList.length > 0) {
             keyList.forEach(i => {
               if (i) {
-                let isName = goods['name'].includes(i)
-                let isDescription = goods['description'].includes(i)
-                let isSKU = skuJson.search('"options":".*(' + i + ').*",')
-                let success = false
-                if (keyFilter.includes(0) && (isName || isDescription || isSKU)) {
-                  success = true
-                } else {
-                  if (keyFilter.includes(1) && isName) {
-                    success = true
-                  }
-                  if (keyFilter.includes(2) && isDescription) {
-                    success = true
-                  }
-                  if (keyFilter.includes(3) && isSKU) {
-                    success = true
-                  }
+                if(keyFilter.includes(0) || keyFilter.includes(1)){
+                  goods['name'] = goods['name'].replaceAll(i,'')
                 }
-                success && this.updateAttributeName(goodItem, '关键词过滤成功')
-                this.updateAttributeName(goodItem, 5, 'resultsFilter')
-                success && ++this.statistics.filter
-                success && resolve(false)
+                if(keyFilter.includes(0) || keyFilter.includes(2)){
+                  goods['description'] = goods['description'].replaceAll(i,'')
+                }
+                if(keyFilter.includes(0) || keyFilter.includes(3)){
+                  let tempList = JSON.parse(skuJson)
+                  for(let i = 0 ;i < tempList.length;i++){
+                    let option = tempList[i].options.map(son=>son.replaceAll(i,''))
+                    tempList[i].options = option
+                  }
+                  goods['tier_variation'] = tempList
+                  skuJson = JSON.stringify(goods['tier_variation'])
+                }
+                // let isName = goods['name'].includes(i)
+                // let isDescription = goods['description'].includes(i)
+                // let isSKU = skuJson.search('"options":".*(' + i + ').*",')
+                // let success = false
+                // if (keyFilter.includes(0) && (isName || isDescription || isSKU)) {
+                //   success = true
+                // } else {
+                //   if (keyFilter.includes(1) && isName) {
+                //     success = true
+                //   }
+                //   if (keyFilter.includes(2) && isDescription) {
+                //     success = true
+                //   }
+                //   if (keyFilter.includes(3) && isSKU) {
+                //     success = true
+                //   }
+                // }
+                // success && this.updateAttributeName(goodItem, '关键词过滤成功')
+                // this.updateAttributeName(goodItem, 5, 'resultsFilter')
+                // success && ++this.statistics.filter
+                // success && resolve(false)
               }
             })
           }
@@ -2482,27 +2496,40 @@ export default {
                   if (setting.imgSize === 1) {
                     watermark.width = Math.floor(image.width / 5)
                     watermark.height = Math.floor(image.height / 5)
-                  } else if (setting.imgSize === 2) {
+                  }
+                  else if (setting.imgSize === 2) {
+                    let scale = (watermark.width / image.width)
                     watermark.width = image.width
-                  } else if (setting.imgSize === 3) {
+                    let height = Math.floor(watermark.height / scale)
+                    watermark.height =  height < image.height && height || image.height
+                  }
+                  else if (setting.imgSize === 3) {
+                    let scale = (watermark.height / image.height)
                     watermark.height = image.height
+                    let width = Math.floor(watermark.width / scale)
+                    watermark.width =  width < image.width && width || image.width
                   }
                   if (setting.locate === 1) {
                     dx = 5
                     dy = 5
-                  } else if (setting.locate === 2) {
+                  }
+                  else if (setting.locate === 2) {
                     dx = 5
                     dy = Math.floor(image.height - watermark.height) - 5
-                  } else if (setting.locate === 3) {
+                  }
+                  else if (setting.locate === 3) {
                     dx = Math.floor(image.width - watermark.width) - 5
                     dy = 5
-                  } else if (setting.locate === 4) {
+                  }
+                  else if (setting.locate === 4) {
                     dx = Math.floor(image.width - watermark.width) - 5
                     dy = Math.floor(image.height - watermark.height) - 5
-                  } else if (setting.locate === 5) {
+                  }
+                  else if (setting.locate === 5) {
                     dx = Math.floor((image.width - watermark.width) / 2)
                     dy = Math.floor((image.height - watermark.height) / 2)
                   }
+
                   if (image.width <= watermark.width) {
                     dx = 0
                   }
@@ -3305,7 +3332,7 @@ export default {
         const temp = Object.assign(this.goodsTable[index], data)
         this.$set(this.goodsTable, index, temp)
       }
-      this.goodsEditorVisible = false
+      this.goodsEditorVisible = data?.isSustain || false
     },
     // 商品编辑控制
     async updateGoodsEdit(item, type) {

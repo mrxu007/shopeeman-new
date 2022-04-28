@@ -198,30 +198,15 @@
           <el-table-column align="center" type="index" label="序号" min-width="50px">
             <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
           </el-table-column>
-          <el-table-column min-width="150px" label="仓库名称" prop="warehouse_name" align="center"/>
-          <el-table-column min-width="150px" label="交易号" prop="trans_number" align="center"/>
-          <el-table-column align="center" prop="type" label="资金流向" min-width="100px">
-            <template v-if="scope.row.type" slot-scope="scope"> {{ scope.row.type === 1 ? '收入' : '支出' }}</template>
-          </el-table-column>
-          <el-table-column align="center" prop="trans_type" label="交易类型" min-width="100px">
-            <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_type, tradeTypeList) }}</template>
-          </el-table-column>
-          <el-table-column align="center" prop="package_order_sn" label="订单编号" min-width="180px"/>
-          <el-table-column prop="amount" label="交易金额" align="center" min-width="100px"/>
-          <el-table-column align="center" prop="trans_status" label="交易状态" min-width="100px">
-            <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_status, tradeStatusList) }}</template>
-          </el-table-column>
-          <el-table-column align="center" prop="current_amount" label="当前剩余金额" min-width="100px"/>
-          <el-table-column align="center" prop="customs_money" label="清关费用" min-width="100px"/>
-          <el-table-column align="center" prop="first_express_money" label="头程物流费用" min-width="100px"/>
-          <el-table-column align="center" prop="warhouse_money" label="仓库操作费" min-width="100px"/>
-          <el-table-column align="center" prop="order_outbound_img" label="出库图片" min-width="100px">
-            <template slot-scope="scope">
-              <el-image v-if="scope.row.order_outbound_img" :src="scope.row.order_outbound_img"/>
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="remark" label="备注" width="120px" show-overflow-tooltip/>
-          <el-table-column align="center" prop="trans_time" label="交易时间" min-width="180px" fixed="right"/>
+          <el-table-column min-width="120px" label="仓库名称" prop="group_text" align="center"/>
+          <el-table-column width="120px" label="分组" prop="group" align="center"/>
+          <el-table-column width="150px" label="类型" prop="type_text" align="center"/>
+          <el-table-column width="150px" label="单据号" prop="out_order_sn" align="center"/>
+          <el-table-column width="150px" label="收入/支出" prop="change_points_text" align="center"/>
+          <el-table-column width="150px" label="变更前积分" prop="before_points_text" align="center"/>
+          <el-table-column width="150px" label="变更后积分" prop="after_points_text" align="center"/>
+          <el-table-column min-width="80px" label="备注" prop="remark" align="center"/>
+          <el-table-column width="150px" label="变更时间" prop="updated_at" align="center"/>
         </el-table>
       </div>
       <div class="pagination">
@@ -657,6 +642,10 @@ export default {
         const resObj = res && JSON.parse(res)
         const info = resObj && resObj.data && JSON.parse(resObj.data)
         console.log('pointLogs', info)
+        if (info && info.code === 200) {
+          this.tableData = info.data.data
+          this.total = info.data.total
+        }
       } catch (error) {
         console.log(error)
       }

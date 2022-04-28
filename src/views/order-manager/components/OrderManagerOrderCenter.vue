@@ -1029,6 +1029,7 @@
       </el-dialog>
       <el-dialog
         v-if="addBuyLinkVisible"
+        top="10vh"
         title="添加采购链接"
         :visible.sync="addBuyLinkVisible"
         width="1200px"

@@ -1785,7 +1785,7 @@ export default {
         const temp = Object.assign(this.mallTable[index], data)
         this.$set(this.mallTable, index, temp)
       }
-      this.goodsEditorVisible = false
+      this.goodsEditorVisible =  data?.isSustain || false
     },
     async showCategory() {
       for (const i in this.mallTable) {
