@@ -1691,7 +1691,7 @@ export default {
     },
     // 获取汇率
     async getRate() {
-      const info = await window['ConfigBridgeService'].getUserInfo()
+      const info = await this.$appConfig.getUserInfo()
       this.rateList = info.ExchangeRates || {}
     },
     changeMoney(data, country, type) {

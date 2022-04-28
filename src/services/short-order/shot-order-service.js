@@ -58,6 +58,7 @@ export default class {
     await this.buildPurchaseList(this.orders)
     const res = await this.getShortOrders(buyerMap, payAccount, configInfo, nickInfo)
     let orders = []
+    console.log('获取采购信息',res)
     if (res.code === 200) {
       orders = res.data
     } else {
@@ -472,9 +473,11 @@ export default class {
     }
     // 5:拍单时买家姓名自动增加订单后6位
     if (configInfo.shot_order_address_label.includes('5')) {
+      console.log('5:拍单时买家姓名自动增加订单后6位',itemOrder.order_sn.substring(itemOrder.order_sn.length - 6))
       buyerName += '-' + itemOrder.order_sn.substring(itemOrder.order_sn.length - 6)
     }
-    addressUserInfo['buyerName'] = itemOrder.goods_info.ori_platform_id == 1 ? warehouseInfo.receiving_name : buyerName
+    // addressUserInfo['buyerName'] = itemOrder.goods_info.ori_platform_id == 1 ? warehouseInfo.receiving_name : buyerName
+    addressUserInfo['buyerName'] =  buyerName
     // 手机号处理
     addressUserInfo['buyerPhone'] = warehouseInfo.is_use_own_phone == 1 ? warehouseInfo.own_phone : warehouseInfo.receiving_tel
     // 地址处理：加上订单Id
@@ -486,6 +489,7 @@ export default class {
       }
       // 6:拍单时买家地址自动增加订单后6位
       if (configInfo.shot_order_address_label.includes('6')) {
+        console.log('6:拍单时买家地址自动增加订单后6位',itemOrder.order_sn.substring(itemOrder.order_sn.length - 6))
         detailAddress += '#' + itemOrder.order_sn.substring(itemOrder.order_sn.length - 6)
       }
     }

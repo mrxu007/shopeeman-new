@@ -45,7 +45,8 @@ export default {
     },
     // 初始化用户信息
     async getUserinfo() {
-      const res = await this.$api.userSet()
+
+      const res = await this.$appConfig.getUserInfo()
       if (res.data.code === 200) {
         this.userInfo = res.data.data
         console.log(this.userInfo)

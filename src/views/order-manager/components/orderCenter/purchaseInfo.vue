@@ -201,7 +201,7 @@ export default {
       }
     },
     async getRate() {
-      const info = await window['ConfigBridgeService'].getUserInfo()
+      const info = await this.$appConfig.getUserInfo()
       this.rateList = info.ExchangeRates || {}
     },
     changeAmount() {

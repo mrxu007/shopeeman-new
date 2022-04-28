@@ -941,7 +941,7 @@ export default {
     // 获取用户数据
     async getUserinfo() {
       this.showlog = true
-      const res = await this.$api.userSet()
+      const res = await this.$appConfig.getUserInfo()
       if (res.data.code === 200) {
         this.userInfo = res.data.data
         if (!this.userInfo.auto_attention_set) {

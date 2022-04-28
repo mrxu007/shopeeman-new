@@ -314,7 +314,7 @@ export default {
       this.tableLoading = false
     },
     async getRate() {
-      let info = await window['ConfigBridgeService'].getUserInfo()
+      let info = await this.$appConfig.getUserInfo()
       this.rateList = info.ExchangeRates || {}
       // const data = await this.$api.exchangeRateList()
       // if (data.data.code === 200) {
