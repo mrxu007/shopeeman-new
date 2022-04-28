@@ -96,7 +96,7 @@
           <ul style="margin: 0 0 10px 20px">
             <li>
               <span>活动名称：</span>
-              <el-input v-model="activeDicountName" size="mini" oninput="value=value.replace(/\s+/g,'')" clearable />
+              <el-input v-model="activeDicountName" size="mini" clearable />
             </li>
 
             <li>

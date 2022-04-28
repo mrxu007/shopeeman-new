@@ -24,7 +24,7 @@
       <div class="account-box mar-right">
         <span class="account-title">仓库积分信息</span>
         <div class="account-item">
-          <span v-if="integralLoading">积分：<span class="warning-style">获取中...</span></span>
+          <span v-if="integralLoading">总积分：<span class="warning-style">获取中...</span></span>
           <span v-else>总积分：<span class="warning-style">{{ integralNumber }} </span></span>
           <el-button type="" size="mini" @click="integralVisible = true">查看详情</el-button>
           <el-button type="primary" size="mini" @click="getIntegralNumberRecord">刷新积分</el-button>
@@ -53,12 +53,12 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="用户充值记录" name="rechargeRecord"/>
         <el-tab-pane label="用户账单记录" name="accountRecord"/>
-<!--        <el-tab-pane label="积分日志记录" name="integralRecord"/>-->
+        <el-tab-pane label="积分日志记录" name="integralRecord"/>
       </el-tabs>
     </div>
     <!-- 内容区 -->
     <div class="content">
-      <div class="btn-box">
+      <div class="btn-box" v-if="activeName !== 'integralRecord'">
         <div class="btn-item mar-right">
           交易时间：
           <el-date-picker
@@ -648,8 +648,8 @@ export default {
         app_uid: this.muid,
         page_size: this.pageSize,
         page: this.currentPage,
-        win: '6',
-        trans_time: this.tradeTime.length ? this.tradeTime[0] + ' 00:00:00/' + this.tradeTime[1] + ' 23:59:59' : ''
+        wid: '6',
+        // trans_time: this.tradeTime.length ? this.tradeTime[0] + ' 00:00:00/' + this.tradeTime[1] + ' 23:59:59' : ''
       }
       this.tableLoading = true
       try {
