@@ -46,13 +46,9 @@ export default {
     // 初始化用户信息
     async getUserinfo() {
 
-      const res = await this.$appConfig.getUserInfo()
-      if (res.data.code === 200) {
-        this.userInfo = res.data.data
-        console.log(this.userInfo)
-      } else {
-        this.$message.warning(`信息获取失败！${res.data.data.message}`)
-      }
+      const res = await this.$appConfig.getUserConfig()
+      this.userInfo = JSON.parse(res)
+      console.log('userInfo',res)
     }
   }
 }
