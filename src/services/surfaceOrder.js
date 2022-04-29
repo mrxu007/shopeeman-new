@@ -249,7 +249,7 @@ export default class {
         return
       }
       // 检查是否有物流信息
-      const trackInfo = this.checkTrackInfo(orderInfo, country)
+      const trackInfo = await this.checkTrackInfo(orderInfo, country)
       console.log(trackInfo, 'trackInfo')
       // 3、判断有无物流单号
       if (trackInfo.trackingNo) {
