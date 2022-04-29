@@ -1716,10 +1716,9 @@ export default {
           // logistics_channels
           console.log('channelListRes', channelList, this.logistics, this.customLogistics)
           for (let item of channelList) {
-            if (item.enabled !== this.logistics.includes(item.channel_id + '') || item.is_mask_channel) {
+            if ((!item.parent_channel_id && this.logistics.includes(item.channel_id + '')) || item.is_mask_channel) {
               let temp = {
-                // enabled: true,
-                enabled: this.logistics.includes(item.channel_id + ''),
+                enabled: item.enabled,
                 channelid: item.channel_id,
                 sizeid: 0,
                 size: 0,
@@ -1805,7 +1804,7 @@ export default {
                 installment_tenures: {},
                 pre_order: this.basicConfig.stockUpChecked,
                 days_to_ship: Math.floor(this.basicConfig.stockUpNumber) || 15,
-                logistics_channels: logistics_channels.slice(0, 4),
+                logistics_channels: logistics_channels,
                 unlisted: this.basicConfig.usedChecked,
                 add_on_deal: []
               }

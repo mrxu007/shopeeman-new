@@ -693,12 +693,13 @@ export default {
           'Content-Type': 'text/plain;charset=UTF-8',
           'x-s': apiToMd5,
           'x-v': 1,
+          'x-sap-access-t':	Math.floor(timestamp /1000),
+          'ts':timestamp,
           Authorization: `Bearer ${token}`
         },
         params: {
           _uid: `0-${uid}`,
-          _ts: timestamp,
-          _v: '6.3.4'
+          _v: '6.3.8'
         }
       }
       const res = await this.$shopeemanService.sendMessage(country, message, query)

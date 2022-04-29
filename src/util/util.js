@@ -1055,8 +1055,9 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
       if (base64File){
         const country = that.country || mall.country
         const imageFileJSON = await that.$shopeemanService.upload_image(country, { mallId: item.platform_mall_id }, '', base64File)
-        const imageFileRes = JSON.parse(imageFileJSON)
-        const imageFileData = JSON.parse(imageFileRes.data)
+        const imageFileRes = JSON.parse(imageFileJSON) || ''
+        console.log(imageFileRes)
+        const imageFileData = imageFileRes && JSON.parse(imageFileRes.data)
         newImage[item.url] = imageFileData?.data?.resource_id || ''
       }
     } catch (e) {

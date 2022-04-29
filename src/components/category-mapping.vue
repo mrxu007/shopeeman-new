@@ -87,6 +87,7 @@ export default {
   },
   watch: {
     countryOption(val) {
+      this.categoryList = []
       this.enterCategory()
     }
   },

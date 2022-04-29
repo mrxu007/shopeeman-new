@@ -2243,7 +2243,7 @@ export default {
         if (res.data.code === 200) {
           this.$message.success('删除成功')
         } else {
-          this.$message.warning(`删除失败：res.data.message`)
+          this.$message.warning(`删除失败：${res.data.message}`)
         }
       }).catch(() => {
       })

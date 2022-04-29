@@ -447,7 +447,7 @@
         </div>
       </el-dialog>
       <el-dialog title="描述模板" width="500px" :close-on-click-modal="false"
-                 :modal="false" :visible.sync="describeVisible">
+                 :modal="false" :visible.sync="describeVisible" :show-close="false">
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
             <div style="display: flex;align-items: center;">
