@@ -1787,11 +1787,11 @@ export default {
                 model_list: [],
                 weight: item.weight + '',
                 dimension: {
-                  width: item.width,
-                  height: item.height,
-                  length: item.long
+                  width: item.width > 1 && item.width || 1,
+                  height: item.height > 1 && item.width || 1,
+                  length: item.long > 1 && item.long || 1
                 },
-                condition: 1,
+                condition: this.basicConfig.usedChecked && 4 || 1,
                 dangerous_goods: 0, //待修改
                 min_purchase_limit: this.country === 'TW' && parseInt(this.basicConfig.min_purchase_limit) || 1,
                 input_normal_price: null,
@@ -1976,12 +1976,8 @@ export default {
                 continue
               }
               if (this.storeConfig.wordsHeavy) {
-                let nameList = goodsParam['name'].split(' ')
-                let setName = new Set()
-                nameList.forEach(i => {
-                  setName.add(i)
-                })
-                goodsParam['name'] = [...setName].join('')
+                let setName = new Set([...goodsParam['name'].split(' ')])
+                goodsParam['name'] = [...setName].join(' ').trim()
               }
               // images size_chart
               let imagesList = neededTranslateInfoData.images
@@ -2006,7 +2002,7 @@ export default {
                 }
               }
               else {
-                let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index, 1)
+                let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index - 1, 1)
                 imagesList = [...newMain, ...imagesList]
               }
               if (this.associatedConfig.pictureSetting.whiteChecked) {
@@ -2211,6 +2207,9 @@ export default {
                   skuDatas: ''
                 }
                 let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
+                if(this.basicConfig.deleteCollectChecked && this.associatedConfig.dimensionRadio < 2){
+                  this.$commodityService.deleteCollectGoodsInfo([item.id])
+                }
                 console.log('saveListingRecordParmaRes', saveListingRecordParmaJson)
                 this.updateAttributeName(item, product_id, 'product_id')
                 this.updateAttributeName(item, mallId, 'mallId')
@@ -2218,62 +2217,64 @@ export default {
                 console.log('sellActiveSetting',this.sellActiveSetting,mallId)
                 if (this.storeConfig.activityChecked) {
                   let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mallId)
-                  if (sellActive?.goodsId) {
-                    const params = {
-                      country: this.country,
-                      mallId: mallId,
-                      collection_id: Number(sellActive.goodsId), // 分类id
-                      product_id_list: [product_id] // 商品id
+                  if(sellActive){
+                    if (sellActive?.goodsId) {
+                      const params = {
+                        country: this.country,
+                        mallId: mallId,
+                        collection_id: Number(sellActive.goodsId), // 分类id
+                        product_id_list: [product_id] // 商品id
+                      }
+                      const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
+                      console.log('addCollectionGoods - data',res)
+                      if (res.ecode === 0) {
+                        this.$message.success('添加成功')
+                      } else {
+                        this.$message.warning(`添加失败${res.message}`)
+                      }
                     }
-                    const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
-                    console.log('addCollectionGoods - data',res)
-                    if (res.ecode === 0) {
-                      this.$message.success('添加成功')
-                    } else {
-                      this.$message.warning(`添加失败${res.message}`)
-                    }
-                  }
-                  if (sellActive.discountId && sellActive.number && sellActive.discount) {
-                    const params = {}
-                    params['product_id'] = product_id
-                    params['version'] = '3.2.0'
-                    params['shop_id'] = mallId
-                    const detailRes = await this.$shopeemanService.searchProductDetail(item.country, params)
-                    console.log('searchProductDetail - data',detailRes)
-                    if (detailRes.code === 200) {
-                      const discount_model_list = []
-                      detailRes.data.model_list.forEach(i => {
-                        const obj = {
-                          discount: Math.floor(100 - sellActive.discount),
-                          itemid: product_id,
-                          model_name: i.name,
-                          modelid: i.id,
-                          price_before_discount: Number(i.price),
-                          promotion_price: (i.price * sellActive.discount / 100).toFixed(2),
-                          promotionid: sellActive.discountId,
-                          selected: true,
-                          shopid: Number(mallId),
-                          status: 1,
-                          total_item_limit: 0,
-                          user_item_limit: sellActive.number
+                    if (sellActive?.discountId && sellActive?.number && sellActive?.discount) {
+                      const params = {}
+                      params['product_id'] = product_id
+                      params['version'] = '3.2.0'
+                      params['shop_id'] = mallId
+                      const detailRes = await this.$shopeemanService.searchProductDetail(item.country, params)
+                      console.log('searchProductDetail - data',detailRes)
+                      if (detailRes.code === 200) {
+                        const discount_model_list = []
+                        detailRes.data.model_list.forEach(i => {
+                          const obj = {
+                            discount: Math.floor(100 - sellActive.discount),
+                            itemid: product_id,
+                            model_name: i.name,
+                            modelid: i.id,
+                            price_before_discount: Number(i.price),
+                            promotion_price: (i.price * sellActive.discount / 100).toFixed(2),
+                            promotionid: sellActive.discountId,
+                            selected: true,
+                            shopid: Number(mallId),
+                            status: 1,
+                            total_item_limit: 0,
+                            user_item_limit: sellActive.number
+                          }
+                          discount_model_list.push(obj)
+                        })
+                        const creatParams = {
+                          discount_id: sellActive.discountId,
+                          discount_model_list,
+                          mallId: mallId
                         }
-                        discount_model_list.push(obj)
-                      })
-                      const creatParams = {
-                        discount_id: sellActive.discountId,
-                        discount_model_list,
-                        mallId: mallId
-                      }
-                      let putModelActive = await this.GoodsDiscount.putModelActive(item.country, creatParams)
-                      if(putModelActive?.code === 200){
-                        this.updateAttributeName(item, '发布成功：行销活动添加成功', '', mall)
+                        let putModelActive = await this.GoodsDiscount.putModelActive(item.country, creatParams)
+                        if(putModelActive?.code === 200){
+                          this.updateAttributeName(item, '发布成功：行销活动添加成功', '', mall)
+                        }else{
+                          let msg = '发布成功：行销活动添加失败'+errorMsg(putModelActive.messages || putModelActive.data)
+                          this.updateAttributeName(item ,msg ,'' , mall)
+                        }
+                        console.log('putModelActive - data', putModelActive)
                       }else{
-                        let msg = '发布成功：行销活动添加失败'+errorMsg(putModelActive.messages || putModelActive.data)
-                        this.updateAttributeName(item ,msg ,'' , mall)
+                        this.updateAttributeName(item, '发布成功：行销活动商品详情获取失败', '', mall)
                       }
-                      console.log('putModelActive - data', putModelActive)
-                    }else{
-                      this.updateAttributeName(item, '发布成功：行销活动商品详情获取失败', '', mall)
                     }
                   }
                 }
@@ -2327,27 +2328,42 @@ export default {
           if (keyList.length > 0) {
             keyList.forEach(i => {
               if (i) {
-                let isName = goods['name'].includes(i)
-                let isDescription = goods['description'].includes(i)
-                let isSKU = skuJson.search('"options":".*(' + i + ').*",')
-                let success = false
-                if (keyFilter.includes(0) && (isName || isDescription || isSKU)) {
-                  success = true
-                } else {
-                  if (keyFilter.includes(1) && isName) {
-                    success = true
-                  }
-                  if (keyFilter.includes(2) && isDescription) {
-                    success = true
-                  }
-                  if (keyFilter.includes(3) && isSKU) {
-                    success = true
-                  }
+                if(keyFilter.includes(0) || keyFilter.includes(1)){
+                  goods['name'] = goods['name'].replaceAll(i,'')
                 }
-                success && this.updateAttributeName(goodItem, '关键词过滤成功')
-                this.updateAttributeName(goodItem, 5, 'resultsFilter')
-                success && ++this.statistics.filter
-                success && resolve(false)
+                if(keyFilter.includes(0) || keyFilter.includes(2)){
+                  goods['description'] = goods['description'].replaceAll(i,'')
+                }
+                if(keyFilter.includes(0) || keyFilter.includes(3)){
+                  let tempList = JSON.parse(skuJson)
+                  for(let i = 0 ;i < tempList.length;i++){
+                    let option = tempList[i].options.map(son=>son.replaceAll(i,''))
+                    tempList[i].options = option
+                  }
+                  goods['tier_variation'] = tempList
+                  skuJson = JSON.stringify(goods['tier_variation'])
+                }
+                // let isName = goods['name'].includes(i)
+                // let isDescription = goods['description'].includes(i)
+                // let isSKU = skuJson.search('"options":".*(' + i + ').*",')
+                // let success = false
+                // if (keyFilter.includes(0) && (isName || isDescription || isSKU)) {
+                //   success = true
+                // } else {
+                //   if (keyFilter.includes(1) && isName) {
+                //     success = true
+                //   }
+                //   if (keyFilter.includes(2) && isDescription) {
+                //     success = true
+                //   }
+                //   if (keyFilter.includes(3) && isSKU) {
+                //     success = true
+                //   }
+                // }
+                // success && this.updateAttributeName(goodItem, '关键词过滤成功')
+                // this.updateAttributeName(goodItem, 5, 'resultsFilter')
+                // success && ++this.statistics.filter
+                // success && resolve(false)
               }
             })
           }
@@ -2480,27 +2496,40 @@ export default {
                   if (setting.imgSize === 1) {
                     watermark.width = Math.floor(image.width / 5)
                     watermark.height = Math.floor(image.height / 5)
-                  } else if (setting.imgSize === 2) {
+                  }
+                  else if (setting.imgSize === 2) {
+                    let scale = (watermark.width / image.width)
                     watermark.width = image.width
-                  } else if (setting.imgSize === 3) {
+                    let height = Math.floor(watermark.height / scale)
+                    watermark.height =  height < image.height && height || image.height
+                  }
+                  else if (setting.imgSize === 3) {
+                    let scale = (watermark.height / image.height)
                     watermark.height = image.height
+                    let width = Math.floor(watermark.width / scale)
+                    watermark.width =  width < image.width && width || image.width
                   }
                   if (setting.locate === 1) {
                     dx = 5
                     dy = 5
-                  } else if (setting.locate === 2) {
+                  }
+                  else if (setting.locate === 2) {
                     dx = 5
                     dy = Math.floor(image.height - watermark.height) - 5
-                  } else if (setting.locate === 3) {
+                  }
+                  else if (setting.locate === 3) {
                     dx = Math.floor(image.width - watermark.width) - 5
                     dy = 5
-                  } else if (setting.locate === 4) {
+                  }
+                  else if (setting.locate === 4) {
                     dx = Math.floor(image.width - watermark.width) - 5
                     dy = Math.floor(image.height - watermark.height) - 5
-                  } else if (setting.locate === 5) {
+                  }
+                  else if (setting.locate === 5) {
                     dx = Math.floor((image.width - watermark.width) / 2)
                     dy = Math.floor((image.height - watermark.height) / 2)
                   }
+
                   if (image.width <= watermark.width) {
                     dx = 0
                   }
@@ -3303,7 +3332,7 @@ export default {
         const temp = Object.assign(this.goodsTable[index], data)
         this.$set(this.goodsTable, index, temp)
       }
-      this.goodsEditorVisible = false
+      this.goodsEditorVisible = data?.isSustain || false
     },
     // 商品编辑控制
     async updateGoodsEdit(item, type) {

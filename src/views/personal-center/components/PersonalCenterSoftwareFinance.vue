@@ -205,7 +205,9 @@
         <div class="account-box">
           <div v-for="(item, index) in rechargeList" :key="index" class="account-item" :class="{ activeColor: amount === item }" @click="amount = item">￥{{ item }}</div>
         </div>
-        <div class="account-input">充值金额：<el-input v-model="amount" size="mini" style="width: 200px" clearable /></div>
+        <div class="account-input" style="display: flex;align-items: center">
+          充值金额：<el-input v-model="amount" size="mini" style="width: 200px" clearable />
+        </div>
         <el-button type="primary" class="btn" @click="recharge">立即充值</el-button>
       </div>
     </el-dialog>
@@ -456,6 +458,10 @@ export default {
     },
     // 充值
     async recharge() {
+      if (this.amount < 20){
+        this.$message.error('最低充值金额为20')
+        return
+      }
       const params = { amount: this.amount }
       try {
         const res = await this.$api.getChargeUrlV2(params)

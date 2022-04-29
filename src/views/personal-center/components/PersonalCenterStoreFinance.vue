@@ -15,9 +15,19 @@
         <div class="account-item">
           <span v-if="balanceLoading">余额：<span class="warning-style">获取中...</span></span>
           <span
-            v-else
+              v-else
           >余额：<span class="warning-style">{{ userBalance }} 元</span></span>
           <el-button type="primary" size="mini" @click="searchUserBalance">刷新余额</el-button>
+        </div>
+      </div>
+      <!-- 余额信息 -->
+      <div class="account-box mar-right">
+        <span class="account-title">仓库积分信息</span>
+        <div class="account-item">
+          <span v-if="integralLoading">总积分：<span class="warning-style">获取中...</span></span>
+          <span v-else>总积分：<span class="warning-style">{{ integralNumber }} </span></span>
+          <el-button type="" size="mini" @click="integralVisible = true">查看详情</el-button>
+          <el-button type="primary" size="mini" @click="getIntegralNumberRecord">刷新积分</el-button>
         </div>
       </div>
       <!-- 充值 -->
@@ -26,11 +36,11 @@
         <div class="account-item">
           <div class="acount-item-sub mar-right">
             <span>充值金额：</span>
-            <el-input v-model="rechargeMoney" size="mini" style="width: 80px" clearable />
+            <el-input v-model="rechargeMoney" size="mini" style="width: 80px" clearable/>
           </div>
           <div class="acount-item-sub mar-right">
             <span>充值备注：</span>
-            <el-input v-model="rechargeRemark" size="mini" style="width: 200px" clearable />
+            <el-input v-model="rechargeRemark" size="mini" style="width: 200px" clearable/>
           </div>
           <div class="acount-item-sub">
             <el-button type="primary" size="mini" @click="userRecharge">充值</el-button>
@@ -41,36 +51,37 @@
     <!-- tab区 -->
     <div class="tab-box">
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="用户充值记录" name="rechargeRecord" />
-        <el-tab-pane label="用户账单记录" name="accountRecord" />
+        <el-tab-pane label="用户充值记录" name="rechargeRecord"/>
+        <el-tab-pane label="用户账单记录" name="accountRecord"/>
+        <el-tab-pane label="积分日志记录" name="integralRecord"/>
       </el-tabs>
     </div>
     <!-- 内容区 -->
     <div class="content">
-      <div class="btn-box">
+      <div class="btn-box" v-if="activeName !== 'integralRecord'">
         <div class="btn-item mar-right">
           交易时间：
           <el-date-picker
-            v-model="tradeTime"
-            size="mini"
-            value-format="yyyy-MM-dd"
-            type="daterange"
-            style="width: 207px"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            :picker-options="pickerOptions"
+              v-model="tradeTime"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              style="width: 207px"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :picker-options="pickerOptions"
           />
         </div>
         <div v-if="activeName === 'accountRecord'" class="btn-item mar-right">
           交易类型：
           <el-select v-model="tradeType" size="mini">
-            <el-option v-for="item in tradeTypeList" :key="item.value" :label="item.label" :value="item.value" />
+            <el-option v-for="item in tradeTypeList" :key="item.value" :label="item.label" :value="item.value"/>
           </el-select>
         </div>
         <div v-if="activeName === 'accountRecord'" class="btn-item mar-right">
           订单号：
-          <el-input v-model="orderNumber" size="mini" style="width: 200px" clearable />
+          <el-input v-model="orderNumber" size="mini" style="width: 200px" clearable/>
         </div>
         <div v-if="activeName === 'rechargeRecord'">
           <el-button type="primary" size="mini" class="mar-right" @click="searchRechargeRecord">搜 索</el-button>
@@ -84,12 +95,12 @@
       <!-- 表格区 -->
       <div v-if="activeName === 'rechargeRecord'" class="container">
         <el-table
-          ref="multipleTable"
-          v-loading="tableLoading"
-          height="calc(100vh - 257px)"
-          :data="tableData"
-          tooltip-effect="dark"
-          :header-cell-style="{
+            ref="multipleTable"
+            v-loading="tableLoading"
+            height="calc(100vh - 257px)"
+            :data="tableData"
+            tooltip-effect="dark"
+            :header-cell-style="{
             textAlign: 'center',
             backgroundColor: '#f5f7fa',
           }"
@@ -97,42 +108,48 @@
           <el-table-column align="center" type="index" label="序号" min-width="50px" fixed>
             <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
           </el-table-column>
-          <el-table-column min-width="180px" label="内部交易单号" prop="trade_no" align="center" fixed />
-          <el-table-column min-width="100px" label="充值金额" prop="amount" align="center" />
+          <el-table-column min-width="180px" label="内部交易单号" prop="trade_no" align="center" fixed/>
+          <el-table-column min-width="100px" label="充值金额" prop="amount" align="center"/>
           <el-table-column align="center" label="交易时间" min-width="180px">
-            <template slot-scope="scope"> {{ $dayjs(scope.row.trans_time * 1000).format('YYYY-MM-DD') }} </template>
+            <template slot-scope="scope"> {{ $dayjs(scope.row.trans_time * 1000).format('YYYY-MM-DD') }}</template>
           </el-table-column>
-          <el-table-column align="center" prop="receipt_amount" label="实收金额" min-width="100px" />
-          <el-table-column align="center" prop="buyer_pay_amount" label="买家付款金额" min-width="100px" />
+          <el-table-column align="center" prop="receipt_amount" label="实收金额" min-width="100px"/>
+          <el-table-column align="center" prop="buyer_pay_amount" label="买家付款金额" min-width="100px"/>
           <el-table-column label="交易状态" align="center" min-width="80px">
-            <template v-if="scope.row.status" slot-scope="scope"> {{ scope.row.status === 1 ? '进行中' : '充值成功' }} </template>
+            <template v-if="scope.row.status" slot-scope="scope"> {{
+                scope.row.status === 1 ? '进行中' : '充值成功'
+              }}
+            </template>
           </el-table-column>
           <el-table-column prop="is_recharge" label="是否已充值" align="center" min-width="80px">
-            <template v-if="scope.row.is_recharge" slot-scope="scope"> {{ scope.row.is_recharge === 1 ? '是' : '否' }} </template>
+            <template v-if="scope.row.is_recharge" slot-scope="scope"> {{
+                scope.row.is_recharge === 1 ? '是' : '否'
+              }}
+            </template>
           </el-table-column>
-          <el-table-column align="center" prop="seller_id" label="买家支付宝用户号" min-width="180px" />
-          <el-table-column align="center" prop="buyer_id" label="买家支付宝唯一用户号" min-width="180px" />
+          <el-table-column align="center" prop="seller_id" label="买家支付宝用户号" min-width="180px"/>
+          <el-table-column align="center" prop="buyer_id" label="买家支付宝唯一用户号" min-width="180px"/>
           <el-table-column align="center" prop="remark" label="备注" min-width="100px">
             <template slot-scope="{row}">
-              {{ row.remark?row.remark.replace('"','').replace('"',''):'--' }}
+              {{ row.remark ? row.remark.replace('"', '').replace('"', '') : '--' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="支付时间" min-width="180px">
-            <template slot-scope="scope"> {{ $dayjs(scope.row.pay_time * 1000).format('YYYY-MM-DD') }} </template>
+            <template slot-scope="scope"> {{ $dayjs(scope.row.pay_time * 1000).format('YYYY-MM-DD') }}</template>
           </el-table-column>
           <el-table-column align="center" label="交易创建时间" min-width="180px" fixed="right">
-            <template slot-scope="scope"> {{ $dayjs(scope.row.gmt_create * 1000).format('YYYY-MM-DD') }} </template>
+            <template slot-scope="scope"> {{ $dayjs(scope.row.gmt_create * 1000).format('YYYY-MM-DD') }}</template>
           </el-table-column>
         </el-table>
       </div>
       <div v-if="activeName === 'accountRecord'" class="container">
         <el-table
-          ref="multipleTable"
-          v-loading="tableLoading"
-          :data="tableData"
-          height="calc(100vh - 258px)"
-          tooltip-effect="dark"
-          :header-cell-style="{
+            ref="multipleTable"
+            v-loading="tableLoading"
+            :data="tableData"
+            height="calc(100vh - 258px)"
+            tooltip-effect="dark"
+            :header-cell-style="{
             textAlign: 'center',
             backgroundColor: '#f5f7fa',
           }"
@@ -140,52 +157,96 @@
           <el-table-column align="center" type="index" label="序号" min-width="50px">
             <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
           </el-table-column>
-          <el-table-column min-width="150px" label="仓库名称" prop="warehouse_name" align="center" />
-          <el-table-column min-width="150px" label="交易号" prop="trans_number" align="center" />
+          <el-table-column min-width="150px" label="仓库名称" prop="warehouse_name" align="center"/>
+          <el-table-column min-width="150px" label="交易号" prop="trans_number" align="center"/>
           <el-table-column align="center" prop="type" label="资金流向" min-width="100px">
-            <template v-if="scope.row.type" slot-scope="scope"> {{ scope.row.type === 1 ? '收入' : '支出' }} </template>
+            <template v-if="scope.row.type" slot-scope="scope"> {{ scope.row.type === 1 ? '收入' : '支出' }}</template>
           </el-table-column>
           <el-table-column align="center" prop="trans_type" label="交易类型" min-width="100px">
-            <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_type, tradeTypeList) }} </template>
+            <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_type, tradeTypeList) }}</template>
           </el-table-column>
-          <el-table-column align="center" prop="package_order_sn" label="订单编号" min-width="180px" />
-          <el-table-column prop="amount" label="交易金额" align="center" min-width="100px" />
+          <el-table-column align="center" prop="package_order_sn" label="订单编号" min-width="180px"/>
+          <el-table-column prop="amount" label="交易金额" align="center" min-width="100px"/>
           <el-table-column align="center" prop="trans_status" label="交易状态" min-width="100px">
-            <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_status, tradeStatusList) }} </template>
+            <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_status, tradeStatusList) }}</template>
           </el-table-column>
-          <el-table-column align="center" prop="current_amount" label="当前剩余金额" min-width="100px" />
-          <el-table-column align="center" prop="customs_money" label="清关费用" min-width="100px" />
-          <el-table-column align="center" prop="first_express_money" label="头程物流费用" min-width="100px" />
-          <el-table-column align="center" prop="warhouse_money" label="仓库操作费" min-width="100px" />
+          <el-table-column align="center" prop="current_amount" label="当前剩余金额" min-width="100px"/>
+          <el-table-column align="center" prop="customs_money" label="清关费用" min-width="100px"/>
+          <el-table-column align="center" prop="first_express_money" label="头程物流费用" min-width="100px"/>
+          <el-table-column align="center" prop="warhouse_money" label="仓库操作费" min-width="100px"/>
           <el-table-column align="center" prop="order_outbound_img" label="出库图片" min-width="100px">
             <template slot-scope="scope">
-              <el-image v-if="scope.row.order_outbound_img" :src="scope.row.order_outbound_img" />
+              <el-image v-if="scope.row.order_outbound_img" :src="scope.row.order_outbound_img"/>
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="remark" label="备注" width="120px" show-overflow-tooltip />
-          <el-table-column align="center" prop="trans_time" label="交易时间" min-width="180px" fixed="right" />
+          <el-table-column align="center" prop="remark" label="备注" width="120px" show-overflow-tooltip/>
+          <el-table-column align="center" prop="trans_time" label="交易时间" min-width="180px" fixed="right"/>
+        </el-table>
+      </div>
+      <div v-if="activeName === 'integralRecord'" class="container">
+        <el-table
+            ref="multipleTable"
+            v-loading="tableLoading"
+            :data="tableData"
+            height="calc(100vh - 258px)"
+            tooltip-effect="dark"
+            :header-cell-style="{
+            textAlign: 'center',
+            backgroundColor: '#f5f7fa',
+          }"
+        >
+          <el-table-column align="center" type="index" label="序号" min-width="50px">
+            <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
+          </el-table-column>
+          <el-table-column min-width="120px" label="仓库名称" prop="group_text" align="center"/>
+          <el-table-column width="120px" label="分组" prop="group" align="center"/>
+          <el-table-column width="150px" label="类型" prop="type_text" align="center"/>
+          <el-table-column width="150px" label="单据号" prop="out_order_sn" align="center"/>
+          <el-table-column width="150px" label="收入/支出" prop="change_points_text" align="center"/>
+          <el-table-column width="150px" label="变更前积分" prop="before_points_text" align="center"/>
+          <el-table-column width="150px" label="变更后积分" prop="after_points_text" align="center"/>
+          <el-table-column min-width="80px" label="备注" prop="remark" align="center"/>
+          <el-table-column width="150px" label="变更时间" prop="updated_at" align="center"/>
         </el-table>
       </div>
       <div class="pagination">
         <el-pagination
-          background
-          :page-sizes="[10, 20, 50, 100]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @current-change="handleCurrentChange"
-          @size-change="handleSizeChange"
+            background
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @current-change="handleCurrentChange"
+            @size-change="handleSizeChange"
         />
       </div>
+    </div>
+    <div class="dialog_shell">
+      <el-dialog title="积分详情" width="800" top="15vh" :visible.sync="integralVisible">
+        <el-table ref="plTable" :data="integralList" height="500" style="margin-bottom: 20px;">
+          <el-table-column label="序号" width="60" type="index" align="center"/>
+          <el-table-column label="分组" width="120" prop="group" align="center"/>
+          <el-table-column label="仓库名称" min-width="120" prop="group_text" align="center"/>
+          <el-table-column label="积分数" width="100" prop="points_text" align="center"/>
+          <el-table-column label="创建时间" width="150" prop="created_at" align="center"/>
+          <el-table-column label="更新时间" width="150" prop="updated_at" align="center"/>
+        </el-table>
+      </el-dialog>
     </div>
   </div>
 </template>
 
-<script >
+<script>
 import { exportExcelDataCommon } from '../../../util/util'
+
 export default {
   data() {
     return {
+      integralLoading: true,  //积分获取
+      integralList: [],  // 积分列表
+      integralNumber: 0,  //积分总数
+      integralVisible: false,  //
+      integralTableData: [], //积分日志
       rechargeRemark: '', // 充值金额
       rechargeMoney: '', // 充值备注
       activeName: 'rechargeRecord', // tab
@@ -293,6 +354,8 @@ export default {
     this.searchRechargeRecord()
     // 用户账户余额查询
     this.searchUserBalance()
+    // 获取积分
+    this.getIntegralNumberRecord()
   },
   methods: {
     async userRecharge() {
@@ -538,6 +601,57 @@ export default {
       }
       this.tableLoading = false
     },
+    // 获取积分
+    async getIntegralNumberRecord() {
+      this.integralLoading = true
+      try {
+        const params = {
+          app_uid: this.muid,
+          uid: 2,
+          wid: '6'
+        }
+        const res = await this.$XzyNetMessageService.post('xzy.app_user.points', params)
+        const resObj = res && JSON.parse(res)
+        this.integralNumber = 0
+        const info = resObj && resObj.data && JSON.parse(resObj.data)
+        console.log('info', info)
+        if (info && info.code === 200) {
+          this.integralList = info.data || []
+          if (this.integralList.length) {
+            let integralTemp = info.data.map(son => (Number(son.points_text) || 0))
+            this.integralNumber = eval(integralTemp.join('+'))
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      this.integralLoading = false
+    },
+    //
+    async searchIntegralRecord() {
+      const params = {
+        app_uid: this.muid,
+        page_size: this.pageSize,
+        page: this.currentPage,
+        wid: '6',
+        // trans_time: this.tradeTime.length ? this.tradeTime[0] + ' 00:00:00/' + this.tradeTime[1] + ' 23:59:59' : ''
+      }
+      this.tableLoading = true
+      try {
+        const res = await this.$XzyNetMessageService.post('xzy.app_user.pointLogs', params)
+        const resObj = res && JSON.parse(res)
+        const info = resObj && resObj.data && JSON.parse(resObj.data)
+        console.log('pointLogs', info)
+        if (info && info.code === 200) {
+          this.tableData = info.data.data
+          this.total = info.data.total
+        }
+      } catch (error) {
+        console.log(error)
+      }
+
+      this.tableLoading = false
+    },
     // 转换类型中文
     changeTypeName(value, baseData) {
       let str = ''
@@ -565,6 +679,8 @@ export default {
         this.searchRechargeRecord()
       } else if (this.activeName === 'accountRecord') {
         this.searchBillRecord()
+      } else if (this.activeName === 'integralRecord') {
+        this.searchIntegralRecord()
       }
     },
     handleCurrentChange(val) {
@@ -593,18 +709,22 @@ export default {
   padding: 16px;
   background: #fff;
 }
+
 .herder-bar {
   display: flex;
 }
+
 .mar-right {
   margin-right: 10px;
 }
+
 //余额信息 充值
 .account-box {
   border: 1px solid #dcdcdc;
   border-radius: 4px;
   padding: 16px;
   position: relative;
+
   .account-title {
     padding: 0 5px;
     display: inline-block;
@@ -616,40 +736,52 @@ export default {
     left: 10px;
     top: -10px;
   }
+
   .account-item {
     display: flex;
     align-items: center;
+
     span {
       margin-right: 20px;
       display: inline-block;
     }
+
     .acount-item-sub {
       display: flex;
       align-items: center;
     }
+
     .warning-style {
+      margin-right: 0;
+      min-width: 70px;
       color: red;
       font-size: 16px;
     }
   }
 }
+
 //tab区
 .tab-box {
   margin-top: 10px;
 }
+
 //内容区
 .content {
   margin-top: 10px;
+
   .btn-box {
     display: flex;
+
     .btn-item {
       display: flex;
       align-items: center;
     }
   }
+
   .container {
     margin-top: 10px;
   }
+
   .pagination {
     display: flex;
     justify-content: flex-end;

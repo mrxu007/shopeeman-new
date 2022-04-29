@@ -1029,6 +1029,7 @@
       </el-dialog>
       <el-dialog
         v-if="addBuyLinkVisible"
+        top="10vh"
         title="添加采购链接"
         :visible.sync="addBuyLinkVisible"
         width="1200px"
@@ -1691,7 +1692,7 @@ export default {
     },
     // 获取汇率
     async getRate() {
-      const info = await window['ConfigBridgeService'].getUserInfo()
+      const info = await this.$appConfig.getUserInfo()
       this.rateList = info.ExchangeRates || {}
     },
     changeMoney(data, country, type) {

@@ -656,6 +656,14 @@ export function getGoodsUrl(platform, data) {
         platformData['url'] = `https://distributor.taobao.global/apps/product/detail?mpId=${productId}`
         platformData['platformTypeStr'] = '天猫淘宝海外平台'
         break
+      case 16:
+        platformData['url'] = ''
+        platformData['platformTypeStr'] = 'Tokopedia'
+        break
+      case 17:
+        platformData['url'] = ''
+        platformData['platformTypeStr'] = 'Bukalapak'
+        break
     }
     // console.log(instance.$filters)
     return platformData
@@ -1054,6 +1062,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
     } catch (e) {
       console.log(e)
     } finally {
+      newImage[item.url] = newImage[item.url] || ''
       --count.count
     }
   }

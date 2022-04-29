@@ -941,31 +941,27 @@ export default {
     // 获取用户数据
     async getUserinfo() {
       this.showlog = true
-      const res = await this.$api.userSet()
-      if (res.data.code === 200) {
-        this.userInfo = res.data.data
-        if (!this.userInfo.auto_attention_set) {
-          this.userInfo.auto_attention_set.ProductMax = 5 // 店铺商品上限
-          this.userInfo.auto_attention_set.LastLoginDay = '1'// 最后活跃时间
-          this.userInfo.auto_attention_set.FollowType = '0'// 关注对象
-          this.userInfo.auto_attention_set.FollowNumber = '100'// 关注数量
-          this.userInfo.auto_attention_set.FollowInterval = '10'// 关注间隔
-          this.userInfo.auto_attention_set.MinOrderEvaluation = '4.5'// //不关注订单评价小于等于
-          this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = true// 是否不关注订单评价小于等于最小值的卖家
-          this.userInfo.auto_attention_set = '30'// 天内关注过的用户
-          this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true// 是否不关注一定天数内已关注的卖家
-          this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
-          this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false// 开启定时刷粉
-          this.userInfo.auto_attention_set.OpenHour = '10'
-          this.userInfo.auto_attention_set.OpenMinute = '00'// 每日启动时间
-          console.log(this.startTime)
-          this.userInfo.auto_attention_set.KeyWord || this.followKey// 关注关键词
-        } else {
-          this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation === '1' // 是否不关注订单评价小于等于最小值的卖家
-          this.userInfo.auto_attention_set.IsNotFollowFollowedDay = this.userInfo.auto_attention_set.IsNotFollowFollowedDay === '1'// 是否不关注一定天数内已关注的卖家
-        }
+      const res = await this.$appConfig.getUserConfig()
+      this.userInfo = JSON.parse(res)
+      if (!this.userInfo.auto_attention_set) {
+        this.userInfo.auto_attention_set.ProductMax = 5 // 店铺商品上限
+        this.userInfo.auto_attention_set.LastLoginDay = '1'// 最后活跃时间
+        this.userInfo.auto_attention_set.FollowType = '0'// 关注对象
+        this.userInfo.auto_attention_set.FollowNumber = '100'// 关注数量
+        this.userInfo.auto_attention_set.FollowInterval = '10'// 关注间隔
+        this.userInfo.auto_attention_set.MinOrderEvaluation = '4.5'// //不关注订单评价小于等于
+        this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = true// 是否不关注订单评价小于等于最小值的卖家
+        this.userInfo.auto_attention_set = '30'// 天内关注过的用户
+        this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true// 是否不关注一定天数内已关注的卖家
+        this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
+        this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false// 开启定时刷粉
+        this.userInfo.auto_attention_set.OpenHour = '10'
+        this.userInfo.auto_attention_set.OpenMinute = '00'// 每日启动时间
+        console.log(this.startTime)
+        this.userInfo.auto_attention_set.KeyWord || this.followKey// 关注关键词
       } else {
-        this.$message.warning(`信息获取失败！${res.data.data.message}`)
+        this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation === '1' // 是否不关注订单评价小于等于最小值的卖家
+        this.userInfo.auto_attention_set.IsNotFollowFollowedDay = this.userInfo.auto_attention_set.IsNotFollowFollowedDay === '1'// 是否不关注一定天数内已关注的卖家
       }
     },
     // 参数设置保存

@@ -461,11 +461,7 @@
         <u-table-column align="center" min-width="100" label="上家类型" prop="platformTypeStr" />
         <u-table-column align="center" min-width="150" label="上家链接">
           <template v-slot="{row}">
-            <span
-              v-if="row.productId"
-              class="copyIcon"
-              @click="copy(row.productId)"
-            ><i class="el-icon-document-copy" /></span>
+            <span v-if="row.productId" class="copyIcon" @click="copy(row.productId)"><i class="el-icon-document-copy" /></span>
             <span class="green-span" @click="openUrl(row,2)">
               {{ row.productId }}
             </span>
@@ -509,7 +505,7 @@
         <u-table-column align="center" min-width="100" label="访客量" prop="view_count" sortable />
         <!-- <u-table-column align="center" min-width="100" label="评星数" /> -->
         <u-table-column align="center" min-width="100" label="粉丝量" prop="like_count" sortable />
-        <u-table-column align="center" min-width="120" label="操作状态" show-overflow-tooltip fixed="right">
+        <u-table-column align="center" min-width="120" label="操作状态" prop="batchStatus" sortable show-overflow-tooltip fixed="right">
           <template v-slot="{ row }">
             <span :style="row.color && 'color:' + row.color">{{ row.batchStatus | errorMsg }}</span>
           </template>
@@ -957,7 +953,7 @@
             <el-button size="mini" type="primary" @click="getMoveDetails(row)">查看详情</el-button>
           </template>
         </el-table-column>
-        <el-table-column align="center" min-width="150" label="操作状态" show-overflow-tooltip fixed="right">
+        <el-table-column align="center" min-width="150" label="操作状态" prop="moveStatus" sortable show-overflow-tooltip fixed="right">
           <template v-slot="{ row }">
             <span :style="row.color && 'color:' + row.color">{{ row.moveStatus | errorMsg }}</span>
           </template>
@@ -3481,6 +3477,7 @@ export default {
         item.status = status
         // 获取上家类型,链接,id
         await this.getPlatformData(item.parent_sku)
+        console.log(item,JSON.stringify(this.platformData))
         item.platformTypeStr = this.platformData['platformTypeStr'] || ''
         item.productId = this.platformData['productId'] || ''
         item.url = this.platformData['url'] || ''
@@ -3728,6 +3725,9 @@ export default {
         }else if (name.toLocaleLowerCase() === 'tokopedia') {
           this.platformData['platform'] = 16
           this.platformData['productId'] = id
+        }else if (name.toLocaleLowerCase() === 'bukalapak') {
+          this.platformData['platform'] = 17
+          this.platformData['productId'] = id
         }
       } catch (error) {
         console.log('匹配上家异常', error)
@@ -3784,7 +3784,11 @@ export default {
     },
     // 打开外部链接
     async openUrl(row, type) {
-      if (type === 1) {
+      console.log('openUrl',row,type)
+      if(row.platform === 16 || row.platform === 17){
+        let url = await this.$api.getByGoodsId({platform:row.platform,goodsId:row.productId})
+        this.$BaseUtilService.openUrl(url)
+      }else if (type === 1) {
         try {
           const url = this.$filters.countryShopeebuyCom(row.country)
           this.$BaseUtilService.openUrl(`${url}/product/${row.platform_mall_id}/${row.id}`)

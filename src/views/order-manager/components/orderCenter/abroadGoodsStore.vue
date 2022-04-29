@@ -128,7 +128,7 @@ export default {
   },
   methods: {
     changeName(wid) {
-      const res = this.widList.find(n => n.id == wid)
+      const res = this.widList.find(n => n.id === Number(wid))
       return res ? res.warehouse_name : ''
     },
     // 切换tab
@@ -154,7 +154,7 @@ export default {
         this.$message.error(res.data)
       }
       this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
-      console.log(this.widList)
+      console.log('widList',this.widList)
     },
     // 添加到出库单
     async addTo(row) {

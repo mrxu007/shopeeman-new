@@ -239,7 +239,11 @@ const goodsSourceList = [
   },
   {
     value: 16,
-    label: 'tokopedia'
+    label: 'Tokopedia'
+  },
+  {
+    value: 17,
+    label: 'Bukalapak'
   }
 ]
 const goodsSourceNameList = {
@@ -256,8 +260,9 @@ const goodsSourceNameList = {
   11: 'Shopee',
   12: '速卖通',
   13: '天猫淘宝海外平台',
-  15: '货老板云仓'
-  // 16: 'tokopedia'
+  15: '货老板云仓',
+  16: 'Tokopedia',
+  17: 'Bukalapak',
 }
 const goodsSourceListLink = [
   {
@@ -412,7 +417,7 @@ const site_mall = [
     'CountryCode': 'TW',
     'IsDeafult': true,
     'IsSelected': true,
-    'ShipId': '30013',
+    'ShipId': '30015',
     'ShipName': '蝦皮店到店'
   },
   {
@@ -1806,13 +1811,19 @@ const platformLinkList = [{
   purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
   purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
   label: '天猫淘宝海外平台'
-}
-  // {
-  //   purchase_platform_id: 16,
-  //   purchase_url: 'https://www.tokopedia.com/velove/',
-  //   purchase_url_all: 'https://www.tokopedia.com/velove/v856-malta-dress-3-color-2-size-sage-green-s?extParam=ivf%3Dfalse',
-  //   label: 'tokopedia'
-  // }
+},
+  {
+    purchase_platform_id: 16,
+    purchase_url: 'https://www.tokopedia.com/velove/',
+    purchase_url_all: 'https://www.tokopedia.com/velove/v856-malta-dress-3-color-2-size-sage-green-s?extParam=ivf%3Dfalse',
+    label: 'tokopedia'
+  },
+  {
+    purchase_platform_id: 17,
+    purchase_url: 'https://www.bukalapak.com/p/handphone/',
+    purchase_url_all: 'https://www.bukalapak.com/p/handphone/hp-smartphone/iphone/4goavx1-jual-iphone-7-second-likenew',
+    label: 'bukalapak'
+  }
 ]
 const warehouseType = [{
   label: '国内中转仓',

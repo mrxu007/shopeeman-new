@@ -228,7 +228,7 @@ export default {
       this.changeIp = this.userInfo.domain_switch.toString() // 域名切换
     },
     async save() {
-      if (Number(this.interTime) < 2) {
+      if (Number(this.interTime) > 2) {
         this.$message.warning('获取物流单号间隔时间不能少于2小时')
         return
       }
