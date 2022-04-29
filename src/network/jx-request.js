@@ -22,7 +22,7 @@ const locationRequest = axios.create({ // 本地转发请求
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
   },
-  withCredentials: true,
+  withCredentials: true
 })
 const ycjRequest = axios.create({ // 云采集请求
   baseURL: 'http://129.204.71.240',
@@ -284,7 +284,6 @@ export default {
 
   saveCustomerFaceData: (data) => AppRequest.post('/order/saveCustomerFaceData', data), // 保存临时面单
   getCustomerFaceData: (data) => locationRequest.get('/getCustomerFaceData', { params: data }), // 获取保存临时面单
-
 
   // 订单详情删除--物流单号
   deleteOrderTrackingNumber: (data) => AppRequest.post('/order/deleteOrderTrackingNumber', data),

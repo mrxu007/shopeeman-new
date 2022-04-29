@@ -639,6 +639,14 @@ const site_mall = [
   {
     'Country': '菲律宾站',
     'CountryCode': 'PH',
+    'IsDeafult': true,
+    'IsSelected': false,
+    'ShipId': '40025',
+    'ShipName': 'Flash Express'
+  },
+  {
+    'Country': '菲律宾站',
+    'CountryCode': 'PH',
     'ShipId': '49900',
     'ShipName': 'Other Logistics Provider'
   },
