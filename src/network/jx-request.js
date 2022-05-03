@@ -114,8 +114,8 @@ export default {
   getMallSite: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 店铺站点信息
   exchangeRateList: (data) => AppRequest.get('/exchangeRateList', { params: data }), // 获取汇率
   uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), // 上报货款对账单
-  getByGoodsId: (data) => AppRequest.get('/v2/goodsEncryptRelation/getByGoodsId', { params: data }), // 获取16,17平台的链接
-  destroyByGoodsId: (data) => AppRequest.post('/v2/goodsEncryptRelation/destroyByGoodsId', data), // 获取16,17平台的链接
+  // getByGoodsId: (data) => AppRequest.get('/v2/goodsEncryptRelation/getByGoodsId', { params: data }), // 获取16,17平台的链接
+  // destroyByGoodsId: (data) => AppRequest.post('/v2/goodsEncryptRelation/destroyByGoodsId', data), // 获取16,17平台的链接
 
 
   // 异常公告------------------------------------------------------------------------

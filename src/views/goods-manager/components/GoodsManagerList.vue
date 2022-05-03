@@ -2870,11 +2870,6 @@ export default {
         this.initData()
         this.deleteId = []
         this.updateNum = this.deleteData.length
-        // const newData = await this.isHoliday(this.deleteData)
-        // if (newData.length > 0) {
-        //   await batchOperation(newData, this.deleteProduct)
-        //   await this.deleteCollectGoodsInfo()
-        // }
         await batchOperation(this.deleteData, this.deleteProduct)
         await this.deleteCollectGoodsInfo()
         this.operationBut = false
@@ -2905,6 +2900,10 @@ export default {
         }
         const res = await this.$shopeemanService.handleGoodsDelete(item.country, params)
         if (res.code === 200) {
+          if(item.platform === 16 || item.platform === 17){
+            let goodsEncryptRelation = await this.$commodityService.deleteGoodsEncryptRelation({platform:row.platform,goodsId:item.id})
+            console.log('goodsEncryptRelation', goodsEncryptRelation)
+          }
           if (this.isRefurbishProduct) {
             return { batchStatus: '删除成功-开始上新', code: 200 }
           }
@@ -3785,10 +3784,7 @@ export default {
     // 打开外部链接
     async openUrl(row, type) {
       console.log('openUrl',row,type)
-      if(row.platform === 16 || row.platform === 17){
-        let url = await this.$api.getByGoodsId({platform:row.platform,goodsId:row.productId})
-        this.$BaseUtilService.openUrl(url)
-      }else if (type === 1) {
+       if (type === 1) {
         try {
           const url = this.$filters.countryShopeebuyCom(row.country)
           this.$BaseUtilService.openUrl(`${url}/product/${row.platform_mall_id}/${row.id}`)
@@ -3796,7 +3792,16 @@ export default {
           this.$message.error(`打开失败`)
         }
       } else if (type === 2) {
-        this.$BaseUtilService.openUrl(row.url)
+         if(row.platform === 16 || row.platform === 17){
+           let goodsEncryptRelationRes = await this.$commodityService.getGoodsEncryptRelation({platform:row.platform,goodsId:row.id})
+           let res = JSON.parse(goodsEncryptRelationRes)
+           let data = res.data
+           if(data?.length){
+             this.$BaseUtilService.openUrl(data[0].original)
+           }
+         }else{
+           this.$BaseUtilService.openUrl(row.url)
+         }
       } else {
         this.$BaseUtilService.openUrl(row)
       }

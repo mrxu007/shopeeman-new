@@ -912,4 +912,28 @@ export default class CommodityService {
   saveProduct(data) {
     return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
   }
+
+  /**
+   * 保存新平台商品链接
+   */
+  saveGoodsEncryptRelation(data) {
+    return this.nativeService.callFunction('SaveGoodsEncryptRelation', JSON.stringify(data))
+  }
+
+  /**
+   * 删除新平台商品链接
+   */
+  deleteGoodsEncryptRelation(data) {
+    return this.nativeService.callFunction('DeleteGoodsEncryptRelation', JSON.stringify(data))
+  }
+
+  /**
+   * 获取新平台商品链接
+   */
+  getGoodsEncryptRelation(data) {
+    return this.nativeService.callFunction('GetGoodsEncryptRelation', JSON.stringify(data))
+  }
+
+
+
 }

@@ -124,15 +124,20 @@
           </el-button>
           <!--          <el-button size="mini" type="primary" @click.native="loginAliTranslation">登录阿里翻译</el-button>-->
         </div>
-        <div class="basisInstall-box">
+        <div class="basisInstall-box" style="margin: 0">
           <div>商品描述：</div>
-          <el-radio v-model="goodsDescribeRadio" :label="0" :disabled="isCollectShow">自定义+SKU描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="1" :disabled="isCollectShow">原描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="2" :disabled="isCollectShow">原描述+自定义</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="3" :disabled="isCollectShow">原描述+SKU描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="4" :disabled="isCollectShow">自定义</el-radio>
+          <div>
+            <el-radio v-model="goodsDescribeRadio" :label="3" :disabled="isCollectShow">原描述详情+原SKU描述</el-radio>
+            <el-radio v-model="goodsDescribeRadio" :label="1" :disabled="isCollectShow">原描述详情</el-radio>
+            <el-radio v-model="goodsDescribeRadio" :label="2" :disabled="isCollectShow">原描述详情+自定义模板</el-radio>
+          </div>
+          <div style="margin-left: 60px;margin-top: 5px">
+            <el-radio v-model="goodsDescribeRadio" :label="0" :disabled="isCollectShow">自定义模板+原SKU描述</el-radio>
+            <el-radio v-model="goodsDescribeRadio" :label="4" :disabled="isCollectShow">自定义模板</el-radio>
+            <el-radio v-model="goodsDescribeRadio" :label="5" :disabled="isCollectShow">自定义模板+原描述详情</el-radio>
+          </div>
         </div>
-        <div class="basisInstall-box">
+        <div class="basisInstall-box" style="margin-top: 0">
           <div>翻译配置：</div>
           <el-checkbox v-model="translationConfig.titleChecked" size="mini" :disabled="isCollectShow">翻译标题</el-checkbox>
           <el-checkbox v-model="translationConfig.specChecked" size="mini" :disabled="isCollectShow">翻译规格信息
@@ -411,11 +416,18 @@
           </div>
           <div v-if="titleDescribeTypeRadio === 1" class="on_new_dialog_box">
             <div class="keepRight" style="width: 60px;">商品描述：</div>
-            <el-radio v-model="titleGoodsDescribeRadio" :label="0">自定义+SKU描述</el-radio>
-            <el-radio v-model="titleGoodsDescribeRadio" :label="1">原描述</el-radio>
-            <el-radio v-model="titleGoodsDescribeRadio" :label="2">原描述+自定义</el-radio>
-            <el-radio v-model="titleGoodsDescribeRadio" :label="3">自定义</el-radio>
-            <el-button size="mini" type="primary" @click="selectDescribe(0)">选择模板</el-button>
+
+            <div>
+              <el-radio v-model="titleGoodsDescribeRadio" :label="3" :disabled="isCollectShow">原描述详情+原SKU描述</el-radio>
+              <el-radio v-model="titleGoodsDescribeRadio" :label="1" :disabled="isCollectShow">原描述详情　　　　　</el-radio>
+              <el-radio v-model="titleGoodsDescribeRadio" :label="2" :disabled="isCollectShow">原描述详情+自定义模板</el-radio>
+            </div>
+            <div style="">
+              <el-radio v-model="titleGoodsDescribeRadio" :label="0" :disabled="isCollectShow">自定义模板+原SKU描述</el-radio>
+              <el-radio v-model="titleGoodsDescribeRadio" :label="4" :disabled="isCollectShow">自定义模板　　　　　</el-radio>
+              <el-radio v-model="titleGoodsDescribeRadio" :label="5" :disabled="isCollectShow">自定义模板+原描述详情</el-radio>
+            </div>
+            <el-button size="mini" type="primary" style="margin-right: 100px;" @click="selectDescribe(0)">选择模板</el-button>
           </div>
           <div class="on_new_dialog_box" style="margin: 10px 0;">
             <div class="keepRight" style="width: 60px;">关键词：</div>
@@ -788,7 +800,7 @@ export default {
 
     },
     goodsDescribeRadio(val) {
-      this.translationConfig.describeChecked = val > 0 && val < 4
+      this.translationConfig.describeChecked = (val > 0 && val < 4 || val === 5)
     },
     configLabel(val) {
       this.setConfigData(val)
@@ -1079,9 +1091,17 @@ export default {
           } else if (this.titleGoodsDescribeRadio === 1) {
             tempText = neededTranslateInfoData.description
           } else if (this.titleGoodsDescribeRadio === 2) {
-            tempText = neededTranslateInfoData.description + text
+            tempText = neededTranslateInfoData.description + '\n' + text
           } else if (this.titleGoodsDescribeRadio === 3) {
+            const tier_variation = neededTranslateInfoData.tier_variation
+            console.log(tier_variation, tier_variation[tier_variation.spec1])
+            const spec1List = tier_variation[tier_variation.spec1].join('\n')
+            const spec2List = tier_variation[tier_variation.spec2].join('\n')
+            tempText = neededTranslateInfoData.description + '\n' + spec1List + '\n' + spec2List
+          }else if (this.titleGoodsDescribeRadio === 4) {
             tempText = text
+          }else if (this.titleGoodsDescribeRadio === 5) {
+            tempText = text + '\n' + neededTranslateInfoData.description
           }
         } else {
           tempText = neededTranslateInfoData.title
@@ -1321,7 +1341,7 @@ export default {
             }
             if (this.translationConfig.describeChecked) {
               this.$set(this.mallTable[index], 'operation_type', '正在翻译描述...')
-              if (this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) {
+              if ((this.goodsDescribeRadio > 0 && this.goodsDescribeRadio < 4) || this.goodsDescribeRadio === 5) {
                 const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
                 if (getGoodsDescription && getGoodsDescription[description]) {
                   descriptionText = getGoodsDescription[description]
@@ -1344,6 +1364,8 @@ export default {
             if (this.goodsDescribeRadio % 2 === 0) {
               console.log('describeConfig', this.describeConfig)
               descriptionText += '\n' + this.describeConfig.describe
+            }else if (this.goodsDescribeRadio === 5){
+              descriptionText = this.describeConfig.describe + '\n' + descriptionText
             }
             param.spec1 = neededTranslateInfoData.spec1
             param.spec2 = neededTranslateInfoData.spec2

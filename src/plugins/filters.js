@@ -1,4 +1,3 @@
-
 /**
  * 站点转换位中文
  * @param val {String} 国家code
@@ -187,13 +186,13 @@ const special_characters = [
   '✆', '✇', '✑', '✒', '✓', '✕', '✖', '✢', '✣', '✤', '✥', '✟', '✧', '❍', '❏', '❐', '❒', '✗', '✘', '✚', '✜', '✝']
 
 const chineseSite = function(val) {
-  if (val instanceof Array){
+  if (val instanceof Array) {
     let countries = []
-    for (let i =0;i<val.length;i++){
-      countries.push( chineseSite(val[i]))
+    for (let i = 0; i < val.length; i++) {
+      countries.push(chineseSite(val[i]))
     }
     return countries.toString()
-  }else {
+  } else {
     let attribute = val && (val + '').toLocaleUpperCase() || val
     attribute = countries_id[attribute] || attribute
     return countries[attribute] || attribute
@@ -315,6 +314,7 @@ const changeImgSizeFilter = (value) => {
   }
   return resUrl || url
 }
+
 const errorMsg = function(userMessage) {
   let msg = ''
   try {
@@ -338,13 +338,13 @@ const errorMsg = function(userMessage) {
       msg = '检查到商品已经刊登'
     } else if (userMessage.indexOf('Failed to create product with invalid param') > -1) {
       msg = '请检查商品的属性是否正确'
-    } else if (userMessage.indexOf("The product's category is invalid") > -1) {
+    } else if (userMessage.indexOf('The product\'s category is invalid') > -1) {
       msg = '类目无效，请重新选择类目'
     } else if (userMessage.indexOf('Create product too fast') > -1) {
       msg = '上新频率太快，请调整上新时间间隔'
     } else if (userMessage.indexOf('product has invalid logistics config') > -1) {
       msg = '请检查物流配置是否开启'
-    } else if (userMessage.indexOf("product's logistics config is invalid") > -1) {
+    } else if (userMessage.indexOf('product\'s logistics config is invalid') > -1) {
       msg = '物流配置无效，请检查物流配置是否正常'
     } else if (userMessage.indexOf('not enough logistics channel') > -1) {
       msg = '未设置物流，请商家后台至少开启一种物流方式'
@@ -358,8 +358,10 @@ const errorMsg = function(userMessage) {
       msg = '未能创建产品:图片不存在'
     } else if (userMessage.includes('dimension is mandatory : width or height or length is empty or 0')) {
       msg = '未能创建产品:尺寸是强制性的:宽度、高度或长度为空或0'
-    }else if (userMessage.includes('discount is end')) {
+    } else if (userMessage.includes('discount is end')) {
       msg = '该折扣已结束'
+    } else if (userMessage.includes('item upload controller price of the most expensive sku divided by the price of the cheapest sku no pass : actual_value')) {
+      msg = '价格最高价与最低价差距过大，请做适当调整，或在SKU价格上勾选删除最高价或最低阶'
     } else {
       msg = userMessage
     }
@@ -368,5 +370,40 @@ const errorMsg = function(userMessage) {
   }
   return msg
 }
-export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter, special_characters,
-  lazadaGoodsUrl, countries_option, countries_site, countries_option_sub, currencyShow, countries_option_sub_abroad, errorMsg, lazadaGoodsSite }
+
+const onNewDictionary = (country) => {
+  let temp = 2
+  country = country?.toLocaleUpperCase() || ''
+  switch (country) {
+    case 'SG':
+    case 'TW':
+    case 'VN':
+    case 'BR':
+    case 'PH':
+    case 'TH':
+    case 'MX':
+      temp = 5
+      break
+    case 'MY':
+    case 'ID':
+      temp = 7
+      break
+    case 'CO':
+    case 'CL':
+    case 'PL':
+      temp = 9
+      break
+    case 'FR':
+    case 'ES':
+      temp = 10000
+      break
+    default:
+      break
+  }
+  return temp
+}
+export {
+  special_characters, countries_option_sub_abroad, countries_option_sub, countries_site, countries_option,
+  chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter,
+  lazadaGoodsUrl, currencyShow, errorMsg, lazadaGoodsSite, onNewDictionary
+}

@@ -1660,9 +1660,9 @@ export default {
         this.$message.error('配置水印后再操作')
         return
       }
-      if (this.storeConfig.activityChecked){
+      if (this.storeConfig.activityChecked) {
         let noSell = this.sellActiveSetting.find(i => {
-          console.log(this.sellActiveSetting,i)
+          console.log(this.sellActiveSetting, i)
           if (!i.goodsId) {
             if (!i.discountId || !i.discount || !i.number) {
               return i
@@ -1673,7 +1673,8 @@ export default {
           this.$alert('部分折扣活动未配置折扣信息', '提示', {
             confirmButtonText: '确定',
             type: 'warning'
-          }).then(() => {})
+          }).then(() => {
+          })
 
         }
       }
@@ -1761,7 +1762,7 @@ export default {
           }
         }
         ratio = Number(ratio / 100)
-        console.log('goodsList -1',goodsList)
+        console.log('goodsList -1', goodsList)
         if (goodsList.length > 0) {
           for (let item of goodsList) {
             if (this.isCancelRelease) {
@@ -1824,7 +1825,7 @@ export default {
               let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
               this.updateAttributeName(item, '正在匹配类目', '', mall)
               let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
-              console.log('getCategoryRelation - data',categoryRelationJson)
+              console.log('getCategoryRelation - data', categoryRelationJson)
               let categoryRelationRes = JSON.parse(categoryRelationJson)
               let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
               console.log('categoryId', categoryId)
@@ -1895,14 +1896,14 @@ export default {
               let tier_variation = neededTranslateInfoData.tier_variation
               if (tier_variation[tier_variation.spec1].length) {
                 let tempList = []
-                tier_variation[tier_variation.spec1].forEach(son=>{
+                tier_variation[tier_variation.spec1].forEach(son => {
                   let temp = son.substring(0, 20).trim()
-                  while(tempList.includes(temp)){
-                    if(temp.length === 20){
+                  while (tempList.includes(temp)) {
+                    if (temp.length === 20) {
                       let list = [...temp]
                       list[19] = getRandSymbol()
                       temp = list.join('')
-                    }else{
+                    } else {
                       temp = temp + getRandSymbol()
                     }
                   }
@@ -1910,20 +1911,20 @@ export default {
                 })
                 goodsParam['tier_variation'].push({
                   name: tier_variation.spec1,
-                  options: tempList,
-                  images: tier_variation.images
+                  options: tempList || [],
+                  images: tier_variation.images || []
                 })
               }
               if (tier_variation[tier_variation.spec2].length) {
                 let tempList = []
-                tier_variation[tier_variation.spec2].forEach(son=>{
+                tier_variation[tier_variation.spec2].forEach(son => {
                   let temp = son.substring(0, 20).trim()
-                  while(tempList.includes(temp)){
-                    if(temp.length === 20){
+                  while (tempList.includes(temp)) {
+                    if (temp.length === 20) {
                       let list = [...temp]
                       list[19] = getRandSymbol()
                       temp = list.toString()
-                    }else{
+                    } else {
                       temp = temp + getRandSymbol()
                     }
                   }
@@ -1935,7 +1936,10 @@ export default {
                   images: []
                 })
               }
-              console.log('tier_variation',goodsParam['tier_variation'])
+              if (goodsParam['tier_variation'].length < 1) {
+                goodsParam['tier_variation'].push({ 'name': '', 'options': [''], 'images': [] })
+              }
+              console.log('tier_variation', goodsParam['tier_variation'])
               let goodsPrice = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
               goodsParam['price'] = Math.ceil(goodsPrice / this.rateList[this.country] * ratio) + ''
               goodsParam['description'] = neededTranslateInfoData.description || ''
@@ -1967,7 +1971,7 @@ export default {
               goodsParam['name'] = name
               this.updateAttributeName(item, '正在检测商品数据', '', mall)
               let isFieldFilter = await this.fieldFilter(goodsParam, item)
-              console.log('isFieldFilter',isFieldFilter)
+              console.log('isFieldFilter', isFieldFilter)
               if (!isFieldFilter) {
                 this.updateAttributeName(item, 3, 'resultsFilter')
                 this.updateOnNewDetails(item.id, mallId, { state: `检查到商品已经刊登` })
@@ -1999,8 +2003,7 @@ export default {
                   let newMain = imagesList.splice(index, 1)
                   imagesList = [...newMain, ...imagesList]
                 }
-              }
-              else {
+              } else {
                 let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index - 1, 1)
                 imagesList = [...newMain, ...imagesList]
               }
@@ -2051,7 +2054,7 @@ export default {
                 }
                 return son
               })
-              console.log('model_list',goodsParam['model_list'])
+              console.log('model_list', goodsParam['model_list'])
               if (goodsParam['model_list'].length) {
                 let spec1 = goodsParam['tier_variation'][0] && goodsParam['tier_variation'][0].options || []
                 let spec2 = goodsParam['tier_variation'][1] && goodsParam['tier_variation'][1].options || []
@@ -2061,8 +2064,22 @@ export default {
                   this.updateAttributeName(item, '发布失败：商品规格与商品SKU数量不符', '', mall)
                   continue
                 }
+              }else{
+                goodsParam['model_list'].push({
+                  "stock": item.stock,
+                  "sku": "",
+                  "input_normal_price": null,
+                  "input_promotion_price": null,
+                  "price": goodsParam['price'],
+                  "id": 0,
+                  "name": "",
+                  "tier_index": [0],
+                  "is_default": true,
+                  "item_price": ""
+                })
               }
               if (this.storeConfig.priceRadio > 0) {
+                let multiple = this.$filters.onNewDictionary(this.country)
                 let model_price_list = goodsParam['model_list'].map(son => Number(son.price))
                 model_price_list = [...new Set([...model_price_list])]
                 if (model_price_list.length > 1) {
@@ -2072,7 +2089,7 @@ export default {
                     min = min > model_price_list[i] && model_price_list[i] || min
                     max = max < model_price_list[i] && model_price_list[i] || max
                   }
-                  if (min * 2 < max) {
+                  if ((min * multiple) < max) {
                     let designate = Number(this.storeConfig.priceRadio) === 1 && min || max
                     let spec1_list = new Set()
                     let spec2_list = new Set()
@@ -2206,17 +2223,17 @@ export default {
                   skuDatas: ''
                 }
                 let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
-                if(this.basicConfig.deleteCollectChecked && this.associatedConfig.dimensionRadio < 2){
+                if (this.basicConfig.deleteCollectChecked && this.associatedConfig.dimensionRadio < 2) {
                   this.$commodityService.deleteCollectGoodsInfo([item.id])
                 }
                 console.log('saveListingRecordParmaRes', saveListingRecordParmaJson)
                 this.updateAttributeName(item, product_id, 'product_id')
                 this.updateAttributeName(item, mallId, 'mallId')
                 this.updateAttributeName(item, this.country, 'country')
-                console.log('sellActiveSetting',this.sellActiveSetting,mallId)
+                console.log('sellActiveSetting', this.sellActiveSetting, mallId)
                 if (this.storeConfig.activityChecked) {
                   let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mallId)
-                  if(sellActive){
+                  if (sellActive) {
                     if (sellActive?.goodsId) {
                       const params = {
                         country: this.country,
@@ -2225,7 +2242,7 @@ export default {
                         product_id_list: [product_id] // 商品id
                       }
                       const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
-                      console.log('addCollectionGoods - data',res)
+                      console.log('addCollectionGoods - data', res)
                       if (res.ecode === 0) {
                         this.$message.success('添加成功')
                       } else {
@@ -2238,7 +2255,7 @@ export default {
                       params['version'] = '3.2.0'
                       params['shop_id'] = mallId
                       const detailRes = await this.$shopeemanService.searchProductDetail(item.country, params)
-                      console.log('searchProductDetail - data',detailRes)
+                      console.log('searchProductDetail - data', detailRes)
                       if (detailRes.code === 200) {
                         const discount_model_list = []
                         detailRes.data.model_list.forEach(i => {
@@ -2264,14 +2281,14 @@ export default {
                           mallId: mallId
                         }
                         let putModelActive = await this.GoodsDiscount.putModelActive(item.country, creatParams)
-                        if(putModelActive?.code === 200){
+                        if (putModelActive?.code === 200) {
                           this.updateAttributeName(item, '发布成功：行销活动添加成功', '', mall)
-                        }else{
-                          let msg = '发布成功：行销活动添加失败'+errorMsg(putModelActive.messages || putModelActive.data)
-                          this.updateAttributeName(item ,msg ,'' , mall)
+                        } else {
+                          let msg = '发布成功：行销活动添加失败' + errorMsg(putModelActive.messages || putModelActive.data)
+                          this.updateAttributeName(item, msg, '', mall)
                         }
                         console.log('putModelActive - data', putModelActive)
-                      }else{
+                      } else {
                         this.updateAttributeName(item, '发布成功：行销活动商品详情获取失败', '', mall)
                       }
                     }
@@ -2285,7 +2302,7 @@ export default {
               }
             } catch (e) {
               console.log(e)
-              this.updateAttributeName(item,  '', '', mall)
+              this.updateAttributeName(item, '', '', mall)
             } finally {
               let progressItem = progress / goodsList.length
               let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
@@ -2327,42 +2344,21 @@ export default {
           if (keyList.length > 0) {
             keyList.forEach(i => {
               if (i) {
-                if(keyFilter.includes(0) || keyFilter.includes(1)){
-                  goods['name'] = goods['name'].replaceAll(i,'')
+                if (keyFilter.includes(0) || keyFilter.includes(1)) {
+                  goods['name'] = goods['name'].replaceAll(i, '')
                 }
-                if(keyFilter.includes(0) || keyFilter.includes(2)){
-                  goods['description'] = goods['description'].replaceAll(i,'')
+                if (keyFilter.includes(0) || keyFilter.includes(2)) {
+                  goods['description'] = goods['description'].replaceAll(i, '')
                 }
-                if(keyFilter.includes(0) || keyFilter.includes(3)){
+                if (keyFilter.includes(0) || keyFilter.includes(3)) {
                   let tempList = JSON.parse(skuJson)
-                  for(let i = 0 ;i < tempList.length;i++){
-                    let option = tempList[i].options.map(son=>son.replaceAll(i,''))
+                  for (let i = 0; i < tempList.length; i++) {
+                    let option = tempList[i].options.map(son => son.replaceAll(i, ''))
                     tempList[i].options = option
                   }
                   goods['tier_variation'] = tempList
                   skuJson = JSON.stringify(goods['tier_variation'])
                 }
-                // let isName = goods['name'].includes(i)
-                // let isDescription = goods['description'].includes(i)
-                // let isSKU = skuJson.search('"options":".*(' + i + ').*",')
-                // let success = false
-                // if (keyFilter.includes(0) && (isName || isDescription || isSKU)) {
-                //   success = true
-                // } else {
-                //   if (keyFilter.includes(1) && isName) {
-                //     success = true
-                //   }
-                //   if (keyFilter.includes(2) && isDescription) {
-                //     success = true
-                //   }
-                //   if (keyFilter.includes(3) && isSKU) {
-                //     success = true
-                //   }
-                // }
-                // success && this.updateAttributeName(goodItem, '关键词过滤成功')
-                // this.updateAttributeName(goodItem, 5, 'resultsFilter')
-                // success && ++this.statistics.filter
-                // success && resolve(false)
               }
             })
           }
@@ -2485,8 +2481,7 @@ export default {
             context.fillText(text, dx, dy)
             let base64 = canvas.toDataURL('image/png')
             resolve(base64)
-          }
-          else {
+          } else {
             if (setting.watermarkImg) {
               let watermark = new Image()
               watermark.src = setting.watermarkImg
@@ -2495,36 +2490,30 @@ export default {
                   if (setting.imgSize === 1) {
                     watermark.width = Math.floor(image.width / 5)
                     watermark.height = Math.floor(image.height / 5)
-                  }
-                  else if (setting.imgSize === 2) {
+                  } else if (setting.imgSize === 2) {
                     let scale = (watermark.width / image.width)
                     watermark.width = image.width
                     let height = Math.floor(watermark.height / scale)
-                    watermark.height =  height < image.height && height || image.height
-                  }
-                  else if (setting.imgSize === 3) {
+                    watermark.height = height < image.height && height || image.height
+                  } else if (setting.imgSize === 3) {
                     let scale = (watermark.height / image.height)
                     watermark.height = image.height
                     let width = Math.floor(watermark.width / scale)
-                    watermark.width =  width < image.width && width || image.width
+                    watermark.width = width < image.width && width || image.width
                   }
                   if (setting.locate === 1) {
                     dx = 5
                     dy = 5
-                  }
-                  else if (setting.locate === 2) {
+                  } else if (setting.locate === 2) {
                     dx = 5
                     dy = Math.floor(image.height - watermark.height) - 5
-                  }
-                  else if (setting.locate === 3) {
+                  } else if (setting.locate === 3) {
                     dx = Math.floor(image.width - watermark.width) - 5
                     dy = 5
-                  }
-                  else if (setting.locate === 4) {
+                  } else if (setting.locate === 4) {
                     dx = Math.floor(image.width - watermark.width) - 5
                     dy = Math.floor(image.height - watermark.height) - 5
-                  }
-                  else if (setting.locate === 5) {
+                  } else if (setting.locate === 5) {
                     dx = Math.floor((image.width - watermark.width) / 2)
                     dy = Math.floor((image.height - watermark.height) / 2)
                   }
@@ -2649,8 +2638,8 @@ export default {
       attributeName = attributeName || 'statusName'
       let index = this.goodsTable.findIndex(i => i.id === item.id)
       if (index >= 0) {
-        if(attributeName === 'statusName' && !value){
-          value = (this.goodsTable[index]?.statusName || '出现未知错误导致')+'失败在发布过程中遇到了未知的问题，请联系客服'
+        if (attributeName === 'statusName' && !value) {
+          value = (this.goodsTable[index]?.statusName || '出现未知错误导致') + '失败在发布过程中遇到了未知的问题，请联系客服'
         }
         this.$set(this.goodsTable[index], attributeName, value)
         if (attributeName === 'statusName' && mall) {
@@ -2835,7 +2824,7 @@ export default {
           }).then(() => {
             this.sellActiveTable.forEach(item => {
               let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
-              console.log(item,index)
+              console.log(item, index)
               if (item.discount && item.number || item.goodsId) {
                 if (index > -1) {
                   this.sellActiveSetting[index] = item
@@ -2848,7 +2837,7 @@ export default {
                 }
               }
             })
-            console.log('sellActiveSetting',this.sellActiveSetting)
+            console.log('sellActiveSetting', this.sellActiveSetting)
             this.sellActiveVisible = false
           }).catch(() => {
           })
@@ -3326,6 +3315,7 @@ export default {
       this.setTimeVisible = false
     },
     goodsEditorCancel(data) {
+      console.log('goodsEditorCancel', data)
       if (data) {
         const index = this.goodsTable.findIndex(i => i.id === data.sysGoodsId)
         const temp = Object.assign(this.goodsTable[index], data)

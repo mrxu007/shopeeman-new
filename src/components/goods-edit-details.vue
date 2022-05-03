@@ -338,7 +338,7 @@
       </el-tab-pane>
     </el-tabs>
     <div style="display: flex; align-items: center;margin-top: 10px;justify-content: center">
-      <el-button size="mini" type="primary" @click="goodsChange">保存并关闭</el-button>
+      <el-button size="mini" type="primary" @click="goodsChange()">保存并关闭</el-button>
       <el-button size="mini" type="primary" @click="goodsChange(true)">保存</el-button>
       <el-button size="mini" @click="$emit('goodsEditorCancel','')">关闭</el-button>
     </div>
@@ -1294,7 +1294,7 @@ export default {
         this.$set(this.skuDetail2Check, index, !this.skuDetail2Check[index])
       }
     },
-    async goodsChange(isSustain) {
+    async goodsChange(isSustain = false) {
       let goodsDetailsJson = JSON.stringify(this.goodsDetails)
       console.log(goodsDetailsJson, this.goodsDetails)
       let sysGoodsId = this.goodsDetails.id
