@@ -2901,7 +2901,7 @@ export default {
         const res = await this.$shopeemanService.handleGoodsDelete(item.country, params)
         if (res.code === 200) {
           if(item.platform === 16 || item.platform === 17){
-            let goodsEncryptRelation = await this.$commodityService.deleteGoodsEncryptRelation({platform:row.platform,goodsId:item.id})
+            let goodsEncryptRelation = await this.$commodityService.deleteGoodsEncryptRelation({platform:item.platform,goodsId:item.id})
             console.log('goodsEncryptRelation', goodsEncryptRelation)
           }
           if (this.isRefurbishProduct) {

@@ -1340,7 +1340,7 @@ export default {
         }
         keyList.push(item)
         const itemList = []
-        await this.CollectKeyWordApInstance.keywordSearch(item, itemList)
+          await this.CollectKeyWordApInstance.keywordSearch(item, itemList)
         if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口
           await this.CollectKeyWordApInstance.keywordSearchTwo(item)
         }

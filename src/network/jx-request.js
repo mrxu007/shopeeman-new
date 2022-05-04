@@ -92,7 +92,6 @@ export default {
   ddMallGoodsGetMallList: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
-  getGroupList: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 获取店铺分组
   getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表
   syncMallData: (data) => AppRequest.post('/mallStatistics/save', data), // 上报店铺数据+店铺指标列表
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
@@ -111,7 +110,6 @@ export default {
   mallStatisticsSave: (data) => AppRequest.post('/mallStatistics/save', data), // 上报数据
   getMallManagerStoreMainManagementList: (data) => AppRequest.get('/yunip/api/myiplist', { params: data }), // 店铺主体管理列表
   getPaymentList: (data) => AppRequest.post('/mallAccountBill', data), // 货款对账列表
-  getMallSite: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 店铺站点信息
   exchangeRateList: (data) => AppRequest.get('/exchangeRateList', { params: data }), // 获取汇率
   uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), // 上报货款对账单
   // getByGoodsId: (data) => AppRequest.get('/v2/goodsEncryptRelation/getByGoodsId', { params: data }), // 获取16,17平台的链接

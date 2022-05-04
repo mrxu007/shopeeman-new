@@ -1,17 +1,17 @@
 <template>
   <div class="detail">
-    <el-tabs v-model="activeName" @tab-click="handleClick">
+    <el-tabs v-model="activeName" @tab-click="handleClick" style="width: 100%;">
       <el-tab-pane label="基础设置" name="setBase">
-        <setBase :user-info="userInfo" />
+        <setBase :user-info="userInfo"/>
       </el-tab-pane>
       <el-tab-pane label="代理翻译设置" name="setProxy">
-        <setProxy :user-info="userInfo" />
+        <setProxy :user-info="userInfo"/>
       </el-tab-pane>
       <el-tab-pane label="拍单发货设置" name="setOrder">
-        <setOrder :user-info="userInfo" />
+        <setOrder :user-info="userInfo"/>
       </el-tab-pane>
       <el-tab-pane label="自动关注取关" name="autoFollow">
-        <autoFollow :user-info="userInfo" />
+        <autoFollow :user-info="userInfo"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -22,6 +22,7 @@ import setBase from './setBase.vue'
 import setOrder from './setOrder.vue'
 import setProxy from './setProxy.vue'
 import autoFollow from './autoFollow.vue'
+
 export default {
   name: 'UserConfig',
   components: {
@@ -48,18 +49,19 @@ export default {
 
       const res = await this.$appConfig.getUserConfig()
       this.userInfo = JSON.parse(res)
-      console.log('userInfo',res)
+      console.log('userInfo', res)
     }
   }
 }
 
 </script>
 <style lang="less" scoped>
-.detail{
-     background-color: white;
-     min-width: 1280px;
-     height: 100%;
+.detail {
+  padding: 0 10px;
+  display: flex;
+  background-color: white;
+  height: 100%;
 
- }
+}
 </style>
 
