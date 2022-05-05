@@ -980,7 +980,7 @@ export default {
       this.selectDataMessageQuickly = val
     },
     resizeHeight() {
-      const offerHeight = window.innerHeight
+      const offerHeight = window.outerHeight
       this.height = offerHeight - 190
     },
     tableScroll() {

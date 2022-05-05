@@ -87,7 +87,7 @@ export default class MallListAPI {
         if (res?.username) {
           return { code: 200, data: res }
         }
-      }else{
+      } else {
         return { code: -2, data: '店铺信息获取失败' }
       }
       return { code: res.errcode, data: `${res.errcode} ${res.message}` }
@@ -213,12 +213,12 @@ export default class MallListAPI {
       console.log(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       console.log(res)
-      if (JSON.parse(res).data){
+      if (JSON.parse(res).data) {
         res = JSON.parse(JSON.parse(res).data)
         if (res.code === 0) {
           return { code: 200, data: '短信验证发送成功' }
         }
-      }else{
+      } else {
         return { code: -2, data: '无法发送短信验证' }
       }
       return { code: res.errcode, data: `${res.errcode} ${res.message}` }
@@ -385,7 +385,7 @@ export default class MallListAPI {
     // }
     try {
       const res = await this._this.$api.getMallGroupList(params)
-      console.log('getMallGroupList',res)
+      console.log('getMallGroupList', res)
       if (res.data.code === 200) {
         const groupList = []
         res.data.data.map(item => {
@@ -450,15 +450,53 @@ export default class MallListAPI {
   }
 
   // 联动站点分组获取店铺列表
-  async ddMallGoodsGetMallList(params) {
+  // async ddMallGoodsGetMallList(params) {
+  //   try {
+  //     const res = await this._this.$api.ddMallGoodsGetMallList(params)
+  //     console.log('ddMallGoodsGetMallList',res)
+  //     if (res.data.code === 200) {
+  //       return { code: 200, data: res.data.data }
+  //     }
+  //     return { code: -2, data: '获取店铺列表失败' }
+  //   } catch (error) {
+  //     return { code: -2, data: `getMallList-catch: ${error}` }
+  //   }
+  // }
+  // 联动站点分组获取店铺列表
+  async ddMallGoodsGetMallList(isRe) {
     try {
-      // const res = await this._this.$api.ddMallGoodsGetMallList({ params })
-      const res = await this._this.$api.ddMallGoodsGetMallList(params)
-      if (res.data.code === 200) {
-        return { code: 200, data: res.data.data }
+      let tempMallList = []
+      if (!isRe) {
+        const mallData = await this._this.$appConfig.temporaryCacheInfo('get', 'mallAllData', '')
+        tempMallList = mallData.length > 5 && JSON.parse(mallData) || []
+        if (tempMallList.length){
+          return { code: 200, data: tempMallList }
+        }
       }
+      let params = {}
+      let i = 1
+      do {
+        params['page'] = i++
+        params['page_size'] = 1500
+        const res = await this._this.$api.getMallListByPage(params)
+        console.log('ddMallGoodsGetMallList1', res)
+        let total = 0
+        if (res.data.code === 200) {
+          let data = res?.data?.data
+          total = data?.total || total
+          let mallList = data?.malls?.data || []
+          tempMallList = [...tempMallList, ...mallList]
+        }else{
+          break
+        }
+        if (!tempMallList.length || !total || tempMallList.length === total) {
+          await this._this.$appConfig.temporaryCacheInfo('save', 'mallAllData', tempMallList)
+          return { code: 200, data: tempMallList }
+        }
+      } while (true)
       return { code: -2, data: '获取店铺列表失败' }
     } catch (error) {
+      console.log('error', error)
       return { code: -2, data: `getMallList-catch: ${error}` }
     }
   }

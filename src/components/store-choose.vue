@@ -11,13 +11,17 @@
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺分组：</span>
-        <el-select :disabled="isBanPerform" v-model="groupId" multiple collapse-tags filterable size="mini" class="selectBox">
-          <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id"/>
+        <el-select :disabled="isBanPerform" v-model="groupId" :style="{ width: inputWidth }" multiple collapse-tags
+                   filterable size="mini" class="selectBox">
+          <el-option label="全部" :value="''" @click.native="changeGroupSelect(groupId,true)"/>
+          <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name"
+                     :value="item.id" @click.native="changeGroupSelect(groupId)"/>
         </el-select>
       </li>
-      <li :style="isReset && 'margin-bottom: 5px'">
+      <li v-show="showGrade < 2" :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺名称：</span>
         <el-select
+            :style="{ width: inputWidth }"
             :disabled="isBanPerform"
             v-model="site"
             v-loadmore="loadmoreMall"
@@ -29,12 +33,12 @@
             filterable
             class="selectBox"
             clearable
-            @visible-change="filterMall('')"
-        >
-          <el-option v-if="!isAShop" label="全部" :value="''"/>
+            @visible-change="filterMall('')">
+          <el-option v-if="!isAShop" label="全部" :value="''" @click.native="changeSiteSelect(site,true)"/>
           <el-option
               v-for="(item, index) in siteShowList"
               v-if="showMall(item,index)"
+              @click.native="changeSiteSelect(site)"
               :key="index"
               :label="item.mall_alias_name || item.platform_mall_name"
               :value="item.platform_mall_id"
@@ -42,7 +46,9 @@
         </el-select>
       </li>
       <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
-        <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset" :disabled="isBanPerform">　刷　　新　</el-button>
+        <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset" :disabled="isBanPerform">
+          　刷　　新　
+        </el-button>
       </li>
     </ul>
   </div>
@@ -73,58 +79,67 @@ Vue.directive('loadmore', {
 export default {
   name: 'StoreChoose',
   props: {
-    spanWidth: {
+    spanWidth: { //前缀宽
       type: String,
       default: '80px'
     },
-    parentCountry: {
+    inputWidth: { //输入宽
+      type: String,
+      default: '180px'
+    },
+    parentCountry: {  //初始站点
       type: String,
       default: 'TH'
     },
-    isMall: {
+    isMall: { //是否可修改站点
       type: Boolean,
       default() {
         return false
       }
     },
-    isBanPerform: {
+    isBanPerform: { // 停止使用
       type: Boolean,
       default() {
         return false
       }
     },
-    isAll: {
+    isAll: {  //是否支持全站点
       type: Boolean,
       default() {
         return false
       }
     },
-    isReset: {
+    isReset: {  //是否可刷新
       type: Boolean,
       default() {
         return false
       }
     },
-    source: {
+    source: { //返回数据较比全
       type: String,
       default() {
         return ''
       }
     },
-    isAShop:{
+    isAShop: { //是否为单店铺
       type: Boolean,
       default() {
         return false
+      }
+    },
+    showGrade: { //显示等级
+      type: Number,
+      default() {
+        return 0
       }
     }
   },
   data() {
     return {
-      isAllowSet1: true,
-      isAllowSet2: true,
       countryVal: null,
       groupId: [],
       groupIdList: [],
+      allSiteList: [],
       site: [],
       siteList: [],
       siteShowList: [],
@@ -134,7 +149,6 @@ export default {
       isShowNameAll: false,
       showMallNumber: 100,
       mallShowIndex: 0,
-      jsonMallData: [],
       filterMallTime: null
     }
   },
@@ -143,193 +157,129 @@ export default {
       this.siteShowList = val
     },
     countryVal: {
-      handler(val, oldVal) {
+      handler(val) {
         this.isShowName = ''
-        this.isAllowSet2 = false
         this.groupId = []
         this.groupIdList = []
-        this.ddMallGoodsGetMallList(1)
-      },
-      deep: true
-    },
-    groupId: {
-      handler(val, oldVal) {
-        if (this.isAllowSet2) {
-          this.isShowName = ''
-          this.isAllowSet2 = false
-          const isOldAll = oldVal.indexOf('') > -1
-          const isAll = val.indexOf('') > -1
-          if (isOldAll !== isAll) {
-            if (isAll) {
-              this.groupId = [...this.groupIdList.map(i => i.id)]
-            } else {
-              this.groupId = []
-            }
-          } else if (isAll) {
-            this.groupId = val.slice(1)
-          } else if (this.groupIdList.length > 0 && this.groupId.length === this.groupIdList.length - 1) {
-            this.groupId.unshift('')
-          }
-          setTimeout(() => {
-            this.isAllowSet2 = true
-            this.ddMallGoodsGetMallList(2)
-          }, 10)
-        }
-      },
-      deep: true
-    },
-    site: {
-      handler(val, oldVal) {
-        if (this.isAllowSet1) {
-          this.isAllowSet1 = false
-          let showName = this.isShowName
-          if (!this.isAShop){
-            const isOldAll = oldVal.includes('')
-            const isAll = val.includes('')
-            if (isOldAll !== isAll || (oldVal.toString() === val.toString() && this.isShowNameAll)) {
-              if (isAll && (!showName || showName && !this.isShowNameAll)) {
-                let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)] || ['', ...this.siteList.map(i => i.platform_mall_id)]
-                let setList = new Set([...showList, ...oldVal])
-                this.site = [...setList]
-                this.isShowNameAll = true
-                showName && this.siteList.length === this.site.length && this.site.unshift('')
-              } else {
-                this.isShowNameAll = false
-                let setList = []
-                if (showName) {
-                  let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)]
-                  let maxList = showList.length > this.site.length && this.site || showList
-                  let minList = showList.length > this.site.length && showList || this.site
-                  setList = new Set(this.site)
-                  for (let item of minList) {
-                    if (maxList.includes(item)) {
-                      setList.delete(item)
-                    }
-                  }
-                  setList.delete('')
-                }
-                this.site = [...setList]
-              }
-            } else if (isAll) {
-              this.site = val.slice(1)
-            } else if (this.siteList.length > 0 && this.siteList.length === this.site.length) {
-              this.site.unshift('')
-            } else {
-              this.isShowNameAll = false
-            }
-          }
-          setTimeout(() => {
-            this.changeMallList()
-            this.filterMall(showName)
-            this.isAllowSet1 = true
-          }, 10)
-        }
+        this.getMallGoodsGetMallList(1)
       },
       deep: true
     }
   },
   mounted() {
-    this.countryVal = this.isMall ? this.parentCountry : (!this.isAll && 'TH') || ''
+    this.countryVal = !this.isAll && this.parentCountry || ''
   },
   methods: {
     reset() {
-      this.isAllowSet2 = false
       this.groupId = []
       this.groupIdList = []
-      this.ddMallGoodsGetMallList(1)
+      this.getMallGoodsGetMallList(1)
     },
-    async ddMallGoodsGetMallList(val) {
-      this.site = []
-      const country = this.countryVal
-      let jsonMallData = []
-      if (this.jsonMallData.length > 0) {
-        jsonMallData = this.jsonMallData
-      } else {
-        const mallData = await this.$appConfig.temporaryCacheInfo('get', 'mallAllData', '')
-        jsonMallData = JSON.parse(mallData) || []
-        this.jsonMallData = JSON.parse(mallData) || []
-      }
-      if (jsonMallData.length > 0) {
-        if (val === 1) {
-          this.siteList = country === '' ? jsonMallData : jsonMallData.filter(item => {
-            return item.country === country
-          })
+    changeGroupSelect(val, type) {
+      if (type) {
+        if (!val.includes('')) {
+          this.groupId = []
+        } else {
+          this.groupId = ['', ...this.groupIdList.map(son => son.id)]
         }
-        if (val === 2) {
-          if (this.groupId.length === 0) {
-            this.siteList = []
-          } else {
-            this.siteList = []
-            this.groupId.forEach(item => {
-              jsonMallData.forEach(mItem => {
-                if (country) {
-                  if (item === mItem.group_id && country === mItem.country) {
-                    this.siteList.push(mItem)
-                  }
-                } else {
-                  if (item === mItem.group_id) {
-                    this.siteList.push(mItem)
-                  }
+      } else {
+        if (!val.includes('') && val.length === this.groupIdList.length) {
+          this.groupId.unshift('')
+        } else if (val.includes('') && val.length === this.groupIdList.length) {
+          this.groupId = val.slice(1)
+        }
+      }
+      this.getMallGoodsGetMallList(2)
+    },
+    changeSiteSelect(val, type) {
+      let showName = this.isShowName
+      if (!this.isAShop) {
+        if (type) {
+          if (!val.includes('')) {
+            let setList = []
+            if (showName) {
+              let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)]
+              let maxList = showList.length > this.site.length && this.site || showList
+              let minList = showList.length > this.site.length && showList || this.site
+              setList = new Set(this.site)
+              for (let item of minList) {
+                if (maxList.includes(item)) {
+                  setList.delete(item)
                 }
-              })
-            })
+              }
+              setList.delete('')
+            }
+            this.site = [...setList]
+          } else {
+            let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)] || ['', ...this.siteList.map(i => i.platform_mall_id)]
+            let setList = new Set([...showList, ...val])
+            this.site = [...setList]
+            this.isShowNameAll = true
+            showName && this.siteList.length === this.site.length && this.site.unshift('')
+          }
+        } else {
+          if (!val.includes('') && this.siteList.length > 0 && this.siteList.length === this.site.length) {
+            this.site.unshift('')
+          } else if (val.includes('')) {
+            this.site = val.slice(1)
           }
         }
-      } else {
-        const param = {
-          country: '',
-          mallGroupIds: ''
-        }
-        const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
+      }
+      this.changeMallList()
+      this.filterMall(showName)
+    },
+    async getMallGoodsGetMallList(val) {
+      console.log('getMallGoodsGetMallList - val', val)
+      if (val === 1) {
+        const country = this.countryVal
+        const res = await this.mallListAPIInstance.ddMallGoodsGetMallList()
         if (res.code === 200) {
-          this.$appConfig.temporaryCacheInfo('save', 'mallAllData', res.data)
           const data = res.data || []
-          this.siteList = data
-          this.jsonMallData = data
-          this.siteList = country === '' ? data : data.filter(item => {
-            return item.country === country
-          })
+          this.allSiteList = data
+          this.siteList = country === '' ? data : data.filter(item => item.country === country)
         } else {
           this.$message.error('获取分组、店铺列表失败')
         }
-      }
-      let groupIdList = []
-      if (this.groupIdList.length === 0) {
-        this.groupIdList = [{
-          group_name: '全部',
-          id: ''
-        }]
-        this.siteList.forEach((item) => {
-          const index = groupIdList.findIndex((i) => i && i.id === item.group_id)
-          if (item.group_name && index < 0) {
-            groupIdList.push({
-              group_name: item.group_name,
-              id: item.group_id
-            })
+        if (this.groupIdList.length === 0) {
+          let setGroupIdList = new Set(this.siteList.map(son => {
+            if (son.group_id) {
+              return JSON.stringify({
+                group_name: son.group_name,
+                id: son.group_id
+              })
+            }
+          }))
+          setGroupIdList.delete(undefined)
+          let groupIdListJson = [...setGroupIdList]
+          let groupIdList = groupIdListJson.map(son => JSON.parse(son))
+          groupIdList.zzSort('id')
+          this.groupIdList = [...groupIdList]
+          this.groupId = ['', ...groupIdList.map(son => son.id)]
+        }
+      } else {
+        this.siteList = this.allSiteList.filter(son => {
+          if (this.groupId.includes(son.group_id)) {
+            return son
           }
         })
-        groupIdList.zzSort('id')
-        this.groupIdList = [...this.groupIdList,...groupIdList]
-        this.groupId = ['',...groupIdList.map(son=>son.id)]
       }
-      setTimeout(() => {
-        this.isAllowSet2 = true
-        this.isAllowSet1 = true
-        this.site = !this.isAShop && [''] || ''
-      }, 10)
+      this.changeSiteSelect([''], true)
     },
     changeMallList() {
-      const mallList = []
+      let start = new Date().getTime()
+      let mallList = []
       let searchAll = ''
-      if (!this.isAShop){
-        this.site.forEach((item) => {
-          if (item) {
-            const temp = this.siteList.find((i) => i.platform_mall_id === item)
-            mallList.push(temp)
-            searchAll += (item + ',')
-          }
+      let site = this.site
+      if (!this.isAShop) {
+        if (site.length && site[0] === '') {
+          site = site.slice(1)
+        }
+        searchAll = site.toString()
+        mallList = this.siteList.filter(son => {
+          return site.includes(son.platform_mall_id)
         })
-      }else{
+        console.log(new Date() - start)
+      } else {
         const temp = this.siteList.find((i) => i.platform_mall_id === this.site)
         searchAll = this.site
         mallList.push(temp)
@@ -340,6 +290,7 @@ export default {
       if (this.source) {
         this.$emit('changeMallList', {
           mallList: mallList,
+          groupIdList: this.groupId,
           source: this.source,
           searchAll: searchAll,
           country: this.countryVal.toLocaleUpperCase()
@@ -356,16 +307,18 @@ export default {
         this.filterMallTime = null
       }
       this.filterMallTime = setTimeout(() => {
-        if (this.isShowName !== val){
+        if (this.isShowName !== val) {
           this.mallShowIndex = 0
         }
         this.isShowName = val || ''
-        let list1 = this.siteList
+        let list1 = []
         if (val) {
           list1 = this.siteList.filter(i => {
             const name = i.mall_alias_name || i.platform_mall_name
             return name.includes(val)
           })
+        }else{
+          list1 = this.siteList
         }
         this.siteShowList = list1
       }, time)

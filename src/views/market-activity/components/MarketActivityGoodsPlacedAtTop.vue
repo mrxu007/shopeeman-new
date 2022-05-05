@@ -178,7 +178,7 @@
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import storeChoose from '../../../components/store-choose'
 import goodsItemSelector from '../../../components/goods-item-selector'
-import { GoodsMallgetValue, getMalls, waitStart, batchOperation, terminateThread } from '../../../util/util'
+import { batchOperation, terminateThread } from '../../../util/util'
 import MarketManagerAPI from '../../../module-api/market-manager-api/market-data'
 import MallManagerAPI from '@/module-api/market-activity-api/ai-addFence'
 import { topGoods } from '@/views/market-activity/components/topGoods'

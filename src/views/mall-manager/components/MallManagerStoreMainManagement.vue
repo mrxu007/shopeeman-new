@@ -2,7 +2,7 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="des_conditon">
-        <storeChoose :is-all="true" :show-mall-all="true" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :is-all="true" :source="'true'" @changeMallList="changeMallList"/>
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
@@ -129,7 +129,6 @@
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP, row.id)">打开代理浏览器</el-button>
                 <el-button size="mini" type="primary" @click="showupdateVisible(row)">修改绑定店铺</el-button>
                 <el-button size="mini" type="primary" @click="delInforFun(row.id)">删除</el-button>
-                <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
                 <el-button v-if="row.isMiddleIP" size="mini" type="primary" @click="MiddleIP(row.id)">刷新IP信息</el-button>
               </div>
             </template>
@@ -433,9 +432,8 @@
           <div class="right_condition">
             <div style="display: flex; margin: 4px 0px; flex-flow: column">
               <div style="display: flex">
-                <Storechoosemall :key="changeIndex" :is-all="true" :show-mall="false" style="margin-left: -20px"
-                                 @changeMallList="changeMallList2" @getSite="changeSite"/>
-                <el-button type="primary" size="mini" style="margin-left: 0px" @click="getMallList">查询</el-button>
+
+                <storeChoose :is-all="true" :show-grade="2" :source="'true'" @changeMallList="changeMallList2"/>
               </div>
               <div>
                 <!-- <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click.native="bindedMall">显示已绑定ip店铺</el-checkbox> -->
@@ -472,9 +470,8 @@
 </template>
 <script>
 import ShopeeConfig from '@/services/shopeeman-config'
-import Storechoosemall from '../../../components/store-choose-mall'
 import storeChoose from '../../../components/store-choose'
-import { getMalls, MallgetValue, getValue, creatDate, delay } from '../../../util/util'
+import { getMalls, MallgetValue } from '../../../util/util'
 import {
   encryptionList,
   ipTypeList,
@@ -486,7 +483,6 @@ import Index from '@/views/catch-notice/index.vue'
 
 export default {
   components: {
-    Storechoosemall,
     storeChoose
   },
 
@@ -512,10 +508,6 @@ export default {
     return {
       bindMalltable: [], // 过滤绑定店铺的主体
       changeIndex: 0, // dialog店铺分组 组件
-      dialogMallquery: {
-        country: '',
-        mallGroupIds: []
-      },
       rowData: '', // 选中行
       bindindex: [],
       bindMalList: [],
@@ -633,9 +625,7 @@ export default {
   },
   mounted() {
     this.getInfo() // 获取店铺信息
-    // this.getTableList()// tableList
     this.GetCloudIPAreaList()// 获取IP区域列表
-    // this.getMallList()// 初始化店铺列表
   },
   methods: {
     // 创建中继IP
@@ -667,14 +657,6 @@ export default {
       // 列表重新刷新
       this.changeIndex++
       this.getMallList()
-      // this.loading = true
-      // const res = await this.$api.ddMallGoodsGetMallList()
-      // this.loading = false
-      // if (res.data.code === 200) {
-      //   this.dialog_mallList = res.data.data
-      // } else {
-      //   this.$message.warning('网络异常！')
-      // }
     },
     // 新增自有IP公司主体
     async addSelfFun() {
@@ -685,14 +667,6 @@ export default {
       // 列表重新刷新
       this.changeIndex++
       this.getMallList()
-      // this.loading = true
-      // const res = await this.$api.ddMallGoodsGetMallList()
-      // this.loading = false
-      // if (res.data.code === 200) {
-      //   this.dialog_mallList = res.data.data
-      // } else {
-      //   this.$message.warning('网络异常！')
-      // }
     },
     // IP解绑
     lostIP() {
@@ -825,15 +799,7 @@ export default {
       getMalls().then(res => {
         this.shopAccountList = res
         this.query.mall_ids = '' // 初始化店铺数据
-        this.dialogMallquery.mallGroupIds = [] // 初始化绑定店铺分组
-        this.shopAccountList.forEach(item => {
-          // this.query.mall_ids.push(item.id)
-          this.dialogMallquery.mallGroupIds.push(item.group_id)
-        })
-        // this.initDate()
         this.getTableList()
-        // console.log('6565656', this.dialogMallquery.mallGroupIds)
-        // this.getMallList()
       })
     },
     // 勾选渲染
@@ -872,31 +838,10 @@ export default {
       this.targetId = d.id
       this.bindindex = [] // 清空绑定数据
       this.bindMalList = [] // 清空绑定数据
-      this.dialogMallquery.country = ''
       // 列表渲染
       this.rowData = d
       // debugger
       this.getMallList() // 列表刷新
-      // this.selectFun()
-      // this.$nextTick(() => {
-      //   if (this.$refs.multipleTable_dialog) {
-      //     this.$refs.multipleTable_dialog.clearSelection()
-      //   }
-      // })
-      // if (d.target_mall_info && d.target_mall_info.length > 0) {
-      //   d.target_mall_info.forEach(item => {
-      //     const index = this.dialog_mallList.findIndex(mall => {
-      //       return Number(mall.id) === Number(item.mall_id)
-      //     })
-      //     if (index > -1) {
-      //       this.bindMalList.push(this.dialog_mallList[index]) // 存储绑定的店铺 关联bindedMall() 切换
-      //       this.bindindex.push(index) // 存储绑定店铺的下标 -- 关联bindedMall() 切换
-      //       this.$nextTick(() => {
-      //         this.$refs.multipleTable_dialog.toggleRowSelection(this.dialog_mallList[index], true) // 渲染
-      //       })
-      //     }
-      //   })
-      // }
       // 表格渲染
       const row = d
       this.query_person = {
@@ -1032,45 +977,19 @@ export default {
       }
     },
     // 初始化店铺列表 查询
-    async getMallList() {
-      const params = {
-        country: this.dialogMallquery.country,
-        mallGroupIds: this.dialogMallquery.mallGroupIds.toString()
-      }
-      this.loading = true
-      console.log('1111111')
-      let allMalldata = []
-      // this.dialog_mallList = []
-      const res = await this.$api.ddMallGoodsGetMallList(params)
-      this.loading = false
-      if (res.data.code === 200) {
-        // this.dialog_mallList = res.data.data
-        allMalldata = res.data.data // 所有的店铺列表
-        for (let i = 0; i < allMalldata.length; i++) {
-          for (let j = 0; j < this.bindMalltable.length; j++) {
-            const index = this.bindMalltable[j].bindmall.findIndex(al => {
-              return Number(allMalldata[i].id) === Number(al.mall_id)
-            })
-            if (index >= 0) {
-              allMalldata[i].main_name = this.bindMalltable[j].main_name
-            }
+    async getMallList(mallList = []) {
+      let allMalldata = mallList.length && mallList || this.dialog_mallList_all
+      for (let i = 0; i < allMalldata.length; i++) {
+        for (let j = 0; j < this.bindMalltable.length; j++) {
+          const index = this.bindMalltable[j].bindmall.findIndex(al => {
+            return Number(allMalldata[i].id) === Number(al.mall_id)
+          })
+          if (index >= 0) {
+            allMalldata[i].main_name = this.bindMalltable[j].main_name
           }
         }
-        this.dialog_mallList_all = allMalldata
-        console.log('dialog_mallList', this.dialog_mallList)
-        console.log('allMalldata', allMalldata)
-        // allMalldata.forEach(el => {
-        //   this.bindMalltable.forEach(ol => {
-        //     const index = ol.bindmall.findIndex(al => { return Number(el.id) === Number(al.mall_id) })
-        //     if (index >= 0) {
-        //       el.main_name = ol.main_name
-        //     }
-        //   })
-        //   this.dialog_mallList.push(el)
-        // })
-      } else {
-        this.$message.warning('店铺列表获取失败！')
       }
+      this.dialog_mallList_all = allMalldata
       this.bindedMall()
     },
     // 绑定用户信息
@@ -1113,10 +1032,6 @@ export default {
       this.getTableList()
       this.$refs.multipleTable_dialog.clearSelection()
     },
-    // 获取dialog 店铺列表
-    getDialogMallList() {
-
-    },
     // 显示已绑定ip店铺
     bindedMall() {
       // this.showUserIP = !this.showUserIP
@@ -1125,23 +1040,6 @@ export default {
         // this.$refs.multipleTable_dialog.toggleAllSelection() // 渲染
         this.selectFun()
       } else {
-        // this.bindindex.forEach(item => {
-        //   this.$nextTick(() => {
-        //     this.$refs.multipleTable_dialog.toggleRowSelection(this.dialog_mallList[item], true) // 渲染
-        //   })
-        // })
-        // const list = [] // 清空店铺主体名称
-        // this.dialog_mallList.forEach(item => {
-        //   item.main_name = ''
-        //   list.push(item)
-        // })
-        // this.dialog_mallList = list
-        // if (this.dialogvisible) {
-        //   this.$nextTick(() => {
-        //     this.$refs.multipleTable_dialog.clearSelection()
-        //   })
-        // }
-        //  bindMalList
         const arr = [] // 筛选部分
         this.dialog_mallList_all.forEach(el => {
           if (!el.main_name) {
@@ -1292,10 +1190,6 @@ export default {
       }
       // })
     },
-    // 删除
-    del(ids) {
-    },
-    //
     search() {
       this.getTableList()
     },
@@ -1464,23 +1358,17 @@ export default {
     },
     // 新增ip 店铺  select
     changeMallList2(val) {
-      this.dialogMallquery.mallGroupIds = []
-      if (val && val.length > 0) {
-        val.forEach(item => {
-          this.dialogMallquery.mallGroupIds.push(item.group_id)
-        })
+      console.log('changeMallList2', val)
+      if (val) {
+        this.getMallList(val.mallList)
       }
-    },
-    // 获取店铺站点
-    changeSite(val) {
-      this.dialogMallquery.country = val
     },
     // 获取IP区域列表
     async GetCloudIPAreaList() {
       const data = await this.$YipService.GetCloudIPAreaList()
       this.loading = false
       const resMsg = JSON.parse(data)
-      console.log('resMsg',resMsg)
+      console.log('resMsg', resMsg)
       if (resMsg.code === -1) {
         this.$message.error('ip数据请求失败')
       } else {
@@ -1489,9 +1377,9 @@ export default {
           item.area_list.forEach(e => {
             //  e.channel_list[0].lineid  路线id
             //  e.name  区域名
-            if(e.name.includes('特惠')){
+            if (e.name.includes('特惠')) {
               this.region_ipList.unshift({ id: e.channel_list[0].lineid, value: e.name })
-            }else{
+            } else {
               this.region_ipList.push({ id: e.channel_list[0].lineid, value: e.name })
             }
           })

@@ -4,7 +4,7 @@
       class="condition"
       style="display: flex;"
     >
-      <Storechoosemall style="margin-left:-20px" :show-mall="true" @changeMallList="changeMallList" @getSite="changeSite" />
+      <store-choose style="margin-left:-20px" :source="'true'" :input-width="'160px'" @changeMallList="changeMallList"  />
       <el-button type="primary" size="mini" :loading="isStart" @click="startCompare">开始同步</el-button>
       <el-button type="primary" size="mini" @click="cancerCompare">取消同步</el-button>
       <el-button type="primary" size="mini" @click="closelogData">清空日志</el-button>
@@ -37,11 +37,11 @@
 </template>
 <script>
 import { forEach } from 'jszip'
-import Storechoosemall from '../../../components/store-choose-mall'
+import storeChoose from '../../../components/store-choose'
 import GoodsManagerAPI from '../../../module-api/goods-manager-api/goods-data'
 import { batchOperation, terminateThread } from '../../../util/util'
 export default {
-  components: { Storechoosemall },
+  components: { storeChoose },
   data() {
     return {
       platformData: {}, // 上家平台数据
@@ -366,26 +366,6 @@ export default {
       }
     },
     async getinfo() {
-      // const params = {
-      //   country: this.query.country,
-      //   mallGroupIds: this.query.mallGroupIds.toString()
-      // }
-      // this.loading = true
-      // const res = await this.$api.ddMallGoodsGetMallList(params)
-      // this.loading = false
-      // this.tableList = []
-      // if (res.data.code === 200) {
-      //   // this.tableList = res.data.data
-      //   res.data.data.forEach(el => {
-      //     el.totalGoods = 0
-      //     el.getGoods = 0
-      //     el.firstTime = null
-      //     el.nextTime = null
-      //     this.tableList.push(el)
-      //   })
-      // } else {
-      //   this.$message.warning('店铺列表获取失败！')
-      // }
       this.tableList = []
       this.selectMall.forEach(el => {
         // el.totalGoods = 0
@@ -396,18 +376,11 @@ export default {
     },
     // 获取店铺分组
     changeMallList(val) {
-      this.selectMall = val
-      // this.query.mallGroupIds = []
-      // if (val?.length > 0) {
-      //   val.forEach(item => {
-      //     this.query.mallGroupIds.push(item.group_id)
-      //   })
-      // }
+      if (val){
+        this.selectMall = val.mallList
+        this.query.country = val.country
+      }
     },
-    // 获取站点
-    changeSite(val) {
-      this.query.country = val
-    }
   }
 }
 </script>

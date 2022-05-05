@@ -227,16 +227,16 @@
       </div>
       <div class="dialog-right">
         <div style="display: flex;margin-bottom: 10px;">
-          <store-choose-mall :key="changeIndex" :is-all="true" :show-mall="false" @changeMallList="changeMallList" />
+          <store-choose :key="changeIndex" :is-all="true" :show-grade="2" :source="'true'" :span-width="'60px'" :input-width="'150px'" @changeMallList="changeMallList" />
           <el-input
+              style="flex: 1;"
             v-model="searchMall"
             placeholder="店铺"
             size="mini"
             class="input-with-select"
             prefix-icon="el-icon-search"
-            @input="searchInputMall"
-          />
-          <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMall">查 询</el-button>
+            @input="searchInputMall"/>
+<!--          <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMall">查 询</el-button>-->
         </div>
         <u-table
           v-if="mallTableShow"
@@ -339,11 +339,11 @@
 <script>
 import AddressModel from '../../../components/address-model.vue'
 import AddressSet from '../../../module-api/order-manager-api/address-set'
-import StoreChooseMall from '../../../components/store-choose-mall.vue'
+import StoreChoose from '../../../components/store-choose'
 export default {
   components: {
     AddressModel,
-    StoreChooseMall
+    StoreChoose
   },
   data() {
     return {
@@ -369,6 +369,7 @@ export default {
       tableDataAll: [],
       multipleSelection: [],
       mallList: [], // 店铺分组数据
+      mallListCountry:'',
       typeObj: ['国内中转仓', '存储转运仓', '海外存储仓', '海外中转仓'],
 
       warehouseLoading: false,
@@ -664,7 +665,7 @@ export default {
       })
       const params = {
         id: this.sysWarehouseId,
-        country: this.mallList.country || '',
+        country: this.mallListCountry || '',
         groupIds: [...groupIds].toString()
       }
       console.log(params, '-----------')
@@ -1008,8 +1009,13 @@ export default {
       }
     },
     changeMallList(val) {
-      this.mallList = val
       console.log('changeMallList', val)
+      if (val){
+        this.mallList = val.mallList
+        this.mallListCountry = val.country
+        // this.bindMallData = val.mallList
+      }
+      this.getBindMall()
     },
     handleClose1() {
       // this.getUserWarehouse()

@@ -90,6 +90,7 @@ export default {
 
   // 店铺管理 ------------------------------------------------------------------
   ddMallGoodsGetMallList: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
+  getMallListByPage: (data) => AppRequest.get('/ddMallGoods/getMallListByPage', { params: data }), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
   getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表

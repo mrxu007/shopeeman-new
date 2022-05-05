@@ -191,8 +191,7 @@
 import { forEach } from 'jszip'
 import storeChoose from '../../../components/store-choose'
 import MarketManagerAPI from '../../../module-api/market-manager-api/market-data'
-import { GoodsMallgetValue, getMalls, batchOperation, terminateThread } from '../../../util/util'
-import { t } from 'umy-table/lib/locale'
+import { batchOperation, terminateThread } from '../../../util/util'
 export default {
   components: {
     storeChoose

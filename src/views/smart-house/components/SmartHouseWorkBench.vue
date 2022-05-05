@@ -735,7 +735,7 @@
 
 <script>
 // import { getSites, getMalls, colorLabelList, creatDate } from '../../utils/index'
-import { getValue, getColorinfo, creatDate, colorLabelList, MallList, getMalls } from '../../../util/util'
+import { getValue, getColorinfo, creatDate, colorLabelList, getMalls } from '../../../util/util'
 import { statusList, exceptionList, orderStatusList, packageStatusList } from './warehouse'
 import storeChoose from '../../../components/store-choose.vue'
 import ShopeeConfig from '@/services/shopeeman-config'

@@ -457,7 +457,7 @@ export default {
       this.SiteList = Object.assign(val)
     },
     resizeHeight() {
-      const offerHeight = window.innerHeight
+      const offerHeight = window.outerHeight
       this.height = offerHeight - 150
     },
     tableScroll() {

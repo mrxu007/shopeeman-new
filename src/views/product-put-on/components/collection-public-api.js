@@ -919,23 +919,19 @@ export default class CollectionPublicApi {
     return title
   }// 随机取值
   getRandomArrayElements(arr, count) {
-    const shuffled = arr.slice(0)
     let i = arr.length
     const min = (i - count > 0) && i - count || 0
-    let temp
-    let index
-    while ((i-- > min) && min) {
-      index = Math.floor((i + 1) * Math.random())
-      temp = shuffled[index]
-      shuffled[index] = shuffled[i]
-      shuffled[i] = temp
-    }
-    let tempList = shuffled.slice(min)
-    let setList = new Set( arr.map(son => {
-      if (tempList.includes(son)) {
-        return son
+    let tempList = []
+    let indexList = []
+    while (i > min && min) {
+      let index = Math.floor(arr.length * Math.random())
+      if (!indexList.includes(index)) {
+        tempList[index] = arr[index]
+        indexList.push(index)
+        --i
       }
-    }))
+    }
+    let setList =new Set( tempList.length && tempList || arr)
     setList.delete(undefined)
     return [...setList]
   }

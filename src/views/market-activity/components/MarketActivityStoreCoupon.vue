@@ -280,7 +280,7 @@
 import storeChoose from '../../../components/store-choose'
 import goodsItemSelector from '../../../components/goods-item-selector'
 import MarketManagerAPI from '../../../module-api/market-manager-api/market-data'
-import { GoodsMallgetValue, getMalls, batchOperation, terminateThread } from '../../../util/util'
+import { batchOperation, terminateThread } from '../../../util/util'
 
 export default {
   components: {

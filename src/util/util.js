@@ -4,8 +4,10 @@ import {
 import md5 from 'js-md5'
 import Vue from 'vue'
 import XLSX from 'xlsx'
+import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
 
 const instance = new Vue()
+const mallListAPIInstance = new MallListAPI(instance)
 
 // 匹配对象数组值(店铺绑定--系统)
 export function MallgetValue(arr, label, id, relID) {
@@ -33,15 +35,9 @@ export function GoodsMallgetValue(arr, label, value, relID) {
 }
 // 获取店铺信息
 export async function getMalls() {
-  // await instance.$api.logFun()
   const shopList = []
   try {
-    const {
-      data
-    } = await instance.$api.ddMallGoodsGetMallList()
-    // if (data.data.length) {
-    //   localStorage.setItem('mallList', JSON.stringify(data.data))
-    // }
+    const { data } = await mallListAPIInstance.ddMallGoodsGetMallList()
     for (let index = 0; index < data.data.length; index++) {
       const item = data.data[index]
       const obj = {}
@@ -54,29 +50,6 @@ export async function getMalls() {
     return shopList
   } catch (err) {
     return []
-  }
-}
-
-// 获取店铺信息
-export async function MallList() {
-  const param = {
-    country: '',
-    mallGroupIds: ''
-  }
-  const res = await instance.$api.ddMallGoodsGetMallList(param)
-  // console.log('res', res)
-  if (res.data.code === 200) {
-    const arr = res.data.data
-    const blist = []
-    arr.forEach(e => {
-      blist.push({
-        'label': e.platform_mall_name,
-        'id': e.id
-      })
-    })
-    return blist
-  } else {
-    this.$message.error('获取分组、店铺列表失败')
   }
 }
 

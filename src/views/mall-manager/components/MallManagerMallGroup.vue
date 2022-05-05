@@ -19,34 +19,35 @@
       </el-col>
     </el-row>
     <el-row class="article">
-      <el-table
-        ref="plTable"
-        v-loading="buttonStatus.search"
-        height="calc(100vh - 140px)"
-        :data="groupList"
-        :header-cell-style="{
-          backgroundColor: '#f5f7fa',
-        }"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column align="center" type="selection" width="50" />
-        <el-table-column align="center" type="index" label="序列号" width="100" />
-        <el-table-column align="center" label="分组名称" prop="group_name" />
-        <el-table-column align="center" label="绑定运营">
+
+      <u-table ref="plTable"
+          v-loading="buttonStatus.search"
+          :height="height"
+          use-virtual
+          :data="groupList"
+          :header-cell-style="{backgroundColor: '#f5f7fa'}"
+          :data-changes-scroll-top="false"
+          :row-height="50"
+          :border="false"
+          @selection-change="handleSelectionChange">
+        <u-table-column align="center" type="selection" width="50" />
+        <u-table-column align="center" type="index" label="序列号" width="100" />
+        <u-table-column align="center" label="分组名称" prop="group_name" />
+        <u-table-column align="center" label="绑定运营">
           <template v-slot="{ row }"> {{ row.new_role_operator.join(',') || '-' }} </template>
-        </el-table-column>
-        <el-table-column align="center" label="绑定客服">
+        </u-table-column>
+        <u-table-column align="center" label="绑定客服">
           <template v-slot="{ row }"> {{ row.new_role_customer_servicer.join(',') || '-' }} </template>
-        </el-table-column>
-        <el-table-column align="center" label="绑定跟单">
+        </u-table-column>
+        <u-table-column align="center" label="绑定跟单">
           <template v-slot="{ row }"> {{ row.new_role_follower_id.join(',') || '-' }} </template>
-        </el-table-column>
-        <el-table-column align="center" label="操作">
+        </u-table-column>
+        <u-table-column align="center" label="操作">
           <template v-slot="{ row }">
             <el-button type="primary" size="mini" @click="openGroupDialog(row)">修改分组</el-button>
           </template>
-        </el-table-column>
-      </el-table>
+        </u-table-column>
+      </u-table>
     </el-row>
     <!-- 新增/修改店铺弹框 -->
     <el-dialog
@@ -145,18 +146,6 @@
                 </template>
               </u-table-column>
             </u-table>
-            <!-- <div class="pagination">
-              <el-pagination
-                background
-                layout="total, sizes, prev, pager, next"
-                :total="total"
-                :current-page="currentPage"
-                :page-sizes="[200, 500]"
-                :page-size="pageSize"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-              />
-            </div> -->
           </div>
         </div>
       </el-row>
@@ -194,13 +183,14 @@
 </template>
 
 <script>
-import { exportExcelDataCommon, importOrder } from '../../../util/util'
+import { exportExcelDataCommon, importOrder,dateFormat } from '../../../util/util'
 import xlsx from 'xlsx'
 import MallListAPI from '../../../module-api/mall-manager-api/mall-list-api'
 
 export default {
   data() {
     return {
+      height:700,
       mallListAPIInstance: new MallListAPI(this),
       groupName: '',
       groupList: [],
@@ -246,20 +236,12 @@ export default {
   },
   created() {
     this.getGroup()
-    //this.getMallList()
+    this.resizeHeight()
+    window.addEventListener('resize', (event) => {
+      this.resizeHeight()
+    })
   },
   methods: {
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      this.pageSize = val
-      this.currentPage = 1
-      this.getMallList()
-    },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      this.currentPage = val
-      this.getMallList()
-    },
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
@@ -392,7 +374,6 @@ export default {
       if (row) {
         this.groupId = row.id
       }
-      // this.$refs.plTable2?.reloadData(this.mallListTemp)
       this.switchSelectMallStatus()
     },
     tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
@@ -492,10 +473,6 @@ export default {
       this.reset()
       console.log('groupId', this.groupId)
       console.log('bindMallList', this.bindMallList)
-      // if (row === 'refresh') {
-      // await this.getGroup()
-      // await this.getMallList()
-      // }
       if (!this.typeOpt) { // 新增店铺
         this.mallList.map(item => { // 2、给原数组分组下对应店铺变更状态
           item.isSelected = false
@@ -596,7 +573,6 @@ export default {
       this.addGroupName = ''
       this.$nextTick(() => {
         this.updateClientData()
-        // this.getMallList()
         this.getGroup()
       })
     },
@@ -661,44 +637,19 @@ export default {
       if (this.buttonStatus.mallList) {
         return
       }
-      // const params = {
-      //   'country': '',
-      //   page: this.currentPage,
-      //   pageSize: this.pageSize
-      // }
-      const param = {
-        country: ''
-        // mallGroupIds: this.groupId
-      }
       this.buttonStatus.mallList = true
-      // this.siteId ? (params['country'] = this.siteId) : ''
-      // this.systemId ? (params['mallId'] = this.systemId) : ''
-      // const res = await this.$api.getMallList(params)
-      const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
+      const res = await this.mallListAPIInstance.ddMallGoodsGetMallList()
       if (res.code !== 200) {
         this.buttonStatus.mallList = false
         this.$message.error('获取店铺列表失败')
         return
       }
-      // if (res.data.code !== 200) {
-      //   this.$message.error('获取店铺列表失败')
-      //   this.buttonStatus.mallList = false
-      //   return
-      // }
-      // this.mallList = res.data.data.data.map(item => {
-      //   item.isSelected = false
-      //   return item
-      // })
       this.mallList = res.data.map(item => {
         item.isSelected = false
         return item
       })
       this.mallListTemp = this.mallList
-      // this.total = res.data.data.total
-      // console.log('this.mallListTemp', this.mallListTemp)
       this.buttonStatus.mallList = false
-
-      // this.$refs.plTable2.reloadData(this.mallListTemp)
     },
     writeLog(msg, success, setcolor) {
       if (!msg) return
@@ -706,38 +657,14 @@ export default {
       if (setcolor) {
         color = setcolor
       }
-      const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
+      const time = dateFormat(new Date(Date.now()), 'hh:mm:ss')
       this.consoleMsg =
         `<p style="color:${color}">${time}:${msg}</p>` + this.consoleMsg
     },
-    dateFormat(time, fmt) {
-      var o = {
-        'M+': time.getMonth() + 1, // 月份
-        'd+': time.getDate(), // 日
-        'h+': time.getHours(), // 小时
-        'm+': time.getMinutes(), // 分
-        's+': time.getSeconds(), // 秒
-        'q+': Math.floor((time.getMonth() + 3) / 3), // 季度
-        S: time.getMilliseconds() // 毫秒
-      }
-      if (/(y+)/.test(fmt)) {
-        fmt = fmt.replace(
-          RegExp.$1,
-          (time.getFullYear() + '').substr(4 - RegExp.$1.length)
-        )
-      }
-      for (var k in o) {
-        if (new RegExp('(' + k + ')').test(fmt)) {
-          fmt = fmt.replace(
-            RegExp.$1,
-            RegExp.$1.length === 1
-              ? o[k]
-              : ('00' + o[k]).substr(('' + o[k]).length)
-          )
-        }
-      }
-      return fmt
-    }
+    resizeHeight() {
+      const offerHeight = window.outerHeight
+      this.height = offerHeight - 130
+    },
   }
 }
 </script>
