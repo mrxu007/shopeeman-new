@@ -982,7 +982,7 @@ export default class NetMessageBridgeService {
     } else {
       return {
         code: resObj.status,
-        data: `获取详情失败${resObj.statusText.includes('ConnectionRefused') ? '请检查网络是否可用' : resObj.statusText}`
+        data: `获取详情失败${resObj.statusText && resObj.statusText.includes('ConnectionRefused') ? '请检查网络是否可用' : resObj.statusText}`
       }
     }
   }
@@ -1939,7 +1939,7 @@ export default class NetMessageBridgeService {
   async sendMessage(country, data, params) {
     const res = await this.postChinese(country, '/webchat/api/v1.2/messages', data, params)
     const resObj = res && JSON.parse(res)
-    console.log('sendMessage-resObj',resObj)
+    console.log('sendMessage-resObj', resObj)
     const info = JSON.parse(resObj.data)
     if (resObj && resObj.status === 200) {
       return {

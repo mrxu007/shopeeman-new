@@ -11,6 +11,7 @@ import surFaceService from '../../../../services/surfaceOrder'
 import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
 import { AutoAddFence } from '@/views/order-manager/components/orderCenter/powderFence'
 import { topGoods } from '@/views/market-activity/components/topGoods'
+import { batchOperation } from '@/util/util'
 export default {
   data() {
     return {
@@ -27,8 +28,8 @@ export default {
       isApplyShopeeLogistics: '2' // 1：申请 2：不申请
     }
   },
-  mounted() {
-    this.getAllMall()
+  async mounted() {
+    await this.getAllMall()
     this.$refs.Logs.writeLog(`定时任务分别在五分钟、八分钟之后开启`, true)
     window['BaseUtilBridgeService'].checkAutoScriptLog('定时任务分别在五分钟、八分钟之后开启')
     try {
@@ -42,21 +43,21 @@ export default {
         setInterval(() => {
           this.syncOrders(this.statusListFirst, 'auto-first', 60)
         }, 4 * 60 * 60 * 1000)
-      }, 5 * 60 * 1000)
+      }, 0 * 60 * 1000)
       // second task 每隔30分钟同步一次
       setTimeout(() => {
         this.syncOrders(this.statusListSecond, 'auto-second', 60)
         setInterval(() => {
           this.syncOrders(this.statusListSecond, 'auto-second', 60)
         }, 30 * 60 * 1000)
-      }, 8 * 60 * 1000)
+      }, 0 * 60 * 1000)
       // third task 每隔60分钟同步一次
       setTimeout(() => {
         this.syncOrders(this.statusListThird, 'auto-third', 60)
         setInterval(() => {
           this.syncOrders(this.statusListThird, 'auto-third', 60)
         }, 60 * 60 * 1000)
-      }, 8 * 60 * 1000)
+      }, 0 * 60 * 1000)
       // 爆粉神器
       this.checkTimeAutoFollow()
       // 商品置顶
@@ -121,14 +122,36 @@ export default {
     async syncOrders(statusList, type, timeRange) {
       window['BaseUtilBridgeService'].checkAutoScriptLog('开始自动同步订单')
       this.$refs.Logs.writeLog(`【${type}】开始同步`, true)
-      for (let mI = 0; mI < this.mallList.length; mI++) {
-        const mall = this.mallList[mI]
+      const dataList = this.mallList.map(son => {
+        return {
+          mall: son,
+          statusList,
+          type,
+          timeRange
+        }
+      })
+      const count = 6
+      await batchOperation(dataList, this.batchSync, count)
+      this.$refs.Logs.writeLog(`【${type}】同步完成！！！！！`, true)
+    },
+    async batchSync(item, count = { count: 1 }) {
+      try {
+        // console.log('zz - data', item, count)
+        const mall = item.mall
+        const statusList = item.statusList
+        const type = item.type
+        const timeRange = item.timeRange
         for (let i = 0; i < statusList.length; i++) {
-          // 同步状态
+        // 同步状态
           const statusObj = statusList[i]
           const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${this.mallList.length}`, type, timeRange)
+          // const num = this.mallList.length - count.count + 1
+          await orderService.start(`sync-order`, type, timeRange)
         }
+      } catch (e) {
+        console.log(e)
+      } finally {
+        count.count--
       }
     },
     async getAllMall() {
@@ -139,7 +162,6 @@ export default {
           this.mallList.push(mallObject[key])
         }
       }
-      console.log(this.mallList, JSON.parse(res))
     },
     async syncFaceData() {
       this.$refs.Logs.writeLog(`开始同步面单---------------------------`, true)
@@ -175,13 +197,14 @@ export default {
     // 仓库中没有面单
     async syncFaceStore() {
       this.$refs.Logs.writeLog(`开始同步仓库中没有面单`, true)
-      window['BaseUtilBridgeService'].checkAutoScriptLog('开始同步仓库中没有面单')
+      console.log(this.$refs.Logs.writeLog, this.$refs.Logs, '---------------')
+      // window['BaseUtilBridgeService'].checkAutoScriptLog('开始同步仓库中没有面单')
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.autoStartStore()
     },
     // 订单中没有面单
     async syncFaceNoFace() {
-      window['BaseUtilBridgeService'].checkAutoScriptLog('开始同步订单中没有面单')
+      // window['BaseUtilBridgeService'].checkAutoScriptLog('开始同步订单中没有面单')
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.autoStartNoLogi()
     }

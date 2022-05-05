@@ -154,7 +154,7 @@ export default {
         this.$message.error(res.data)
       }
       this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
-      console.log('widList',this.widList)
+      console.log('widList', this.widList)
     },
     // 添加到出库单
     async addTo(row) {
