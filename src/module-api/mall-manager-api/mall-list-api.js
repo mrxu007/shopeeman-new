@@ -484,7 +484,7 @@ export default class MallListAPI {
         if (res.data.code === 200) {
           let data = res?.data?.data
           total = data?.total || total
-          let mallList = data?.data || []
+          let mallList = data?.malls?.data || data?.data || []
           tempMallList = [...tempMallList, ...mallList]
         }else{
           break
