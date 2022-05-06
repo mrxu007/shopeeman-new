@@ -176,6 +176,7 @@ export default {
       this.getMallGoodsGetMallList(1)
     },
     changeGroupSelect(val, type) {
+      console.log('changeGroupSelect')
       if (type) {
         if (!val.includes('')) {
           this.groupId = []
@@ -192,6 +193,7 @@ export default {
       this.getMallGoodsGetMallList(2)
     },
     changeSiteSelect(val, type) {
+      console.log('changeSiteSelect')
       let showName = this.isShowName
       if (!this.isAShop) {
         if (type) {
@@ -257,15 +259,20 @@ export default {
           this.groupId = ['', ...groupIdList.map(son => son.id)]
         }
       } else {
-        this.siteList = this.allSiteList.filter(son => {
-          if (this.groupId.includes(son.group_id)) {
-            return son
-          }
-        })
+        if (this.groupId[0] === ''){
+          this.siteList = this.allSiteList
+        }else{
+          this.siteList = this.allSiteList.filter(son => {
+            if (this.groupId.includes(son.group_id)) {
+              return son
+            }
+          })
+        }
       }
       this.changeSiteSelect([''], true)
     },
     changeMallList() {
+      console.log('changeMallList')
       let start = new Date().getTime()
       let mallList = []
       let searchAll = ''
@@ -300,14 +307,14 @@ export default {
         this.$emit('changeMallList', mallList)
       }
     },
-    filterMall(val) {
+    filterMall(val,type) {
       let time = val && this.isShowName !== val && 1000 || 100
       if (this.filterMallTime) {
         clearTimeout(this.filterMallTime)
         this.filterMallTime = null
       }
       this.filterMallTime = setTimeout(() => {
-        if (this.isShowName !== val) {
+        if (this.isShowName !== val ) {
           this.mallShowIndex = 0
         }
         this.isShowName = val || ''
@@ -324,24 +331,28 @@ export default {
       }, time)
     },
     showMall(item, index) {
+      console.log('showMall')
       const name = item.mall_alias_name || item.platform_mall_name
       const isFirst = this.site[0] === item.platform_mall_id
       return isFirst || this.mallShowIndex <= index && index <= this.mallShowIndex + this.showMallNumber && (!this.isShowName || name.includes(this.isShowName))
     },
     loadmoreMall(val, that) {
-      if (this.siteShowList.length > this.showMallNumber) {
+      if (this.siteList.length > this.showMallNumber) {
         let newIndex = 0
         if (val) {
+          let maxIndex = (this.siteList.length - this.showMallNumber)
           newIndex = this.mallShowIndex + 10
-          newIndex = newIndex < (this.siteShowList.length - this.showMallNumber) && newIndex || (this.siteShowList.length - this.showMallNumber)
+          newIndex = newIndex < maxIndex && newIndex || maxIndex
         } else {
           newIndex = this.mallShowIndex - 10
           newIndex = newIndex > 0 && newIndex || 0
         }
         if (newIndex !== this.mallShowIndex) {
           that.scrollTop = !val && 30 || (that.scrollTop - 100)
+          this.mallShowIndex = newIndex
+          //this.siteShowList = this.siteList.slice(this.mallShowIndex,this.mallShowIndex + this.showMallNumber)
+          //console.log('this.siteShowList',this.mallShowIndex,this.mallShowIndex + this.showMallNumber)
         }
-        this.mallShowIndex = newIndex
       }
     }
   }
@@ -391,5 +402,8 @@ export default {
       right: 0;
     }
   }
+}
+.el-select-dropdown{
+  max-width: 180px;
 }
 </style>

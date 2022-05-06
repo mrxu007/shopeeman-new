@@ -35,19 +35,17 @@ export function GoodsMallgetValue(arr, label, value, relID) {
 }
 // 获取店铺信息
 export async function getMalls() {
-  const shopList = []
   try {
-    const { data } = await mallListAPIInstance.ddMallGoodsGetMallList()
-    for (let index = 0; index < data.data.length; index++) {
-      const item = data.data[index]
-      const obj = {}
-      obj.label = item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name
-      obj.value = item.platform_mall_id
-      obj.country = item.country
-      obj.id = item.id
-      shopList.push(obj)
-    }
-    return shopList
+    const { data } = await mallListAPIInstance.ddMallGoodsGetMallList() || []
+    console.log('ddMallGoodsGetMallList',data)
+    return data?.map(item=>{
+      return {
+        label: item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name,
+        value: item.platform_mall_id,
+        country: item.country,
+        id: item.id
+      }
+    }) || []
   } catch (err) {
     return []
   }

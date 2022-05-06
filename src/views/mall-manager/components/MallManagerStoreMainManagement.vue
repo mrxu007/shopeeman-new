@@ -84,7 +84,7 @@
         温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成 2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示 店铺不存在此账号
       </div>
       <div style="font-size: smaller; color: red; margin-left: 60px; margin-top: 5px">
-        3.所有的IP的过期后，将无法进行续费，请在IP有效期内续费。 4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
+        4.所有的IP的过期后，将无法进行续费，请在IP有效期内续费。 5.系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
       </div>
     </div>
     <div class="table_clo">
@@ -96,25 +96,23 @@
             :row-style="{ height: '50px' }"
             style="width: 100%; height: calc(100vh - 233px)"
             :header-cell-style="{ background: '#f7fafa' }"
-            @selection-change="handleSelectionChange"
-        >
+            @selection-change="handleSelectionChange">
           <el-table-column type="selection" min-width="55px" align="center"/>
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed/>
-          <el-table-column prop="id" label="主体ID" align="center" min-width="100px" fixed/>
-          <el-table-column prop="ip_alias" label="主体名称" align="center" min-width="200px"/>
+          <el-table-column prop="id" label="主体ID" align="center" width="100px" fixed/>
+          <el-table-column prop="ip_alias" label="主体名称" align="center" min-width="120px"/>
           <!-- 需要解析 -->
-          <el-table-column prop="poxyIP" label="代理IP" align="center" min-width="150px"/>
-          <el-table-column prop="" label="IP渠道" align="center">
-            <template slot-scope="{ row }">
-              <!-- <span>{{ row.data_ipinfor && row.data_ipinfor.region_name }}</span> -->
+          <el-table-column prop="poxyIP" label="代理IP" align="center" width="120px"/>
+          <el-table-column prop="" label="IP渠道" align="center" width="80px">
+            <template slot-scope="{ row }" >
               <span v-if="row.data_ipinfor">{{ row.data_ipinfor.area_name || row.data_ipinfor.channel_name }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="source" label="IP来源" align="center" min-width="80px"/>
+          <el-table-column prop="source" label="IP来源" align="center" width="60px"/>
           <!-- <el-table-column prop="" label="是否预售IP" align="center" /> -->
-          <el-table-column prop="status" label="状态" align="center" min-width="150px"/>
-          <el-table-column prop="main_order_sn" label="订单号" align="center" min-width="200px"/>
-          <el-table-column prop="expiration_time" label="有效日期" align="center" min-width="200px"/>
+          <el-table-column prop="status" label="状态" align="center" width="150px"/>
+          <el-table-column prop="main_order_sn" label="订单号" align="center" width="180px"/>
+          <el-table-column prop="expiration_time" label="有效日期" align="center" width="150px"/>
           <el-table-column prop="mall_alias_name" label="绑定店铺" align="center" min-width="200px">
             <template slot-scope="{ row }">
               <el-tooltip v-if="row.mall_alias_name" effect="dark" placement="top-start">
@@ -797,6 +795,7 @@ export default {
     },
     async getInfo() {
       getMalls().then(res => {
+        console.log('getMalls',res)
         this.shopAccountList = res
         this.query.mall_ids = '' // 初始化店铺数据
         this.getTableList()
@@ -1406,8 +1405,6 @@ export default {
     },
     // 获取店铺信息
     changeMallList(val) {
-      this.query.mall_ids = ''
-      console.log(val)
       if (val.searchAll) {
         this.query.mall_ids = [...val.mallList.map(i => i.id)].toString()
       } else {
@@ -1431,27 +1428,26 @@ export default {
       params.expiration_datesg = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       // params.expiration_datesg = '2021-10-06 23:59:59/2021-11-06 23:59:59'
       params.mall_ids = this.query.mall_ids || ''
-      // console.log(params, 'getTableList')
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
         this.loading = false
         this.tableList = []
         this.bindMalltable = []// 有绑定店铺的IP主体 { main_name  bindmall}
         const data = JSON.parse(res)
-        // console.log('----------', data)
+        console.log('----------', data)
+        console.log('this.shopAccountList',this.shopAccountList)
         if (data.code === 200) {
           if (data.data && data.data.length > 0) {
             for (let i = 0; i < data.data.length; i++) {
               const item = data.data[i]
               // 获取店铺名称
               item.mall_alias_name = ''
-              if (this.shopAccountList.length > 0 && item.target_mall_info && item.target_mall_info.length > 0) {
+              if (this.shopAccountList.length > 0 && item.target_mall_info?.length) {
                 const mall = []
                 this.bindMalltable.push({ main_name: item.ip_alias, bindmall: item.target_mall_info })
                 item.target_mall_info.forEach(i => {
                   const dd = MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id)
                   if (dd) mall.push(dd)
-                  // mall.push(MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id))
                 })
                 item.mall_alias_name = mall.toString()
               }
@@ -1476,11 +1472,10 @@ export default {
           } else {
             this.tableList = []
           }
-          // console.log('tableList', this.tableList)
+          console.log('tableList', this.tableList)
           // 分页
           this.chang()
         } else {
-          // this.$message.error('网络请求失败')
         }
       } catch (error) {
         this.loading = false
