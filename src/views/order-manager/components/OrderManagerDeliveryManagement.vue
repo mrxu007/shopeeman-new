@@ -33,7 +33,7 @@
           <span class="base-title">列表筛选操作</span>
           <div class="base-item">
             <el-row class="row-style">
-              <storeChoose :is-all="true" :span-width="'90px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
+              <storeChoose :is-all="true" :span-width="'90px'" :input-width="'160px'" :source="'orderCenter'" @changeMallList="changeMallList" />
             </el-row>
             <el-row class="row-style">
               <div class="tool-item mar-right">

@@ -355,6 +355,7 @@
                 <el-button size="mini" type="primary">选择图片</el-button>
               </el-upload>
               <el-radio size="mini" v-model="picturesChooseTypeRadio" :label="1">使用商品图片</el-radio>
+              <el-radio size="mini" v-model="picturesChooseTypeRadio" :label="2">无商品图片</el-radio>
             </div>
             <div style="display: flex;flex-wrap: wrap;overflow: auto;height: 67vh;">
               <div class="goods-image-detail" v-if="imageList.length > 0"
@@ -741,25 +742,42 @@ export default {
           return
         }
         let image = await this.selectImage()
-        if (image) {
+        if (image || this.picturesChooseTypeRadio === 2) {
+          if (this.picturesChooseTypeRadio !== 2){
+            this.goodsDetails.tier_variation['images'].push(image)
+            this.goodsDetails.spec_image.push(image)
+          }
           this.goodsDetails.tier_variation[spec1Name].push(this.spec_name1)
-          this.goodsDetails.tier_variation['images'].push(image)
-          this.goodsDetails.spec_image.push(image)
           let specList = this.goodsDetails.tier_variation[spec2Name]
+          console.log('goodsDetails -itemmodels ',this.goodsDetails.itemmodels)
+          console.log('goodsDetails -spec2Name',specList,spec2Name)
           if (!JSON.stringify(this.goodsDetails.itemmodels).includes('"sku_spec1":""')) {
-            specList.forEach((item) => {
-              let temp = {
-                sku: this.spec_name1 + '=|=' + item,
+            if (specList.length){
+              specList.forEach((item) => {
+                let temp = {
+                  sku: this.spec_name1 + '=|=' + item,
+                  sku_image: image,
+                  sku_spec1: this.spec_name1,
+                  sku_spec2: item,
+                  sku_stock: item.sku_stock || 1000,
+                  stock: item.stock || 1000,
+                  sku_price: price,
+                  price: price
+                }
+                this.goodsDetails.itemmodels.push(temp)
+              })
+            }else{
+              this.goodsDetails.itemmodels.push({
+                sku: this.spec_name1 + '=|=',
                 sku_image: image,
                 sku_spec1: this.spec_name1,
-                sku_spec2: item,
-                sku_stock: item.sku_stock || 1000,
-                stock: item.stock || 1000,
+                sku_spec2: '',
+                sku_stock:  1000,
+                stock:  1000,
                 sku_price: price,
                 price: price
-              }
-              this.goodsDetails.itemmodels.push(temp)
-            })
+              })
+            }
           } else {
             let list = []
             this.goodsDetails.itemmodels.forEach(item => {
@@ -784,19 +802,32 @@ export default {
         let images = this.goodsDetails.tier_variation['images']
         let specList = this.goodsDetails.tier_variation[spec1Name]
         if (!JSON.stringify(this.goodsDetails.itemmodels).includes('"sku_spec2":""')) {
-          specList.forEach((item, index) => {
-            let temp = {
-              sku: item + '=|=' + this.spec_name2,
-              sku_image: images[index],
-              sku_spec1: item,
+          if(specList.length){
+            specList.forEach((item, index) => {
+              let temp = {
+                sku: item + '=|=' + this.spec_name2,
+                sku_image: images[index],
+                sku_spec1: item,
+                sku_spec2: this.spec_name2,
+                sku_stock: item.sku_stock || 1000,
+                stock: item.stock || 1000,
+                sku_price: price,
+                price: price
+              }
+              this.goodsDetails.itemmodels.push(temp)
+            })
+          }else{
+            this.goodsDetails.itemmodels.push({
+              sku: '=|=' +this.spec_name2,
+              sku_image: '',
+              sku_spec1: '',
               sku_spec2: this.spec_name2,
-              sku_stock: item.sku_stock || 1000,
-              stock: item.stock || 1000,
+              sku_stock:  1000,
+              stock:  1000,
               sku_price: price,
               price: price
-            }
-            this.goodsDetails.itemmodels.push(temp)
-          })
+            })
+          }
         } else {
           let list = []
           this.goodsDetails.itemmodels.forEach(item => {
@@ -979,17 +1010,21 @@ export default {
             let temp = ''
             if (this.picturesChooseStart) {
               this.picturesChooseStart = false
-              if (this.picturesChooseTypeRadio) {
+              if (this.picturesChooseTypeRadio === 1) {
                 temp = this.picturesChooseRadio
+              }else if (this.picturesChooseTypeRadio === 2) {
+                temp = ''
               } else {
                 if (!this.picturesChooseFile) {
                   this.$message.error('请选择本地图片')
                   temp = ''
                   this.picturesChooseSuccess = false
                   success = false
-                } else if (this.picturesChooseFileUrl) {
+                }
+                else if (this.picturesChooseFileUrl) {
                   temp = this.picturesChooseFileUrl
-                } else {
+                }
+                else {
                   const localFile = this.picturesChooseFile.raw
                   const reader = new FileReader()
                   reader.readAsDataURL(localFile)

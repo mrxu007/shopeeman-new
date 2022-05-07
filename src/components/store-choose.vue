@@ -20,30 +20,31 @@
       </li>
       <li v-show="showGrade < 2" :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺名称：</span>
-        <el-select
-            :style="{ width: inputWidth }"
-            :disabled="isBanPerform"
-            v-model="site"
-            v-loadmore="loadmoreMall"
-            placeholder=""
-            :multiple="!isAShop"
-            collapse-tags
-            :filter-method="filterMall"
-            size="mini"
-            filterable
-            class="selectBox"
-            clearable
-            @visible-change="filterMall('')">
-          <el-option v-if="!isAShop" label="全部" :value="''" @click.native="changeSiteSelect(site,true)"/>
-          <el-option
-              v-for="(item, index) in siteShowList"
-              v-if="showMall(item,index)"
-              @click.native="changeSiteSelect(site)"
-              :key="index"
-              :label="item.mall_alias_name || item.platform_mall_name"
-              :value="item.platform_mall_id"
-          />
-        </el-select>
+        <el-popover placement="top" width="180" trigger="click">
+          <u-table ref='zz_mall_select_all' class="zz_mall_select_all"
+                   tooltip-effect='dark' v-if='tableShow'
+                   :show-header="false" :row-height='34' :border='false'
+                   big-data-checkbox use-virtual show-body-overflow
+                   :data-changes-scroll-top='false'
+                   :data='siteShowList' max-height='250' :cell-style="{ padding: '0px!important'}">
+            <u-table-column align='left' min-width="160">
+              <template slot-scope='scope'>
+                <div @click="changeSiteSelect(scope.row.platform_mall_id,!scope.row.platform_mall_id)"
+                     class="zz_mall_select_item"
+                     :class="siteId.includes(scope.row.platform_mall_id) && 'zz_mall_select_active'">
+                  {{ scope.row.mall_alias_name || scope.row.platform_mall_name }}
+                </div>
+              </template>
+            </u-table-column>
+          </u-table>
+          <div slot="reference" class="zz_mall_select_input" :style="{ width: inputWidth }">
+            <el-tag type="info" size="mini" v-if="site.length">
+              {{ site[0].mall_alias_name || site[0].platform_mall_name }}
+            </el-tag>
+            <el-tag type="info" size="mini" v-if="site.length > 1">+{{ site.length - 1 }}</el-tag>
+            <el-input size="mini" v-model="searchSite" clearable @input="searchInput"></el-input>
+          </div>
+        </el-popover>
       </li>
       <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
         <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset" :disabled="isBanPerform">
@@ -56,26 +57,7 @@
 
 <script>
 import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
-import Vue from 'vue'
 
-Vue.directive('loadmore', {
-  bind(el, binding) {
-    // 获取element-ui定义好的scroll盒子
-    const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap')
-    SELECTWRAP_DOM.addEventListener('scroll', function() {
-      // console.log(this.scrollHeight,this.scrollTop,this.clientHeight)
-      if (this.scrollHeight - this.scrollTop <= (this.clientHeight + 50)) {
-        binding.value(true, this)
-      } else if (this.scrollTop < 30) {
-        binding.value(false, this)
-      }
-    })
-    // SELECTWRAP_DOM.addEventListener('blur', () => {
-    //   console.log('测试')
-    //   this.scrollTop = 0
-    // })
-  }
-})
 export default {
   name: 'StoreChoose',
   props: {
@@ -141,15 +123,15 @@ export default {
       groupIdList: [],
       allSiteList: [],
       site: [],
+      siteId: [],
       siteList: [],
       siteShowList: [],
+      tableShow: true,
+      searchSite: '',
       countries: this.$filters.countries_option,
       mallListAPIInstance: new MallListAPI(this),
-      isShowName: '',
-      isShowNameAll: false,
       showMallNumber: 100,
-      mallShowIndex: 0,
-      filterMallTime: null
+      mallShowIndex: 0
     }
   },
   watch: {
@@ -158,7 +140,6 @@ export default {
     },
     countryVal: {
       handler(val) {
-        this.isShowName = ''
         this.groupId = []
         this.groupIdList = []
         this.getMallGoodsGetMallList(1)
@@ -192,53 +173,19 @@ export default {
       }
       this.getMallGoodsGetMallList(2)
     },
-    changeSiteSelect(val, type) {
-      console.log('changeSiteSelect')
-      let showName = this.isShowName
-      if (!this.isAShop) {
-        if (type) {
-          if (!val.includes('')) {
-            let setList = []
-            if (showName) {
-              let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)]
-              let maxList = showList.length > this.site.length && this.site || showList
-              let minList = showList.length > this.site.length && showList || this.site
-              setList = new Set(this.site)
-              for (let item of minList) {
-                if (maxList.includes(item)) {
-                  setList.delete(item)
-                }
-              }
-              setList.delete('')
-            }
-            this.site = [...setList]
-          } else {
-            let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)] || ['', ...this.siteList.map(i => i.platform_mall_id)]
-            let setList = new Set([...showList, ...val])
-            this.site = [...setList]
-            this.isShowNameAll = true
-            showName && this.siteList.length === this.site.length && this.site.unshift('')
-          }
-        } else {
-          if (!val.includes('') && this.siteList.length > 0 && this.siteList.length === this.site.length) {
-            this.site.unshift('')
-          } else if (val.includes('')) {
-            this.site = val.slice(1)
-          }
-        }
-      }
-      this.changeMallList()
-      this.filterMall(showName)
-    },
     async getMallGoodsGetMallList(val) {
       console.log('getMallGoodsGetMallList - val', val)
+      this.searchSite = ''
       if (val === 1) {
         const country = this.countryVal
         const res = await this.mallListAPIInstance.ddMallGoodsGetMallList()
         if (res.code === 200) {
           const data = res.data || []
+          if (!this.isAShop) {
+            data.unshift({ platform_mall_name: '全部', platform_mall_id: '' })
+          }
           this.allSiteList = data
-          this.siteList = country === '' ? data : data.filter(item => item.country === country)
+          this.siteList = country === '' ? data : data.filter(item => item?.country === country || !item.platform_mall_id)
         } else {
           this.$message.error('获取分组、店铺列表失败')
         }
@@ -259,41 +206,93 @@ export default {
           this.groupId = ['', ...groupIdList.map(son => son.id)]
         }
       } else {
-        if (this.groupId[0] === ''){
-          this.siteList = this.allSiteList
-        }else{
-          this.siteList = this.allSiteList.filter(son => {
-            if (this.groupId.includes(son.group_id)) {
+        let temp = []
+        if (this.groupId[0] === '') {
+          temp = this.allSiteList
+        } else {
+          temp = this.allSiteList.filter(son => {
+            if (this.groupId.includes(son.group_id) || !son.platform_mall_id) {
               return son
             }
           })
         }
+        this.siteList = temp
       }
-      this.changeSiteSelect([''], true)
+      this.siteId = []
+      this.changeSiteSelect('', true)
+    },
+    changeSiteSelect(val, type) {
+      let showName = this.searchSite
+      let siteActive = this.siteId
+      if (!this.isAShop) {
+        if (type) {
+          if (showName) {
+            let showSiteId = this.siteShowList.map(son => son.platform_mall_id)
+            if (siteActive.includes(val)) {
+              siteActive = siteActive.filter(son => !showSiteId.includes(son))
+            } else {
+              let temp = new Set(['', ...siteActive, ...showSiteId])
+              siteActive = [...temp]
+            }
+          } else {
+            if (siteActive.includes(val)) {
+              siteActive = []
+            } else {
+              siteActive = this.siteList.map(son => son.platform_mall_id)
+            }
+          }
+        }
+        else {
+          let index = siteActive.findIndex(son => son === val)
+          if (index > -1) {
+            siteActive.splice(index, 1)
+            if (siteActive.includes('')) {
+              siteActive.splice(0, 1)
+            }
+          } else {
+            siteActive.push(val)
+            if (showName) {
+              let showSiteId = this.siteShowList.filter(son => siteActive.includes(son.platform_mall_id))
+              if (!siteActive.includes('') && this.siteShowList?.length === (showSiteId.length + 1)) {
+                siteActive.unshift('')
+              }
+            } else {
+              if (!siteActive.includes('') && this.siteList?.length === (siteActive.length + 1)) {
+                siteActive.unshift('')
+              }
+            }
+          }
+        }
+        this.siteId = siteActive
+      } else {
+        this.siteId = [val]
+      }
+      this.changeMallList()
     },
     changeMallList() {
-      console.log('changeMallList')
       let start = new Date().getTime()
       let mallList = []
       let searchAll = ''
-      let site = this.site
+      let site = this.siteId
       if (!this.isAShop) {
+        this.site = this.siteList.filter(son => site.includes(son.platform_mall_id))
         if (site.length && site[0] === '') {
           site = site.slice(1)
+          mallList = this.site.slice(1)
+        }else{
+          mallList= this.site
         }
         searchAll = site.toString()
-        mallList = this.siteList.filter(son => {
-          return site.includes(son.platform_mall_id)
-        })
-        console.log(new Date() - start)
       } else {
-        const temp = this.siteList.find((i) => i.platform_mall_id === this.site)
-        searchAll = this.site
+        site = site[0]
+        const temp = this.siteList.find((i) => i.platform_mall_id === site)
+        searchAll = site
         mallList.push(temp)
       }
       if (!this.countryVal && this.groupId.indexOf('') > -1) {
         searchAll = mallList.length !== this.siteList.length && searchAll || ''
       }
+      console.log('changeMallList',mallList)
       if (this.source) {
         this.$emit('changeMallList', {
           mallList: mallList,
@@ -307,53 +306,25 @@ export default {
         this.$emit('changeMallList', mallList)
       }
     },
-    filterMall(val,type) {
-      let time = val && this.isShowName !== val && 1000 || 100
-      if (this.filterMallTime) {
-        clearTimeout(this.filterMallTime)
-        this.filterMallTime = null
-      }
-      this.filterMallTime = setTimeout(() => {
-        if (this.isShowName !== val ) {
-          this.mallShowIndex = 0
-        }
-        this.isShowName = val || ''
-        let list1 = []
-        if (val) {
-          list1 = this.siteList.filter(i => {
-            const name = i.mall_alias_name || i.platform_mall_name
-            return name.includes(val)
-          })
-        }else{
-          list1 = this.siteList
-        }
-        this.siteShowList = list1
-      }, time)
-    },
-    showMall(item, index) {
-      console.log('showMall')
-      const name = item.mall_alias_name || item.platform_mall_name
-      const isFirst = this.site[0] === item.platform_mall_id
-      return isFirst || this.mallShowIndex <= index && index <= this.mallShowIndex + this.showMallNumber && (!this.isShowName || name.includes(this.isShowName))
-    },
-    loadmoreMall(val, that) {
-      if (this.siteList.length > this.showMallNumber) {
-        let newIndex = 0
-        if (val) {
-          let maxIndex = (this.siteList.length - this.showMallNumber)
-          newIndex = this.mallShowIndex + 10
-          newIndex = newIndex < maxIndex && newIndex || maxIndex
-        } else {
-          newIndex = this.mallShowIndex - 10
-          newIndex = newIndex > 0 && newIndex || 0
-        }
-        if (newIndex !== this.mallShowIndex) {
-          that.scrollTop = !val && 30 || (that.scrollTop - 100)
-          this.mallShowIndex = newIndex
-          //this.siteShowList = this.siteList.slice(this.mallShowIndex,this.mallShowIndex + this.showMallNumber)
-          //console.log('this.siteShowList',this.mallShowIndex,this.mallShowIndex + this.showMallNumber)
-        }
-      }
+    // 搜索框功能
+    searchInput() {
+      this.searchSetTime && clearTimeout(this.searchSetTime)
+      this.searchSetTime = null
+      this.searchSetTime = setTimeout(() => {
+        let selectList = this.siteList.filter(son => {
+          let success = true
+          if (this.searchSite && son.platform_mall_id) {
+            let name = son.mall_alias_name || son.platform_mall_name
+            success = name.includes(this.searchSite)
+          }
+          return success
+        })
+        this.siteShowList = selectList
+        this.tableShow = false
+        this.$nextTick(() => {
+          this.tableShow = true
+        })
+      }, 500)
     }
   }
 }
@@ -403,7 +374,85 @@ export default {
     }
   }
 }
-.el-select-dropdown{
+
+.el-select-dropdown {
   max-width: 180px;
+}
+
+.el-popover.el-popper {
+  padding: 0;
+}
+
+.zz_mall_select_all {
+  user-select: none;
+
+  .cell.umy-table-beyond {
+    padding: 0;
+  }
+
+  .el-table__body tr.el-table__row > td {
+    padding: 0 !important;
+    border: none;
+    cursor: pointer;
+  }
+
+  .zz_mall_select_active {
+    color: var(--themeColor);
+    position: relative;
+
+    &:after {
+      position: absolute;
+      right: 20px;
+      font-family: element-icons;
+      content: "\e6da";
+      font-size: 12px;
+      font-weight: 700;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  }
+
+  .zz_mall_select_item {
+    padding-left: 20px;
+    padding-right: 35px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    line-height: 34px;
+  }
+}
+
+.zz_mall_select_input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #DCDFE6;
+  padding-left: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+
+  .el-input {
+    border: none;
+    flex: 1;
+    padding: 0;
+
+    .el-input__inner {
+      border: none;
+      padding: 0 0 0 5px;
+    }
+  }
+
+  .el-tag.el-tag--info {
+    padding: 0 5px;
+    min-width: 30px;
+    max-width: calc(100% - 70px) !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: 0s;
+  }
+}
+</style>
+<style scoped lang="less">
+/deep/ .el-popover.el-popper {
+  padding: 0;
 }
 </style>

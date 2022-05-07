@@ -37,7 +37,6 @@ export function GoodsMallgetValue(arr, label, value, relID) {
 export async function getMalls() {
   try {
     const { data } = await mallListAPIInstance.ddMallGoodsGetMallList() || []
-    console.log('ddMallGoodsGetMallList',data)
     return data?.map(item=>{
       return {
         label: item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name,

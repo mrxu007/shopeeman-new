@@ -638,7 +638,7 @@ export default {
         return
       }
       this.buttonStatus.mallList = true
-      const res = await this.mallListAPIInstance.ddMallGoodsGetMallList()
+      const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(true)
       if (res.code !== 200) {
         this.buttonStatus.mallList = false
         this.$message.error('获取店铺列表失败')

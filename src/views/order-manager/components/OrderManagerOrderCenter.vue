@@ -23,7 +23,7 @@
                     <storeChoose
                       :is-all="true"
                       :span-width="'80px'"
-                      :select-width="'180px'"
+                      :input-width="'160px'"
                       :source="'orderCenter'"
                       @changeMallList="changeMallList"
                     />

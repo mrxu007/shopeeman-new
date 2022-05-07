@@ -143,7 +143,7 @@
     </el-dialog>
     <el-dialog title="同步订单" :visible.sync="sycnOrderVisible" width="800px" v-if="sycnOrderVisible">
       <div class="sync-order-dialog">
-        <storeChoose :is-all="true" :span-width="'80px'" :select-width="'160px'" :source="'orderCenter'" @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" :span-width="'80px'" :input-width="'160px'" :source="'orderCenter'" @changeMallList="changeMallList" />
         <div class="row-style">
           <div class="tool-item">
             <span>订单状态：</span>
