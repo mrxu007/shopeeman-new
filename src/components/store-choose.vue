@@ -37,7 +37,7 @@
               </template>
             </u-table-column>
           </u-table>
-          <div slot="reference" class="zz_mall_select_input" :style="{ width: inputWidth }">
+          <div slot="reference" class="zz_mall_select_input" @click="goTableShowTop" :style="{ width: inputWidth }">
             <el-tag type="info" size="mini" v-if="site.length">
               {{ site[0].mall_alias_name || site[0].platform_mall_name }}
             </el-tag>
@@ -270,7 +270,6 @@ export default {
       this.changeMallList()
     },
     changeMallList() {
-      let start = new Date().getTime()
       let mallList = []
       let searchAll = ''
       let site = this.siteId
@@ -325,6 +324,12 @@ export default {
           this.tableShow = true
         })
       }, 500)
+    },
+    goTableShowTop(){
+      this.tableShow = false;
+      this.$nextTick(()=>{
+        this.tableShow = true
+      })
     }
   }
 }
