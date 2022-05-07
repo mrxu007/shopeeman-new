@@ -291,7 +291,6 @@ export default {
       if (!this.countryVal && this.groupId.indexOf('') > -1) {
         searchAll = mallList.length !== this.siteList.length && searchAll || ''
       }
-      console.log('changeMallList',mallList)
       if (this.source) {
         this.$emit('changeMallList', {
           mallList: mallList,
