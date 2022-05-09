@@ -21,16 +21,8 @@
         </li>
       </ul>
       <br>
-      <el-table
-          ref="plTable"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 140px)"
-          :data="tableData1"
-          :header-cell-style="{
-          backgroundColor: '#f5f7fa',
-        }"
-      >
+      <el-table ref="plTable" style="margin-top:10px" header-align="center" :data="tableData1"
+          height="calc(100vh - 140px)" :header-cell-style="{backgroundColor: '#f5f7fa'}">
         <el-table-column align="center" label="店铺名称" width="280" prop="mallname" sortable/>
         <el-table-column align="center" prop="buyers" label="买家总数" width="280" sortable>
           <template slot-scope="{ row }">

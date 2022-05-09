@@ -184,8 +184,9 @@ export default {
           if (!this.isAShop) {
             data.unshift({ platform_mall_name: '全部', platform_mall_id: '' })
           }
-          this.allSiteList = data
-          this.siteList = country === '' ? data : data.filter(item => item?.country === country || !item.platform_mall_id)
+          this.allSiteList = country === '' ? data : data.filter(item => item?.country === country || !item.platform_mall_id)
+          this.siteList = this.allSiteList
+          // this.siteShowList = this.siteList
         } else {
           this.$message.error('获取分组、店铺列表失败')
         }
@@ -209,14 +210,17 @@ export default {
         let temp = []
         if (this.groupId[0] === '') {
           temp = this.allSiteList
+          // temp = this.siteList
         } else {
           temp = this.allSiteList.filter(son => {
+            // temp = this.siteList.filter(son => {
             if (this.groupId.includes(son.group_id) || !son.platform_mall_id) {
               return son
             }
           })
         }
         this.siteList = temp
+        // this.siteShowList = temp
       }
       this.siteId = []
       this.changeSiteSelect('', true)
@@ -241,8 +245,7 @@ export default {
               siteActive = this.siteList.map(son => son.platform_mall_id)
             }
           }
-        }
-        else {
+        } else {
           let index = siteActive.findIndex(son => son === val)
           if (index > -1) {
             siteActive.splice(index, 1)
@@ -278,18 +281,19 @@ export default {
         if (site.length && site[0] === '') {
           site = site.slice(1)
           mallList = this.site.slice(1)
-        }else{
-          mallList= this.site
+        } else {
+          mallList = this.site
         }
-        searchAll = site.toString()
+        if (this.groupId.includes('') && site.length === this.siteList.length - 1) {
+          searchAll = ''
+        } else {
+          searchAll = site.toString()
+        }
       } else {
         site = site[0]
         const temp = this.siteList.find((i) => i.platform_mall_id === site)
         searchAll = site
         mallList.push(temp)
-      }
-      if (!this.countryVal && this.groupId.indexOf('') > -1) {
-        searchAll = mallList.length !== this.siteList.length && searchAll || ''
       }
       if (this.source) {
         this.$emit('changeMallList', {
@@ -324,9 +328,9 @@ export default {
         })
       }, 500)
     },
-    goTableShowTop(){
-      this.tableShow = false;
-      this.$nextTick(()=>{
+    goTableShowTop() {
+      this.tableShow = false
+      this.$nextTick(() => {
         this.tableShow = true
       })
     }

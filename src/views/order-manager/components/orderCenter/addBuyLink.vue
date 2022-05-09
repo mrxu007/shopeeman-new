@@ -185,8 +185,7 @@ export default {
     async saveAddLink() {
       for(let index=0;index<this.rowBuyLinks.length;index++){
         let item = this.rowBuyLinks[index]
-        const execPlatform =
-            /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapibuy.com)|(taobao.global)|(lazada.com)|(lazada)|(shopee)|(tokopedia.com)|(bukalapak.com)/g
+        const execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapibuy.com)|(taobao.global)|(lazada.com)|(lazada)|(shopee)|(tokopedia.com)|(bukalapak.com)/g
         const execGoods = /goods_id=([0-9]*)/
         const pddGoods = /goodsId=(\d+)/
         const execIDs = /id=([0-9]*)/
@@ -234,7 +233,7 @@ export default {
           case 'tmall.com':
             item.purchase_platform_id = '3'
             break
-          // case 'jd.com':
+          case 'jd.com':
           //   item.purchase_platform_id = '4'
           //   break
           case 'jingxi.com':

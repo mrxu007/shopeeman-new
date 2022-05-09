@@ -108,18 +108,17 @@
     <el-row>
       <el-table
         ref="plTable"
+        v-if="isTableVisible"
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
         height="calc(100vh - 185px)"
         :data="tableData"
-        :header-cell-style="{
-          backgroundColor: '#f5f7fa',
-        }"
+        :header-cell-style="{backgroundColor: '#f5f7fa'}"
       >
-        <el-table-column align="center" label="序列号" min-width="80px" prop="index" fixed />
-        <el-table-column align="center" label="店铺" min-width="140px" prop="mallname" fixed />
-        <el-table-column align="center" label="商品ID" min-width="140px" prop="id">
+        <el-table-column align="center" label="序列号" width="60px" prop="index" fixed />
+        <el-table-column align="center" label="店铺" width="120px" prop="mallname" fixed />
+        <el-table-column align="center" label="商品ID" width="130px" prop="id">
           <template v-slot="{row}">
             <span>
               <i class="el-icon-document-copy copyStyle" @click="copy(row.id)" />
@@ -127,21 +126,21 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column v-if="column1" align="center" prop="uv" label="商品访客数【访问】" min-width="140px" />
-        <el-table-column v-if="column2" align="center" prop="pv" label="商品页面访问量【访问】" min-width="170px" />
-        <el-table-column v-if="column3" prop="bounce_rate" label="商品跳出率【访问】" min-width="180px" align="center" />
-        <el-table-column v-if="column4" prop="likes" label="赞【访问】" min-width="180px" align="center" />
-        <el-table-column v-if="column5" prop="add_to_cart_buyers" label="商品访客数【加入购物车】" min-width="170px" align="center" />
-        <el-table-column v-if="column6" prop="add_to_cart_units" label="件数【加入购物车】" min-width="180px" align="center" />
-        <el-table-column v-if="column7" prop="uv_to_add_to_cart_rate" label="转换率【加入购物车】" min-width="170px" align="center" />
-        <el-table-column v-if="column8" prop="placed_buyers" label="买家【已下订单】" min-width="150px" align="center" />
-        <el-table-column v-if="column9" prop="placed_units" label="件数【已下订单】" min-width="180px" align="center" />
-        <el-table-column v-if="column10" prop="placed_sales" label="销售额【已下订单】" min-width="180px" align="center" />
-        <el-table-column v-if="column11" prop="uv_to_placed_buyers_rate" label="转化率（访问至下单)【已下订单】" min-width="220px" align="center" />
-        <el-table-column v-if="column12" prop="paid_buyers" label="买家【已付款订单】" min-width="150px" align="center" />
-        <el-table-column v-if="column13" prop="paid_units" label="件数【已付款订单】" min-width="180px" align="center" />
-        <el-table-column v-if="column14" prop="paid_sales" label="销售额【已付款订单】" min-width="150px" align="center" />
-        <el-table-column v-if="column15" prop="uv_to_paid_buyers_rate" label="转化率（访问至付款)【已付款订单】" min-width="240px" align="center" fixed="right" />
+        <el-table-column v-if="column1" align="center" prop="uv" label="商品访客数【访问】" width="130px" />
+        <el-table-column v-if="column2" align="center" prop="pv" label="商品页面访问量【访问】" width="170px" />
+        <el-table-column v-if="column3" prop="bounce_rate" label="商品跳出率【访问】" width="130px" align="center" />
+        <el-table-column v-if="column4" prop="likes" label="赞【访问】" width="80px" align="center" />
+        <el-table-column v-if="column5" prop="add_to_cart_buyers" label="商品访客数【加入购物车】" width="170px" align="center" />
+        <el-table-column v-if="column6" prop="add_to_cart_units" label="件数【加入购物车】" width="150px" align="center" />
+        <el-table-column v-if="column7" prop="uv_to_add_to_cart_rate" label="转换率【加入购物车】" width="150px" align="center" />
+        <el-table-column v-if="column8" prop="placed_buyers" label="买家【已下订单】" width="120px" align="center" />
+        <el-table-column v-if="column9" prop="placed_units" label="件数【已下订单】" width="120px" align="center" />
+        <el-table-column v-if="column10" prop="placed_sales" label="销售额【已下订单】" width="130px" align="center" />
+        <el-table-column v-if="column11" prop="uv_to_placed_buyers_rate" label="转化率（访问至下单)【已下订单】" width="220px" align="center" />
+        <el-table-column v-if="column12" prop="paid_buyers" label="买家【已付款订单】" width="130px" align="center" />
+        <el-table-column v-if="column13" prop="paid_units" label="件数【已付款订单】" width="130px" align="center" />
+        <el-table-column v-if="column14" prop="paid_sales" label="销售额【已付款订单】" width="150px" align="center" />
+        <el-table-column v-if="column15" prop="uv_to_paid_buyers_rate" label="转化率（访问至付款)【已付款订单】" width="240px" align="center" fixed="right" />
       </el-table>
       <div class="logging">
         <Logs ref="Logs" v-model="showlog" clear />
@@ -181,6 +180,7 @@ export default {
       },
       timeType: 'datetimerange',
       othertchoose: '', // 其他时间格式选择
+      isTableVisible:true,
       Loading1: false,
       column1: true,
       column2: false,
@@ -515,7 +515,9 @@ export default {
     },
     // 打开链接
     open(val) {
-      window.BaseUtilBridgeService.openUrl('https://xiapi.xiapibuy.com/product/' + val.mallid + '/' + val.id)
+      console.log('open',val)
+      const url = this.$filters.countryShopeebuyCom(this.site)
+      this.$BaseUtilService.openUrl(`${url}/product/${val.mallid}/${val.id}`)
     },
     // 复制
     copy(attr) {
@@ -637,6 +639,7 @@ export default {
         this.errmall = []
         this.$refs.Logs.writeLog('开始查询')
         await batchOperation(this.mall, this.getTableData)
+        console.log('getTableData',this.tableData)
         this.$refs.Logs.writeLog('查询结束')
         this.Loading3 = false
         setTimeout(() => {

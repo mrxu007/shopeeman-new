@@ -1405,6 +1405,7 @@ export default {
     },
     // 获取店铺信息
     changeMallList(val) {
+      console.log('changeMallList - val',val)
       if (val.searchAll) {
         this.query.mall_ids = [...val.mallList.map(i => i.id)].toString()
       } else {
