@@ -17,6 +17,7 @@ export default class {
   crossBorderAccessToken = ''
   goodBuyUrlList = [] // 采购地址
   shopBuyerAccount = []
+  user_group = ""
   constructor(orders, buyerAccounts, that, IsPddBatchOrder) {
     this.orders = orders
     this.buyerAccounts = buyerAccounts
@@ -33,6 +34,7 @@ export default class {
     configInfo = configInfo && JSON.parse(configInfo)
     console.log(configInfo, 'configInfo')
     const nickInfo = await this.$configService.getUserInfo()
+    this.user_group = nickInfo.user_group || 0
     this.writeLog = writeLog
     const buyerMap = new Map()
     const buyerList = []
@@ -534,7 +536,9 @@ export default class {
     addressUserInfo['buyerName'] = namePhoneAddress['buyerName']
     addressUserInfo['buyerPhone'] = namePhoneAddress['buyerPhone']
     addressUserInfo['buyerAddress'] = namePhoneAddress['buyerAddress']
-
+    if(this.user_group){
+      addressUserInfo['buyerAddress'] +=('_'+this.user_group)
+    }
     // 处理 provId/cityId/distId
     if (itemOrder.goods_info.ori_platform_id == 2 || itemOrder.goods_info.ori_platform_id == 3 || itemOrder.goods_info.ori_platform_id == 8) {
       const res = await window['BaseUtilBridgeService'].getTbAddress(warehouseInfo.province_text, warehouseInfo.distinct_text)

@@ -2,15 +2,13 @@
   <div class="detail">
     <div class="row" style="display:flex;margin-top:25px;background-color: white;padding:15px 4px;overflow: auto;">
       <div class="row2_left" style="border: 1px solid rgb(220, 228, 218);border-radius: 5px;width:748px">
-        <span
-          style="
+        <span style="
           margin-top: -7px;
           display: block;
           margin-left: 14px;
           background-color: white;
           text-align: center;
-          width: 85px;"
-        >基础数据配置</span>
+          width: 85px;">基础数据配置</span>
         <ul>
           <li>
             <storeChoose style="margin-left:-20px;width: 730px;" :show-mall-all="true" @changeMallList="changeMallList" />
@@ -363,6 +361,7 @@ export default {
       while (flag) {
         mItem['pageNumber']++
         const res = await this.GoodsList.getMpskuList(params)
+        console.log('getMallTopGoods - getMpskuList',res)
         if (res.code === 200) {
           if (!res.data.list?.length) {
             this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】暂无商品数据`)
@@ -576,45 +575,6 @@ export default {
       var s = time.getSeconds()
       return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this.add0(s)
     },
-    async aaa() {
-      this.topGoodsInstance.init()
-      // console.log(this.cloumn_date)
-      // const goodsinfo = {
-      //   country: 'TH',
-      //   mallId: '213693788',
-      //   goodsID: 10053264472
-      // }
-      // // const res = await window.BaseUtilBridgeService.getTopGoods('213693788', '10053264472', 'true')
-      // const res = await window.BaseUtilBridgeService.saveTopGoods({ // 上报置顶商品表_更新
-      //   mall_id: '227301094',
-      //   goods_id: 11091517446,
-      //   is_top: '1'
-      // })
-
-      // const res1 = await window.BaseUtilBridgeService.saveTopGoods({ // 【壳内】商品表状态更新
-      //   mall_id: '123456',
-      //   goods_id: '11111111',
-      //   is_top: '0'
-      // })
-      // const res2 = await window.BaseUtilBridgeService.saveTopGoods({ // 【壳内】商品表状态更新
-      //   mall_id: '123456',
-      //   goods_id: '11111111',
-      //   is_top: '1'
-      // })
-      // const TopedGoods = await window.BaseUtilBridgeService.getTopGoods('123456', '1')
-      // console.log('333', TopedGoods)
-
-      //  const res_saveTopGoods = await window.BaseUtilBridgeService.saveTopGoods({ // 【壳内】商品表状态更新
-      //   mall_id: '123456',
-      //   goods_id: '11111111',
-      //   is_top: '0'
-      // })
-      // const res = await this.MarketManagerAPIInstance.topedGoods({
-      //   country: 'TH',
-      //   mallId: '213693788' // [586]
-      // })
-      // console.log(res)
-    },
     // 创建任务-instance
     async createTesk(mall, count = { count: 1 }) {
       try {
@@ -625,6 +585,7 @@ export default {
         }
         // // 查询该店铺是否存在任务
         const gettesk = await window.BaseUtilBridgeService.getTopGoodsTask(mall.platform_mall_id)
+        console.log('createTesk - gettesk', gettesk)
         // 存在立即删除原任务
         if (gettesk.length) {
           this.$refs.Logs.writeLog(`任务更新`, true)
@@ -651,7 +612,7 @@ export default {
         console.log('创建置顶任务', newTesk)
         if (newTesk.code !== '200') {
           this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】任务创建失败`, false)
-          this.$set(mall, '')
+          // this.$set(mall, '')
           return
         } else {
           this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】任务创建成功`, true)

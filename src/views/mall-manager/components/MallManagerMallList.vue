@@ -1828,7 +1828,8 @@ export default {
             } else {
               item.loginStatus = 'fail'
               if (this.flat === 1) {
-                item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data || errorStr}</p>`
+                let errorMag = handleResult.data || errorStr
+                item.LoginInfo = `<p style="color: red">登录失败：${errorMag}</p>`
               } else {
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data || '失败状态：2，请联系客服'}`, false)
               }

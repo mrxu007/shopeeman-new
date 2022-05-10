@@ -15,8 +15,7 @@
       <el-table
         height="calc(100vh - 70px)"
         :data="tableList"
-        :header-cell-style="{ background: '#f7fafa' }"
-      >
+        :header-cell-style="{ background: '#f7fafa' }">
         <el-table-column label="序号" type="index" align="center" fixed />
         <el-table-column prop="country" label="站点" align="center" min-width="100px">
           <template slot-scope="{row}">{{ row.country | chineseSite }}</template></el-table-column>

@@ -17,7 +17,6 @@ export default {
       GoodsList: new GoodsList(this),
       MarketManagerAPIInstance: new MarketManagerAPI(this),
       shopAccountList: []
-
     }
   },
   mounted() {
@@ -28,10 +27,7 @@ export default {
         this.getTopTest()
       })
       setInterval(() => {
-        getMalls().then(res => {
-          this.shopAccountList = res
           this.getTopTest()
-        })
       }, 2 * 60 * 60 * 1000)
     }, 10 * 60 * 1000)
   },
@@ -41,6 +37,7 @@ export default {
       this.showlog = false
       this.$refs.Logs.writeLog(`正在获取置顶任务......`)
       const res = await this.$api.topTask()
+      console.log('getTopTest - topTask',res)
       if (res.data.code === 200) {
         this.page = res.data.data.current_page
         this.total = res.data.data.total

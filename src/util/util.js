@@ -21,6 +21,7 @@ export function MallgetValue(arr, label, id, relID) {
   }
   return data
 }
+
 // 匹配对象数组值(商品店铺绑定)
 export function GoodsMallgetValue(arr, label, value, relID) {
   let data = ''
@@ -33,11 +34,12 @@ export function GoodsMallgetValue(arr, label, value, relID) {
   }
   return data
 }
+
 // 获取店铺信息
 export async function getMalls() {
   try {
     const { data } = await mallListAPIInstance.ddMallGoodsGetMallList() || []
-    return data?.map(item=>{
+    return data?.map(item => {
       return {
         label: item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name,
         value: item.platform_mall_id,
@@ -426,6 +428,7 @@ export function batchOperation(array, method, count = 5) {
         manage(number - num)
       }
     }, 1000)
+
     async function manage(completeCount) {
       for (;
         (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
@@ -450,6 +453,56 @@ export function terminateThread(method) {
     threadRunCount = JSON.stringify(threadRunCountRes)
   }
   localStorage.setItem('threadRunCount', threadRunCount)
+}
+
+/**
+ * 间歇式执行 - 没啥用
+ * @param object 数据
+ * @param method 循环方法
+ * @returns {object}
+ */
+
+export function batchTask(object, method) {
+  let data = JSON.parse(JSON.stringify(object))
+  let dataList = []
+  let total = 0
+  return new Promise(async resolve => {
+    if (Object.prototype.toString.call(data) === '[object Object]') {
+      dataList = Object.keys(data)
+    } else if (Object.prototype.toString.call(data) === '[object Array]') {
+      dataList = data
+    } else if (Number(data)) {
+      total = data
+    } else {
+      resolve(false)
+    }
+    total = total || dataList.length
+    let count = total <= 1000 && total || Math.floor(total / 1000)
+    count = count > 1000 && 1000 || count
+    count = count < 100 && 100 || count
+    await perform(count)
+
+    async function perform(count, page = 0) {
+      let start = page * count || 0
+      let i = 0
+      for (; i < count && (start + i) < total; i++) {
+        if (Object.prototype.toString.call(data) === '[object Object]') {
+          method(data[dataList[start + i]])
+        } else if (Object.prototype.toString.call(data) === '[object Array]') {
+          method(data[start + i])
+        } else if (Object.prototype.toString.call(data) === '[object Number]') {
+          method(start + i)
+        }
+      }
+      if ((start + i) >= total) {
+        resolve(true)
+      } else {
+        setTimeout(async() => {
+          await perform(count, ++page)
+        }, 50)
+      }
+    }
+  })
 }
 
 // 时间转换
@@ -480,6 +533,7 @@ export async function importOrder(tableData, jsonData, workName = '') {
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, workName || (new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)))
   XLSX.writeFile(workbook, `${workName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`)
+
   function fitToColumn(arrayOfArray) {
     return arrayOfArray[0].map((a, i) => ({
       wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 10)) * 2
@@ -501,6 +555,7 @@ export async function waitStart(prepare, num = 500) {
     }, 200)
   })
 }
+
 export async function selfAliYunTransImage(imgUrl, command, account, that) {
   account.login_info = account.login_info || JSON.parse(account.loginInfo)
   const _csrf = account.login_info.find(item => {
@@ -643,15 +698,15 @@ export function getGoodsUrl(platform, data) {
 }
 
 /**
-   * @name :
-   * @param {*} oriGoodsId 上家商品ID
-   * @param {*} oriPlatformId 上家平台ID
-   * @param {*} shopMallId shopee店铺ID
-   * @param {*} shopGoodsId shopee商品ID
-   * @param {*} country 站点
-   * @param {*} orderSn 订单号传null
-   * @param {*} writeLog 日志函数
-   */
+ * @name :
+ * @param {*} oriGoodsId 上家商品ID
+ * @param {*} oriPlatformId 上家平台ID
+ * @param {*} shopMallId shopee店铺ID
+ * @param {*} shopGoodsId shopee商品ID
+ * @param {*} country 站点
+ * @param {*} orderSn 订单号传null
+ * @param {*} writeLog 日志函数
+ */
 export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country, orderSn, writeLog, oriShopMallId, oriSite, that, shopeeItem) {
   let msg = ''
   let flag = false
@@ -906,6 +961,7 @@ export async function dealwithLogisi(productID, mallID, country) {
   }
   return logModelList
 }
+
 export async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, country) {
   const logModelList = []
   let idDatas = []
@@ -940,6 +996,7 @@ export async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mal
   console.log(logModelList, 'logModelList')
   return logModelList
 }
+
 // 过滤无效物流
 export async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
   console.log(logisticsJarray, idDatas, '33333')
@@ -981,11 +1038,11 @@ export async function filterLogistics(logisticsJarray, idDatas, isUseProductChan
 }
 
 /**
-   * @name :区间随机值
-   * @param {*} minVal 最小
-   * @param {*} maxVal 最大
-   * @param {*} fixed 小数位
-   * */
+ * @name :区间随机值
+ * @param {*} minVal 最小
+ * @param {*} maxVal 最大
+ * @param {*} fixed 小数位
+ * */
 export function getSectionRandom(minVal, maxVal, fixed = 0) {
   minVal = (minVal < maxVal && minVal || maxVal) * 1
   maxVal = (minVal < maxVal && maxVal || minVal) * 1
@@ -1014,6 +1071,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
     await batchOperation(params, imageUpload, thread)
     resolve(newImage)
   })
+
   async function imageUpload(item, count = { count: 1 }) {
     try {
       let imageUrl = item.url || ''
@@ -1022,7 +1080,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
         imageUrl = that.$filters.imageRender([imageUrl]) || imageUrl
       }
       const base64File = await getBase64file(imageUrl)
-      if (base64File){
+      if (base64File) {
         const country = that.country || mall.country
         const imageFileJSON = await that.$shopeemanService.upload_image(country, { mallId: item.platform_mall_id }, '', base64File)
         const imageFileRes = JSON.parse(imageFileJSON) || ''
@@ -1037,6 +1095,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
       --count.count
     }
   }
+
   function getBase64file(url, width, height) {
     return new Promise(async(resolve) => {
       let base64 = ''
@@ -1072,12 +1131,13 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
           }
           resolve(base64)
         }
-      }catch (e) {
+      } catch (e) {
         base64 = ''
         console.log(e)
       }
     })
   }
+
   function showSize(base64url) {
     // 把头部去掉
     let str = base64url.replace('data:image/png;base64,', '')
@@ -1103,6 +1163,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
     return size
   }
 }
+
 // 判断能否转JSON
 export function isJsonString(str) {
   if (typeof str === 'string') {
@@ -1116,6 +1177,7 @@ export function isJsonString(str) {
     return str
   }
 }
+
 // 用于判断采集链接
 function shopeeBuyerAllDomain() {
   const data = {}
@@ -1151,6 +1213,7 @@ function shopeeBuyerAllDomain() {
   data['es'] = 'https://es.xiapibuy.com/'
   return data
 }
+
 // 分割一段链接，获取里面的参数
 function getRequestParameters(row) {
   try {
@@ -1172,6 +1235,7 @@ function getRequestParameters(row) {
     return `传入的店铺链接存在非法信息${error}`
   }
 }
+
 // 链接判断
 export function getGoodLinkModel(link) {
   console.log(link)
@@ -1290,21 +1354,23 @@ export function getGoodLinkModel(link) {
   if (!data.GoodsId) return { code: 201, data: `链接:${link}识别商品ID失败` }
   return { code: 200, data }
 }
-export function accountPermissions(type= -1,callback){
+
+export function accountPermissions(type = -1, callback) {
   let accountType = Number(instance.$userInfo.AccountType)
   let success = true
-  if( type > -1 && (accountType === 1 || accountType === 4 || accountType === 5)){
+  if (type > -1 && (accountType === 1 || accountType === 4 || accountType === 5)) {
     success = false
     let payProjectInfo = instance.$payProjectInfo
-    if(payProjectInfo.length && (payProjectInfo.includes(Number(type)) || payProjectInfo.includes((type+'')))){
+    if (payProjectInfo.length && (payProjectInfo.includes(Number(type)) || payProjectInfo.includes((type + '')))) {
       success = true
     }
   }
-  if(!success){
+  if (!success) {
     callback()
   }
   return success
 }
+
 /**
  * 复制字符串
  * @param attr String
@@ -1333,7 +1399,7 @@ export function copyText(attr) {
  * 获取随机符号
  */
 export function getRandSymbol() {
-  let symbolList = ['~','!','@','#','$','%','^','&','*','(',')','-','_','=','+','?','<','>',',','.',';',':','[',']','{','}','|']
+  let symbolList = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+', '?', '<', '>', ',', '.', ';', ':', '[', ']', '{', '}', '|']
   let index = Math.random() * symbolList.length
   return symbolList[Math.floor(index)]
 }

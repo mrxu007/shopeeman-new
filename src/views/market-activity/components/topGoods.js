@@ -3,6 +3,7 @@ import MarketManagerAPI from '../../../module-api/market-manager-api/market-data
 import Vue from 'vue'
 import { batchOperation } from '../../../util/util'
 let _this = null
+let topTaskList = {}
 export class topGoods {
   MallAPIInstance = new MallManagerAPI(new Vue())
   MarketManagerAPIInstance=new MarketManagerAPI(new Vue())
@@ -61,22 +62,42 @@ export class topGoods {
     }
   }
   // 获取任务
-  async init() {
-    const alltest = await window.BaseUtilBridgeService.getTopGoodsTask('all')
-    console.log(alltest)
-    if (!alltest.length) {
-      console.log('暂无任务')
-      return
-    }
+  init() {
     _this = this
-    await batchOperation(alltest, this.runtesk)
+    this.getGoodsTopTask()
+    setInterval(()=>{
+      this.getGoodsTopTask()
+    }, 3 * 60 * 60 * 1000)
   }
+
+  async getGoodsTopTask(){
+    const alltest = await window.BaseUtilBridgeService.getTopGoodsTask('all') || []
+    console.log('topGoodsInstance - init', alltest)
+    for(let i in topTaskList){
+      clearTimeout(topTaskList[i])
+      topTaskList[i] = null
+    }
+    alltest.forEach(item=>{
+      let nextTime = new Date(item.next_top_time).getTime()
+      let time = new Date().getTime()
+      if ((nextTime - time) < 0){
+        this.runtesk(item)
+      }else{
+        topTaskList[item.mall_id] = setTimeout(()=>{
+          this.runtesk(item)
+        },(nextTime - time))
+      }
+    })
+  }
+
   // 执行任务
   async runtesk(mall, count = { count: 1 }) {
     try {
       // 判断任务执行完成
-      const toped = await window.BaseUtilBridgeService.getTopGoods(mall.mall_id, '0')
-      if (!toped.length) {
+      const willTopGoods = await window.BaseUtilBridgeService.getTopGoods(mall.mall_id, '0')
+      // 查询未置顶的商品
+      console.log('查询未置顶的商品', willTopGoods)
+      if (!willTopGoods.length) {
         await window.BaseUtilBridgeService.saveTopGoodsHistory({ // 历史记录
           'country': mall.country,
           'mall_name': mall.mall_name,
@@ -105,36 +126,6 @@ export class topGoods {
         }, 1000)
         return
       }
-
-      // 是否到了任务执行时间
-      const runTime = new Date(mall.next_top_time).getTime()
-      if (runTime > new Date().getTime()) {
-        console.log(mall.country + '未到执行时间')
-        await window.BaseUtilBridgeService.saveTopGoodsHistory({ // 历史记录
-          'country': mall.country,
-          'mall_name': mall.mall_name,
-          'mall_id': mall.mall_id,
-          'log_time': _this.formatTime(new Date().getTime()),
-          'log_message': `未到置顶时间`
-        })
-        // 四个半小时后执行
-        setTimeout(this.runtesk(mall, count = { count: 1 }), 60 * 60 * 1000 * 4.5)
-        return
-      }
-      // 查询未置顶的商品
-      const willTopGoods = await window.BaseUtilBridgeService.getTopGoods(mall.mall_id, '0')
-      console.log('查询未置顶的商品', willTopGoods)
-      if (!willTopGoods.length) {
-        console.log('已置顶完所有商品')
-        await window.BaseUtilBridgeService.saveTopGoodsHistory({ // 历史记录
-          'country': mall.country,
-          'mall_name': mall.mall_name,
-          'mall_id': mall.mall_id,
-          'log_time': _this.formatTime(new Date().getTime()),
-          'log_message': `已置顶完所有商品`
-        })
-        return
-      }
       // 更新置顶记录 && 置顶
       for (const goods of willTopGoods) {
         // 正在置顶的商品
@@ -149,8 +140,6 @@ export class topGoods {
             'log_message': `店铺【${mall.mall_name}】商品置顶数据获取失败`
           })
           console.log('414-商品数据获取失败')
-          // 四个半小时后执行
-          setTimeout(this.runtesk(mall, count = { count: 1 }), 60 * 60 * 1000 * 4.5)
           return
         }
         const toppingItemList = res1.data
@@ -180,8 +169,6 @@ export class topGoods {
             'log_message': '商品置顶已达上限'
           })
           console.log('商品置顶已达上限', toppingItemList)
-          // 四个半小时后执行
-          setTimeout(this.runtesk(mall, count = { count: 1 }), 60 * 60 * 1000 * 4.5)
           return
         }
         // 置顶
@@ -218,8 +205,6 @@ export class topGoods {
           console.log('置顶失败')
         }
       }
-      // 四个半小时后执行
-      setTimeout(this.runtesk(mall, count = { count: 1 }), 60 * 60 * 1000 * 4.5)
     } catch (e) {
       console.log('try-catch', e)
       // 上报历史记录

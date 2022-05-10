@@ -1781,15 +1781,28 @@ export default {
                 ++this.statistics.failure
                 continue
               }
+              let originCategoryId = item.originCategoryId || item.category_id
+              let platformId = item.platform || item.source
+              // attributes brand_id category_path
+              this.updateAttributeName(item, '正在抓取产品', '', mall)
+              let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
+              let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
+              let neededTranslateInfoData = neededTranslateInfoRes.data
+              if (Number(neededTranslateInfoRes.code) !== 200) {
+                messageName = neededTranslateInfoRes.msg || ''
+                this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
+                return
+              }
+              console.log('neededTranslateInfoData -2', neededTranslateInfoData)
               let goodsInitParam = {
                 attributes: [],
-                stock: item.stock,
+                stock: neededTranslateInfoData.stock,
                 model_list: [],
-                weight: item.weight + '',
+                weight: neededTranslateInfoData.weight + '',
                 dimension: {
-                  width: item.width > 1 && item.width || 1,
-                  height: item.height > 1 && item.width || 1,
-                  length: item.long > 1 && item.long || 1
+                  width: neededTranslateInfoData.width > 1 && neededTranslateInfoData.width || 1,
+                  height: neededTranslateInfoData.height > 1 && neededTranslateInfoData.width || 1,
+                  length: neededTranslateInfoData.long > 1 && neededTranslateInfoData.long || 1
                 },
                 condition: this.basicConfig.usedChecked && 4 || 1,
                 dangerous_goods: 0, //待修改
@@ -1809,19 +1822,6 @@ export default {
                 unlisted: this.basicConfig.usedChecked,
                 add_on_deal: []
               }
-              let originCategoryId = item.originCategoryId || item.category_id
-              let platformId = item.platform || item.source
-              // attributes brand_id category_path
-              this.updateAttributeName(item, '正在抓取产品', '', mall)
-              let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
-              let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
-              let neededTranslateInfoData = neededTranslateInfoRes.data
-              if (Number(neededTranslateInfoRes.code) !== 200) {
-                messageName = neededTranslateInfoRes.msg || ''
-                this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
-                return
-              }
-              console.log('neededTranslateInfoData -2', neededTranslateInfoData)
               let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
               this.updateAttributeName(item, '正在匹配类目', '', mall)
               let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
@@ -1861,8 +1861,8 @@ export default {
               let checkListingRepeatParma = {
                 sysMallId: mall.id + '',
                 platformType: item.source,
-                itemSku: item.goods_id + '',
-                title: item.title,
+                itemSku: neededTranslateInfoData.goods_id + '',
+                title: neededTranslateInfoData.title,
                 country: this.country,
                 dimension: dimension + ''
               }
@@ -1885,7 +1885,7 @@ export default {
                 neededTranslateInfoData['weight'] = goodsParam['weight']
               }
               // parent_sku ds_cat_rcmd_id ds_attr_rcmd_id
-              let extrainfo = item.extra_info && JSON.parse(item.extra_info)
+              let extrainfo = neededTranslateInfoData.extra_info && JSON.parse(neededTranslateInfoData.extra_info)
               let tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
               goodsParam['parent_sku'] = await this.$BaseUtilService.buildGoodCode(platformId,
                   item.goods_id, this.country, mallId, tmall_cross_border_user_id)
@@ -1947,7 +1947,7 @@ export default {
               hotList = hotList.replaceAll('，', ',')
               hotList = hotList.split(',') || []
               let hotStr = ''
-              let name = item.title
+              let name = neededTranslateInfoData.title
               if (this.basicConfig.hotSearch > 0 && hotList[0]) {
                 let hotListCount = hotList.length
                 for (let i = 0; i < this.basicConfig.hotSearch; i++) {
@@ -2066,7 +2066,7 @@ export default {
                 }
               }else{
                 goodsParam['model_list'].push({
-                  "stock": item.stock,
+                  "stock": neededTranslateInfoData.stock,
                   "sku": "",
                   "input_normal_price": null,
                   "input_promotion_price": null,
@@ -2094,11 +2094,11 @@ export default {
                     let spec1_list = new Set()
                     let spec2_list = new Set()
                     let temp_model_list = []
-                    goodsParam['model_list'].forEach(item => {
-                      if (Number(item.price) !== designate) {
-                        item.tier_index[0] && spec1_list.add(item.tier_index[0])
-                        item.tier_index[1] && spec2_list.add(item.tier_index[1])
-                        temp_model_list.push(item)
+                    goodsParam['model_list'].forEach(son => {
+                      if (Number(son.price) !== designate) {
+                        son.tier_index[0] && spec1_list.add(son.tier_index[0])
+                        son.tier_index[1] && spec2_list.add(son.tier_index[1])
+                        temp_model_list.push(son)
                       }
                     })
                     spec1_list = [...spec1_list]
@@ -2213,9 +2213,9 @@ export default {
                 //sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas
                 let saveListingRecordParma = {
                   sysMallId: mall.id + '',
-                  platformType: item.source + '',
-                  itemSku: item.goods_id + '',
-                  title: item.title,
+                  platformType: neededTranslateInfoData.source + '',
+                  itemSku: neededTranslateInfoData.goods_id + '',
+                  title: neededTranslateInfoData.title,
                   listingId: product_id + '',
                   country: this.country,
                   mallId: mallId,
