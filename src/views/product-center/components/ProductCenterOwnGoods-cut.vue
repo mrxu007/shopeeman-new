@@ -41,15 +41,15 @@
         </li>
         <li>
           <span>Sku编码：</span>
-          <el-input v-model="form.returnSkuId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnSkuId" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </li>
         <li>
           <span>商品名称：</span>
-          <el-input v-model="form.returnGoodsName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnGoodsName" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </li>
         <li>
           <span>商品ID：</span>
-          <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="margin-left:12px" />
+          <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="margin-left:12px" />
         </li>
         <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getProductList">查询</el-button>
@@ -134,7 +134,7 @@
             <span>商品名称：</span>
           </el-col>
           <el-col :span="19">
-            <el-input v-model="eiditgoodname" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+            <el-input v-model="eiditgoodname" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
           </el-col>
         </el-row>
         <br>
@@ -143,7 +143,7 @@
             <span>商品类目：</span>
           </el-col>
           <el-col :span="19">
-            <el-input :value="eiditcatename" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" @focus="clickhere" />
+            <el-input :value="eiditcatename" clearable size="mini" oninput="value=value.replace(/\s/g,'')" @focus="clickhere" />
             <!-- <product-choose ref="isClean" @CateId="EiditCateId" /> -->
           </el-col>
         </el-row>
@@ -166,7 +166,7 @@
             <span>备注：</span>
           </el-col>
           <el-col :span="13" style="padding-top:5px">
-            <el-input v-model="eiditremark" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+            <el-input v-model="eiditremark" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
           </el-col>
         </el-row>
         <br>
@@ -180,7 +180,7 @@
                 <span>规格名称</span>
               </el-col>
               <el-col :span="17">
-                <el-input v-model="eiditSpecification1" clearable size="mini" placeholder="请输入规格名称，例如：颜色等等" oninput="value=value.replace(/\s+/g,'')" />
+                <el-input v-model="eiditSpecification1" clearable size="mini" placeholder="请输入规格名称，例如：颜色等等" oninput="value=value.replace(/\s/g,'')" />
               </el-col>
             </el-row>
             <el-row>
@@ -217,7 +217,7 @@
                 <span>规格名称</span>
               </el-col>
               <el-col :span="17">
-                <el-input v-model="eiditSpecification2" :disabled="!eiditshowtwo" clearable size="mini" placeholder="请输入规格名称，例如：颜色等等" oninput="value=value.replace(/\s+/g,'')" />
+                <el-input v-model="eiditSpecification2" :disabled="!eiditshowtwo" clearable size="mini" placeholder="请输入规格名称，例如：颜色等等" oninput="value=value.replace(/\s/g,'')" />
               </el-col>
             </el-row>
             <el-row>
@@ -250,7 +250,7 @@
             <span>商品价格</span>
           </el-col>
           <el-col :span="3">
-            <el-input v-model="bindeiditprice" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+            <el-input v-model="bindeiditprice" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
           </el-col>
           <el-col :span="1.5" style="padding:8px">
             <span>商品数量</span>

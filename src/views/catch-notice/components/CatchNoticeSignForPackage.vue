@@ -10,7 +10,7 @@
         <!-- 采购物流单号 -->
         <div class="logisticsNumber">
           采购物流单号：
-          <el-input v-model="form.packageCode" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.packageCode" size="mini" clearable oninput="value=value.replace(/\s/g,'')" />
         </div>
         <el-button size="mini" type="primary" @click="getExceptionNoOrderIndex">搜索</el-button>
       </div>
@@ -64,7 +64,7 @@
       <span style="color: red; margin-left: 17px">温馨提示：请填写子订单号</span>
       <el-form :model="markMyOrderDialogForm" label-position="right" label-width="80px">
         <el-form-item label="订单编号:">
-          <el-input v-model="markMyOrderDialogForm.orderSn" autocomplete="off" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" style="width: 165px" />
+          <el-input v-model="markMyOrderDialogForm.orderSn" autocomplete="off" size="mini" clearable oninput="value=value.replace(/\s/g,'')" style="width: 165px" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -80,19 +80,19 @@
           <span style="color: red">{{ applyForm.lists[0].packageCode }}</span>
         </el-form-item>
         <el-form-item label="收件人:">
-          <el-input v-model="applyForm.returnContact" size="mini" style="width: 178px" clearable oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="applyForm.returnContact" size="mini" style="width: 178px" clearable oninput="value=value.replace(/\s/g,'')" />
         </el-form-item>
         <el-form-item label="联系电话:">
-          <el-input v-model="applyForm.returnPhoneNumber" size="mini" style="width: 178px" clearable oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="applyForm.returnPhoneNumber" size="mini" style="width: 178px" clearable oninput="value=value.replace(/\s/g,'')" />
         </el-form-item>
         <el-form-item label="退件地区:">
           <el-cascader ref="refTbCate" v-model="applyRegion" :props="props" clearable size="mini" @change="targetCate" />
         </el-form-item>
         <el-form-item label="详细地址:">
-          <el-input v-model="applyForm.returnAddress" type="textarea" resize="none" size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="applyForm.returnAddress" type="textarea" resize="none" size="mini" oninput="value=value.replace(/\s/g,'')" />
         </el-form-item>
         <el-form-item label="退件备注:">
-          <el-input v-model="applyForm.returnRemarks" type="textarea" resize="none" size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="applyForm.returnRemarks" type="textarea" resize="none" size="mini" oninput="value=value.replace(/\s/g,'')" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

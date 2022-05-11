@@ -8,7 +8,7 @@
             v-model="form.packageCode"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>

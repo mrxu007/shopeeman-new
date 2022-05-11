@@ -24,15 +24,15 @@
       </div>
       <div class="item-box">
         <span style="width: 90px">系统商品编号:</span>
-        <el-input v-model="sys_sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
+        <el-input v-model="sys_sku_id" clearable size="mini" oninput="value=value.replace(/\s/g,'')" class="inputWidth" />
       </div>
       <div v-if="activeName==='myStore'" class="item-box">
         <span style="width: 60px">商品编号:</span>
-        <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
+        <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s/g,'')" class="inputWidth" />
       </div>
       <div v-if="activeName==='myStore'" class="item-box">
         <span style="width: 60px">商品规格:</span>
-        <el-input v-model="sku_name" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
+        <el-input v-model="sku_name" clearable size="mini" oninput="value=value.replace(/\s/g,'')" class="inputWidth" />
       </div>
       <div v-if="activeName==='myStore'" class="item-box">
         <el-checkbox v-model="isFilter">过滤0库存</el-checkbox>

@@ -22,7 +22,7 @@
       </div>
       <div class="o-item">
         <span style="min-width:57px">关键词：</span>
-        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" style="width:130px" clearable oninput="value=value.replace(/\s+/g,'')" />
+        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" style="width:130px" clearable oninput="value=value.replace(/\s/g,'')" />
       </div>
       <div class="o-item">
         <el-button
@@ -98,7 +98,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="关键词:">
-              <el-input v-model="dialogkeyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="dialogkeyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s/g,'')" />
             </el-form-item>
             <el-form-item>
               <el-button style="margin-right:20px" size="mini" type="primary" @click="addBannedWord()">确 定</el-button>

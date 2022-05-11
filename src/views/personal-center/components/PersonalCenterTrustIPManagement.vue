@@ -4,7 +4,7 @@
       <div class="one">
         <div class="o-item">
           <span style="width:47px">信任IP：</span>
-          <el-input v-model="ipVal" style="width: 130px" placeholder="请输入内容" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="ipVal" style="width: 130px" placeholder="请输入内容" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </div>
         <div class="o-item">
           <el-button
@@ -19,7 +19,7 @@
         <div class="o-item-alone">
           <span style="width:84px">登录是否检测：</span>
           <el-radio v-model="isOpenIpCheck" label="0">关闭检测</el-radio>
-          <el-radio v-model="isOpenIpCheck" label="1">当信任IP数大于 <el-input v-model="trustIpCount" size="mini" oninput="value=value.replace(/\s+/g,'')" />时打开检测 </el-radio>
+          <el-radio v-model="isOpenIpCheck" label="1">当信任IP数大于 <el-input v-model="trustIpCount" size="mini" oninput="value=value.replace(/\s/g,'')" />时打开检测 </el-radio>
         </div>
         <div class="o-item">
           <el-button type="primary" size="mini" @click="saveConfigure">保存配置</el-button>
@@ -99,10 +99,10 @@
         <div class="form-content">
           <el-form label-position="right" label-width="80px">
             <el-form-item label="当前IP:">
-              <el-input v-model="currentIp" size="mini" placeholder="请输入IP" clearable oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="currentIp" size="mini" placeholder="请输入IP" clearable oninput="value=value.replace(/\s/g,'')" />
             </el-form-item>
             <el-form-item label="备注:">
-              <el-input v-model="remark" type="textarea" resize="none" :rows="2" placeholder="请输入内容" oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="remark" type="textarea" resize="none" :rows="2" placeholder="请输入内容" oninput="value=value.replace(/\s/g,'')" />
             </el-form-item>
           </el-form>
           <div style="text-align: center">
@@ -121,7 +121,7 @@
               placeholder="请输入手机号"
               clearable
               size="mini"
-              oninput="value=value.replace(/\s+/g,'')"
+              oninput="value=value.replace(/\s/g,'')"
             />
           </div>
           <div class="o-item">

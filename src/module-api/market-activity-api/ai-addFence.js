@@ -112,29 +112,51 @@ export default class GoodsDiscount {
   async buyerFollow(val) {
     const item = val
     try {
+      console.log('buyerFollow - item', item)
       const params = {}
       params['mallId'] = item.mallId
+      params['userid'] =  item.userShopid
       params['isAddCsrfToken'] = true
       params['userShopid'] = item.userShopid
       // params['ShopId'] = item.ShopId
       params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
+      const strGuid = this.guid()
+      // const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/api/v4/pages/follow`, params, {
+      //   headers: {
+      //     'Accept': 'application/json',
+      //     'accept-encoding': 'gzip, deflate, br',
+      //     'Content-Type': 'application/json',
+      //     'Content-Length': '20',
+      //     referer: `/shop/${item.followMallID}/followers`,
+      //     'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="101", "Google Chrome";v="101"',
+      //     'sec-ch-ua-mobile': '?1',
+      //     'sec-ch-ua-platform': "Android",
+      //     'Sec-Fetch-Dest': 'empty',
+      //     'Sec-Fetch-Mode': 'cors',
+      //     'Sec-Fetch-Site': 'same-origin',
+      //     'X-Requested-With': 'XMLHttpRequest',
+      //     'cookies': [{ Name: 'csrftoken', Value: strGuid }],
+      //     'X-CSRFToken': strGuid,
+      //     'x-requested-with': 'XMLHttpRequest',
+      //     'x-shopee-language': 'en'
+      //   }})
       const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/buyer/follow/shop/${item.userShopid}/`, params, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
           'Content-Length': '52',
           'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
           'sec-ch-ua-mobile': '?1',
-          referer: `/shop/${item.followMallID}/followers/?__classic__=1`,
+          referer: `/shop/${item.followMallID}/followers`,
           'Sec-Fetch-Dest': 'empty',
           'Sec-Fetch-Mode': 'cors',
           'Sec-Fetch-Site': 'same-origin',
           'Accept': ' */*',
           'X-Requested-With': 'XMLHttpRequest',
-          'If-None-Match-': this.guid()
-
+          'If-None-Match-': strGuid
         }
       })
       const data = JSON.parse(res)
+      console.log('postChineseBuyer - res',data)
       if (data.status === 200) {
         if (JSON.parse(data.data).success) {
           return { code: 200, data: true }

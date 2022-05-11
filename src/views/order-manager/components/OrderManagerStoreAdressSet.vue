@@ -116,7 +116,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="仓库名称：">
-          <el-input v-model="itselfWarehouseName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="itselfWarehouseName" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </el-form-item>
         <div v-if="flag4">
           <address-model ref="addressModel" :country="itselfCountry" @sendData="sendData" />
@@ -161,18 +161,18 @@
           </div>
           <div v-else>
             <el-form-item label="邮政编码：">
-              <el-input v-model="itselfPostCode" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="itselfPostCode" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
             </el-form-item>
           </div>
         </div>
         <el-form-item label="详细地址：">
-          <el-input v-model="itselfDetailAddress" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="itselfDetailAddress" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </el-form-item>
         <el-form-item label="收件人：">
-          <el-input v-model="itselfReceivingName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="itselfReceivingName" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </el-form-item>
         <el-form-item label="电话号码：">
-          <el-input v-model="itselfReceivingTel" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="itselfReceivingTel" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </el-form-item>
         <el-form-item label="归属仓库：">
           <el-select v-model="itselfWarehouseId" placeholder="请选择" size="mini">
@@ -208,16 +208,16 @@
             <el-select v-if="flag1" v-model="sysWarehouseId" placeholder="请选择" size="mini" @change="sysWarehouseChange">
               <el-option v-for="(item, index) in warehouseData" :key="index" :value="item.id" :label="item.warehouse_name" />
             </el-select>
-            <el-input v-if="!flag1" v-model="warehouseName" :disabled="flag2" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
+            <el-input v-if="!flag1" v-model="warehouseName" :disabled="flag2" size="mini" clearable oninput="value=value.replace(/\s/g,'')" />
           </el-form-item>
           <el-form-item label="地址全称:" class="addressFull">
-            <el-input v-model="warehouseAddress" :disabled="true" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 4 }" clearable oninput="value=value.replace(/\s+/g,'')" />
+            <el-input v-model="warehouseAddress" :disabled="true" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 4 }" clearable oninput="value=value.replace(/\s/g,'')" />
           </el-form-item>
           <el-form-item label="收件人：">
-            <el-input v-model="receivingName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+            <el-input v-model="receivingName" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
           </el-form-item>
           <el-form-item label="联系电话：">
-            <el-input v-model="wareHouseTel" :disabled="flag1 || flag2" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+            <el-input v-model="wareHouseTel" :disabled="flag1 || flag2" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
           </el-form-item>
         </el-form>
         <div class="footer">

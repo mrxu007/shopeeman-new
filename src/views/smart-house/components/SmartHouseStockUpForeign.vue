@@ -101,7 +101,7 @@
             v-model="form.package_code"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>
@@ -110,7 +110,7 @@
             v-model="form.forecast_code"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>
@@ -806,7 +806,7 @@
                       v-model="productFrom.ProductName"
                       clearable
                       size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />
                   </li>
                   <li>
@@ -815,7 +815,7 @@
                       v-model="productFrom.ProductId"
                       clearable
                       size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />
                     <el-button
                       style="margin-left:10px"
@@ -830,7 +830,7 @@
                       v-model="productFrom.SkuId"
                       clearable
                       size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />
                     <el-button
                       style="margin-left:10px"
@@ -949,7 +949,7 @@
                       v-model="foreignSku.package_code"
                       clearable
                       size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />
                   </li>
                   <li>
@@ -958,7 +958,7 @@
                       v-model="foreignSku.sku_num"
                       clearable
                       size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />
                   </li>
                   <li>
@@ -984,17 +984,17 @@
                       v-model="foreignSku.sku_long"
                       size="mini"
                       style="padding:0px"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />*
                     <el-input
                       v-model="foreignSku.sku_width"
                       size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />*
                     <el-input
                       v-model="foreignSku.sku_height"
                       size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />
                   </li>
                   <li>
@@ -1035,7 +1035,7 @@
                       v-model="foreignSku.remark"
                       clearable
                       size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
+                      oninput="value=value.replace(/\s/g,'')"
                     />
                   </li>
                   <li>
@@ -1129,7 +1129,7 @@
                         <el-input
                           v-model="skuList.remark[scope.$index]"
                           size="mini"
-                          oninput="value=value.replace(/\s+/g,'')"
+                          oninput="value=value.replace(/\s/g,'')"
                         />
                       </el-form-item>
                       <el-form-item label="体积:">
@@ -1137,26 +1137,26 @@
                           v-model="skuList.sku_long[scope.$index]"
                           size="mini"
                           class="volume"
-                          oninput="value=value.replace(/\s+/g,'')"
+                          oninput="value=value.replace(/\s/g,'')"
                         />*
                         <el-input
                           v-model="skuList.sku_width[scope.$index]"
                           size="mini"
                           class="volume"
-                          oninput="value=value.replace(/\s+/g,'')"
+                          oninput="value=value.replace(/\s/g,'')"
                         />*
                         <el-input
                           v-model="skuList.sku_height[scope.$index]"
                           size="mini"
                           class="volume"
-                          oninput="value=value.replace(/\s+/g,'')"
+                          oninput="value=value.replace(/\s/g,'')"
                         />
                       </el-form-item>
                       <el-form-item label="物流单号:">
                         <el-input
                           v-model="skuList.package_code[scope.$index]"
                           size="mini"
-                          oninput="value=value.replace(/\s+/g,'')"
+                          oninput="value=value.replace(/\s/g,'')"
                         />
                       </el-form-item>
                     </el-form>
@@ -1223,7 +1223,7 @@
                   <el-input
                     v-model="skuList.sku_num[scope.$index]"
                     size="mini"
-                    oninput="value=value.replace(/\s+/g,'')"
+                    oninput="value=value.replace(/\s/g,'')"
                   />
                 </template>
               </el-table-column>

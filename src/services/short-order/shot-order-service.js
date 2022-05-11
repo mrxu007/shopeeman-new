@@ -488,6 +488,9 @@ export default class {
     if (warehouseInfo.type != 3 && warehouseInfo.country != 'SG') {
       if (configInfo.shot_order_address_label.includes('4')) {
         detailAddress += '#' + itemOrder.id
+        if(this.user_group && this.user_group > 0){
+          addressUserInfo['buyerAddress'] +=('_'+this.user_group)
+        }
       }
       // 6:拍单时买家地址自动增加订单后6位
       if (configInfo.shot_order_address_label.includes('6')) {
@@ -536,9 +539,6 @@ export default class {
     addressUserInfo['buyerName'] = namePhoneAddress['buyerName']
     addressUserInfo['buyerPhone'] = namePhoneAddress['buyerPhone']
     addressUserInfo['buyerAddress'] = namePhoneAddress['buyerAddress']
-    if(this.user_group){
-      addressUserInfo['buyerAddress'] +=('_'+this.user_group)
-    }
     // 处理 provId/cityId/distId
     if (itemOrder.goods_info.ori_platform_id == 2 || itemOrder.goods_info.ori_platform_id == 3 || itemOrder.goods_info.ori_platform_id == 8) {
       const res = await window['BaseUtilBridgeService'].getTbAddress(warehouseInfo.province_text, warehouseInfo.distinct_text)

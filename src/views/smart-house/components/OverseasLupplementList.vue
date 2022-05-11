@@ -24,11 +24,11 @@
       <ul>
         <li>
           <span>订单编号：</span>
-          <el-input v-model="form.returnOrderNumber" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnOrderNumber" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </li>
         <li>
           <span>平台物流单号：</span>
-          <el-input v-model="form.returnLogisticsDocNum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnLogisticsDocNum" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </li>
         <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getoverseaslupplementlist">搜索</el-button>

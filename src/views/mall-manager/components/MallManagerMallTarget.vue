@@ -16,7 +16,7 @@
             </li>
             <li>
               <span>店铺ID：</span>
-              <el-input v-model="form.mallId" class="shopId" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="form.mallId" class="shopId" size="mini" clearable oninput="value=value.replace(/\s/g,'')" />
             </li>
             <li>
               <el-button

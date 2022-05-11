@@ -20,7 +20,7 @@
             v-model="form.orderNum"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>
@@ -29,7 +29,7 @@
             v-model="form.logisticsNum"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
       </ul>
@@ -303,7 +303,7 @@
             clearable
             placeholder="请填写收件人"
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </el-form-item>
         <el-form-item label="联系电话：">
@@ -312,7 +312,7 @@
             clearable
             placeholder="请填写联系电话"
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </el-form-item>
         <div v-if="!isOverseas">
@@ -325,7 +325,7 @@
             resize="none"
             placeholder="请填写详细地址"
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </el-form-item>
         <div v-if="isOverseas">
@@ -363,7 +363,7 @@
             resize="none"
             size="mini"
             placeholder="请填写退件备注"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </el-form-item>
       </el-form>

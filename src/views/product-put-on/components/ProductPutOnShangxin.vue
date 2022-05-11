@@ -4,7 +4,7 @@
       <div class="nowrapBox" v-show="isNoFoldShow">
         <div class="basisInstall">
           <div class="basisInstall-title">店铺设置</div>
-          <storeChoose @changeMallList="changeMallList" :input-width="'80px'" :source="'true'" :is-reset="true"
+          <storeChoose @changeMallList="changeMallList" :input-width="'150px'" :source="'true'" :is-reset="true"
                        style="margin-bottom: 5px;" :is-ban-perform="isBanPerform"></storeChoose>
           <div class="basisInstall-box" style="flex-wrap: nowrap">
             <div>物流设置：</div>

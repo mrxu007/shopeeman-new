@@ -56,7 +56,7 @@
             v-model="form.homeOrderSn"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>
@@ -65,7 +65,7 @@
             v-model="form.platformTrackingNumber"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>

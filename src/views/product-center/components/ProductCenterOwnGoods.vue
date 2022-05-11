@@ -45,15 +45,15 @@
         </div>
         <!-- <div class="item-box">
           <span class="mar-left">Sku编码：</span>
-          <el-input v-model="form.returnSkuId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 178px" />
+          <el-input v-model="form.returnSkuId" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 178px" />
         </div> -->
         <div class="item-box">
           <span class="mar-left">商品名称：</span>
-          <el-input v-model="form.returnGoodsName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 178px" />
+          <el-input v-model="form.returnGoodsName" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 178px" />
         </div>
         <div class="item-box">
           <span>商品ID：</span>
-          <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 178px" />
+          <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 178px" />
         </div>
         <el-button type="primary" size="mini" @click="getProductList" class="mar-left">查询</el-button>
         <el-button type="primary" size="mini" @click="exportData">导出数据</el-button>

@@ -15,7 +15,7 @@
               </el-select>
             </li>
             <li>
-              <el-input v-model="keyword" :disabled="isDisabled" size="mini" style="width: 242px" oninput="value=value.replace(/\s+/g,'')" clearable>
+              <el-input v-model="keyword" :disabled="isDisabled" size="mini" style="width: 242px" oninput="value=value.replace(/\s/g,'')" clearable>
                 <el-select slot="prepend" v-model="searchType" style="width: 100px">
                   <el-option v-for="(item, index) in searchTypeList" :key="index" :label="item.label" :value="item.value" />
                 </el-select>

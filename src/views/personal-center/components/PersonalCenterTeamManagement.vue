@@ -5,7 +5,7 @@
         <span>账号名称：</span>
         <el-input
           v-model="accountNameVal"
-          oninput="value=value.replace(/\s+/g,'')"
+          oninput="value=value.replace(/\s/g,'')"
           placeholder="请输入内容"
           clearable
           size="mini"
@@ -107,17 +107,17 @@
                 </el-checkbox-group>
               </el-form-item>
               <el-form-item label="子账号:">
-                <el-input v-model="name" size="mini" placeholder="请输入子账号名" clearable oninput="value=value.replace(/\s+/g,'')" />
+                <el-input v-model="name" size="mini" placeholder="请输入子账号名" clearable oninput="value=value.replace(/\s/g,'')" />
               </el-form-item>
               <el-form-item label="密码:">
-                <el-input v-model="password" placeholder="请输入密码(不得小于9位)" oninput="value=value.replace(/\s+/g,'')" show-password size="mini" />
+                <el-input v-model="password" placeholder="请输入密码(不得小于9位)" oninput="value=value.replace(/\s/g,'')" show-password size="mini" />
               </el-form-item>
               <el-form-item label="状态:">
                 <el-radio v-model="diaIsEnable" label="1">启用</el-radio>
                 <el-radio v-model="diaIsEnable" label="2">停用</el-radio>
               </el-form-item>
               <el-form-item label="备注:">
-                <el-input v-model="note" size="mini" placeholder="请输入备注" clearable oninput="value=value.replace(/\s+/g,'')" />
+                <el-input v-model="note" size="mini" placeholder="请输入备注" clearable oninput="value=value.replace(/\s/g,'')" />
               </el-form-item>
             </el-form>
           </div>
@@ -129,7 +129,7 @@
         <div class="dialog-right">
           <div class="operation-content">
             <span style="width: 60px">店铺分组:</span>
-            <el-input v-model="shopGroupVal" placeholder="请输入店铺分组名称" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+            <el-input v-model="shopGroupVal" placeholder="请输入店铺分组名称" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
             <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMallCount">查找</el-button>
           </div>
           <div class="dialog-table">

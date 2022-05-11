@@ -31,7 +31,7 @@
             <el-select v-if="type==='shop'" v-model="b" placeholder="" size="mini" filterable class="selType2">
               <el-option v-for="(item, index) in B" :key="index" :label="item.label" :value="item.value" />
             </el-select>
-            <el-input v-model="keyword" style="margin-left:10px;" class="keywordInput" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" placeholder="搜索商品" />
+            <el-input v-model="keyword" style="margin-left:10px;" class="keywordInput" clearable size="mini" oninput="value=value.replace(/\s/g,'')" placeholder="搜索商品" />
           </li>
           <li>
             <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>

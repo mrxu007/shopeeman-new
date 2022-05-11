@@ -106,7 +106,7 @@ export default {
     }
   },
   mounted() {
-    this.searchTime = creatDate(30)
+    // this.searchTime = creatDate(30)
     this.searchTableList()
   },
   methods: {
@@ -121,7 +121,11 @@ export default {
         country: this.countryVal,
         createTime: '',
       }
-      params.createTime = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
+      if (this.searchTime.length){
+        params['createTime'] = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
+      }else {
+        params['createTime'] = ''
+      }
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
       this.tableLoading = true

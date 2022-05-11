@@ -11,7 +11,7 @@
         </li>
         <li>
           <span>商品ID：</span>
-          <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </li>
         <li>
           <span>包裹创建时间：</span>
@@ -37,15 +37,15 @@
 
         <li style="margin-left:3px">
           <span>SkuID：</span>
-          <el-input v-model="form.returnSkuId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnSkuId" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </li>
         <li>
           <span>平台物流单号：</span>
-          <el-input v-model="form.returnLogisticsDocNum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnLogisticsDocNum" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </li>
         <li>
           <span>主订单号：</span>
-          <el-input v-model="form.returnMainOrderNum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnMainOrderNum" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
         </li>
         <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getSencondSales">搜索</el-button>

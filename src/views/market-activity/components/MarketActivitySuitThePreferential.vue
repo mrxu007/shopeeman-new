@@ -69,7 +69,7 @@
       <div class="create-style">
         <div class="item-box">
           <span>套装名称：</span>
-          <el-input v-model="creatname" clearable size="mini" placeholder="24个字符以内" oninput="value=value.replace(/\s+/g,'')" style="width: 260px" />
+          <el-input v-model="creatname" clearable size="mini" placeholder="24个字符以内" oninput="value=value.replace(/\s/g,'')" style="width: 260px" />
         </div>
         <div class="item-box mar-top">
           <span>套装期间：</span>
@@ -96,7 +96,7 @@
         <div class="diff-type mar-top" v-if="radio == 2">
           <div class="diff-item">
             <p>购买</p>
-            <el-input v-model="creatnum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 100px" />
+            <el-input v-model="creatnum" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 100px" />
             <p>个商品</p>
             <el-input v-model="creatdiscount" clearable size="mini" oninput="value=value.replace(/[^\d]/g,'')" style="width: 120px" @input="changeCreateDiscount">
               <template slot="append" style="width: 30px">%</template>
@@ -110,9 +110,9 @@
         <div class="diff-type mar-top" v-if="radio == 3">
           <div class="diff-item">
             <p>购买</p>
-            <el-input v-model="creatnum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 100px" />
+            <el-input v-model="creatnum" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 100px" />
             <p>个商品</p>
-            <el-input v-model="creatdiscount" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 120px" @change="changeCreateDiscount">
+            <el-input v-model="creatdiscount" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 120px" @change="changeCreateDiscount">
               <template slot="append" style="width: 30px">{{ country | siteCoin }}</template>
             </el-input>
           </div>
@@ -124,9 +124,9 @@
         <div class="diff-type mar-top" v-if="radio == 1">
           <div class="diff-item">
             <p>购买</p>
-            <el-input v-model="creatnum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 100px" />
+            <el-input v-model="creatnum" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 100px" />
             <p>个商品</p>
-            <el-input v-model="creatdiscount" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 120px" @change="changeCreateDiscount">
+            <el-input v-model="creatdiscount" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 120px" @change="changeCreateDiscount">
               <template slot="append" style="width: 30px">{{ country | siteCoin }}</template>
             </el-input>
           </div>
@@ -138,7 +138,7 @@
         <div class="item-box mar-top">
           <span>购买限制：</span>
           买家最多可以购买此套装优惠
-          <el-input v-model="creatcount" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" style="width: 100px" />
+          <el-input v-model="creatcount" clearable size="mini" oninput="value=value.replace(/\s/g,'')" style="width: 100px" />
           次
         </div>
         <div class="item-box mar-top">

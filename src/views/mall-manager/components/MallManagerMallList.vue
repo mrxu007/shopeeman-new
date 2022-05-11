@@ -370,7 +370,7 @@
         </li>
         <li>
           <span style="width: 50px">店铺ID：</span>
-          <el-input v-model="mallCodeIdVal" style="width: 118px" oninput="value=value.replace(/\s+/g,'')" size="mini"
+          <el-input v-model="mallCodeIdVal" style="width: 118px" oninput="value=value.replace(/\s/g,'')" size="mini"
                     clearable :disabled="isUpdateCode"/>
         </li>
         <li>
@@ -378,7 +378,7 @@
         </li>
         <li>
           <span style="width: 120px">游览器识别码：</span>
-          <el-input v-model="browserCodeVal" :disabled="isUpdateCode" oninput="value=value.replace(/\s+/g,'')"
+          <el-input v-model="browserCodeVal" :disabled="isUpdateCode" oninput="value=value.replace(/\s/g,'')"
                     size="mini" clearable/>
         </li>
         <li>

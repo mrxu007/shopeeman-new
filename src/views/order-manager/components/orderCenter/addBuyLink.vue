@@ -255,6 +255,12 @@ export default {
           case 'taobao.global':
             item.purchase_platform_id = '13'
             break
+          case 'tokopedia.com':
+            item.purchase_platform_id = '16'
+            break
+          case 'bukalapak.com':
+            item.purchase_platform_id = '17'
+            break
           default:
             item.purchase_platform_id = '0'
             break

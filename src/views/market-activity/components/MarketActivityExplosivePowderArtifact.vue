@@ -835,7 +835,7 @@ export default {
               //   }
               // }
               const isFollow = await this.runAttention(shop, mall, followermallID) // 开始关注
-
+              console.log('runAttention - isFollow', isFollow)
               if (isFollow) {
                 totalMallFollow++
                 this.$set(mall, 'newFollow', totalMallFollow)

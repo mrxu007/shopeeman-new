@@ -755,6 +755,14 @@ const site_mall = [
     'ShipName': 'Hoả Tốc'
   },
   {
+    'Country': '越南站',
+    'CountryCode': 'VN',
+    'IsDeafult': true,
+    'IsSelected': true,
+    'ShipId': '50021',
+    'ShipName': 'Shopee Xpress'
+  },
+  {
     'Country': '新加坡站',
     'CountryCode': 'SG',
     'IsDeafult': true,

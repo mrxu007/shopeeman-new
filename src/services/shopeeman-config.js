@@ -530,6 +530,14 @@ export default class ShopeemanConfig {
           'CountryCode': 'VN',
           'IsDeafult': true,
           'IsSelected': true,
+          'ShipId': '50021',
+          'ShipName': 'Shopee Xpress'
+        },
+        {
+          'Country': '越南站',
+          'CountryCode': 'VN',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50018',
           'ShipName': 'J&T Express'
         },

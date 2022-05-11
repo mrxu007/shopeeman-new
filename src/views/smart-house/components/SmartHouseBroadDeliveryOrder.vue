@@ -64,7 +64,7 @@
             v-model="form.oversea_order_sn"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>
@@ -73,7 +73,7 @@
             v-model="form.logistic_no"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>
@@ -411,7 +411,7 @@
                 v-model="stockForm.sys_sku_id"
                 clearable
                 size="mini"
-                oninput="value=value.replace(/\s+/g,'')"
+                oninput="value=value.replace(/\s/g,'')"
             />
           </li>
           <li>
@@ -420,7 +420,7 @@
                 v-model="stockForm.sku_id"
                 clearable
                 size="mini"
-                oninput="value=value.replace(/\s+/g,'')"
+                oninput="value=value.replace(/\s/g,'')"
             />
           </li>
           <li>
@@ -593,7 +593,7 @@
               v-model="reissueNum"
               clearable
               size="mini"
-              oninput="value=value.replace(/\s+/g,'')"
+              oninput="value=value.replace(/\s/g,'')"
           />
         </div>
         <div class="footer">

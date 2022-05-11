@@ -41,7 +41,7 @@
             v-model="form.logisticsNum"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
       </ul>
@@ -52,7 +52,7 @@
             v-model="form.orderNum"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>
@@ -74,7 +74,7 @@
             v-model="form.returnLogisticsNum"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
       </ul>
@@ -85,7 +85,7 @@
             v-model="form.returnPhone"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            oninput="value=value.replace(/\s/g,'')"
           />
         </li>
         <li>

@@ -17,7 +17,7 @@
       </div>
       <div class="item-box">
         <span style="width: 80px">商品编号:</span>
-        <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+        <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s/g,'')" />
       </div>
       <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>

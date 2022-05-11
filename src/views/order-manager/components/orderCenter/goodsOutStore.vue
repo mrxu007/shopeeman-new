@@ -48,8 +48,7 @@
                       placement="right-end"
                       :visible-arrow="false"
                       :enterable="false"
-                      style="width: 56px; height: 56px; display: inline-block"
-                  >
+                      style="width: 56px; height: 56px; display: inline-block">
                     <div slot="content">
                       <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px"/>
                     </div>

@@ -24,7 +24,7 @@
               <el-select v-model="form.shopSelect" class="unnormal" placeholder="" size="mini" filterable>
                 <el-option v-for="(item, index) in shopSelectList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
-              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" clearable oninput="value=value.replace(/\s/g,'')" />
             </li>
             <li>
               <span>客服数据统计时间(仅用于同步数据)：</span>
