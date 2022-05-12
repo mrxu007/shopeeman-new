@@ -39,7 +39,9 @@ export default class NetMessageBridgeService {
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
-      IPType
+      IPType = '',
+      IpExpirationTime,
+      IPIsExpired
     } = JSON.parse(mallInfo)
     // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
     // local 国内
@@ -48,18 +50,21 @@ export default class NetMessageBridgeService {
     let url = this.site_domain_chinese_pre[country]
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     // console.log(userSettings, domain_switch, IPType, mall_main_id)
-    if (domain_switch === '3' || domain_switch === `Abroad`) {
-      url = this.site_domain_local_pre[country]
-    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
-      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
-      url = this.site_domain_local_pre[country]
+    if (!IPType.includes('大陆')) {
+      if (domain_switch === '3' || domain_switch === `Abroad`) {
+        url = this.site_domain_local_pre[country]
+      } else if ((domain_switch === '1' || domain_switch === 'Auto') && mall_main_id > 0) {
+        const isNoExpiration = IpExpirationTime && new Date(IpExpirationTime).getTime() > new Date().getTime()
+        if (isNoExpiration || IPIsExpired) {
+          url = this.site_domain_local_pre[country]
+        }
+      }
     }
     return url
   }
 
   getWebUrl(country, data) {
-    const url = this.site_domain_chinese_pre[country]
-    return url
+    return  this.site_domain_chinese_pre[country]
   }
 
   async getUrlPrefix(country, data) {

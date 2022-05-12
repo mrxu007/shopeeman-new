@@ -1262,7 +1262,8 @@ export default {
     }
   },
   async mounted() {
-    this.createTime = [new Date(new Date().toLocaleDateString()).getTime() - 3600 * 1000 * 24 * 150, new Date(new Date().toLocaleDateString()).getTime() + (3600 * 1000 * 24) - 1000]
+    this.createTime = [new Date(new Date().toLocaleDateString()).getTime() - 3600 * 1000 * 24 * 150,
+      new Date(new Date().toLocaleDateString()).getTime() + (3600 * 1000 * 24) - 1000]
     console.log('--', this.createTime)
     await this.selectAll('goodsStatus', this.goodsStatusList)
     await this.selectAll('source', this.sourceList)
@@ -3489,17 +3490,13 @@ export default {
     // 时间格式转换
     add0(m) { return m < 10 ? '0' + m : m },
     formatTime(val, index) {
-      var time = new Date(val)
-      var y = time.getFullYear()
-      var m = time.getMonth() + 1
-      var d = time.getDate()
+      let time = new Date(val).toLocaleDateString()
       if (index === 0) {
-        var str0 = y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + '00:00:00'
-        return new Date(str0).getTime()
+        time += ' 00:00:00'
       } else {
-        var str1 = y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + '23:59:59'
-        return new Date(str1).getTime()
+        time += ' 23:59:59'
       }
+      return new Date(time).getTime()
     },
     // 本地过滤
     filterData(data) {
@@ -3532,17 +3529,20 @@ export default {
             continue
           }
           // 过滤更新时间
-          if (this.modifyTime?.length && item.modify_time < this.modifyTime[0]) {
+          if (this.modifyTime?.length && item.modify_time < this.formatTime(this.modifyTime[0],0)) {
             continue
           }
-          if (this.modifyTime?.length && item.modify_time > new Date(this.modifyTime[1]).getTime()) {
+          if (this.modifyTime?.length && item.modify_time > this.formatTime(this.modifyTime[1],1)) {
             continue
+          }
+          if(item.create_time > 1652284800000 || item.modify_time > 1652284800000){
+            console.log('create_time modify_time ',item)
           }
           // 过滤创建时间
           if (this.createTime?.length && item.create_time < this.formatTime(this.createTime[0], 0)) {
             continue
           }
-          if (this.createTime?.length && item.create_time > this.formatTime(new Date(this.createTime[1]).getTime(), 1)) {
+          if (this.createTime?.length && item.create_time > this.formatTime(this.createTime[1], 1)) {
             continue
           }
           // 过滤价格

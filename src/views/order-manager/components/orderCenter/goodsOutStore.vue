@@ -267,8 +267,8 @@ export default {
       deep: true
     }
   },
-  mounted() {
-    this.exchangeRateList()
+  async mounted() {
+    await this.exchangeRateList()
     // this.chooseData = this.uniqueArr(this.chooseData)
     this.orderInfo = this.chooseData[0]
     this.income = 0
@@ -290,6 +290,7 @@ export default {
       this.outTotalStock = numberS
       this.outTotalPriceRmb = price.toFixed(2)
       this.outTotalPrice = (price / Number(this.rateList[this.orderInfo.country])).toFixed(2)
+      console.log(this.incomeRmb,this.outTotalPriceRmb)
       this.grossProfit = (this.incomeRmb - this.outTotalPriceRmb).toFixed(2)
       this.interestRate = this.outTotalPriceRmb ? (Math.round((this.grossProfit / this.outTotalPriceRmb) * 100).toFixed(2)) : 100
 
@@ -642,8 +643,10 @@ export default {
       for (let i = 0; i < this.orderList.length; i++) {
         const item = this.orderList[i]
         const params = {
-          platformSkuId: item.variation_id
+          platformSkuId: item.variation_id,
+          country: item.country
         }
+        console.log('getStockSkuId - params', params)
         const stockSkuIdRes = await this.$api.getStockSkuId(params)
         console.log('getStockSkuId', stockSkuIdRes)
         if (stockSkuIdRes.data && stockSkuIdRes.data.code === 200) {
@@ -666,7 +669,8 @@ export default {
           const order = this.orderList[index]
           const params = {
             platformSkuId: order.variation_id,
-            stockSkuId: item.sys_sku_id
+            stockSkuId: item.sys_sku_id,
+            country: item.country
           }
           console.log('uploadStockSkuId - params', params)
           const res = await this.$api.uploadStockSkuId(params)
