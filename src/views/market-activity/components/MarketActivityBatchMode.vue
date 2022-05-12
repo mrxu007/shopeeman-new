@@ -651,7 +651,7 @@ export default {
       let contentInfo = {}
       if (type == 'text') {
         contentInfo = {
-          text: msg
+          text: ' '+msg+' '
         }
       }
       if (type == 'product') {
@@ -699,7 +699,7 @@ export default {
         },
         params: {
           _uid: `0-${uid}`,
-          _v: '6.3.8'
+          _v: '6.1.1'
         }
       }
       const res = await this.$shopeemanService.sendMessage(country, message, query)

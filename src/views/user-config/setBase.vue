@@ -223,7 +223,7 @@ export default {
       this.interTime = this.userInfo.ori_logistics_interval_time // 获取物流单号间隔时间：
       this.isAutoToken = this.userInfo.is_auto_ori_logistics.toString() // 是否自定获取：
       this.accountZFB = this.userInfo.pay_account// 支付宝账号：
-      this.psdZFB = await window.ConfigBridgeService.getAesDecrypt(this.userInfo.pay_password) || ''// 支付密码：
+      this.psdZFB = this.userInfo.pay_password || ''// 支付密码：
       this.setLanguage = this.userInfo.translate_language// 翻译语言
       this.changeIp = this.userInfo.domain_switch.toString() // 域名切换
     },

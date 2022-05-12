@@ -1161,7 +1161,7 @@ export default {
         loginInfo: login.login_info,
         ua: login.ua,
         cachePath: login.cache_path,
-        proxyId: ''
+        proxyId: 0
       }
       const { data } = await this.$api.upLoadBuyAccount(params)
       if (data.code === 200) {

@@ -824,7 +824,7 @@ export default {
           loginInfo: account.login_info,
           ua: account.ua,
           cachePath: account.cache_path,
-          proxyId: this.proxyType,
+          proxyId: Number(this.proxyType) || 0,
         }
         const { data } = await this.$api.upLoadBuyAccount(params)
         console.log(account, data, '5656896898============')

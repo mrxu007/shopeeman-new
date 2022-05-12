@@ -1062,7 +1062,7 @@ export default {
     async openSoft(poxyIP, ID) {
       const proxy = {
         proxy_ip: poxyIP,
-        proxy_id: ID
+        proxy_id: ID || 0
       }
       const data = await this.$BaseUtilService.OpenProxyWeb(JSON.stringify(proxy))
       if (data === null) {
