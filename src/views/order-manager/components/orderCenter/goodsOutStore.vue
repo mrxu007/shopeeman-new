@@ -662,7 +662,7 @@ export default {
       }
     },
     async saveStockSkuId() {
-      console.log('matchOrderList', this.matchOrderList)
+      console.log('matchOrderList', this.matchOrderList,this.orderList)
       for (const item of this.matchOrderList) {
         if (!item.shared_id && !item.isGift) {
           const index = this.orderList.findIndex(son => son.order_sn === item.orderSn)
@@ -670,7 +670,7 @@ export default {
           const params = {
             platformSkuId: order.variation_id,
             stockSkuId: item.sys_sku_id,
-            country: item.country
+            country: order.country
           }
           console.log('uploadStockSkuId - params', params)
           const res = await this.$api.uploadStockSkuId(params)
