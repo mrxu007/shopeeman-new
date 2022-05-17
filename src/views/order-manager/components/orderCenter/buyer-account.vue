@@ -1,4 +1,3 @@
-
 <template>
   <div class="account-plugin">
     <div class="box">

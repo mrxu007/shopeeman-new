@@ -43,21 +43,21 @@ export default {
         setInterval(() => {
           this.syncOrders(this.statusListFirst, 'auto-first', 60)
         }, 4 * 60 * 60 * 1000)
-      }, 0 * 60 * 1000)
+      }, 5 * 60 * 1000)
       // second task 每隔30分钟同步一次
       setTimeout(() => {
         this.syncOrders(this.statusListSecond, 'auto-second', 60)
         setInterval(() => {
           this.syncOrders(this.statusListSecond, 'auto-second', 60)
         }, 30 * 60 * 1000)
-      }, 0 * 60 * 1000)
+      }, 8 * 60 * 1000)
       // third task 每隔60分钟同步一次
       setTimeout(() => {
         this.syncOrders(this.statusListThird, 'auto-third', 60)
         setInterval(() => {
           this.syncOrders(this.statusListThird, 'auto-third', 60)
         }, 60 * 60 * 1000)
-      }, 0 * 60 * 1000)
+      }, 8 * 60 * 1000)
       // 爆粉神器
       this.checkTimeAutoFollow()
       // 商品置顶

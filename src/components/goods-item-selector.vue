@@ -73,8 +73,7 @@
         :big-data-checkbox="true"
         :border="false"
         use-virtual
-        @selection-change="handleSelectionChange"
-      >
+        @selection-change="handleSelectionChange">
         <u-table-column align="center" type="selection" />
         <u-table-column align="center" type="index" width="80" label="序号" />
         <u-table-column align="center" label="店铺名称" width="150" show-overflow-tooltip>
@@ -88,13 +87,11 @@
         <u-table-column align="center" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <el-tooltip
-                effect="light"
+              <el-tooltip effect="light"
                 placement="right-end"
                 :visible-arrow="false"
                 :enterable="false"
-                style="width: 56px; height: 56px; display: inline-block"
-              >
+                style="width: 56px; height: 56px; display: inline-block">
                 <div slot="content">
                   <el-image
                     v-if="row['isImgShow']"
@@ -387,7 +384,7 @@ export default {
       }
     }
   }
-
+s
   .heng {
     width: 10px;
     height: 0;

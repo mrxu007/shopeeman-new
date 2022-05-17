@@ -362,7 +362,7 @@ export default {
         return this.$message.warning('请先选择商品！')
       }
       const arr = this.matchOrderList.filter(item => Number(item.outStock) > 0) || []
-      if (!arr.length) {
+      if (!arr.length || this.matchOrderList.length>arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
       const list = []
@@ -399,9 +399,10 @@ export default {
         country: orderInfo.country,
         sku_list: list
       }
+      console.log('outOfStockAbroad',JSON.stringify(params))
       const res = await this.$api.outOfStockAbroad(params)
       await this.saveStockSkuId()
-      if (true || res.data.code === 200) {
+      if (res.data.code === 200) {
         const main_order_sn = this.orderInfo.main_order_sn
         this.$message.success('下单成功')
         for (let i = 0; i < this.orderList.length; i++) {

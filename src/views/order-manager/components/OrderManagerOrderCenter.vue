@@ -236,8 +236,7 @@
                       placeholder=""
                       size="mini"
                       filterable　class="inputBox"
-                      style="width: 100px"
-                    >
+                      style="width: 100px">
                       <el-option label="全部" :value="''" />
                       <el-option label="是" :value="'1'" />
                       <el-option label="否" :value="'-1'" />
