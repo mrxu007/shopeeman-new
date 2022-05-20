@@ -1409,11 +1409,11 @@ export default {
                 spec1ListDstStr = spec1ListDstStr.replaceAll('><>', '<><')
                 spec1ListDstStr = spec1ListDstStr.replaceAll('<><', '<><>')
                 spec1ListDst = spec1ListDstStr.split('<><>')
-                const spec1ListStr = spec1List && spec1List.split('<><>')
+                const spec1ListStr = spec1List && spec1List.split(' <><> ')
                 const spec1ListSort = this.getArraySrcLengthSort(spec1ListStr)
                 spec1ListSort.forEach(item => {
                   let specStr = spec1ListStr[item]
-                  let specDst = spec1ListDst[item] || ''
+                  let specDst = spec1ListDst[item]?.replaceAll('"',"'") || ''
                   itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":"' + specStr, '"sku_spec1":"' + specDst)
                   itemmodelsJson = itemmodelsJson.replaceAll('"sku":"' + specStr, '"sku":"' + specDst)
                 })
@@ -1424,7 +1424,7 @@ export default {
               let groupSize2 =  Math.ceil(tier_variation[tier_variation.spec2].length / groupCount2)
               let spec2ListDstStr = ''
               for(let i =0 ;i<groupCount2;i++) {
-                let tempList = tier_variation[tier_variation.spec1].slice(i * groupSize2, (i + 1) * groupSize2) || []
+                let tempList = tier_variation[tier_variation.spec2].slice(i * groupSize2, (i + 1) * groupSize2) || []
                 let tempStr = tempList.join(' <><> ') || ''
                 let tempDstStr = ''
                 const getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, tempStr))
@@ -1453,11 +1453,15 @@ export default {
                 spec2ListDstStr = spec2ListDstStr.replaceAll('><>', '<><')
                 spec2ListDstStr = spec2ListDstStr.replaceAll('<><', '<><>')
                 spec2ListDst = spec2ListDstStr.split('<><>')
-                const spec2ListSrc = spec2List && spec2List.split('<><>')
-                const spec2ListSort = this.getArraySrcLengthSort(spec2ListSrc)
+                const spec2ListStr = spec2List && spec2List.split(' <><> ')
+                const spec2ListSort = this.getArraySrcLengthSort(spec2ListStr)
+                console.log('itemmodelsJson', itemmodelsJson)
                 spec2ListSort.forEach(item => {
-                  itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":"' + spec2ListSrc[item], '"sku_spec2":"' + spec2ListDst[item])
-                  itemmodelsJson = itemmodelsJson.replaceAll('=|=' + spec2ListSrc[item] + '"', '=|=' + spec2ListDst[item] + '"')
+                  let specStr = spec2ListStr[item]
+                  let specDst = spec2ListDst[item]?.replaceAll('"',"'") || ''
+                  console.log(item,"|",specStr,"|",specDst,"|")
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":"' + specStr, '"sku_spec2":"' + specDst)
+                  itemmodelsJson = itemmodelsJson.replaceAll('=|=' + specStr + '"', '=|=' + specDst + '"')
                 })
               } else {
                 // 谷歌翻译失败

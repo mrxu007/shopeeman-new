@@ -52,7 +52,7 @@
       <el-table-column width="130px" label="SKUID" prop="sku_id" align="center" />
       <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
       <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
-      <el-table-column width="80px" label="库存数量" prop="stock_num" align="center" />
+      <el-table-column width="80px" label="库存数量" prop="shared_num" align="center" />
       <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center" />
       <el-table-column min-width="80" label="商品链接" prop="goods_url" align="center" show-overflow-tooltip>
         <template slot-scope="scope">

@@ -1609,6 +1609,7 @@ export default {
     } catch (error) {
     } finally {
       this.rateList = this.$userInfo.ExchangeRates || {}
+      console.log('rateList', this.rateList)
       let valuationConfigRes = await this.$api.valuationConfigGetAll()
       this.valuationLabelList = valuationConfigRes && valuationConfigRes.data.data || []
       await this.publishGoodsConfigGet()
@@ -1617,6 +1618,7 @@ export default {
   methods: {
     async getUploadGoodsId() {
       let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
+      console.log(goodsListJSON)
       let goodsList = goodsListJSON && JSON.parse(goodsListJSON) || []
       if (goodsList.length) {
         console.log('goodsListJSON', goodsList)
@@ -2064,18 +2066,18 @@ export default {
                   this.updateAttributeName(item, '发布失败：商品规格与商品SKU数量不符', '', mall)
                   continue
                 }
-              }else{
+              } else {
                 goodsParam['model_list'].push({
-                  "stock": neededTranslateInfoData.stock,
-                  "sku": "",
-                  "input_normal_price": null,
-                  "input_promotion_price": null,
-                  "price": goodsParam['price'],
-                  "id": 0,
-                  "name": "",
-                  "tier_index": [0],
-                  "is_default": true,
-                  "item_price": ""
+                  'stock': neededTranslateInfoData.stock,
+                  'sku': '',
+                  'input_normal_price': null,
+                  'input_promotion_price': null,
+                  'price': goodsParam['price'],
+                  'id': 0,
+                  'name': '',
+                  'tier_index': [0],
+                  'is_default': true,
+                  'item_price': ''
                 })
               }
               if (this.storeConfig.priceRadio > 0) {
