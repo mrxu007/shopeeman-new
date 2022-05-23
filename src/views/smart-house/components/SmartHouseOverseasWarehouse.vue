@@ -63,6 +63,7 @@
         <el-table-column prop="sku_name" label="商品规格" min-width="150px" align="center" show-overflow-tooltip />
         <el-table-column prop="stock_num" label="可用库存" min-width="100px" align="center" />
         <el-table-column prop="shared_num" label="共享库存" min-width="110px" align="center" />
+        <el-table-column prop="frozen_num" label="占用库存" min-width="110px" align="center" />
         <el-table-column prop="sku_price" label="商品单价（RMB）" min-width="140px" align="center" />
         <el-table-column prop="sku_url" label="商品链接" min-width="150px" align="center">
           <template slot-scope="{row}"><el-button type="primary" size="mini" @click="open(row.sku_url)">查看商品链接</el-button> </template>

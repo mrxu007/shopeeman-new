@@ -179,11 +179,13 @@ export default {
         this.total = data.data.total
         const arr = data.data.data
         arr.forEach(item => {
+          console.log(item)
           const id = item.id
           const obj = item.stock
-          item = obj
-          item.shared_id = id
-          item.sku_price = item.sku_price / 100
+          item = { ...obj,
+            shared_id: id,
+            sku_price: ( item?.stock?.sku_price) / 100,
+          }
           this.tableData.push(item)
         })
       }

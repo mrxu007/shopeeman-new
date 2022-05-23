@@ -89,8 +89,7 @@
             :show-file-list="false"
             :limit="1"
             :auto-upload="false"
-            :on-change="imageUpload"
-        >
+            :on-change="imageUpload">
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
       </div>

@@ -350,10 +350,7 @@
           <div class="pictures_choose_dialog">
             <div style="margin: 5px 0;display: flex;align-items: center">
               <el-radio size="mini" v-model="picturesChooseTypeRadio" :label="0">使用本地图片</el-radio>
-              <el-upload style="margin-right: 10px" action="#" :drag="true" :show-file-list="false"
-                         :limit="1" :auto-upload="false" :on-change="imageUpload">
-                <el-button size="mini" type="primary">选择图片</el-button>
-              </el-upload>
+              <el-button size="mini" type="primary" @click="selectImageBut">选择图片</el-button>
               <el-radio size="mini" v-model="picturesChooseTypeRadio" :label="1">使用商品图片</el-radio>
               <el-radio size="mini" v-model="picturesChooseTypeRadio" :label="2">无商品图片</el-radio>
             </div>
@@ -375,6 +372,19 @@
               <el-button size="mini" @click="picturesChooseSuccess = true" style="margin-left: 25px">取消</el-button>
             </div>
           </div>
+
+          <el-upload
+              v-if="uploadImgAdd"
+              v-show="false"
+              style="margin-right: 10px"
+              action="#"
+              :drag="true"
+              :show-file-list="false"
+              :limit="1"
+              :auto-upload="false"
+              :on-change="imageUpload">
+            <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
+          </el-upload>
         </div>
       </el-dialog>
       <el-dialog class="goods-edit-details" title="批量修改SKU" width="450px" :close-on-click-modal="false"
@@ -429,6 +439,7 @@ export default {
   },
   data() {
     return {
+      uploadImgAdd:false,
       goodsDetails: null,
       activeName: 'information',
       imageList: [],
@@ -692,6 +703,12 @@ export default {
     },
     onEnd() {
       this.drag = false
+    },
+    selectImageBut(){
+      this.uploadImgAdd = true
+      this.$nextTick(()=>{
+        this.$refs['uploadImg'].$el.click()
+      })
     },
     async replaceImage(type, index) {
       let image = await this.selectImage()
@@ -997,6 +1014,7 @@ export default {
     imageUpload(file) {
       this.picturesChooseFile = file
       this.picturesChooseFileUrl = ''
+      this.uploadImgAdd = false
     },
     selectImage() {
       return new Promise(resolve => {
