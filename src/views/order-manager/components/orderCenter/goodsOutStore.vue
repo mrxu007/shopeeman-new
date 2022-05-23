@@ -370,13 +370,14 @@ export default {
       let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
       let express_pdf = this.sheetInfo.url
       arr.forEach((item) => {
+        console.log('item', item)
         widInfo[item.wid] = item.wid
         const obj = {
           order_sn: item.orderSn,
           sys_sku_id: item.sys_sku_id,
           sku_id: item.sku_id,
           sku_name: item.sku_name,
-          stock_num: item.stock_num,
+          stock_num: item.stock_num - item.frozen_num,
           sku_num: item.outStock,
           goods_name: item.goods_name,
           sku_price: item.sku_price,
@@ -401,6 +402,7 @@ export default {
       }
       console.log('outOfStockAbroad',JSON.stringify(params))
       const res = await this.$api.outOfStockAbroad(params)
+      console.log('res',res)
       await this.saveStockSkuId()
       if (res.data.code === 200) {
         const main_order_sn = this.orderInfo.main_order_sn
@@ -656,7 +658,7 @@ export default {
             const matchOrder = stockSkuIdData.data && stockSkuIdData.data[0]
             const order = this.orderList.find(son => son.variation_id === item.variation_id)
             if (matchOrder && order) {
-              this.matchOrderList.push(Object.assign(matchOrder, { orderSn: order.order_sn }))
+              this.matchOrderList.push(Object.assign(matchOrder, { orderSn: order.order_sn,stock_num:matchOrder.stock_num - matchOrder.frozen_num }))
             }
           }
         }

@@ -213,7 +213,7 @@ export default {
         this.total = data.data.total
         const arr = data.data.data
         arr.forEach(item => {
-          item.stock_num = item.stock_num
+          item.shared_num = item.stock_num
           item.sku_price = item.sku_price / 100
         })
         this.tableData = arr
@@ -221,6 +221,7 @@ export default {
           this.tableData = arr.filter(n => n.stock_num > 0)
         }
       }
+      console.log('xzy.stock.index',this.tableData)
       this.tableLoading = false
     },
     // 列表
