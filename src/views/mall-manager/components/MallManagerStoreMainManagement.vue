@@ -124,7 +124,7 @@
           <el-table-column prop="" label="操作" align="center" min-width="450px" fixed="right">
             <template v-slot="{ row }">
               <div style="display: flex;">
-                <el-button size="mini" type="primary" @click="openSoft(row.poxyIP, row.id)">打开代理浏览器</el-button>
+                <el-button size="mini" type="primary" @click="openSoft(row.poxyIP, row.id,row.expiration_time)">打开代理浏览器</el-button>
                 <el-button size="mini" type="primary" @click="showupdateVisible(row)">修改绑定店铺</el-button>
                 <el-button size="mini" type="primary" @click="delInforFun(row.id)">删除</el-button>
                 <el-button v-if="row.isMiddleIP" size="mini" type="primary" @click="MiddleIP(row.id)">刷新IP信息</el-button>
@@ -1059,16 +1059,20 @@ export default {
       // this.$refs.multipleTable_dialog.clearSelection()
     },
     // 打开代理浏览器
-    async openSoft(poxyIP, ID) {
-      const proxy = {
-        proxy_ip: poxyIP,
-        proxy_id: ID || 0
-      }
-      const data = await this.$BaseUtilService.OpenProxyWeb(JSON.stringify(proxy))
-      if (data === null) {
-        //
-      } else {
-        this.$message.error('网络错误')
+    async openSoft(poxyIP, ID,time) {
+      if (new Date() - new Date(time) < 0){
+        const proxy = {
+          proxy_ip: poxyIP,
+          proxy_id: ID || 0
+        }
+        const data = await this.$BaseUtilService.OpenProxyWeb(JSON.stringify(proxy))
+        if (data === null) {
+          //
+        } else {
+          this.$message.error('网络错误')
+        }
+      }else{
+        this.$message.error('代理已过期，无法打开代理浏览器')
       }
     },
     // 清除IP缓存
