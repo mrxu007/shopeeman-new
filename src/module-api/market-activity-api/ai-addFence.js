@@ -495,7 +495,7 @@ export default class GoodsDiscount {
     try {
       const params = {}
       params['mallId'] = item.platform_mall_id
-      const res = await this._this.$shopeemanService.getChinese(item.country, `/api/v2/login/?`, params, {
+      const res = await this._this.$shopeemanService.getChinese(item.country, `/api/account/sc/login/?`, params, {
         headers: {
           Accept: 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
         }

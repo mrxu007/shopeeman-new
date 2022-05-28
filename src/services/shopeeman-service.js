@@ -510,7 +510,7 @@ export default class NetMessageBridgeService {
     }
     console.log('copy_mallInfo', copy_mallInfo, params)
     try {
-      let res = await this.postChinese(country, '/api/v2/login/?', params, { // option
+      let res = await this.postChinese(country, '/api/account/sc/login/?', params, { // option
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'charset': 'UTF-8'
@@ -676,7 +676,7 @@ export default class NetMessageBridgeService {
     }
     const accountName = mall_account_info.username
     try {
-      let res = await this.getChinese(country, '/api/v2/login', params, { // options
+      let res = await this.getChinese(country, '/api/account/sc/login', params, { // options
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'charset': 'UTF-8'
