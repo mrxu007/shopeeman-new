@@ -1004,6 +1004,15 @@ export default class {
         }
       }
       cutBase64 = cutRes.code == 200 && cutRes.data || base64
+    } else if (country == 'VN' && trackName == 'Shopee Xpress') {
+      const cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 425, -420)
+      if (!(cutRes.code == 200 && cutRes.data)) {
+        return {
+          code: 50001,
+          data: cutRes.msg
+        }
+      }
+      cutBase64 = cutRes.code == 200 && cutRes.data || base64
     } else if (country == 'ID') {
       const cutRes = await this.cutFaseSize(base64, orderSn, true, 425, 595, 0)
       if (!(cutRes.code == 200 && cutRes.data)) {
