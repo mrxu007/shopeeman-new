@@ -5,7 +5,7 @@
         <div v-for="(item, index) in operation.left" :key="index" class="btn-item">
           <el-button :type="item.type || ''" :size="item.size || 'mini'" @click="handelBtn(item.key, item.click, item.clickParams)">{{ item.title }}</el-button>
           <!-- <el-checkbox v-if="item.check === 'order'" v-model="isOrderSelectAllMall" style="margin-left: 5px">全店同步</el-checkbox> -->
-          <el-checkbox v-if="item.check === 'ship'" v-model="isCheckOrderShip" style="margin-left: 5px">勾选订单同步。</el-checkbox>
+          <el-checkbox v-if="item.check === 'ship'" v-model="isCheckOrderShip" style="margin-left: 5px">勾选订单同步</el-checkbox>
         </div>
       </div>
       <div class="center">
