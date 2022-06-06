@@ -895,6 +895,7 @@ export default class {
         itemPrams['weight'] = 0
         itemPrams['item_status'] = item_status.toString()
         itemPrams['item_ctime'] = ctime.toString()
+        itemPrams['is_gift'] = item?.order_price === '0.00' && item?.is_add_on_sub_item ? '1' : '0'// 商品为赠品，则传值为1
         orderItem.push(itemPrams)
       })
     })
