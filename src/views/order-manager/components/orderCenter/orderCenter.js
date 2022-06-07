@@ -262,7 +262,7 @@ const goodsSourceNameList = {
   13: '天猫淘宝海外平台',
   15: '货老板云仓',
   16: 'Tokopedia',
-  17: 'Bukalapak',
+  17: 'Bukalapak'
 }
 const goodsSourceListLink = [
   {
@@ -1820,18 +1820,18 @@ const platformLinkList = [{
   purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
   label: '天猫淘宝海外平台'
 },
-  {
-    purchase_platform_id: 16,
-    purchase_url: 'https://www.tokopedia.com/velove/',
-    purchase_url_all: 'https://www.tokopedia.com/velove/v856-malta-dress-3-color-2-size-sage-green-s?extParam=ivf%3Dfalse',
-    label: 'tokopedia'
-  },
-  {
-    purchase_platform_id: 17,
-    purchase_url: 'https://www.bukalapak.com/p/handphone/',
-    purchase_url_all: 'https://www.bukalapak.com/p/handphone/hp-smartphone/iphone/4goavx1-jual-iphone-7-second-likenew',
-    label: 'bukalapak'
-  }
+{
+  purchase_platform_id: 16,
+  purchase_url: 'https://www.tokopedia.com/velove/',
+  purchase_url_all: 'https://www.tokopedia.com/velove/v856-malta-dress-3-color-2-size-sage-green-s?extParam=ivf%3Dfalse',
+  label: 'tokopedia'
+},
+{
+  purchase_platform_id: 17,
+  purchase_url: 'https://www.bukalapak.com/p/handphone/',
+  purchase_url_all: 'https://www.bukalapak.com/p/handphone/hp-smartphone/iphone/4goavx1-jual-iphone-7-second-likenew',
+  label: 'bukalapak'
+}
 ]
 const warehouseType = [{
   label: '国内中转仓',
@@ -1863,7 +1863,7 @@ const lazadaBuyLinkList = [
   'https://www.lazada.vn',
   'https://www.lazada.co.id',
   'https://www.lazada.com.ph',
-  'http://www.lazada.co.th',
+  'https://www.lazada.co.th',
   'https://www.lazada.sg'
 ]
 const lazadaBuyLinkObj = {
@@ -1871,7 +1871,7 @@ const lazadaBuyLinkObj = {
   'vn': 'https://www.lazada.vn',
   'id': 'https://www.lazada.co.id',
   'ph': 'https://www.lazada.com.ph',
-  'th': 'http://www.lazada.co.th',
+  'th': 'https://www.lazada.co.th',
   'sg': 'https://www.lazada.sg'
 }
 const forbidData = [
