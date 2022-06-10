@@ -1,28 +1,38 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <div class="nowrapBox" v-show="isNoFoldShow">
+      <div v-show="isNoFoldShow" class="nowrapBox">
         <div class="basisInstall">
           <div class="basisInstall-title">店铺设置</div>
-          <storeChoose @changeMallList="changeMallList" :input-width="'150px'" :source="'true'" :is-reset="true"
-                       style="margin-bottom: 5px;" :is-ban-perform="isBanPerform"></storeChoose>
+          <storeChoose
+            :input-width="'150px'"
+            :source="'true'"
+            :is-reset="true"
+            style="margin-bottom: 5px;"
+            :is-ban-perform="isBanPerform"
+            @changeMallList="changeMallList"
+          />
           <div class="basisInstall-box" style="flex-wrap: nowrap">
             <div>物流设置：</div>
             <div>
               <el-checkbox-group v-model="logistics" size="mini">
-                <el-checkbox :label="item.ShipId" v-for="item in logisticsList"
-                             :key="item.ShipId" :disabled="isBanPerform">{{ item.ShipName }}
+                <el-checkbox
+                  v-for="item in logisticsList"
+                  :key="item.ShipId"
+                  :label="item.ShipId"
+                  :disabled="isBanPerform"
+                >{{ item.ShipName }}
                 </el-checkbox>
               </el-checkbox-group>
               <div v-if="customLogistics[0]">
                 <p style="color: var(--themeColor)">确保此物流方式已在商家后台开启
                   <el-tooltip class="item" effect="dark" content="请填写相应站点币种价格，此价格不可转换" placement="top">
-                    <el-button size="mini" type="text"><i class="el-icon-question"></i></el-button>
+                    <el-button size="mini" type="text"><i class="el-icon-question" /></el-button>
                   </el-tooltip>
                 </p>
                 <div v-for="item in customLogistics" :key="item.ShipId" style="margin-bottom: 5px">
                   <span>{{ item.ShipName }}</span>
-                  <el-input size="mini" v-model="item.price" style="width: 100px; margin-left: 5px;"></el-input>
+                  <el-input v-model="item.price" size="mini" style="width: 100px; margin-left: 5px;" />
                 </div>
               </div>
             </div>
@@ -32,8 +42,13 @@
             <div>
               <el-checkbox v-model="storeConfig.watermarkChecked" size="mini" :disabled="isBanPerform">批量添加水印
               </el-checkbox>
-              <el-button :disabled="isBanPerform" size="mini" style="margin-left: 15px;" type="primary"
-                         @click="setWatermark(1)">水印配置
+              <el-button
+                :disabled="isBanPerform"
+                size="mini"
+                style="margin-left: 15px;"
+                type="primary"
+                @click="setWatermark(1)"
+              >水印配置
               </el-button>
             </div>
           </div>
@@ -50,30 +65,42 @@
             <div>
               <el-checkbox v-model="storeConfig.activityChecked" size="mini" :disabled="isBanPerform">添加到折扣活动或商品分类
               </el-checkbox>
-              <el-button size="mini" style="margin-left: 15px;" type="primary" @click="setSellActive()"
-                         :disabled="isBanPerform">行销活动配置
+              <el-button
+                size="mini"
+                style="margin-left: 15px;"
+                type="primary"
+                :disabled="isBanPerform"
+                @click="setSellActive()"
+              >行销活动配置
               </el-button>
             </div>
           </div>
           <div class="basisInstall-box">
             <el-checkbox-group v-model="storeConfig.chineseChecked" size="mini">
-              <el-checkbox label="允许上新中文" style="margin: 0;" :disabled="isBanPerform"></el-checkbox>
+              <el-checkbox label="允许上新中文" style="margin: 0;" :disabled="isBanPerform" />
               <el-tooltip class="item" effect="dark" content="勾选后，将不再检测商品信息中是否含有中文" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
-              <el-checkbox label="允许上新简体数据" style="margin-left: 15px;"
-                           :disabled="isBanPerform || storeConfig.chineseChecked.length<1"></el-checkbox>
+              <el-checkbox
+                label="允许上新简体数据"
+                style="margin-left: 15px;"
+                :disabled="isBanPerform || storeConfig.chineseChecked.length<1"
+              />
               <el-tooltip class="item" effect="dark" content="勾选后，将不再检测商品语种是否为简体" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </el-checkbox-group>
           </div>
           <div class="basisInstall-box">
             <div>图片上传线程数量：
-              <el-input size="mini" v-model="storeConfig.pictureThread" style="width: 60px;"
-                        @change="changeStockUpNumber(storeConfig.pictureThread,4)"></el-input>
+              <el-input
+                v-model="storeConfig.pictureThread"
+                size="mini"
+                style="width: 60px;"
+                @change="changeStockUpNumber(storeConfig.pictureThread,4)"
+              />
               <el-tooltip class="item" effect="dark" content="0<线程数量<6，建议数量为3" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div style="margin-left: 15px;">
@@ -95,49 +122,63 @@
         <div class="basisInstall">
           <div class="basisInstall-title">基础设置</div>
           <div class="basisInstall-box">
-            <el-radio :disabled="isBanPerform" v-model="valuationRadio" :label="1">计价方式一</el-radio>
-            <el-radio :disabled="isBanPerform" v-model="valuationRadio" :label="2">计价方式二</el-radio>
-            <el-radio :disabled="isBanPerform" v-model="valuationRadio" :label="3">计价方式三</el-radio>
+            <el-radio v-model="valuationRadio" :disabled="isBanPerform" :label="1">计价方式一</el-radio>
+            <el-radio v-model="valuationRadio" :disabled="isBanPerform" :label="2">计价方式二</el-radio>
+            <el-radio v-model="valuationRadio" :disabled="isBanPerform" :label="3">计价方式三</el-radio>
           </div>
           <div v-if="valuationRadio === 1">
             <div class="basisInstall-box">
               <div>基础加价：</div>
-              <el-input size="mini" style="width: 60px;margin-right: 5px"
-                        v-model="basicConfig.formula.percentage"></el-input>
+              <el-input
+                v-model="basicConfig.formula.percentage"
+                size="mini"
+                style="width: 60px;margin-right: 5px"
+              />
               %　+　基础价
-              <el-input size="mini" style="width: 60px;margin-right: 5px"
-                        v-model="basicConfig.formula.basis"></el-input>
+              <el-input
+                v-model="basicConfig.formula.basis"
+                size="mini"
+                style="width: 60px;margin-right: 5px"
+              />
               　+　藏价
-              <el-input size="mini" style="width: 60px;" v-model="basicConfig.formula.hidden"></el-input>
+              <el-input v-model="basicConfig.formula.hidden" size="mini" style="width: 60px;" />
               <el-tooltip class="item" effect="dark" content="加价方式：原价+原价*百分百+基础价+藏价" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box">
               <div>商品折扣：</div>
               <div>
-                <el-input style="width: 60px;margin-right: 5px" size="mini" v-model="basicConfig.discount"></el-input>
+                <el-input v-model="basicConfig.discount" style="width: 60px;margin-right: 5px" size="mini" />
                 %
                 <el-tooltip class="item" effect="dark" content="例：25（加价完成后价格） / 0.5（商品折扣为50%）" placement="top">
-                  <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i>
+                  <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" />
                   </el-button>
                 </el-tooltip>
               </div>
               <div style="margin-left: 10px;">计价方式：</div>
-              <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationMethodsRadio" :label="0"
-                        style="margin-right: 10px">以折扣价为准
+              <el-radio
+                v-model="basicConfig.valuationMethodsRadio"
+                :disabled="isBanPerform"
+                :label="0"
+                style="margin-right: 10px"
+              >以折扣价为准
               </el-radio>
-              <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationMethodsRadio" :label="1">以零售价为准
+              <el-radio v-model="basicConfig.valuationMethodsRadio" :disabled="isBanPerform" :label="1">以零售价为准
               </el-radio>
             </div>
           </div>
           <div v-if="valuationRadio === 2">
             <div class="basisInstall-box">
               <div>计价方式：</div>
-              <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationMethodsRadio" :label="0"
-                        style="margin-right: 10px">以折扣价为准
+              <el-radio
+                v-model="basicConfig.valuationMethodsRadio"
+                :disabled="isBanPerform"
+                :label="0"
+                style="margin-right: 10px"
+              >以折扣价为准
               </el-radio>
-              <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationMethodsRadio" :label="1">以零售价为准
+              <el-radio v-model="basicConfig.valuationMethodsRadio" :disabled="isBanPerform" :label="1">以零售价为准
               </el-radio>
               <el-button :disabled="isBanPerform" size="mini" type="primary" @click="valuationInit">计价配置</el-button>
             </div>
@@ -145,63 +186,77 @@
           <div v-if="valuationRadio === 3">
             <div class="basisInstall-box">
               <div>商品价格：</div>
-              <el-input size="mini" v-model="basicConfig.fixedPrice" style="width: 120px;"></el-input>
+              <el-input v-model="basicConfig.fixedPrice" size="mini" style="width: 120px;" />
               <el-tooltip class="item" effect="dark" content="每个热搜词之间以逗号隔开，不进行翻译" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
           </div>
           <div class="basisInstall-box">
             <div style="display: flex;align-items: center">
               <div>添加热搜词：</div>
-              <el-radio :disabled="isBanPerform" v-model="basicConfig.headlineRadio" :label="0"
-                        style="margin-right: 15px;line-height: 28px;">
+              <el-radio
+                v-model="basicConfig.headlineRadio"
+                :disabled="isBanPerform"
+                :label="0"
+                style="margin-right: 15px;line-height: 28px;"
+              >
                 标题前加
               </el-radio>
-              <el-radio :disabled="isBanPerform" v-model="basicConfig.headlineRadio" :label="1"
-                        style="margin-right: 20px;line-height: 28px;">
+              <el-radio
+                v-model="basicConfig.headlineRadio"
+                :disabled="isBanPerform"
+                :label="1"
+                style="margin-right: 20px;line-height: 28px;"
+              >
                 标题后加
               </el-radio>
               <div>热搜词随机个数
-                <el-input style="width: 60px;margin-left: 5px" size="mini" v-model="basicConfig.hotSearch"></el-input>
+                <el-input v-model="basicConfig.hotSearch" style="width: 60px;margin-left: 5px" size="mini" />
               </div>
               <el-tooltip class="item" effect="dark" content="每个热搜词之间以逗号隔开，不进行翻译" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div style="width: 95%;margin-top: 5px;">
-              <el-input type="textarea" :rows="2" resize="none" style="width: 100%" placeholder="请输入热搜词,以逗号隔开"
-                        v-model="basicConfig.hotList"></el-input>
+              <el-input
+                v-model="basicConfig.hotList"
+                type="textarea"
+                :rows="2"
+                resize="none"
+                style="width: 100%"
+                placeholder="请输入热搜词,以逗号隔开"
+              />
             </div>
           </div>
           <div class="basisInstall-box">
             <div>禁运设置：</div>
             <div>
-              <el-checkbox :disabled="isBanPerform" v-model="basicConfig.embargoChecked1" size="mini">启动禁运类目拦截
+              <el-checkbox v-model="basicConfig.embargoChecked1" :disabled="isBanPerform" size="mini">启动禁运类目拦截
               </el-checkbox>
-              <el-checkbox :disabled="isBanPerform" v-model="basicConfig.embargoChecked2" size="mini">启动禁运词拦截
+              <el-checkbox v-model="basicConfig.embargoChecked2" :disabled="isBanPerform" size="mini">启动禁运词拦截
               </el-checkbox>
             </div>
           </div>
           <div class="basisInstall-box">
             <div>商品重量：</div>
             <div>
-              <el-input size="mini" style="width: 60px" v-model="basicConfig.minHeavy"></el-input>
+              <el-input v-model="basicConfig.minHeavy" size="mini" style="width: 60px" />
               -
-              <el-input size="mini" style="width: 60px;margin-right: 5px;" v-model="basicConfig.maxHeavy"></el-input>
+              <el-input v-model="basicConfig.maxHeavy" size="mini" style="width: 60px;margin-right: 5px;" />
               kg
               <el-tooltip class="item" effect="dark" content="商品重量默认随机0.1 - 1kg" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div style="margin-left: 15px;">类目映射：</div>
             <el-select v-model="basicConfig.categoryMapping" size="mini" style="width: 120px;">
               <el-option
-                  v-for="item in categoryMappingList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-              </el-option>
+                v-for="item in categoryMappingList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
             </el-select>
           </div>
           <div class="basisInstall-box">
@@ -211,7 +266,7 @@
                 使用Shopee采集商品源类目
               </el-checkbox>
               <el-tooltip class="item" effect="dark" content="Shopee商品只有类目能使用商品源类目，属性只能选择默认！" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
           </div>
@@ -220,32 +275,48 @@
             <div>
               <el-checkbox v-model="basicConfig.stockUpChecked" size="mini" :disabled="isBanPerform">是否较长时间备货
               </el-checkbox>
-              <el-input style="width: 60px;margin: 0 5px;" size="mini" v-model="basicConfig.stockUpNumber" :min="7"
-                        :max="30"
-                        @change="changeStockUpNumber(basicConfig.stockUpNumber,1)"></el-input>
+              <el-input
+                v-model="basicConfig.stockUpNumber"
+                style="width: 60px;margin: 0 5px;"
+                size="mini"
+                :min="7"
+                :max="30"
+                @change="changeStockUpNumber(basicConfig.stockUpNumber,1)"
+              />
               天
-              <el-tooltip class="item" effect="dark" :content="`如果备货最短${preorderMinDays}天，最长${preorderMaxDays}天`"
-                          placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="`如果备货最短${preorderMinDays}天，最长${preorderMaxDays}天`"
+                placement="top"
+              >
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div v-if="country==='TW'">最小购物数：</div>
             <div v-if="country==='TW'">
-              <el-input style="width: 60px;margin: 0 5px;" size="mini"
-                        v-model="basicConfig.min_purchase_limit"></el-input>
+              <el-input
+                v-model="basicConfig.min_purchase_limit"
+                style="width: 60px;margin: 0 5px;"
+                size="mini"
+              />
             </div>
           </div>
           <div class="basisInstall-box">
             <div>上新线程：</div>
-            <el-input style="width: 60px;margin: 0 5px;" size="mini" v-model="basicConfig.onNewThread"
-                      @change="changeStockUpNumber(basicConfig.onNewThread,2)"></el-input>
+            <el-input
+              v-model="basicConfig.onNewThread"
+              style="width: 60px;margin: 0 5px;"
+              size="mini"
+              @change="changeStockUpNumber(basicConfig.onNewThread,2)"
+            />
             <el-tooltip class="item" effect="dark" content="请根据电脑配置合理设置上新线程数，最大为5" :min="1" :max="5" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
             </el-tooltip>
             <div style="margin-left: 25px;">
               <el-checkbox v-model="basicConfig.numberCeilingChecked" size="mini" :disabled="isBanPerform">单店店铺上货数量上限
               </el-checkbox>
-              <el-input size="mini" style="width: 60px;margin: 0 5px;" v-model="basicConfig.numberCeiling"></el-input>
+              <el-input v-model="basicConfig.numberCeiling" size="mini" style="width: 60px;margin: 0 5px;" />
             </div>
           </div>
           <div class="basisInstall-box">
@@ -254,7 +325,7 @@
               <el-checkbox v-model="basicConfig.deleteCollectChecked" size="mini" :disabled="isBanPerform">上新后删除收藏商品
               </el-checkbox>
               <el-tooltip class="item" effect="dark" content="删除商品库中的原商品（不适用于一商品多店铺模式）" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div style="margin-left: 15px;">
@@ -274,67 +345,95 @@
           </div>
           <div class="basisInstall-box">
             <div class="keepRight">上新时间间隔：</div>
-            <el-input size="mini" v-model="associatedConfig.onNewInterval"
-                      style="width: 120px;margin-right: 5px;"></el-input>
+            <el-input
+              v-model="associatedConfig.onNewInterval"
+              size="mini"
+              style="width: 120px;margin-right: 5px;"
+            />
             S
-            <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+            <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S，上新时间间隔低于40S的，存在封店风险，请谨慎开启" placement="top">
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
             </el-tooltip>
           </div>
           <div class="basisInstall-box">
             <div class="keepRight">重复上新维度：</div>
             <el-radio v-model="associatedConfig.dimensionRadio" :label="1" :disabled="isBanPerform">站点</el-radio>
             <el-radio v-model="associatedConfig.dimensionRadio" :label="0" :disabled="isBanPerform">店铺</el-radio>
-            <el-radio v-model="associatedConfig.dimensionRadio" @change="accountPermissions" :label="2"
-                      :disabled="isBanPerform" style="margin-right: 0">一商品多店铺
+            <el-radio
+              v-model="associatedConfig.dimensionRadio"
+              :label="2"
+              :disabled="isBanPerform"
+              style="margin-right: 0"
+              @change="accountPermissions"
+            >一商品多店铺
             </el-radio>
             <el-tooltip class="item" effect="dark" content="同一商品上新到不同店铺中，为避免重复铺货，请配合热搜词使用" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
             </el-tooltip>
 
           </div>
-          <div class="basisInstall-box" v-if="associatedConfig.dimensionRadio === 2">
+          <div v-if="associatedConfig.dimensionRadio === 2" class="basisInstall-box">
             <div class="keepRight">商品价格幅度：</div>
             一商品多店铺上新价格幅度±
-            <el-input size="mini" v-model="associatedConfig.priceRange" style="width: 80px;margin:0 5px;"
-                      oninput="value=value.replace(/[^0-9]+/g,'')"
-                      @change="changeStockUpNumber(associatedConfig.priceRange,3)"></el-input>
+            <el-input
+              v-model="associatedConfig.priceRange"
+              size="mini"
+              style="width: 80px;margin:0 5px;"
+              oninput="value=value.replace(/[^0-9]+/g,'')"
+              @change="changeStockUpNumber(associatedConfig.priceRange,3)"
+            />
             %
             <el-tooltip class="item" effect="dark" content="避免同一商品在多个店铺中价格相同，最大幅度10%，不设置请填入0" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
             </el-tooltip>
           </div>
           <div class="basisInstall-box" style="flex-wrap: nowrap">
             <div class="keepRight">图片设置：</div>
             <div style="display: flex;flex-wrap: wrap;align-items: center;flex: 1;">
               <div style="width: 100%;">
-                <el-checkbox v-model="associatedConfig.pictureSetting.mainRandomChecked" size="mini"
-                             v-if="associatedConfig.dimensionRadio === 2" :disabled="isBanPerform">随机主图
+                <el-checkbox
+                  v-if="associatedConfig.dimensionRadio === 2"
+                  v-model="associatedConfig.pictureSetting.mainRandomChecked"
+                  size="mini"
+                  :disabled="isBanPerform"
+                >随机主图
                 </el-checkbox>
-                <el-checkbox v-model="associatedConfig.pictureSetting.firstChecked" size="mini"
-                             :disabled="isBanPerform">删除首图
+                <el-checkbox
+                  v-model="associatedConfig.pictureSetting.firstChecked"
+                  size="mini"
+                  :disabled="isBanPerform"
+                >删除首图
                 </el-checkbox>
                 <el-checkbox v-model="associatedConfig.pictureSetting.cutChecked" size="mini" :disabled="isBanPerform">
                   图片删减
                 </el-checkbox>
               </div>
               <div style="width: 100%;">
-                <el-checkbox v-model="associatedConfig.pictureSetting.randomChecked" size="mini"
-                             :disabled="isBanPerform">图片顺序随机
+                <el-checkbox
+                  v-model="associatedConfig.pictureSetting.randomChecked"
+                  size="mini"
+                  :disabled="isBanPerform"
+                >图片顺序随机
                 </el-checkbox>
-                <el-checkbox v-model="associatedConfig.pictureSetting.whiteChecked" size="mini"
-                             :disabled="isBanPerform">首图白底
+                <el-checkbox
+                  v-model="associatedConfig.pictureSetting.whiteChecked"
+                  size="mini"
+                  :disabled="isBanPerform"
+                >首图白底
                 </el-checkbox>
               </div>
               <div style="width: 100%;">
                 将第
-                <el-input style="width: 60px;margin: 0 5px;" size="mini"
-                          v-model="associatedConfig.pictureSetting.index"></el-input>
+                <el-input
+                  v-model="associatedConfig.pictureSetting.index"
+                  style="width: 60px;margin: 0 5px;"
+                  size="mini"
+                />
                 张设为封面
               </div>
               <el-checkbox v-model="associatedConfig.pictureSetting.compressionChecked" size="mini">自动压缩图片</el-checkbox>
               <el-tooltip class="item" effect="dark" content="商品图片超过1MB时，将压缩图片" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
           </div>
@@ -348,22 +447,28 @@
             <div class="keepRight">关键词过滤：</div>
             <div>
               <el-select v-model="associatedConfig.keyFilter" multiple collapse-tags size="mini" style="width: 180px;">
-                <el-option label="全部" :value="0" @click.native="keyFilterChange(1,true)"></el-option>
+                <el-option label="全部" :value="0" @click.native="keyFilterChange(1,true)" />
                 <el-option
-                    @click.native="keyFilterChange(1)"
-                    v-for="item in keyFilterList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
+                  v-for="item in keyFilterList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                  @click.native="keyFilterChange(1)"
+                />
               </el-select>
               <el-tooltip class="item" effect="dark" content="每个关键词之间以逗号隔开，不进行翻译" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="separation">
-              <el-input type="textarea" :rows="3" resize="none" style="width: 80%" placeholder="请输入关键词,以逗号隔开"
-                        v-model="associatedConfig.keyList"></el-input>
+              <el-input
+                v-model="associatedConfig.keyList"
+                type="textarea"
+                :rows="3"
+                resize="none"
+                style="width: 80%"
+                placeholder="请输入关键词,以逗号隔开"
+              />
             </div>
           </div>
         </div>
@@ -392,12 +497,12 @@
         </div>
       </div>
       <div class="nowrapBox">
-        <el-button size="mini" type="primary" @click="startRelease" :disabled="isBanPerform">开始发布</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform" @click="startRelease">开始发布</el-button>
         <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>导入数据</el-button>
         <el-button size="mini" @click="cancelRelease">取消发布</el-button>
-        <el-button size="mini" type="primary" @click="deleteGoodsList(true)" :disabled="isBanPerform">清理全部</el-button>
-        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform">设置定时任务</el-button>
-        <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
+        <el-button size="mini" type="primary" :disabled="isBanPerform" @click="deleteGoodsList(true)">清理全部</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform" @click="setTimeShow">设置定时任务</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform" @click="enterCategory(2,1)">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
           {{ isNoFoldShow && '折叠' || '展开' }}
@@ -405,35 +510,55 @@
         <el-button size="mini" type="primary" :disabled="isBanPerform">清理类目缓存</el-button>
         <div style="margin-left: 10px;">源商品类目：
           <el-select v-model="sourceCategory" multiple collapse-tags filterable size="mini" class="source-category">
-            <el-option label="全部" :value="0" @click.native="keyFilterChange(2,true)"/>
-            <el-option v-for="(item,index) in sourceCategoryList" :key="index" @click.native="keyFilterChange(2)"
-                       :label="item" :value="item"/>
+            <el-option label="全部" :value="0" @click.native="keyFilterChange(2,true)" />
+            <el-option
+              v-for="(item,index) in sourceCategoryList"
+              :key="index"
+              :label="item"
+              :value="item"
+              @click.native="keyFilterChange(2)"
+            />
           </el-select>
         </div>
         <div style="margin-left: 10px;">发布结果过滤：
-          <el-select size="mini" v-model="resultsFilter" style="width: 120px;">
-            <el-option v-for="(item,index) in resultsFilterList" :key="index" :label="item.label" :value="item.value"/>
+          <el-select v-model="resultsFilter" size="mini" style="width: 120px;">
+            <el-option v-for="(item,index) in resultsFilterList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <el-button size="mini" type="primary" @click="queryGoodsTable()" style="margin-left: 10px;"
-                   :disabled="isBanPerform">查询
+        <el-button
+          size="mini"
+          type="primary"
+          style="margin-left: 10px;"
+          :disabled="isBanPerform"
+          @click="queryGoodsTable()"
+        >查询
         </el-button>
-        <el-button size="mini" type="primary" @click="deleteGoodsList()" :disabled="isBanPerform">删除</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform" @click="deleteGoodsList()">删除</el-button>
         <div style="margin-left: 10px;display: flex;align-items: center">
           <span>上新进度：</span>
-          <el-progress style="width: 180px" :text-inside="true" :stroke-width="18"
-                       :percentage="mewOnProgress"></el-progress>
+          <el-progress
+            style="width: 180px"
+            :text-inside="true"
+            :stroke-width="18"
+            :percentage="mewOnProgress"
+          />
         </div>
       </div>
     </el-row>
-    <u-table :data="goodsTable" v-if="isRefreshTable"
-             ref="goodsTable" row-key="id"
-             @selection-change="handleSelectionChange"
-             use-virtual :data-changes-scroll-top="false"
-             :header-cell-style="{backgroundColor: '#f5f7fa'}"
-             :border="false" :big-data-checkbox="true"
-             :height="isNoFoldShow && (associatedConfig.dimensionRadio === 2 && 340 || 341) || 745">
-      <u-table-column align="center" type="selection" width="50"/>
+    <u-table
+      v-if="isRefreshTable"
+      ref="goodsTable"
+      :data="goodsTable"
+      row-key="id"
+      use-virtual
+      :data-changes-scroll-top="false"
+      :header-cell-style="{backgroundColor: '#f5f7fa'}"
+      :border="false"
+      :big-data-checkbox="true"
+      :height="isNoFoldShow && (associatedConfig.dimensionRadio === 2 && 340 || 341) || 745"
+      @selection-change="handleSelectionChange"
+    >
+      <u-table-column align="center" type="selection" width="50" />
       <u-table-column align="center" label="序列号" type="index" width="60">
         <template slot-scope="scope">
           {{ scope.$index + 1 }}
@@ -441,12 +566,17 @@
       </u-table-column>
       <u-table-column align="center" label="商品主图" width="80">
         <template slot-scope="{ row }">
-          <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
-                      style="width: 56px; height: 56px; display: inline-block">
+          <el-tooltip
+            effect="light"
+            placement="right-end"
+            :visible-arrow="false"
+            :enterable="false"
+            style="width: 56px; height: 56px; display: inline-block"
+          >
             <div slot="content">
-              <el-image :src=" row.image " style="width: 400px; height: 400px"/>
+              <el-image :src=" row.image " style="width: 400px; height: 400px" />
             </div>
-            <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px"/>
+            <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px" />
           </el-tooltip>
         </template>
       </u-table-column>
@@ -454,7 +584,7 @@
         <template v-slot="{ row }">
           <div style="display: flex">
             <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
-              <i class="el-icon-document-copy"/></el-button>
+              <i class="el-icon-document-copy" /></el-button>
             <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
           </div>
         </template>
@@ -463,7 +593,7 @@
         <template slot-scope="{ row }">
           <div style="display: flex">
             <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
-              <i class="el-icon-document-copy"/></el-button>
+              <i class="el-icon-document-copy" /></el-button>
             <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
           </div>
         </template>
@@ -486,7 +616,7 @@
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="源平台类目" prop="category_name" width="114" show-overflow-tooltip/>
+      <u-table-column align="left" label="源平台类目" prop="category_name" width="114" show-overflow-tooltip />
       <u-table-column align="left" label="shopee类目" show-overflow-tooltip prop="categoryName" width="114">
         <template slot-scope="scope">
           <el-button type="text" @click="enterCategory(0,scope.row)">
@@ -501,7 +631,7 @@
           </el-button>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="价格" prop="price" width="80"/>
+      <u-table-column align="left" label="价格" prop="price" width="80" />
       <u-table-column align="left" label="上新价格(RMB)" prop="CalAfterPriceRMB" width="110">
         <template slot-scope="{ row }">
           {{ getValuationPrice(row.price, row) }}
@@ -512,19 +642,24 @@
           {{ Math.ceil(getValuationPrice(row.price, row) / rateList[country]) }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="销量" prop="sales" width="80"/>
-      <u-table-column align="left" label="标签" prop="sys_label_name" width="80" show-overflow-tooltip/>
-      <u-table-column align="left" label="来源" prop="sourceName" width="80"/>
+      <u-table-column align="left" label="销量" prop="sales" width="80" />
+      <u-table-column align="left" label="标签" prop="sys_label_name" width="80" show-overflow-tooltip />
+      <u-table-column align="left" label="来源" prop="sourceName" width="80" />
       <u-table-column align="center" label="操作" prop="sourceName" width="80">
         <template slot-scope="{ row }">
-          <el-button size="mini" type="primary" @click="updateGoodsEdit(row,1)" :disabled="isBanPerform">编辑
+          <el-button size="mini" type="primary" :disabled="isBanPerform" @click="updateGoodsEdit(row,1)">编辑
           </el-button>
         </template>
       </u-table-column>
     </u-table>
     <div class="on_new_dialog">
-      <el-dialog title="水印配置" width="500px" :close-on-click-modal="false"
-                 top="10vh" :visible.sync="watermarkVisible">
+      <el-dialog
+        title="水印配置"
+        width="500px"
+        :close-on-click-modal="false"
+        top="10vh"
+        :visible.sync="watermarkVisible"
+      >
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
             <div class="keepRight">水印类型：</div>
@@ -546,14 +681,18 @@
             <div>
               <el-radio v-model="watermarkConfig.textType" :label="1" style="margin: 0">店铺别名</el-radio>
               <el-tooltip class="item" effect="dark" content="选择店铺别名时，若无别名则使用店铺真实名" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question"
-                                                      style="padding: 0 2px;margin-right: 15px;"></i></el-button>
+                <el-button size="mini" type="text"><i
+                  class="el-icon-question"
+                  style="padding: 0 2px;margin-right: 15px;"
+                /></el-button>
               </el-tooltip>
               <el-radio v-model="watermarkConfig.textType" :label="2" style="margin: 0 15px 0 0">店铺真实名</el-radio>
               <el-radio v-model="watermarkConfig.textType" :label="3" style="margin: 0">店铺设置的水印文字</el-radio>
               <el-tooltip class="item" effect="dark" content="选择店铺设置的水印文字时，未设置则默认使用店铺名称" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question"
-                                                      style="padding: 0 2px;margin-right: 15px;"></i></el-button>
+                <el-button size="mini" type="text"><i
+                  class="el-icon-question"
+                  style="padding: 0 2px;margin-right: 15px;"
+                /></el-button>
               </el-tooltip>
             </div>
           </div>
@@ -561,62 +700,84 @@
             <div class="keepRight">示例图选择：</div>
             <div style="display: flex">
               <div
-                  style="margin-right: 25px;display: flex; flex-flow: row;justify-content: center;align-items: center;">
+                style="margin-right: 25px;display: flex; flex-flow: row;justify-content: center;align-items: center;"
+              >
                 <div style="text-align: justify; text-align-last: justify;display: inline-block;width: 20px">商品图</div>
-                <div @click="watermarkPreview1" class="watermarkConfig_img">
-                  <el-image v-if="watermarkConfig.goodsImg" :src="watermarkConfig.goodsImg" class="avatar"/>
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                <div class="watermarkConfig_img" @click="watermarkPreview1">
+                  <el-image v-if="watermarkConfig.goodsImg" :src="watermarkConfig.goodsImg" class="avatar" />
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
                 </div>
               </div>
               <div style="display: flex; flex-flow: row;justify-content: center;align-items: center;">
                 <div style="text-align: justify; text-align-last: justify;width: 20px">水印图</div>
-                <div @click="watermarkPreview2" class="watermarkConfig_img">
-                  <el-image v-if="watermarkConfig.watermarkImg" :src="watermarkConfig.watermarkImg" class="avatar"/>
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                <div class="watermarkConfig_img" @click="watermarkPreview2">
+                  <el-image v-if="watermarkConfig.watermarkImg" :src="watermarkConfig.watermarkImg" class="avatar" />
+                  <i v-else class="el-icon-plus avatar-uploader-icon" />
                 </div>
               </div>
-              <el-upload v-if="uploadImgAdd" action="#" list-type="picture-card" :drag="true" v-show="false"
-                         :show-file-list="false" :limit="1" :auto-upload="false" :on-change="watermarkPreview">
+              <el-upload
+                v-if="uploadImgAdd"
+                v-show="false"
+                action="#"
+                list-type="picture-card"
+                :drag="true"
+                :show-file-list="false"
+                :limit="1"
+                :auto-upload="false"
+                :on-change="watermarkPreview"
+              >
                 <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
               </el-upload>
             </div>
           </div>
           <div v-show="watermarkConfig.type === 2" class="on_new_dialog_box">
             <div class="keepRight">图片透明度：</div>
-            <el-slider style="width: 65%;" v-model="watermarkConfig.clarity" show-input
-                       input-size="mini" :min="0" :max="1" :step="0.1"></el-slider>
+            <el-slider
+              v-model="watermarkConfig.clarity"
+              style="width: 65%;"
+              show-input
+              input-size="mini"
+              :min="0"
+              :max="1"
+              :step="0.1"
+            />
           </div>
           <div v-show="watermarkConfig.type !== 3" class="on_new_dialog_box">
             <div style="display: flex; align-items: center">
               <div class="keepRight">水印位置：</div>
               <el-select v-model="watermarkConfig.locate" size="mini" style="width: 100px;">
                 <el-option
-                    v-for="item in locateList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
+                  v-for="item in locateList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
               </el-select>
             </div>
             <div v-show="watermarkConfig.type === 1" style="display: flex; align-items: center;margin-left: 15px;">
               <div class="keepRight">水印文字大小：</div>
-              <el-input style="width: 60px" size="mini" v-model="watermarkConfig.textSize"></el-input>
-              <el-color-picker style="margin-left: 5px;" v-model="watermarkConfig.textColor"
-                               size="mini"></el-color-picker>
+              <el-input v-model="watermarkConfig.textSize" style="width: 60px" size="mini" />
+              <el-color-picker
+                v-model="watermarkConfig.textColor"
+                style="margin-left: 5px;"
+                size="mini"
+              />
               <el-tooltip class="item" effect="dark" content="水印文字大小最小为12，水印文字颜色默认为灰白色（#D5D4DA）" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question"
-                                                      style="padding: 0 2px;margin-right: 15px;"></i></el-button>
+                <el-button size="mini" type="text"><i
+                  class="el-icon-question"
+                  style="padding: 0 2px;margin-right: 15px;"
+                /></el-button>
               </el-tooltip>
             </div>
             <div v-show="watermarkConfig.type === 2" style="display: flex; align-items: center">
               <div class="keepRight">图片大小：</div>
               <el-select v-model="watermarkConfig.imgSize" size="mini" style="width: 140px;">
                 <el-option
-                    v-for="item in imgSizeList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                </el-option>
+                  v-for="item in imgSizeList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
               </el-select>
             </div>
           </div>
@@ -625,14 +786,22 @@
               <div class="goods_image">
                 <img :src="watermarkConfig.goodsImg || ''" alt="">
               </div>
-              <div class="watermark_image"
-                   :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'">
-                <span v-show="watermarkConfig.type === 1"
-                      :style="'font-size:'+watermarkConfig.textSize+'px!important;color:'+watermarkConfig.textColor">
+              <div
+                class="watermark_image"
+                :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'"
+              >
+                <span
+                  v-show="watermarkConfig.type === 1"
+                  :style="'font-size:'+watermarkConfig.textSize+'px!important;color:'+watermarkConfig.textColor"
+                >
                   {{ watermarkConfig.text }}
                 </span>
-                <img :style="watermarkConfig.type === 2 && ('opacity: '+watermarkConfig.clarity) || ''"
-                     v-show="watermarkConfig.type !== 1" :src="watermarkConfig.watermarkImg||''" alt="">
+                <img
+                  v-show="watermarkConfig.type !== 1"
+                  :style="watermarkConfig.type === 2 && ('opacity: '+watermarkConfig.clarity) || ''"
+                  :src="watermarkConfig.watermarkImg||''"
+                  alt=""
+                >
               </div>
 
             </div>
@@ -643,16 +812,27 @@
           </div>
         </div>
       </el-dialog>
-      <el-dialog title="行销活动设置" width="700px" :close-on-click-modal="false"
-                 top="10vh" :visible.sync="sellActiveVisible">
+      <el-dialog
+        title="行销活动设置"
+        width="700px"
+        :close-on-click-modal="false"
+        top="10vh"
+        :visible.sync="sellActiveVisible"
+      >
         <div class="sell_active_dialog">
           <div class="on_new_dialog_box">
             添加活动商品，请配置折扣活动信息或商店分类信息
           </div>
           <div class="on_new_dialog_box">
-            <el-button size="mini" @click="downloadTemplate" type="primary" style="margin-right: 10px;">下载模板</el-button>
-            <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/"
-                       :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+            <el-button size="mini" type="primary" style="margin-right: 10px;" @click="downloadTemplate">下载模板</el-button>
+            <el-upload
+              ref="importRef"
+              accept=".xls, .xlsx"
+              action="https://jsonplaceholder.typicode.com/posts/"
+              :on-change="importTemplateEvent"
+              :show-file-list="false"
+              :auto-upload="false"
+            >
               <el-button :data="importTemplateData" size="mini" type="primary"> 导入模板
               </el-button>
             </el-upload>
@@ -668,11 +848,11 @@
                 <template slot-scope="scope">
                   <div style="display: flex;align-items: center">
                     <el-checkbox v-model="scope.row.isExisting" size="mini">使用已有活动ID</el-checkbox>
-                    <el-input size="mini" v-model="scope.row.discountId" style="width: 120px;margin: 0 5px"></el-input>
+                    <el-input v-model="scope.row.discountId" size="mini" style="width: 120px;margin: 0 5px" />
                     <el-button size="mini" type="primary" @click="setSellActive(scope.row)">{{
-                        scope.row.isExisting &&
+                      scope.row.isExisting &&
                         '配置折扣' || '创建活动'
-                      }}
+                    }}
                     </el-button>
                   </div>
                 </template>
@@ -681,12 +861,12 @@
                 <template slot="header" slot-scope="scope">
                   商品分类ID
                   <el-tooltip class="item" effect="dark" content="分类ID请至【商品管理】 - 【商店分类】中查看" placement="top-end">
-                    <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i>
+                    <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" />
                     </el-button>
                   </el-tooltip>
                 </template>
                 <template slot-scope="scope">
-                  <el-input size="mini" v-model="scope.row.goodsId" style="width: 120px;"></el-input>
+                  <el-input v-model="scope.row.goodsId" size="mini" style="width: 120px;" />
                 </template>
               </u-table-column>
             </u-table>
@@ -697,46 +877,58 @@
           </div>
         </div>
       </el-dialog>
-      <el-dialog :title="sellActiveCurrent.isExisting && '配置折扣' || '创建活动'" width="350px"
-                 top="25vh" :visible.sync="setSellActiveVisible" :close-on-click-modal="false">
+      <el-dialog
+        :title="sellActiveCurrent.isExisting && '配置折扣' || '创建活动'"
+        width="350px"
+        top="25vh"
+        :visible.sync="setSellActiveVisible"
+        :close-on-click-modal="false"
+      >
         <div class="sell_active_dialog">
           <div v-show="!sellActiveCurrent.isExisting" class="on_new_dialog_box">
             <div class="keepRight">活动名称：</div>
-            <el-input size="mini" v-model="sellActiveCurrent.name" style="width: 180px"></el-input>
+            <el-input v-model="sellActiveCurrent.name" size="mini" style="width: 180px" />
           </div>
           <div v-show="!sellActiveCurrent.isExisting" class="on_new_dialog_box">
             <div class="keepRight">活动开始时间：</div>
             <el-date-picker
-                v-model="sellActiveCurrent.startTime"
-                type="datetime"
-                size="mini"
-                style="width: 180px"
-                placeholder="选择开始时间">
-            </el-date-picker>
+              v-model="sellActiveCurrent.startTime"
+              type="datetime"
+              size="mini"
+              style="width: 180px"
+              placeholder="选择开始时间"
+            />
           </div>
           <div v-show="!sellActiveCurrent.isExisting" class="on_new_dialog_box">
             <div class="keepRight">活动结束时间：</div>
             <el-date-picker
-                v-model="sellActiveCurrent.endTime"
-                type="datetime"
-                size="mini"
-                style="width: 180px"
-                placeholder="选择结束时间">
-            </el-date-picker>
+              v-model="sellActiveCurrent.endTime"
+              type="datetime"
+              size="mini"
+              style="width: 180px"
+              placeholder="选择结束时间"
+            />
           </div>
           <div class="on_new_dialog_box">
             <div class="keepRight">活动折扣：</div>
-            <el-input size="mini" style="width: 180px;margin-right: 5px;"
-                      v-model="sellActiveCurrent.discount"></el-input>
+            <el-input
+              v-model="sellActiveCurrent.discount"
+              size="mini"
+              style="width: 180px;margin-right: 5px;"
+            />
             %
-            <el-tooltip class="item" effect="dark" content="折扣价格 = 商品原价 * 折扣%，如原价1000的商品，输入80折扣的折扣价格为800"
-                        placement="top-end">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="折扣价格 = 商品原价 * 折扣%，如原价1000的商品，输入80折扣的折扣价格为800"
+              placement="top-end"
+            >
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
             </el-tooltip>
           </div>
           <div class="on_new_dialog_box">
             <div class="keepRight">限购数量：</div>
-            <el-input size="mini" style="width: 180px" v-model="sellActiveCurrent.number"></el-input>
+            <el-input v-model="sellActiveCurrent.number" size="mini" style="width: 180px" />
           </div>
           <div class="on_new_dialog_box" style="justify-content: space-evenly">
             <el-button size="mini" type="primary" @click="updateSellActive()">确定</el-button>
@@ -745,90 +937,107 @@
         </div>
       </el-dialog>
       <el-dialog title="商品标签" width="300px" top="25vh" :close-on-click-modal="false" :visible.sync="goodsTagVisible">
-        <goodsLabel v-if="goodsTagVisible" :goods-table-select="goodsTableSelect" @goodsTagChange="goodsTagChange"/>
+        <goodsLabel v-if="goodsTagVisible" :goods-table-select="goodsTableSelect" @goodsTagChange="goodsTagChange" />
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible">
-        <categoryMapping v-if="categoryVisible" :country="country" :goods-current="goodsCurrent" :mall-list="mallList"
-                         @categoryChange="categoryChange"/>
+        <categoryMapping
+          v-if="categoryVisible"
+          :country="country"
+          :goods-current="goodsCurrent"
+          :mall-list="mallList"
+          @categoryChange="categoryChange"
+        />
       </el-dialog>
       <el-dialog title="计价助手" width="900px" top="15vh" :close-on-click-modal="false" :visible.sync="valuationVisible">
         <div class="basisInstall" style="width: 100%">
           <div class="basisInstall-title">配置区<span style="color: red">(必填)</span></div>
           <div class="basisInstall-box" style="flex-wrap: nowrap;">
             <div>标签：</div>
-            <el-select value="" size="mini" v-model="valuationLabel">
-              <el-option :value="item.id" v-for="(item,index) in valuationLabelList" :key="index" :label="item.label"/>
+            <el-select v-model="valuationLabel" value="" size="mini">
+              <el-option v-for="(item,index) in valuationLabelList" :key="index" :value="item.id" :label="item.label" />
             </el-select>
             <el-tooltip class="item" effect="dark" content="可设置常用的标签，保存区域运费比例数据" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
             </el-tooltip>
           </div>
           <div class="basisInstall-box" style="flex-wrap: nowrap">
             <div class="basisInstall-box-item">
               <div class="item-name">运送方式：</div>
-              <el-select value="" size="mini" v-model="valuationConfig.shippingMethod">
-                <el-option v-for="(item,index) in shippingMethodList" :key="index" :label="item.label"
-                           :value="item.value"/>
+              <el-select v-model="valuationConfig.shippingMethod" value="" size="mini">
+                <el-option
+                  v-for="(item,index) in shippingMethodList"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                />
               </el-select>
               <el-tooltip class="item" effect="dark" content="小件计重商品一般选择空运方式；大件商品视您实际情况选择陆运或海运方式" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">货物类型：</div>
-              <el-select value="" size="mini" v-model="valuationConfig.goodsType">
-                <el-option value="" v-for="(item,index) in goodsTypeList" :key="index" :label="item.label"
-                           :value="item.value"/>
+              <el-select v-model="valuationConfig.goodsType" value="" size="mini">
+                <el-option
+                  v-for="(item,index) in goodsTypeList"
+                  :key="index"
+                  value=""
+                  :label="item.label"
+                  :value="item.value"
+                />
               </el-select>
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">交易手续费(%)：</div>
-              <el-input size="mini" v-model="valuationConfig.transactionCommission"></el-input>
+              <el-input v-model="valuationConfig.transactionCommission" size="mini" />
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">仓库服务费(%)：</div>
-              <el-input size="mini" v-model="valuationConfig.warehouseServiceCharge"></el-input>
+              <el-input v-model="valuationConfig.warehouseServiceCharge" size="mini" />
             </div>
           </div>
           <div class="basisInstall-box" style="flex-wrap: nowrap;margin: 10px 0">
             <div class="basisInstall-box-item">
               <div class="item-name">折扣率(%)：</div>
-              <el-input size="mini" v-model="valuationConfig.discount"></el-input>
+              <el-input v-model="valuationConfig.discount" size="mini" />
               <el-tooltip class="item" effect="dark" content="折扣率：折扣需在行销活动中自行设置商品折扣" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">毛利率(%)：</div>
-              <el-input size="mini" v-model="valuationConfig.grossProfitMargin"></el-input>
+              <el-input v-model="valuationConfig.grossProfitMargin" size="mini" />
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">提现手续费(%)：</div>
-              <el-input size="mini" v-model="valuationConfig.withdrawalCharge"></el-input>
+              <el-input v-model="valuationConfig.withdrawalCharge" size="mini" />
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">清关费：</div>
-              <el-input size="mini" v-model="valuationConfig.customsClearanceFee"></el-input>
+              <el-input v-model="valuationConfig.customsClearanceFee" size="mini" />
             </div>
           </div>
           <div class="basisInstall-box" style="flex-wrap: nowrap">
             <div class="basisInstall-box-item" style="padding-right: 18px">
               <div class="item-name">其他杂费：</div>
-              <el-input size="mini" v-model="valuationConfig.other"></el-input>
+              <el-input v-model="valuationConfig.other" size="mini" />
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">泡重计算比：</div>
-              <el-input @input="$set(calculateReference,'bubbleHeavyNum', valuationConfig.bubbleHeavy)"
-                        size="mini" v-model="valuationConfig.bubbleHeavy"></el-input>
+              <el-input
+                v-model="valuationConfig.bubbleHeavy"
+                size="mini"
+                @input="$set(calculateReference,'bubbleHeavyNum', valuationConfig.bubbleHeavy)"
+              />
               <el-tooltip class="item" effect="dark" content="泡重计算比：泡重计算公式为：长*宽*高/泡重计算比，请填写相应货代的计算比" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
-              <el-button size="mini" @click="freightVisible =true" type="primary" plain>运费设置</el-button>
+              <el-button size="mini" type="primary" plain @click="freightVisible =true">运费设置</el-button>
             </div>
             <div class="basisInstall-box-item">
-              <span style="display: inline-block;width: 100px;"></span>
+              <span style="display: inline-block;width: 100px;" />
             </div>
           </div>
         </div>
@@ -837,52 +1046,50 @@
           <div class="basisInstall-box" style="flex-wrap: nowrap;margin-bottom: 10px">
             <div class="basisInstall-box-item">
               <div class="item-name">长(CM)：</div>
-              <el-input size="mini" v-model="calculateReference.long"></el-input>
+              <el-input v-model="calculateReference.long" size="mini" />
               <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">宽(CM)：</div>
-              <el-input size="mini" v-model="calculateReference.width"></el-input>
+              <el-input v-model="calculateReference.width" size="mini" />
               <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">高(CM)：</div>
-              <el-input size="mini" v-model="calculateReference.height"></el-input>
+              <el-input v-model="calculateReference.height" size="mini" />
               <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
-            <div class="basisInstall-box-item">
-            </div>
+            <div class="basisInstall-box-item" />
           </div>
           <div class="basisInstall-box" style="flex-wrap: nowrap;">
             <div class="basisInstall-box-item">
               <div class="item-name">成本(RMB)：</div>
-              <el-input size="mini" v-model="calculateReference.costing"></el-input>
+              <el-input v-model="calculateReference.costing" size="mini" />
               <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">重量(g)：</div>
-              <el-input size="mini" v-model="calculateReference.weight"></el-input>
+              <el-input v-model="calculateReference.weight" size="mini" />
               <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
               <div class="item-name">泡重(g)：</div>
-              <el-input style="pointer-events: none" size="mini" v-model="calculateReference.bubbleHeavy"></el-input>
+              <el-input v-model="calculateReference.bubbleHeavy" style="pointer-events: none" size="mini" />
               <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
-            <div class="basisInstall-box-item">
-            </div>
+            <div class="basisInstall-box-item" />
           </div>
         </div>
         <div style="display: flex;justify-content: center;">
@@ -901,7 +1108,7 @@
                 }}
               </div>
               <el-tooltip class="item" effect="dark" content="标价=折后价/折扣率" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
@@ -912,13 +1119,11 @@
                 }}
               </div>
               <el-tooltip class="item" effect="dark" content="折后价=成本+运费+手续费+佣金+仓库服务费+利润+交店费/清关费+其它杂费" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
-            <div class="basisInstall-box-item">
-            </div>
-            <div class="basisInstall-box-item">
-            </div>
+            <div class="basisInstall-box-item" />
+            <div class="basisInstall-box-item" />
           </div>
           <div class="basisInstall-box" style="flex-wrap: nowrap;margin: 10px 0;">
             <div class="basisInstall-box-item">
@@ -929,7 +1134,7 @@
                 }}
               </div>
               <el-tooltip class="item" effect="dark" content="运费=计费重*计费单价+仓库服务费+交店费/清关费" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
@@ -940,26 +1145,22 @@
                 }}
               </div>
               <el-tooltip class="item" effect="dark" content="利润=折后价*毛利率" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
-            <div class="basisInstall-box-item">
-            </div>
-            <div class="basisInstall-box-item">
-            </div>
+            <div class="basisInstall-box-item" />
+            <div class="basisInstall-box-item" />
           </div>
           <div class="basisInstall-box" style="flex-wrap: nowrap;">
             <div class="basisInstall-box-item">
               <div class="item-name">当前汇率：</div>
-              <el-input disabled style="pointer-events: none" size="mini" v-model="rateList[this.country]"></el-input>
+              <el-input v-model="rateList[this.country]" disabled style="pointer-events: none" size="mini" />
             </div>
             <div class="basisInstall-box-item">
               <el-button type="primary" size="mini" @click="RMBShow = !RMBShow">币种转换</el-button>
             </div>
-            <div class="basisInstall-box-item">
-            </div>
-            <div class="basisInstall-box-item">
-            </div>
+            <div class="basisInstall-box-item" />
+            <div class="basisInstall-box-item" />
           </div>
         </div>
       </el-dialog>
@@ -977,9 +1178,13 @@
             </div>
           </div>
           <div v-for="(sItem,index) in shippingMethodList" :key="index">
-            <div class="basisInstall-box" v-for="(gItem,index) in goodsTypeList" :key="index"
-                 style="padding: 10px;margin: 0; color: #000"
-                 :style="'background:'+(index === 1 && '#F6ECCB' || index === 2 && '#FE4148')">
+            <div
+              v-for="(gItem,index) in goodsTypeList"
+              :key="index"
+              class="basisInstall-box"
+              style="padding: 10px;margin: 0; color: #000"
+              :style="'background:'+(index === 1 && '#F6ECCB' || index === 2 && '#FE4148')"
+            >
               <div class="basisInstall-box-item">
                 {{ sItem.label + '-' + gItem.label }}
               </div>
@@ -987,7 +1192,7 @@
                 每100g
               </div>
               <div class="basisInstall-box-item">
-                <el-input size="mini" v-model="freightList[sItem.value + '-' +gItem.value]"></el-input>
+                <el-input v-model="freightList[sItem.value + '-' +gItem.value]" size="mini" />
               </div>
             </div>
           </div>
@@ -995,8 +1200,15 @@
       </el-dialog>
       <el-dialog title="上新状态详情" width="1000px" top="10vh" :close-on-click-modal="false" :visible.sync="detailsVisible">
         <div class="" style="width: 100%">
-          <u-table :data="newOnDetailsList" use-virtual :data-changes-scroll-top="false" :border="false" height="500"
-                   :header-cell-style="{backgroundColor: '#f5f7fa'}" :big-data-checkbox="true">
+          <u-table
+            :data="newOnDetailsList"
+            use-virtual
+            :data-changes-scroll-top="false"
+            :border="false"
+            height="500"
+            :header-cell-style="{backgroundColor: '#f5f7fa'}"
+            :big-data-checkbox="true"
+          >
             <u-table-column align="left" label="序列号" type="index" width="60">
               <template slot-scope="scope">
                 {{ scope.$index + 1 }}
@@ -1006,14 +1218,14 @@
               <template v-slot="{ row }">
                 <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
                 <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
-                  <i class="el-icon-document-copy"/></el-button>
+                  <i class="el-icon-document-copy" /></el-button>
               </template>
             </u-table-column>
             <u-table-column align="left" label="shopee-Id" width="130">
               <template slot-scope="{ row }">
                 <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
                 <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
-                  <i class="el-icon-document-copy"/></el-button>
+                  <i class="el-icon-document-copy" /></el-button>
               </template>
             </u-table-column>
             <u-table-column align="left" label="店铺分组" show-overflow-tooltip width="80">
@@ -1043,7 +1255,7 @@
                 {{ row.price || '' }}{{ row.price && $filters.siteCoin(row.country) || '' }}
               </template>
             </u-table-column>
-            <u-table-column align="left" label="来源" prop="sourceName" width="80"/>
+            <u-table-column align="left" label="来源" prop="sourceName" width="80" />
           </u-table>
         </div>
       </el-dialog>
@@ -1053,33 +1265,42 @@
             <div class="basisInstall-title">定时刊登设置</div>
             <div class="basisInstall-box">
               <div class="keepRight">上新时间间隔：</div>
-              <el-input size="mini" v-model="setTimeConfig.onNewInterval"
-                        style="width: 80px;margin:0 5px;"></el-input>
+              <el-input
+                v-model="setTimeConfig.onNewInterval"
+                size="mini"
+                style="width: 80px;margin:0 5px;"
+              />
               S
-              <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S，上新时间间隔低于40S的，存在封店风险，请谨慎开启" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box">
               <div class="keepRight">上新加速：</div>
-              <el-input style="width: 80px;margin: 0 5px;" size="mini" v-model="setTimeConfig.onNewThread"
-                        @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"></el-input>
+              <el-input
+                v-model="setTimeConfig.onNewThread"
+                style="width: 80px;margin: 0 5px;"
+                size="mini"
+                @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"
+              />
               条线程
               <el-tooltip class="item" effect="dark" content="请根据电脑配置合理设置上新线程数，最大为5" :min="1" :max="5" placement="top">
-                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box">
               <div class="keepRight">时间选择：</div>
               <el-date-picker
-                  v-model="setTimeConfig.time" type="datetime"
-                  size="mini" style="width: 180px;margin: 0 5px;"
-                  placeholder="选择日期时间">
-              </el-date-picker>
+                v-model="setTimeConfig.time"
+                type="datetime"
+                size="mini"
+                style="width: 180px;margin: 0 5px;"
+                placeholder="选择日期时间"
+              />
             </div>
             <div class="basisInstall-box">
               <div class="keepRight">任务名称：</div>
-              <el-input style="width: 240px;margin: 0 5px;" size="mini" v-model="setTimeConfig.name"></el-input>
+              <el-input v-model="setTimeConfig.name" style="width: 240px;margin: 0 5px;" size="mini" />
             </div>
           </div>
           <div style="display: flex;justify-content: space-around;margin:30px 0">
@@ -1088,10 +1309,20 @@
           </div>
         </div>
       </el-dialog>
-      <el-dialog title="商品编辑" width="1000px" top="2vh" :close-on-click-modal="false" :close-on-press-escape="false"
-                 :modal="false" :visible.sync="goodsEditorVisible">
-        <goods-edit-details v-if="goodsEditorVisible" :goods-editor="goodsEditor"
-                            @goodsEditorCancel="goodsEditorCancel"/>
+      <el-dialog
+        title="商品编辑"
+        width="1000px"
+        top="2vh"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :modal="false"
+        :visible.sync="goodsEditorVisible"
+      >
+        <goods-edit-details
+          v-if="goodsEditorVisible"
+          :goods-editor="goodsEditor"
+          @goodsEditorCancel="goodsEditorCancel"
+        />
       </el-dialog>
     </div>
   </el-row>
@@ -1118,6 +1349,7 @@ import xlsx from 'xlsx'
 import { errorMsg } from '@/plugins/filters'
 
 export default {
+  components: { goodsEditDetails, storeChoose, categoryMapping, goodsLabel },
   data() {
     return {
       goodsEditorVisible: false,
@@ -1127,8 +1359,8 @@ export default {
       goodsTableSelect: [], // 商品列表所选
       goodsCurrent: '',
       mallList: [], // 店铺列表
-      country: '',  // 店铺站点
-      sourceCategoryList: [], //源商品类目
+      country: '', // 店铺站点
+      sourceCategoryList: [], // 源商品类目
       sourceCategory: [0],
       resultsFilterList: [
         { label: '全部', value: 0 },
@@ -1137,37 +1369,37 @@ export default {
         { label: '发布失败', value: 3 },
         { label: '重新刊登', value: 4 },
         { label: '已过滤数据', value: 5 }
-      ], //结果过滤
+      ], // 结果过滤
       resultsFilter: 0,
       mewOnProgress: 0,
       isNoFoldShow: true,
-      //弹窗
-      categoryVisible: false, //类目弹窗
+      // 弹窗
+      categoryVisible: false, // 类目弹窗
       attributesList: [],
       attributesCurrent: [],
 
-      goodsTagVisible: false, //标签弹窗
+      goodsTagVisible: false, // 标签弹窗
       goodsTagAction: '',
       goodsTagCurrent: '',
 
-      sellActiveVisible: false, //活动弹窗
+      sellActiveVisible: false, // 活动弹窗
       setSellActiveVisible: false,
       sellActiveTable: [],
       sellActiveSetting: [],
       sellActiveCurrent: {},
 
-      watermarkVisible: false,//水印弹窗
+      watermarkVisible: false, // 水印弹窗
       watermarkConfig: {
-        type: 1, //水印类型 1/2/3
-        addType: 1,  // 添加类型 0
+        type: 1, // 水印类型 1/2/3
+        addType: 1, // 添加类型 0
         textType: 1, // 文字类型 1
-        textSize: '30',  //文字大小 1
-        textColor: '#D5D4DA',// 文字颜色 1
-        locate: 1, //添加位置 1， 2
-        clarity: 0.3,  // 透明度 2
-        imgSize: 1,  // 缩放方式 2
+        textSize: '30', // 文字大小 1
+        textColor: '#D5D4DA', // 文字颜色 1
+        locate: 1, // 添加位置 1， 2
+        clarity: 0.3, // 透明度 2
+        imgSize: 1, // 缩放方式 2
         goodsImg: '', // 商品图 2 3
-        watermarkImg: '',  //水印图 2 3
+        watermarkImg: '', // 水印图 2 3
         text: '水印'
       },
       watermarkSetting: {},
@@ -1204,47 +1436,47 @@ export default {
         }
       ],
       locateClass: 'watermark_image_left watermark_image_top',
-      logistics: [],  //所选物流
+      logistics: [], // 所选物流
       logisticsList: [], // 物流列表
-      customLogistics: [], //自定义物流列表
-      //店铺设置
+      customLogistics: [], // 自定义物流列表
+      // 店铺设置
       storeConfig: {
         watermarkChecked: true, // 水印配置
         priceRadio: 0, // sku价格单选
         activityChecked: false, // 商品设置
-        chineseChecked: [], //中文配置
-        pictureThread: '3', //线程数量
-        dangerousRadio: 0, //危险物品
-        wordsHeavy: false //单词去重
+        chineseChecked: [], // 中文配置
+        pictureThread: '3', // 线程数量
+        dangerousRadio: 0, // 危险物品
+        wordsHeavy: false // 单词去重
       },
-      //基础配置
-      valuationRadio: 1, //计价方式
+      // 基础配置
+      valuationRadio: 1, // 计价方式
       basicConfig: {
         formula: {
           percentage: '50',
           basis: '5',
           hidden: '5'
-        }, //加价方式 1
-        discount: '100', //折扣 1
-        valuationMethodsRadio: 0, //算价方式 1 ，2
-        fixedPrice: '150',  //商品价格 3
-        headlineRadio: 0, //热搜词标题位置
-        hotSearch: '1', //热搜词数
-        hotList: '', //热搜词列表
-        embargoChecked1: true, //启动禁运类目拦截
-        embargoChecked2: true, //启动禁运词拦截
-        minHeavy: '0.1', //最小重量
-        maxHeavy: '1', //最大重量
-        categoryMapping: 1, //类目映射
-        sourceCategoryChecked: false, //源类目映射
-        stockUpChecked: true, //备货配置
-        stockUpNumber: '15', //备货数量
-        onNewThread: '5', //线程数量
-        numberCeilingChecked: false, //上货上限配置
-        numberCeiling: '1000', //上货上限
-        usedChecked: false, //二手商品
-        deleteCollectChecked: false, //删除收藏
-        autoCompleteChecked: false, //自动补齐轮播主图
+        }, // 加价方式 1
+        discount: '100', // 折扣 1
+        valuationMethodsRadio: 0, // 算价方式 1 ，2
+        fixedPrice: '150', // 商品价格 3
+        headlineRadio: 0, // 热搜词标题位置
+        hotSearch: '1', // 热搜词数
+        hotList: '', // 热搜词列表
+        embargoChecked1: true, // 启动禁运类目拦截
+        embargoChecked2: true, // 启动禁运词拦截
+        minHeavy: '0.1', // 最小重量
+        maxHeavy: '1', // 最大重量
+        categoryMapping: 1, // 类目映射
+        sourceCategoryChecked: false, // 源类目映射
+        stockUpChecked: true, // 备货配置
+        stockUpNumber: '15', // 备货数量
+        onNewThread: '5', // 线程数量
+        numberCeilingChecked: false, // 上货上限配置
+        numberCeiling: '1000', // 上货上限
+        usedChecked: false, // 二手商品
+        deleteCollectChecked: false, // 删除收藏
+        autoCompleteChecked: false, // 自动补齐轮播主图
         min_purchase_limit: 1
       },
       valuationVisible: false,
@@ -1260,7 +1492,7 @@ export default {
         customsClearanceFee: '4.5',
         other: '',
         bubbleHeavy: ''
-      },  //计价配置 2
+      }, // 计价配置 2
       valuationSetting: {},
       valuationLabelList: [],
       shippingMethodList: [{ label: '海运', value: 'sea' }, { label: '陆运', value: 'land' }, {
@@ -1306,13 +1538,13 @@ export default {
         }, {
           label: '共有类目映射',
           value: 2
-        }], //类目映射列表
-      //防关联设置
+        }], // 类目映射列表
+      // 防关联设置
       associatedConfig: {
-        specialCharChecked: true, //特殊字符
-        realNameChecked: false, //真实店铺名
-        onNewInterval: '40', //上新时间间隔
-        dimensionRadio: 1,//上新唯独
+        specialCharChecked: true, // 特殊字符
+        realNameChecked: false, // 真实店铺名
+        onNewInterval: '40', // 上新时间间隔
+        dimensionRadio: 1, // 上新唯独
         pictureSetting: {
           mainRandomChecked: true,
           firstChecked: true,
@@ -1321,9 +1553,9 @@ export default {
           whiteChecked: false,
           index: '1',
           compressionChecked: true
-        }, //图片设置s
-        missingUploadChecked: false, //图片缺失上传
-        keyFilter: [0, 1, 2, 3], //关键词过滤 0全部 1标题 2描述 3SKU
+        }, // 图片设置s
+        missingUploadChecked: false, // 图片缺失上传
+        keyFilter: [0, 1, 2, 3], // 关键词过滤 0全部 1标题 2描述 3SKU
         keyList: '',
         priceRange: '2'
       },
@@ -1340,9 +1572,9 @@ export default {
           label: 'SKU',
           value: 3
         }
-      ], //图片缺失上传
+      ], // 图片缺失上传
 
-      //数据统计
+      // 数据统计
       statistics: {
         count: 0,
         success: 0,
@@ -1353,11 +1585,11 @@ export default {
       sourceObj: null,
       source: null,
 
-      //额外
+      // 额外
       labelList: [],
-      isBanPerform: false, //禁止按钮
+      isBanPerform: false, // 禁止按钮
 
-      //rateList
+      // rateList
       RMBShow: true,
       rateList: {},
       titleInterval: {
@@ -1457,7 +1689,6 @@ export default {
       }
     }
   },
-  components: { goodsEditDetails, storeChoose, categoryMapping, goodsLabel },
   watch: {
     country(value) {
       this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
@@ -1489,7 +1720,7 @@ export default {
     },
     valuationRadio(val) {
       if (val === 2) {
-        let setting = this.valuationSetting
+        const setting = this.valuationSetting
         if (!(setting && setting.bubbleHeavy >= 0)) {
           this.$alert('计价信息为空，请填写点击确认后再选择此计价方式上新！', '提示', {
             confirmButtonText: '确定',
@@ -1516,14 +1747,13 @@ export default {
           }
           this.locateClass = locateClass
         }
-
       },
       deep: true
     },
     logistics(val) {
       this.customLogistics = []
       val.forEach(item => {
-        let temp = this.logisticsList.filter(i => i.ShipId === item)[0]
+        const temp = this.logisticsList.filter(i => i.ShipId === item)[0]
         if (temp && temp.IsCustomShipFee) {
           this.customLogistics.push(temp)
         }
@@ -1539,10 +1769,10 @@ export default {
     },
     calculateReference: {
       handler(data) {
-        let long = data.long || 0
-        let width = data.width || 0
-        let height = data.height || 0
-        let bubbleHeavy = data.bubbleHeavyNum || 0
+        const long = data.long || 0
+        const width = data.width || 0
+        const height = data.height || 0
+        const bubbleHeavy = data.bubbleHeavyNum || 0
         let bulkWeightFormula = (long * width * height)
         if (bubbleHeavy && bulkWeightFormula) {
           bulkWeightFormula = (bulkWeightFormula / bubbleHeavy * 1000).toFixed(2) * 1
@@ -1553,32 +1783,32 @@ export default {
     },
     valuationLabel(val) {
       try {
-        let configRes = this.valuationLabelList.find(i => i.id === val)
-        let config = configRes && configRes.config
-        let jsonStr = config && config[0] || ''
+        const configRes = this.valuationLabelList.find(i => i.id === val)
+        const config = configRes && configRes.config
+        const jsonStr = config && config[0] || ''
         if (jsonStr) {
           this.valuationSetting = JSON.parse(jsonStr)
           this.valuationConfig = JSON.parse(jsonStr)
           this.freightList = config[1] && JSON.parse(config[1]) || this.freightList
         } else {
-          let temp = {
+          const temp = {
             shippingMethod: config.TransportType || 'sea',
             goodsType: config.GoodsType || 'general',
-            transactionCommission: config.Brokerage || '2', //Brokerage
-            warehouseServiceCharge: config.WarehouseFee || '3',  //WarehouseFee
-            discount: config.DiscountRate || '', //DiscountRate
-            grossProfitMargin: config.GrossMargin || '20', //GrossMargin
-            withdrawalCharge: config.HandlingFee || '3',  //HandlingFee
+            transactionCommission: config.Brokerage || '2', // Brokerage
+            warehouseServiceCharge: config.WarehouseFee || '3', // WarehouseFee
+            discount: config.DiscountRate || '', // DiscountRate
+            grossProfitMargin: config.GrossMargin || '20', // GrossMargin
+            withdrawalCharge: config.HandlingFee || '3', // HandlingFee
             customsClearanceFee: config.ShopFeeOrClearanceFee || '4.5', // ShopFeeOrClearanceFee
-            other: config.OriginPrice || '',  //OriginPrice
-            bubbleHeavy: config.BulkRate || '' //BulkRate
+            other: config.OriginPrice || '', // OriginPrice
+            bubbleHeavy: config.BulkRate || '' // BulkRate
           }
           this.valuationSetting = temp
           this.valuationConfig = temp
           if (config.FeeDetailList) {
-            for (let key in config.FeeDetailList) {
-              let item = config.FeeDetailList[key]
-              let name = item.TransportType
+            for (const key in config.FeeDetailList) {
+              const item = config.FeeDetailList[key]
+              const name = item.TransportType
               name.replaceAll('海运', 'sea')
               name.replaceAll('陆运', 'land')
               name.replaceAll('空运', 'air')
@@ -1600,7 +1830,7 @@ export default {
         console.log('gotoUpload-e', e)
         await this.getUploadGoodsId()
       })
-      let firstOnNewKey = await this.$appConfig.temporaryCacheInfo('get', 'firstOnNewKey', '')
+      const firstOnNewKey = await this.$appConfig.temporaryCacheInfo('get', 'firstOnNewKey', '')
       if (firstOnNewKey != true) {
         console.log('gotoUpload-firstOnNewKey', firstOnNewKey)
         await this.$appConfig.temporaryCacheInfo('save', 'firstOnNewKey', true)
@@ -1610,24 +1840,24 @@ export default {
     } finally {
       this.rateList = this.$userInfo.ExchangeRates || {}
       console.log('rateList', this.rateList)
-      let valuationConfigRes = await this.$api.valuationConfigGetAll()
+      const valuationConfigRes = await this.$api.valuationConfigGetAll()
       this.valuationLabelList = valuationConfigRes && valuationConfigRes.data.data || []
       await this.publishGoodsConfigGet()
     }
   },
   methods: {
     async getUploadGoodsId() {
-      let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
+      const goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
       console.log(goodsListJSON)
-      let goodsList = goodsListJSON && JSON.parse(goodsListJSON) || []
+      const goodsList = goodsListJSON && JSON.parse(goodsListJSON) || []
       if (goodsList.length) {
         console.log('goodsListJSON', goodsList)
-        for (let item of goodsList) {
-          let index = this.goodsTable.findIndex(i => i.id === item.id)
+        for (const item of goodsList) {
+          const index = this.goodsTable.findIndex(i => i.id === item.id)
           index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
         }
         this.statistics.count = this.goodsTable.length
-        let sourceCategoryList = new Set()
+        const sourceCategoryList = new Set()
         this.goodsTable.forEach(item => {
           sourceCategoryList.add(item.category_name)
         })
@@ -1651,7 +1881,7 @@ export default {
         return
       }
       if (this.customLogistics.length > 0) {
-        for (let item of this.customLogistics) {
+        for (const item of this.customLogistics) {
           if (!(item.price * 1)) {
             this.$message.error('运费价格有误，请确认')
             return
@@ -1663,7 +1893,7 @@ export default {
         return
       }
       if (this.storeConfig.activityChecked) {
-        let noSell = this.sellActiveSetting.find(i => {
+        const noSell = this.sellActiveSetting.find(i => {
           console.log(this.sellActiveSetting, i)
           if (!i.goodsId) {
             if (!i.discountId || !i.discount || !i.number) {
@@ -1677,7 +1907,6 @@ export default {
             type: 'warning'
           }).then(() => {
           })
-
         }
       }
       this.isBanPerform = true
@@ -1700,27 +1929,27 @@ export default {
     },
     async prepareWork(mall, count = { count: 1 }) {
       let messageName = ''
-      let mallId = mall.platform_mall_id
-      let mallName = mall.mall_alias_name || mall.platform_mall_name
+      const mallId = mall.platform_mall_id
+      const mallName = mall.mall_alias_name || mall.platform_mall_name
       let ratio = 100
-      let progress = 100 / this.mallList.length
+      const progress = 100 / this.mallList.length
       try {
         let goodsList = []
-        let logistics_channels = []
-        let loginRes = await this.mallListAPIInstance.getUserInfo(mall)
-        let loginSuccess = loginRes.code === 200
+        const logistics_channels = []
+        const loginRes = await this.mallListAPIInstance.getUserInfo(mall)
+        const loginSuccess = loginRes.code === 200
         if (loginSuccess) {
           const params = {}
           params['mallId'] = mallId
           const channelListJSON = await this.$shopeemanService.getChinese(mall.country, '/api/v3/logistics/get_channel_list/?', params)
           const channelListRes = JSON.parse(channelListJSON)
           const channelListData = JSON.parse(channelListRes.data)
-          let channelList = channelListData.data && channelListData.data.list || []
+          const channelList = channelListData.data && channelListData.data.list || []
           // logistics_channels
           console.log('channelListRes', channelList, this.logistics, this.customLogistics)
-          for (let item of channelList) {
+          for (const item of channelList) {
             if ((!item.parent_channel_id && this.logistics.includes(item.channel_id + '')) || item.is_mask_channel) {
-              let temp = {
+              const temp = {
                 enabled: item.enabled,
                 channelid: item.channel_id,
                 sizeid: 0,
@@ -1729,7 +1958,7 @@ export default {
                 cover_shipping_fee: false,
                 parent_channel_id: 0
               }
-              let findItem = this.customLogistics.find(son => son.shopId === (item.channel_id + ''))
+              const findItem = this.customLogistics.find(son => son.shopId === (item.channel_id + ''))
               if (findItem) {
                 temp['price'] = findItem.price + ''
               }
@@ -1738,9 +1967,9 @@ export default {
           }
         }
         if (this.associatedConfig.dimensionRadio < 2) {
-          let mallCount = this.mallList.length
+          const mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
-          let goodsCount = this.goodsTableSelect.length
+          const goodsCount = this.goodsTableSelect.length
           goodsList = mallIndex < goodsCount && [this.goodsTableSelect[mallIndex]] || []
           while (mallIndex < goodsCount) {
             mallIndex = mallIndex + mallCount
@@ -1749,7 +1978,7 @@ export default {
             }
           }
         } else {
-          let offset = Math.floor(Math.random() * 100) % 2
+          const offset = Math.floor(Math.random() * 100) % 2
           goodsList = this.goodsTableSelect
           let amplitude = Number(this.associatedConfig.priceRange) || 0
           if (!(amplitude >= 0)) {
@@ -1766,7 +1995,7 @@ export default {
         ratio = Number(ratio / 100)
         console.log('goodsList -1', goodsList)
         if (goodsList.length > 0) {
-          for (let item of goodsList) {
+          for (const item of goodsList) {
             if (this.isCancelRelease) {
               return
             }
@@ -1783,20 +2012,20 @@ export default {
                 ++this.statistics.failure
                 continue
               }
-              let originCategoryId = item.originCategoryId || item.category_id
-              let platformId = item.platform || item.source
+              const originCategoryId = item.originCategoryId || item.category_id
+              const platformId = item.platform || item.source
               // attributes brand_id category_path
               this.updateAttributeName(item, '正在抓取产品', '', mall)
-              let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
-              let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
-              let neededTranslateInfoData = neededTranslateInfoRes.data
+              const neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
+              const neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
+              const neededTranslateInfoData = neededTranslateInfoRes.data
               if (Number(neededTranslateInfoRes.code) !== 200) {
                 messageName = neededTranslateInfoRes.msg || ''
                 this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
                 return
               }
               console.log('neededTranslateInfoData -2', neededTranslateInfoData)
-              let goodsInitParam = {
+              const goodsInitParam = {
                 attributes: [],
                 stock: neededTranslateInfoData.stock,
                 model_list: [],
@@ -1807,7 +2036,7 @@ export default {
                   length: neededTranslateInfoData.long > 1 && neededTranslateInfoData.long || 1
                 },
                 condition: this.basicConfig.usedChecked && 4 || 1,
-                dangerous_goods: 0, //待修改
+                dangerous_goods: 0, // 待修改
                 min_purchase_limit: this.country === 'TW' && parseInt(this.basicConfig.min_purchase_limit) || 1,
                 input_normal_price: null,
                 input_promotion_price: null,
@@ -1824,19 +2053,19 @@ export default {
                 unlisted: this.basicConfig.usedChecked,
                 add_on_deal: []
               }
-              let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
+              const goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
               this.updateAttributeName(item, '正在匹配类目', '', mall)
-              let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
+              const categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
               console.log('getCategoryRelation - data', categoryRelationJson)
-              let categoryRelationRes = JSON.parse(categoryRelationJson)
-              let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
+              const categoryRelationRes = JSON.parse(categoryRelationJson)
+              const categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
               console.log('categoryId', categoryId)
               if (categoryId) {
                 goodsParam['category_path'] = await this.getCategoryPath(categoryId) || []
-                let attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
-                let category = categoryRelationRes.data.category
-                let categoryName = `${category.platform_category_name}(${category.platform_category_cn_name})`
-                let index = this.goodsTable.findIndex(son => son.id === item.id)
+                const attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
+                const category = categoryRelationRes.data.category
+                const categoryName = `${category.platform_category_name}(${category.platform_category_cn_name})`
+                const index = this.goodsTable.findIndex(son => son.id === item.id)
                 this.$set(this.goodsTable[index], 'categoryName', categoryName)
                 this.goodsClassName[originCategoryId] = categoryName
                 attributesCurrent.forEach(son => {
@@ -1860,7 +2089,7 @@ export default {
               if (this.associatedConfig.dimensionRadio < 2) {
                 dimension = this.associatedConfig.dimensionRadio + 1
               }
-              let checkListingRepeatParma = {
+              const checkListingRepeatParma = {
                 sysMallId: mall.id + '',
                 platformType: item.source,
                 itemSku: neededTranslateInfoData.goods_id + '',
@@ -1868,11 +2097,11 @@ export default {
                 country: this.country,
                 dimension: dimension + ''
               }
-              let checkListingRepeatJson = await this.$commodityService.checkListingRepeat(checkListingRepeatParma)
-              let checkListingRepeatRes = JSON.parse(checkListingRepeatJson)
+              const checkListingRepeatJson = await this.$commodityService.checkListingRepeat(checkListingRepeatParma)
+              const checkListingRepeatRes = JSON.parse(checkListingRepeatJson)
               if (checkListingRepeatRes.code === 200) {
-                let checkListingRepeatData = checkListingRepeatRes.data
-                let status = checkListingRepeatData.status
+                const checkListingRepeatData = checkListingRepeatRes.data
+                const status = checkListingRepeatData.status
                 if (status > 0) {
                   this.updateAttributeName(item, 4, 'resultsFilter')
                   this.updateAttributeName(item, '检查到商品已经刊登', '', mall)
@@ -1887,22 +2116,22 @@ export default {
                 neededTranslateInfoData['weight'] = goodsParam['weight']
               }
               // parent_sku ds_cat_rcmd_id ds_attr_rcmd_id
-              let extrainfo = neededTranslateInfoData.extra_info && JSON.parse(neededTranslateInfoData.extra_info)
-              let tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
+              const extrainfo = neededTranslateInfoData.extra_info && JSON.parse(neededTranslateInfoData.extra_info)
+              const tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
               goodsParam['parent_sku'] = await this.$BaseUtilService.buildGoodCode(platformId,
-                  item.goods_id, this.country, mallId, tmall_cross_border_user_id)
-              let guid = new GUID()
+                item.goods_id, this.country, mallId, tmall_cross_border_user_id)
+              const guid = new GUID()
               goodsParam['ds_cat_rcmd_id'] = guid.newGUID() + '|c|EN'
               goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
               // name description tier_variation price
-              let tier_variation = neededTranslateInfoData.tier_variation
+              const tier_variation = neededTranslateInfoData.tier_variation
               if (tier_variation[tier_variation.spec1].length) {
-                let tempList = []
+                const tempList = []
                 tier_variation[tier_variation.spec1].forEach(son => {
                   let temp = son.substring(0, 20).trim()
                   while (tempList.includes(temp)) {
                     if (temp.length === 20) {
-                      let list = [...temp]
+                      const list = [...temp]
                       list[19] = getRandSymbol()
                       temp = list.join('')
                     } else {
@@ -1918,12 +2147,12 @@ export default {
                 })
               }
               if (tier_variation[tier_variation.spec2].length) {
-                let tempList = []
+                const tempList = []
                 tier_variation[tier_variation.spec2].forEach(son => {
                   let temp = son.substring(0, 20).trim()
                   while (tempList.includes(temp)) {
                     if (temp.length === 20) {
-                      let list = [...temp]
+                      const list = [...temp]
                       list[19] = getRandSymbol()
                       temp = list.toString()
                     } else {
@@ -1942,7 +2171,7 @@ export default {
                 goodsParam['tier_variation'].push({ 'name': '', 'options': [''], 'images': [] })
               }
               console.log('tier_variation', goodsParam['tier_variation'])
-              let goodsPrice = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
+              const goodsPrice = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
               goodsParam['price'] = Math.ceil(goodsPrice / this.rateList[this.country] * ratio) + ''
               goodsParam['description'] = neededTranslateInfoData.description || ''
               let hotList = this.basicConfig.hotList || ''
@@ -1951,9 +2180,9 @@ export default {
               let hotStr = ''
               let name = neededTranslateInfoData.title
               if (this.basicConfig.hotSearch > 0 && hotList[0]) {
-                let hotListCount = hotList.length
+                const hotListCount = hotList.length
                 for (let i = 0; i < this.basicConfig.hotSearch; i++) {
-                  let hotIndex = Math.floor(Math.random() * hotListCount)
+                  const hotIndex = Math.floor(Math.random() * hotListCount)
                   hotStr += hotList[hotIndex] + ' '
                 }
                 if (this.basicConfig.headlineRadio) {
@@ -1963,8 +2192,8 @@ export default {
                 }
               }
               if (this.associatedConfig.specialCharChecked) {
-                let specialCharList = this.$filters.special_characters
-                let specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
+                const specialCharList = this.$filters.special_characters
+                const specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
                 name = specialChar + ' ' + name
               }
               if (this.associatedConfig.realNameChecked) {
@@ -1972,7 +2201,7 @@ export default {
               }
               goodsParam['name'] = name
               this.updateAttributeName(item, '正在检测商品数据', '', mall)
-              let isFieldFilter = await this.fieldFilter(goodsParam, item)
+              const isFieldFilter = await this.fieldFilter(goodsParam, item)
               console.log('isFieldFilter', isFieldFilter)
               if (!isFieldFilter) {
                 this.updateAttributeName(item, 3, 'resultsFilter')
@@ -1981,7 +2210,7 @@ export default {
                 continue
               }
               if (this.storeConfig.wordsHeavy) {
-                let setName = new Set([...goodsParam['name'].split(' ')])
+                const setName = new Set([...goodsParam['name'].split(' ')])
                 goodsParam['name'] = [...setName].join(' ').trim()
               }
               // images size_chart
@@ -1992,29 +2221,29 @@ export default {
                 imagesList.splice(0, 1)
               }
               if (this.associatedConfig.pictureSetting.cutChecked) {
-                let maxCount = Math.floor(imagesList.length / 3)
+                const maxCount = Math.floor(imagesList.length / 3)
                 let count = Math.ceil(Math.random() * maxCount) || 0
                 while (count--) {
-                  let index = Math.floor(Math.random() * imagesList.length)
+                  const index = Math.floor(Math.random() * imagesList.length)
                   imagesList.splice(index, 1)
                 }
               }
               if (this.associatedConfig.dimensionRadio === 2) {
                 if (this.associatedConfig.pictureSetting.mainRandomChecked) {
-                  let index = Math.floor(Math.random() * imagesList.length)
-                  let newMain = imagesList.splice(index, 1)
+                  const index = Math.floor(Math.random() * imagesList.length)
+                  const newMain = imagesList.splice(index, 1)
                   imagesList = [...newMain, ...imagesList]
                 }
               } else {
-                let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index - 1, 1)
+                const newMain = imagesList.splice(this.associatedConfig.pictureSetting.index - 1, 1)
                 imagesList = [...newMain, ...imagesList]
               }
               if (this.associatedConfig.pictureSetting.whiteChecked) {
-                let image = imagesList[0]
-                let byUrlRes = await this.$MattingService.getDrawbotMattingByUrl(image, new Date().getTime() + '.png')
+                const image = imagesList[0]
+                const byUrlRes = await this.$MattingService.getDrawbotMattingByUrl(image, new Date().getTime() + '.png')
                 if (byUrlRes.Code === 200) {
-                  let byUrlData = byUrlRes.Data
-                  let ImageURL = byUrlData.Data && byUrlData.Data.ImageURL
+                  const byUrlData = byUrlRes.Data
+                  const ImageURL = byUrlData.Data && byUrlData.Data.ImageURL
                   imagesList[0] = ImageURL || image
                 }
               }
@@ -2038,7 +2267,7 @@ export default {
                 goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ''
               }
               // model_list
-              let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
+              const itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
               goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
                 let price = this.getValuationPrice(son.price, neededTranslateInfoData)
                 price = Math.ceil(price / this.rateList[this.country] * ratio) + ''
@@ -2058,10 +2287,10 @@ export default {
               })
               console.log('model_list', goodsParam['model_list'])
               if (goodsParam['model_list'].length) {
-                let spec1 = goodsParam['tier_variation'][0] && goodsParam['tier_variation'][0].options || []
-                let spec2 = goodsParam['tier_variation'][1] && goodsParam['tier_variation'][1].options || []
-                let spec1Num = spec1.length && spec1.length || 1
-                let spec2Num = spec2.length && spec2.length || 1
+                const spec1 = goodsParam['tier_variation'][0] && goodsParam['tier_variation'][0].options || []
+                const spec2 = goodsParam['tier_variation'][1] && goodsParam['tier_variation'][1].options || []
+                const spec1Num = spec1.length && spec1.length || 1
+                const spec2Num = spec2.length && spec2.length || 1
                 if (goodsParam['model_list'].length !== (spec1Num * spec2Num)) {
                   this.updateAttributeName(item, '发布失败：商品规格与商品SKU数量不符', '', mall)
                   continue
@@ -2081,7 +2310,7 @@ export default {
                 })
               }
               if (this.storeConfig.priceRadio > 0) {
-                let multiple = this.$filters.onNewDictionary(this.country)
+                const multiple = this.$filters.onNewDictionary(this.country)
                 let model_price_list = goodsParam['model_list'].map(son => Number(son.price))
                 model_price_list = [...new Set([...model_price_list])]
                 if (model_price_list.length > 1) {
@@ -2092,7 +2321,7 @@ export default {
                     max = max < model_price_list[i] && model_price_list[i] || max
                   }
                   if ((min * multiple) < max) {
-                    let designate = Number(this.storeConfig.priceRadio) === 1 && min || max
+                    const designate = Number(this.storeConfig.priceRadio) === 1 && min || max
                     let spec1_list = new Set()
                     let spec2_list = new Set()
                     let temp_model_list = []
@@ -2107,19 +2336,19 @@ export default {
                     spec2_list = [...spec2_list]
                     temp_model_list = temp_model_list.map(son => {
                       if (spec1_list.length && son.tier_index.length) {
-                        let index = spec1_list.findIndex(i => i === son.tier_index[0])
+                        const index = spec1_list.findIndex(i => i === son.tier_index[0])
                         son.tier_index[0] = index
                       }
                       if (spec2_list.length && son.tier_index.length > 1) {
-                        let index = spec2_list.findIndex(i => i === son.tier_index[1])
+                        const index = spec2_list.findIndex(i => i === son.tier_index[1])
                         son.tier_index[1] = index
                       }
                       return son
                     })
                     if (spec1_list.length) {
-                      let spec = goodsParam['tier_variation'][0]
-                      let tempOptions = []
-                      let tempImage = []
+                      const spec = goodsParam['tier_variation'][0]
+                      const tempOptions = []
+                      const tempImage = []
                       for (let i = 0; i < spec1_list.length; i++) {
                         if (spec.options.length) {
                           spec.options[spec1_list[i]] && tempOptions.push(spec.options[spec1_list[i]])
@@ -2132,9 +2361,9 @@ export default {
                       goodsParam['tier_variation'][0].images = tempImage
                     }
                     if (spec2_list.length) {
-                      let spec = goodsParam['tier_variation'][1]
-                      let tempOptions = []
-                      let tempImage = []
+                      const spec = goodsParam['tier_variation'][1]
+                      const tempOptions = []
+                      const tempImage = []
                       for (let i = 0; i < spec1_list.length; i++) {
                         if (spec.options.length) {
                           spec.options[spec1_list[i]] && tempOptions.push(spec.options[spec1_list[i]])
@@ -2151,7 +2380,7 @@ export default {
               }
               this.updateAttributeName(item, '正在上传轮播图', '', mall)
               console.log('正在上传轮播图', goodsParam['images'])
-              let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
+              const imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
               goodsParam['images'] = goodsParam.images.map(son => {
                 son = imageMapping[son] || ''
                 return son
@@ -2163,7 +2392,7 @@ export default {
                   ++this.statistics.failure
                   continue
                 }
-                let temp = []
+                const temp = []
                 goodsParam['images'].forEach(i => {
                   i && temp.push(i)
                 })
@@ -2171,10 +2400,10 @@ export default {
               }
               this.updateAttributeName(item, '正在上传规格图', '', mall)
               console.log('正在上传规格图', neededTranslateInfoData.spec_image)
-              let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
+              const spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
               let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
-              let spec_list = []
-              for (let itemName in spec_imageMapping) {
+              const spec_list = []
+              for (const itemName in spec_imageMapping) {
                 tier_variationJSON = tier_variationJSON.replaceAll('"' + itemName + '"', '"' + spec_imageMapping[itemName] + '"')
                 spec_list.push(spec_imageMapping[itemName])
               }
@@ -2189,22 +2418,22 @@ export default {
               }
               if (goodsParam['size_chart']) {
                 this.updateAttributeName(item, '正在上传尺寸图', '', mall)
-                let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
+                const size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
                 goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']] || ''
               }
               if (this.basicConfig.autoCompleteChecked) {
                 if (goodsParam['images'].length < 9) {
-                  let imageList = [...goodsParam['images'], ...spec_list]
+                  const imageList = [...goodsParam['images'], ...spec_list]
                   goodsParam['images'] = imageList.slice(0, 9)
                 }
               }
               console.log('goodsParam', goodsParam)
               this.updateAttributeName(item, '正在创建商品信息', '', mall)
               await sleep(this.associatedConfig.onNewInterval * 1000)
-              let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mallId }, [goodsParam])
+              const resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mallId }, [goodsParam])
               console.log('createProduct', resJSON)
               if (resJSON.code === 200) {
-                let product_id = resJSON?.data?.product_id
+                const product_id = resJSON?.data?.product_id
                 ++this.statistics.success
                 this.updateAttributeName(item, '发布成功', '', mall)
                 this.updateOnNewDetails(item.id, mallId, {
@@ -2212,8 +2441,8 @@ export default {
                   product_id: product_id,
                   price: goodsParam['price']
                 })
-                //sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas
-                let saveListingRecordParma = {
+                // sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas
+                const saveListingRecordParma = {
                   sysMallId: mall.id + '',
                   platformType: neededTranslateInfoData.source + '',
                   itemSku: neededTranslateInfoData.goods_id + '',
@@ -2224,7 +2453,7 @@ export default {
                   categoryId: categoryId + '',
                   skuDatas: ''
                 }
-                let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
+                const saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
                 if (this.basicConfig.deleteCollectChecked && this.associatedConfig.dimensionRadio < 2) {
                   this.$commodityService.deleteCollectGoodsInfo([item.id])
                 }
@@ -2234,7 +2463,7 @@ export default {
                 this.updateAttributeName(item, this.country, 'country')
                 console.log('sellActiveSetting', this.sellActiveSetting, mallId)
                 if (this.storeConfig.activityChecked) {
-                  let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mallId)
+                  const sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mallId)
                   if (sellActive) {
                     if (sellActive?.goodsId) {
                       const params = {
@@ -2282,11 +2511,11 @@ export default {
                           discount_model_list,
                           mallId: mallId
                         }
-                        let putModelActive = await this.GoodsDiscount.putModelActive(item.country, creatParams)
+                        const putModelActive = await this.GoodsDiscount.putModelActive(item.country, creatParams)
                         if (putModelActive?.code === 200) {
                           this.updateAttributeName(item, '发布成功：行销活动添加成功', '', mall)
                         } else {
-                          let msg = '发布成功：行销活动添加失败' + errorMsg(putModelActive.messages || putModelActive.data)
+                          const msg = '发布成功：行销活动添加失败' + errorMsg(putModelActive.messages || putModelActive.data)
                           this.updateAttributeName(item, msg, '', mall)
                         }
                         console.log('putModelActive - data', putModelActive)
@@ -2299,14 +2528,14 @@ export default {
               } else {
                 this.updateAttributeName(item, 3, 'resultsFilter')
                 ++this.statistics.failure
-                let meg = this.$filters.errorMsg(resJSON.data)
+                const meg = this.$filters.errorMsg(resJSON.data)
                 this.updateAttributeName(item, meg, '', mall)
               }
             } catch (e) {
               console.log(e)
               this.updateAttributeName(item, '', '', mall)
             } finally {
-              let progressItem = progress / goodsList.length
+              const progressItem = progress / goodsList.length
               let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
               mewOnProgress = mewOnProgress < 100 && mewOnProgress || 100
               this.mewOnProgress = mewOnProgress * 1
@@ -2323,14 +2552,14 @@ export default {
         --count.count
       }
     },
-    //标题，描述，sku过滤
+    // 标题，描述，sku过滤
     fieldFilter(goods, goodItem) {
       return new Promise(async resolve => {
         try {
           let skuJson = JSON.stringify(goods['tier_variation'])
-          let keyFilter = this.associatedConfig.keyFilter
-          let titleInterval = this.titleInterval[this.country]
-          let descriptionInterval = this.descriptionInterval[this.country]
+          const keyFilter = this.associatedConfig.keyFilter
+          const titleInterval = this.titleInterval[this.country]
+          const descriptionInterval = this.descriptionInterval[this.country]
           goods['name'] = goods['name'].slice(0, titleInterval.max)
           if (goods['name'].length < titleInterval.min) {
             this.updateAttributeName(goodItem, '商品标题长度过短')
@@ -2341,8 +2570,8 @@ export default {
             this.updateAttributeName(goodItem, '商品描述长度过短')
             resolve(false)
           }
-          let keyListStr = this.associatedConfig.keyList
-          let keyList = keyListStr.split(',')
+          const keyListStr = this.associatedConfig.keyList
+          const keyList = keyListStr.split(',')
           if (keyList.length > 0) {
             keyList.forEach(i => {
               if (i) {
@@ -2353,9 +2582,9 @@ export default {
                   goods['description'] = goods['description'].replaceAll(i, '')
                 }
                 if (keyFilter.includes(0) || keyFilter.includes(3)) {
-                  let tempList = JSON.parse(skuJson)
+                  const tempList = JSON.parse(skuJson)
                   for (let i = 0; i < tempList.length; i++) {
-                    let option = tempList[i].options.map(son => son.replaceAll(i, ''))
+                    const option = tempList[i].options.map(son => son.replaceAll(i, ''))
                     tempList[i].options = option
                   }
                   goods['tier_variation'] = tempList
@@ -2377,9 +2606,9 @@ export default {
           const wordListData = wordListRes.data && wordListRes.data.data || []
           wordListData.forEach(i => {
             if (i.word) {
-              let isName = goods['name'].includes(i.word)
-              let isDescription = goods['description'].includes(i.word)
-              let isSKU = skuJson.search('"options":".*(' + i.word + ').*",')
+              const isName = goods['name'].includes(i.word)
+              const isDescription = goods['description'].includes(i.word)
+              const isSKU = skuJson.search('"options":".*(' + i.word + ').*",')
               if ((isName || isDescription || isSKU)) {
                 let mag = []
                 if (isName) {
@@ -2410,7 +2639,7 @@ export default {
           const categoryRes = JSON.parse(categoryJson)
           const categoryData = categoryRes.data && categoryRes.data.data || []
           console.log('category_path', goods, categoryData)
-          let category_path = goods['category_path'].join('-')
+          const category_path = goods['category_path'].join('-')
           categoryData.forEach(item => {
             if (item && item.parent_category_tree === category_path) {
               this.updateAttributeName(goodItem, 5, 'resultsFilter')
@@ -2428,13 +2657,13 @@ export default {
         }
       })
     },
-    //附加水印图
+    // 附加水印图
     additionalWatermarking(url, mall) {
-      let that = this
+      const that = this
       return new Promise(async resolve => {
-        let base64Value = await this.$BaseUtilService.imageToBase64String(url)
-        let base64Url = 'data:image/png;base64,' + base64Value
-        let setting = this.watermarkSetting
+        const base64Value = await this.$BaseUtilService.imageToBase64String(url)
+        const base64Url = 'data:image/png;base64,' + base64Value
+        const setting = this.watermarkSetting
         console.log('additionalWatermarking', setting)
         const image = new Image()
         image.setAttribute('crossOrigin', 'anonymous')
@@ -2445,7 +2674,7 @@ export default {
           canvas.height = image.height
           const context = canvas.getContext('2d')
           context.drawImage(image, 0, 0, image.width, image.height)
-          let dx = 0, dy = 0
+          let dx = 0; let dy = 0
           if (setting.type === 1) {
             let text = ''
             if (that.watermarkConfig.textType === 1) {
@@ -2481,11 +2710,11 @@ export default {
               dy = Math.floor((image.height) / 2)
             }
             context.fillText(text, dx, dy)
-            let base64 = canvas.toDataURL('image/png')
+            const base64 = canvas.toDataURL('image/png')
             resolve(base64)
           } else {
             if (setting.watermarkImg) {
-              let watermark = new Image()
+              const watermark = new Image()
               watermark.src = setting.watermarkImg
               watermark.onload = async() => {
                 if (setting.type === 2) {
@@ -2493,14 +2722,14 @@ export default {
                     watermark.width = Math.floor(image.width / 5)
                     watermark.height = Math.floor(image.height / 5)
                   } else if (setting.imgSize === 2) {
-                    let scale = (watermark.width / image.width)
+                    const scale = (watermark.width / image.width)
                     watermark.width = image.width
-                    let height = Math.floor(watermark.height / scale)
+                    const height = Math.floor(watermark.height / scale)
                     watermark.height = height < image.height && height || image.height
                   } else if (setting.imgSize === 3) {
-                    let scale = (watermark.height / image.height)
+                    const scale = (watermark.height / image.height)
                     watermark.height = image.height
-                    let width = Math.floor(watermark.width / scale)
+                    const width = Math.floor(watermark.width / scale)
                     watermark.width = width < image.width && width || image.width
                   }
                   if (setting.locate === 1) {
@@ -2537,20 +2766,19 @@ export default {
                 context.drawImage(watermark, dx, dy, watermark.width, watermark.height)
                 context.closePath()
                 context.save()
-                let base64 = canvas.toDataURL('image/png')
+                const base64 = canvas.toDataURL('image/png')
                 // that.goodsTable[0].image = base64
                 resolve(base64)
               }
             }
           }
         }
-
       })
     },
     getValuationPrice(price, data, setting = null) {
       price = price * 1
       if (this.valuationRadio === 1) {
-        let addPrice = (price * this.basicConfig.formula.percentage / 100).toFixed(2)
+        const addPrice = (price * this.basicConfig.formula.percentage / 100).toFixed(2)
         let newPrice = addPrice * 1 + this.basicConfig.formula.hidden * 1 + this.basicConfig.formula.basis * 1
         newPrice = (price + newPrice * this.basicConfig.discount / 100).toFixed(2)
         if (this.basicConfig.valuationMethodsRadio) {
@@ -2560,32 +2788,32 @@ export default {
       } else if (this.valuationRadio === 2) {
         setting = setting || this.valuationSetting
         if (setting && setting.bubbleHeavy >= 0) {
-          let long = data.long || data.length
-          let width = data.width
-          let height = data.height
-          let bulkWeightFormula = ((long * width * height) / setting.bubbleHeavy * 1000).toFixed(2) * 1
+          const long = data.long || data.length
+          const width = data.width
+          const height = data.height
+          const bulkWeightFormula = ((long * width * height) / setting.bubbleHeavy * 1000).toFixed(2) * 1
           let itemWeight = data.weight > bulkWeightFormula && data.weight || bulkWeightFormula
           itemWeight = Math.ceil(itemWeight / 100)
-          let singleShipFee = this.freightList[setting.shippingMethod + '-' + setting.goodsType] * 1
-          let packagingFee = setting.warehouseServiceCharge * 1
-          let shopFeeOrClearanceFee = setting.customsClearanceFee * 1
-          let logisticsCosts = (itemWeight * singleShipFee + packagingFee + shopFeeOrClearanceFee).toFixed(2) * 1
-          let otherFee = setting.other && setting.other * 1 || 0
-          let transactionCommission = setting.transactionCommission || 0
-          let withdrawalCharge = setting.withdrawalCharge || 0
-          let grossProfitMargin = setting.grossProfitMargin || 0
-          let commissionMargin = ((100 - transactionCommission * 1) / 100).toFixed(2)
-          let withdrawalFee = ((100 + withdrawalCharge * 1) / 100).toFixed(2)
-          let profitMargin = ((100 - grossProfitMargin * 1) / 100).toFixed(2)
-          let priceCount = (price + logisticsCosts + otherFee)
-          let priceFormula = ((priceCount / commissionMargin / profitMargin) * withdrawalFee).toFixed(2) * 1
-          let profits = (priceFormula * (1 - profitMargin)).toFixed(2) * 1
+          const singleShipFee = this.freightList[setting.shippingMethod + '-' + setting.goodsType] * 1
+          const packagingFee = setting.warehouseServiceCharge * 1
+          const shopFeeOrClearanceFee = setting.customsClearanceFee * 1
+          const logisticsCosts = (itemWeight * singleShipFee + packagingFee + shopFeeOrClearanceFee).toFixed(2) * 1
+          const otherFee = setting.other && setting.other * 1 || 0
+          const transactionCommission = setting.transactionCommission || 0
+          const withdrawalCharge = setting.withdrawalCharge || 0
+          const grossProfitMargin = setting.grossProfitMargin || 0
+          const commissionMargin = ((100 - transactionCommission * 1) / 100).toFixed(2)
+          const withdrawalFee = ((100 + withdrawalCharge * 1) / 100).toFixed(2)
+          const profitMargin = ((100 - grossProfitMargin * 1) / 100).toFixed(2)
+          const priceCount = (price + logisticsCosts + otherFee)
+          const priceFormula = ((priceCount / commissionMargin / profitMargin) * withdrawalFee).toFixed(2) * 1
+          const profits = (priceFormula * (1 - profitMargin)).toFixed(2) * 1
           if (this.valuationVisible) {
             this.calculateResults.profits = this.country.includes('MY') && profits || Math.ceil(profits)
             this.calculateResults.discount = this.country.includes('MY') && priceFormula || Math.ceil(priceFormula)
             this.calculateResults.freight = this.country.includes('MY') && logisticsCosts || Math.ceil(logisticsCosts)
           }
-          let discount = (setting.discount / 100).toFixed(2)
+          const discount = (setting.discount / 100).toFixed(2)
           let results = (priceFormula / discount).toFixed(2) * 1
           results = this.country.includes('MY') && results || Math.ceil(results)
           if (this.basicConfig.valuationMethodsRadio) {
@@ -2600,7 +2828,7 @@ export default {
       }
     },
     saveCalculate() {
-      let setting = this.valuationConfig
+      const setting = this.valuationConfig
       let messages = ''
       if (!setting.discount) {
         messages = '折扣率不能为空'
@@ -2619,7 +2847,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(async({ value }) => {
-        let params = {
+        const params = {
           country: this.country,
           label: value,
           config: [JSON.stringify(this.valuationConfig), JSON.stringify(this.freightList)]
@@ -2638,17 +2866,17 @@ export default {
     },
     updateAttributeName(item, value, attributeName, mall) {
       attributeName = attributeName || 'statusName'
-      let index = this.goodsTable.findIndex(i => i.id === item.id)
+      const index = this.goodsTable.findIndex(i => i.id === item.id)
       if (index >= 0) {
         if (attributeName === 'statusName' && !value) {
           value = (this.goodsTable[index]?.statusName || '出现未知错误导致') + '失败在发布过程中遇到了未知的问题，请联系客服'
         }
         this.$set(this.goodsTable[index], attributeName, value)
         if (attributeName === 'statusName' && mall) {
-          let mallId = mall.platform_mall_id
-          let mallName = mall.mall_alias_name || mall.platform_mall_name
+          const mallId = mall.platform_mall_id
+          const mallName = mall.mall_alias_name || mall.platform_mall_name
           this.$set(this.goodsTable[index], 'mallName', mallName)
-          let color = value.includes('失败') && 'red' || value.includes('成功') && 'green' || ''
+          const color = value.includes('失败') && 'red' || value.includes('成功') && 'green' || ''
           this.$set(this.goodsTable[index], 'color', color)
           this.updateOnNewDetails(item.id, mallId, { state: value })
         }
@@ -2656,16 +2884,16 @@ export default {
     },
     async getCategoryPath(categoryId) {
       try {
-        let categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(this.country, categoryId, '0')
-        let categoryTbInfoRes = JSON.parse(categoryTbInfoJson)
-        let categoryTbInfoData = categoryTbInfoRes.data
-        let parent_id = categoryTbInfoData?.categories[0].parent_id || 0
+        const categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(this.country, categoryId, '0')
+        const categoryTbInfoRes = JSON.parse(categoryTbInfoJson)
+        const categoryTbInfoData = categoryTbInfoRes.data
+        const parent_id = categoryTbInfoData?.categories[0].parent_id || 0
         return parent_id && [...await this.getCategoryPath(parent_id), categoryId] || [categoryId]
       } catch (e) {
         return [categoryId]
       }
     },
-    //-------------以上为上新操作---------------------
+    // -------------以上为上新操作---------------------
     changeStockUpNumber(data, type) {
       if (type === 1) {
         data = data < this.preorderMinDays && this.preorderMinDays || data
@@ -2704,8 +2932,8 @@ export default {
       this.valuationVisible = true
     },
     referenceCalculate() {
-      let setting = this.valuationConfig
-      let calculate = this.calculateReference
+      const setting = this.valuationConfig
+      const calculate = this.calculateReference
       let messages = ''
       if (!setting.discount) {
         messages = '折扣率不能为空'
@@ -2727,9 +2955,9 @@ export default {
           this.$message.error(`打开失败`)
         }
       } else {
-        let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
-        let temp = Object.assign({ productId: item.goods_id }, extra_info)
-        let goods = getGoodsUrl(item.source, temp)
+        const extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+        const temp = Object.assign({ productId: item.goods_id }, extra_info)
+        const goods = getGoodsUrl(item.source, temp)
         this.$BaseUtilService.openUrl(goods.url)
       }
     },
@@ -2753,19 +2981,19 @@ export default {
     categoryChange(val) {
       console.log('categoryChange', val, this.goodsCurrent)
       if (val) {
-        let categoryList = val.categoryList
-        let category = categoryList[categoryList.length - 1]
-        let categoryName = category && `${category.category_name}(${category.category_cn_name})` || ''
+        const categoryList = val.categoryList
+        const category = categoryList[categoryList.length - 1]
+        const categoryName = category && `${category.category_name}(${category.category_cn_name})` || ''
         if (this.goodsCurrent && this.goodsCurrent.id) {
-          let index = this.goodsTable.findIndex(son => son.id === this.goodsCurrent.id)
+          const index = this.goodsTable.findIndex(son => son.id === this.goodsCurrent.id)
           console.log('index', index, categoryName)
-          let temp = Object.assign(this.goodsTable[index], { categoryName: categoryName })
+          const temp = Object.assign(this.goodsTable[index], { categoryName: categoryName })
           this.$set(this.goodsTable, index, temp)
           this.goodsClassName[this.goodsTable[index].category_id] = categoryName
         } else {
-          let attributesList = []
+          const attributesList = []
           val.attributesList.forEach(son => {
-            let option = son.new_options_obj.find(i => i.value_id === son.options)
+            const option = son.new_options_obj.find(i => i.value_id === son.options)
             attributesList.push({
               attributeId: son.attribute_id,
               attributeName: son.attribute_name,
@@ -2774,7 +3002,7 @@ export default {
             })
           })
           this.goodsTableSelect.forEach(async item => {
-            let param = {
+            const param = {
               relationCategoryId: item.category_id,
               country: val.country,
               platformId: item.source,
@@ -2782,8 +3010,8 @@ export default {
               categoryAttributes: attributesList
             }
             await this.$commodityService.saveCategoryRelation(param)
-            let index = this.goodsTable.findIndex(son => son.id === item.id)
-            let temp = Object.assign(this.goodsTable[index], { categoryName: categoryName })
+            const index = this.goodsTable.findIndex(son => son.id === item.id)
+            const temp = Object.assign(this.goodsTable[index], { categoryName: categoryName })
             this.$set(this.goodsTable, index, temp)
             this.goodsClassName[this.goodsTable[index].category_id] = categoryName
           })
@@ -2801,7 +3029,7 @@ export default {
     goodsTagChange(val) {
       if (val) {
         this.goodsTableSelect.forEach(item => {
-          let label_name = val.category && val.category.label_name
+          const label_name = val.category && val.category.label_name
           this.updateAttributeName(item, label_name, 'sys_label_name')
         })
         this.$message.success('商品标签修改成功')
@@ -2810,7 +3038,7 @@ export default {
     },
     async updateSellActive(type) {
       if (type) {
-        let noSell = this.sellActiveTable.find(i => {
+        const noSell = this.sellActiveTable.find(i => {
           if (!i.goodsId) {
             if (!i.discountId || !i.discount || !i.number) {
               return i
@@ -2825,7 +3053,7 @@ export default {
             type: 'warning'
           }).then(() => {
             this.sellActiveTable.forEach(item => {
-              let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
+              const index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
               console.log(item, index)
               if (item.discount && item.number || item.goodsId) {
                 if (index > -1) {
@@ -2845,7 +3073,7 @@ export default {
           })
         } else {
           this.sellActiveTable.forEach(item => {
-            let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
+            const index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
 
             if (item.discount && item.number || item.goodsId) {
               if (index > -1) {
@@ -2863,25 +3091,25 @@ export default {
           this.sellActiveVisible = false
         }
       } else {
-        let discount = parseInt(this.sellActiveCurrent.discount)
-        let number = parseInt(this.sellActiveCurrent.number)
+        const discount = parseInt(this.sellActiveCurrent.discount)
+        const number = parseInt(this.sellActiveCurrent.number)
         if (discount < 0 || discount > 100 || number < 1) {
           this.$message.error('折扣比例或限购数量输入数值有误')
           return
         }
-        let index = this.sellActiveTable.findIndex(i => i.platform_mall_id === this.sellActiveCurrent.platform_mall_id)
+        const index = this.sellActiveTable.findIndex(i => i.platform_mall_id === this.sellActiveCurrent.platform_mall_id)
         if (this.sellActiveCurrent.isExisting) {
           this.sellActiveTable[index].discount = discount
           this.sellActiveTable[index].number = number
         } else {
           // 创建活动
-          let start_time = Math.floor(new Date(this.sellActiveCurrent.startTime).getTime() / 1000)
-          let end_time = Math.floor(new Date(this.sellActiveCurrent.endTime).getTime() / 1000)
+          const start_time = Math.floor(new Date(this.sellActiveCurrent.startTime).getTime() / 1000)
+          const end_time = Math.floor(new Date(this.sellActiveCurrent.endTime).getTime() / 1000)
           if (end_time - start_time < 3600) {
             this.$message.error('活动时间不能小于1小时')
             return
           }
-          let param = {
+          const param = {
             mallId: this.sellActiveCurrent.platform_mall_id,
             fe_status: 'upcoming',
             highlight: '',
@@ -2890,11 +3118,11 @@ export default {
             end_time: end_time,
             status: 1
           }
-          let option = {
+          const option = {
             headers: { 'Content-Type': 'application/json;charset=UTF-8' }
           }
-          let discountJson = await this.$shopeemanService.discount(this.country, param, option)
-          let discountRes = JSON.parse(discountJson)
+          const discountJson = await this.$shopeemanService.discount(this.country, param, option)
+          const discountRes = JSON.parse(discountJson)
           if (discountRes.status >= 200 && discountRes.status < 300) {
             const discountData = JSON.parse(discountRes.data)
             if (discountData.code === 0) {
@@ -2983,7 +3211,7 @@ export default {
         }
       })
     },
-    changeMallList(data) {  //店铺列表
+    changeMallList(data) { // 店铺列表
       console.log(data)
       this.mallList = data.mallList || []
       this.country = data.country
@@ -2999,16 +3227,16 @@ export default {
         this.sourceCategory = [0]
       } else {
         if (this.goodsTableSelect.length > 0) {
-          let goodsTableJson = localStorage.getItem('goodsTableJson')
-          let goodsList = goodsTableJson && JSON.parse(goodsTableJson) || []
+          const goodsTableJson = localStorage.getItem('goodsTableJson')
+          const goodsList = goodsTableJson && JSON.parse(goodsTableJson) || []
           for (let i = 0; i < this.goodsTableSelect.length; i++) {
-            let item = this.goodsTableSelect[i]
-            let index = this.goodsTable.findIndex(son => son.id === item.id)
-            let sIndex = goodsList.findIndex(son => son.id === item.id)
+            const item = this.goodsTableSelect[i]
+            const index = this.goodsTable.findIndex(son => son.id === item.id)
+            const sIndex = goodsList.findIndex(son => son.id === item.id)
             this.goodsTable.splice(index, 1)
             goodsList.splice(sIndex, 1)
           }
-          let sourceCategoryList = new Set()
+          const sourceCategoryList = new Set()
           goodsList.forEach(item => {
             sourceCategoryList.add(item.category_name)
           })
@@ -3063,13 +3291,13 @@ export default {
         this.$message.error('配置水印后再操作')
         return
       }
-      let storeConfig = JSON.stringify(this.storeConfig)
-      let basicConfig = JSON.stringify(this.basicConfig)
-      let associatedConfig = JSON.stringify(this.associatedConfig)
-      let freightList = JSON.stringify(this.freightList)
-      let valuationSetting = JSON.stringify(this.valuationSetting)
-      let watermarkSetting = JSON.stringify(this.watermarkSetting)
-      let params = {
+      const storeConfig = JSON.stringify(this.storeConfig)
+      const basicConfig = JSON.stringify(this.basicConfig)
+      const associatedConfig = JSON.stringify(this.associatedConfig)
+      const freightList = JSON.stringify(this.freightList)
+      const valuationSetting = JSON.stringify(this.valuationSetting)
+      const watermarkSetting = JSON.stringify(this.watermarkSetting)
+      const params = {
         config: {
           storeConfig,
           basicConfig,
@@ -3079,8 +3307,8 @@ export default {
           watermarkSetting
         }, country: this.country
       }
-      let publishGoodsConfigSave = await this.$api.publishGoodsConfigSave(params)
-      let publishGoodsConfigRes = publishGoodsConfigSave.data
+      const publishGoodsConfigSave = await this.$api.publishGoodsConfigSave(params)
+      const publishGoodsConfigRes = publishGoodsConfigSave.data
       if (publishGoodsConfigRes.code === 200) {
         this.$message.success('保存配置成功')
       } else {
@@ -3088,18 +3316,18 @@ export default {
       }
     },
     async publishGoodsConfigGet() {
-      let publishGoodsConfigGet = await this.$api.publishGoodsConfigGet({ country: this.country })
-      let publishGoodsConfigRes = publishGoodsConfigGet.data
+      const publishGoodsConfigGet = await this.$api.publishGoodsConfigGet({ country: this.country })
+      const publishGoodsConfigRes = publishGoodsConfigGet.data
       if (publishGoodsConfigRes.code === 200) {
         if (publishGoodsConfigRes.data) {
-          let config = publishGoodsConfigRes.data.config
+          const config = publishGoodsConfigRes.data.config
           if (config) {
-            let basicConfig = config.basicConfig && JSON.parse(config.basicConfig)
-            let storeConfig = config.storeConfig && JSON.parse(config.storeConfig)
-            let associatedConfig = config.associatedConfig && JSON.parse(config.associatedConfig)
-            let freightList = config.freightList && JSON.parse(config.freightList)
-            let valuationSetting = config.valuationSetting && JSON.parse(config.valuationSetting)
-            let watermarkSetting = config.watermarkSetting && JSON.parse(config.watermarkSetting)
+            const basicConfig = config.basicConfig && JSON.parse(config.basicConfig)
+            const storeConfig = config.storeConfig && JSON.parse(config.storeConfig)
+            const associatedConfig = config.associatedConfig && JSON.parse(config.associatedConfig)
+            const freightList = config.freightList && JSON.parse(config.freightList)
+            const valuationSetting = config.valuationSetting && JSON.parse(config.valuationSetting)
+            const watermarkSetting = config.watermarkSetting && JSON.parse(config.watermarkSetting)
             this.basicConfig = basicConfig || this.basicConfig
             this.storeConfig = storeConfig || this.storeConfig
             this.associatedConfig = associatedConfig || this.associatedConfig
@@ -3113,10 +3341,10 @@ export default {
     queryGoodsTable() {
       let goodsTable = this.goodsTable
       if (this.resultsFilter === 0) {
-        let goodsTableJson = localStorage.getItem('goodsTableJson')
+        const goodsTableJson = localStorage.getItem('goodsTableJson')
         goodsTable = goodsTableJson && JSON.parse(goodsTableJson) || []
         if (this.sourceCategory.includes(0)) {
-          let sourceCategoryList = new Set()
+          const sourceCategoryList = new Set()
           goodsTable.forEach(item => {
             sourceCategoryList.add(item.category_name)
           })
@@ -3124,10 +3352,10 @@ export default {
           this.sourceCategory = [0, ...sourceCategoryList]
         }
       } else if (this.resultsFilter === 1) {
-        let goodsTableJson = localStorage.getItem('goodsTableJson')
-        let goodsTableList = goodsTableJson && JSON.parse(goodsTableJson) || []
+        const goodsTableJson = localStorage.getItem('goodsTableJson')
+        const goodsTableList = goodsTableJson && JSON.parse(goodsTableJson) || []
         goodsTable.forEach(item => {
-          let index = goodsTableList.findIndex(son => son.id === item.id)
+          const index = goodsTableList.findIndex(son => son.id === item.id)
           if (index >= 0) {
             goodsTableList[index] = item
           }
@@ -3139,7 +3367,7 @@ export default {
           }
         })
       } else {
-        let goodsTableList = goodsTable
+        const goodsTableList = goodsTable
         goodsTable = []
         goodsTableList.forEach(item => {
           if (item.resultsFilter === this.resultsFilter) {
@@ -3151,7 +3379,7 @@ export default {
       if (this.sourceCategory.includes(0)) {
         this.goodsTable = goodsTable
       } else {
-        let goodsList = []
+        const goodsList = []
         goodsTable.forEach(item => {
           if (this.sourceCategory.includes(item.category_name)) {
             goodsList.push(item)
@@ -3159,7 +3387,6 @@ export default {
         })
         this.goodsTable = goodsList
       }
-
     },
     updateOnNewDetails(id, mallId, data) {
       if (!this.newOnDetails[id]) {
@@ -3174,9 +3401,9 @@ export default {
     viewDetails(id) {
       console.log('viewDetails', id)
       this.newOnDetailsList = []
-      let newOnDetails = this.newOnDetails[id]
+      const newOnDetails = this.newOnDetails[id]
       if (newOnDetails) {
-        for (let key in newOnDetails) {
+        for (const key in newOnDetails) {
           /**
            * goods_id
            * mallName
@@ -3205,7 +3432,7 @@ export default {
         return
       }
       if (this.customLogistics.length > 0) {
-        for (let item of this.customLogistics) {
+        for (const item of this.customLogistics) {
           if (!(item.price * 1)) {
             this.$message.error('运费价格有误，请确认')
             return
@@ -3234,40 +3461,40 @@ export default {
         this.$message.error('任务线程需大于等于1小于等于5')
         return
       }
-      let ext_info = JSON.stringify({
+      const ext_info = JSON.stringify({
         mallList: this.mallList,
         config: this.setTimeConfig
       })
-      let country = this.country
-      let exec_time = dateFormat(this.setTimeConfig.time, 'yyyy-MM-dd hh:mm:ss')
-      let task_name = this.setTimeConfig.name
+      const country = this.country
+      const exec_time = dateFormat(this.setTimeConfig.time, 'yyyy-MM-dd hh:mm:ss')
+      const task_name = this.setTimeConfig.name
       // let mallList = JSON.stringify(this.mallList)
-      let mall_Ids = this.mallList.map(son => son.platform_mall_id).toString()
-      let mall_names = this.mallList.map(son => son.mall_alias_name || son.platform_mall_name).toString()
-      let status = isRun && 3 || 4
-      let goods_count = this.goodsTableSelect.length
-      let success_count = 0
-      let fail_count = 0
-      let created_at = Math.floor(new Date().getTime() / 1000)
-      let setTimeSetting = {
+      const mall_Ids = this.mallList.map(son => son.platform_mall_id).toString()
+      const mall_names = this.mallList.map(son => son.mall_alias_name || son.platform_mall_name).toString()
+      const status = isRun && 3 || 4
+      const goods_count = this.goodsTableSelect.length
+      const success_count = 0
+      const fail_count = 0
+      const created_at = Math.floor(new Date().getTime() / 1000)
+      const setTimeSetting = {
         ext_info, country, exec_time, mall_Ids, mall_names,
         status, task_name, success_count, fail_count, goods_count, created_at
       }
       console.log('saveCronPublishTask - parma', setTimeSetting)
-      let setConfig = await this.$collectService.saveCronPublishTask(setTimeSetting)
+      const setConfig = await this.$collectService.saveCronPublishTask(setTimeSetting)
       console.log('setConfig', setConfig)
       if (Number(setConfig.code) === 200) {
         this.$message.success('配置定时刊登成功')
-        let taskTimeStart = new Date(new Date().getTime() - 3600 * 1000 * 24)
-        let taskTimeEnd = new Date(new Date().getTime() + 3600 * 1000 * 24)
-        let startTime = Math.floor(taskTimeStart.getTime() / 1000)
-        let endTime = Math.floor(taskTimeEnd.getTime() / 1000)
-        let getConfig = await this.$collectService.getCronPublishTask(country, status + '', task_name, startTime, endTime)
+        const taskTimeStart = new Date(new Date().getTime() - 3600 * 1000 * 24)
+        const taskTimeEnd = new Date(new Date().getTime() + 3600 * 1000 * 24)
+        const startTime = Math.floor(taskTimeStart.getTime() / 1000)
+        const endTime = Math.floor(taskTimeEnd.getTime() / 1000)
+        const getConfig = await this.$collectService.getCronPublishTask(country, status + '', task_name, startTime, endTime)
         console.log('getCronPublishTask', getConfig)
-        let task = getConfig && getConfig[getConfig.length - 1] || null
+        const task = getConfig && getConfig[getConfig.length - 1] || null
         if (task) {
-          let task_id = task.id
-          let publishConfigObj = {
+          const task_id = task.id
+          const publishConfigObj = {
             'country': this.country,
             'rateList': this.rateList,
             'logistics': this.logistics,
@@ -3286,11 +3513,11 @@ export default {
             'calculateResults': this.calculateResults,
             'associatedConfig': this.associatedConfig
           }
-          let param = {
+          const param = {
             task_id,
             publish_config: JSON.stringify(publishConfigObj)
           }
-          let setConfig = await this.$collectService.saveCronPublishConfig(param)
+          const setConfig = await this.$collectService.saveCronPublishConfig(param)
           let goodsList = JSON.parse(JSON.stringify(this.goodsTableSelect))
           goodsList = [...goodsList.map(item => {
             return {
@@ -3310,7 +3537,7 @@ export default {
             }
           })]
           console.log('goodsList', goodsList)
-          let setGoodsConfig = await this.$collectService.saveCronPublishGoods(goodsList)
+          const setGoodsConfig = await this.$collectService.saveCronPublishGoods(goodsList)
           console.log(setConfig, setGoodsConfig)
         }
       }
@@ -3335,13 +3562,13 @@ export default {
     //  下载模板
     async downloadTemplate() {
       const jsonData = []
-      let importOrderName = '上新行销活动配置模板'
+      const importOrderName = '上新行销活动配置模板'
       // 上新行销活动配置模板
-      let titleData = ['店铺名称', '店铺ID', '折扣活动ID', '折扣折数', '折扣活动限购数量', '商店分类ID']
+      const titleData = ['店铺名称', '店铺ID', '折扣活动ID', '折扣折数', '折扣活动限购数量', '商店分类ID']
       this.mallList.map((item) => {
         const temp = []
-        let country = item.country
-        let name = item.mall_alias_name || item.platform_mall_name
+        const country = item.country
+        const name = item.mall_alias_name || item.platform_mall_name
         temp.push(country + '-' + name)
         temp.push(item.platform_mall_id)
         jsonData.push(temp)
@@ -3378,23 +3605,23 @@ export default {
     },
     importDataAssembly() {
       console.log(this.sellActiveTable, this.importTemplateData)
-      let count = this.importTemplateData.length
+      const count = this.importTemplateData.length
       if (count) {
         this.importTemplateData.forEach(item => {
           let name = item['店铺名称'] || ''
-          let id = item['店铺ID'] || ''
+          const id = item['店铺ID'] || ''
           if (name || id) {
-            let discountId = item['折扣活动ID']
-            let discount = item['折扣折数']
-            let number = item['折扣活动限购数量']
-            let goodsId = item['商店分类ID']
-            let nameList = name.split('-')
-            let country = nameList.splice(0, 1).toString()
+            const discountId = item['折扣活动ID']
+            const discount = item['折扣折数']
+            const number = item['折扣活动限购数量']
+            const goodsId = item['商店分类ID']
+            const nameList = name.split('-')
+            const country = nameList.splice(0, 1).toString()
             name = nameList.join('-')
-            let index = this.sellActiveTable.findIndex(i => id === i.platform_mall_id ||
+            const index = this.sellActiveTable.findIndex(i => id === i.platform_mall_id ||
                 (i.country === country && (i.mall_alias_name === name || i.platform_mall_name === name)))
             if (index >= 0) {
-              let son = this.sellActiveTable[index]
+              const son = this.sellActiveTable[index]
               this.$set(this.sellActiveTable, index, Object.assign(son, {
                 discountId: discountId || son.discountId,
                 discount: discount || son.discount,
@@ -3408,7 +3635,7 @@ export default {
         this.$message.error('列表数据为空')
       }
     },
-    //账户权限
+    // 账户权限
     accountPermissions() {
       return accountPermissions(4, () => {
         this.associatedConfig.dimensionRadio = 1

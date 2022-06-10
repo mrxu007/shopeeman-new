@@ -32,8 +32,7 @@
             createUrlByIdVisible = true
             indexLink = index
           "
-          >使用商品ID生成</el-button
-        >
+        >使用商品ID生成</el-button>
         <span>备注:</span>
         <el-input v-model="item.note" size="mini" clearable style="width: 300px" class="mar-right" />
         <el-radio v-model="item.is_default" label="1" @change="changeDefault(index)">默认</el-radio>
@@ -69,8 +68,8 @@ export default {
   props: {
     linkRow: {
       type: Object,
-      default: {},
-    },
+      default: {}
+    }
   },
   data() {
     return {
@@ -82,7 +81,7 @@ export default {
       goodsSourceListLink: goodsSourceListLink,
       indexLink: -1,
       platformLinkList: platformLinkList,
-      lazadaBuyLinkObj: lazadaBuyLinkObj,
+      lazadaBuyLinkObj: lazadaBuyLinkObj
     }
   },
   mounted() {
@@ -108,7 +107,7 @@ export default {
             this.rowBuyLinks[index].purchase_url = ''
             return this.$message.warning('改地址无法采购请更换！')
           }
-          let preUrl = lazadaMatch[0]
+          const preUrl = lazadaMatch[0]
           console.log(preUrl, preUrl.indexOf(this.linkRow.country.toLowerCase()), this.linkRow.country.toLowerCase(), '0000')
           if (preUrl.indexOf(this.linkRow.country.toLowerCase()) < 0) {
             this.rowBuyLinks[index].purchase_url = ''
@@ -118,11 +117,11 @@ export default {
           this.rowBuyLinks[index].purchase_url = ''
           return this.$message.warning('改地址无法采购请更换')
         }
-      }else if(platform && platform[0] === 'shopee'){
+      } else if (platform && platform[0] === 'shopee') {
         const shopeeReg = /(http|https):\/\/?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}/
         const shopeeMatch = val.match(shopeeReg)
-        if(shopeeMatch && shopeeMatch[0]){
-          let preUrl = shopeeMatch[0]
+        if (shopeeMatch && shopeeMatch[0]) {
+          const preUrl = shopeeMatch[0]
           if (preUrl.indexOf(this.linkRow.country.toLowerCase()) < 0) {
             this.rowBuyLinks[index].purchase_url = ''
             return this.$message.warning('请填写正确站点的采购地址！')
@@ -159,7 +158,7 @@ export default {
       this.rowBuyLinks[this.indexLink].purchase_url = url
       this.rowBuyLinks[this.indexLink].purchase_platform_id = res ? res.purchase_platform_id : ''
       this.createUrlByIdVisible = false
-      //默认勾选
+      // 默认勾选
       this.rowBuyLinks[this.indexLink].is_default = '1'
       this.changeDefault(this.indexLink)
     },
@@ -177,14 +176,14 @@ export default {
         purchase_url: '',
         purchase_goods_id: '',
         purchase_platform_id: '',
-        is_default: '',
+        is_default: ''
       }
       this.rowBuyLinks.push(params)
     },
     // 保存添加采购链接
     async saveAddLink() {
-      for(let index=0;index<this.rowBuyLinks.length;index++){
-        let item = this.rowBuyLinks[index]
+      for (let index = 0; index < this.rowBuyLinks.length; index++) {
+        const item = this.rowBuyLinks[index]
         const execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapibuy.com)|(taobao.global)|(lazada.com)|(lazada)|(shopee)|(tokopedia.com)|(bukalapak.com)/g
         const execGoods = /goods_id=([0-9]*)/
         const pddGoods = /goodsId=(\d+)/
@@ -196,13 +195,13 @@ export default {
         const platform = item.purchase_url.match(execPlatform)
 
         if (!platform) {
-          console.log(index,"000000")
+          console.log(index, '000000')
           return this.$message.error(`采购链接错误，请检查！`)
         }
         if (!item.purchase_url.length) {
           return this.$message.error(`采购链接不能为空,请检查采购链接`)
         }
-        console.log(platform, '4646546554',item.purchase_url.match(shopeeIDs))
+        console.log(platform, '4646546554', item.purchase_url.match(shopeeIDs))
         if (item.purchase_url.match(execGoods)) {
           item.purchase_goods_id = item.purchase_url.match(execGoods)[1]
         } else if (item.purchase_url.match(execIDs)) {
@@ -268,7 +267,7 @@ export default {
       }
       const params = {
         goods_id: this.linkRow.goods_info.goods_id,
-        purchase_list: this.rowBuyLinks,
+        purchase_list: this.rowBuyLinks
       }
       const res = await this.$api.savePurchase(params)
       if (res.data.code === 200) {
@@ -281,7 +280,7 @@ export default {
     },
     async addPurchaseLink() {
       const params = {
-        goodsIdLists: this.linkRow.goods_info.goods_id,
+        goodsIdLists: this.linkRow.goods_info.goods_id
       }
       const res = await this.$api.getPurchaseLists(params)
       if (res.data.code === 200) {
@@ -290,7 +289,7 @@ export default {
           purchase_url: '',
           purchase_platform_id: '',
           purchase_goods_id: '',
-          is_default: '',
+          is_default: ''
         }
         if (res.data.data[0].purchase_detail.length > 0) {
           this.rowBuyLinks = res.data.data[0].purchase_detail
@@ -320,8 +319,8 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
-    },
-  },
+    }
+  }
 }
 </script>
 

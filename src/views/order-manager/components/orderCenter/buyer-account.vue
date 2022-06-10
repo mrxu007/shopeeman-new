@@ -25,8 +25,7 @@
             </el-option>
           </el-select>
           <el-button :size="item.size || 'mini'" style="margin-right: 6px; width: 165px" @click="publicCenter(selectAccount[platformValue[item.platform]], item.platform)">
-            {{ item.centerTitle }}</el-button
-          >
+            {{ item.centerTitle }}</el-button>
         </div>
         <div class="account-item">
           <span>天猫淘宝海外账号</span>
@@ -35,7 +34,7 @@
               <span>{{ items.account }}</span>
             </el-option>
           </el-select>
-          <el-button size="mini" @click="reFreshGlobal" style="margin-right: 6px; width: 165px">刷新天猫淘宝海外平台账号</el-button>
+          <el-button size="mini" style="margin-right: 6px; width: 165px" @click="reFreshGlobal">刷新天猫淘宝海外平台账号</el-button>
         </div>
       </div>
       <div class="right">
@@ -51,8 +50,8 @@
         <div class="sub-row">
           <div class="row"><p>代理设置只适用于shopee和lazada</p></div>
           <div class="row">
-          代理设置：
-          <el-select v-model="proxyType" placeholder="" size="mini" filterable clearable　style="width:100px;margin-right:10px;">
+            代理设置：
+            <el-select v-model="proxyType" placeholder="" size="mini" filterable clearable　style="width:100px;margin-right:10px;">
               <el-option v-for="(item, index) in proxyList" :key="index" :label="item.ip_alias" :value="item.id" />
             </el-select>
             <el-select v-model="siteCode" placeholder="" size="mini" filterable style="width: 100px">
@@ -70,8 +69,7 @@
             loginAccount = false
             pddLoginHandler()
           "
-          >登录拼多多</el-button
-        >
+        >登录拼多多</el-button>
         <el-button
           type="primary"
           style="margin: 0 12px 20px; width: 110px"
@@ -80,8 +78,7 @@
             loginAccount = false
             taobaoLogin()
           "
-          >登录淘宝</el-button
-        >
+        >登录淘宝</el-button>
         <el-button
           type="primary"
           style="margin: 0 12px 20px; width: 110px"
@@ -90,8 +87,7 @@
             loginAccount = false
             AlibabaLogin()
           "
-          >登录1688</el-button
-        >
+        >登录1688</el-button>
         <el-button
           type="primary"
           style="margin: 0 12px 20px; width: 110px"
@@ -100,8 +96,7 @@
             loginAccount = false
             jingxiLogin()
           "
-          >登录京喜</el-button
-        >
+        >登录京喜</el-button>
         <el-button
           type="primary"
           style="margin: 0 12px 20px; width: 110px"
@@ -110,8 +105,7 @@
             loginAccount = false
             lazadaLogin()
           "
-          >登录Lazada</el-button
-        >
+        >登录Lazada</el-button>
         <el-button
           type="primary"
           style="margin: 0 12px 20px; width: 110px"
@@ -120,8 +114,7 @@
             loginAccount = false
             shopeeLogin()
           "
-          >登录Shopee</el-button
-        >
+        >登录Shopee</el-button>
       </div>
     </el-dialog>
     <el-dialog title="删除买手号" :visible.sync="deleteAccount" width="380px">
@@ -136,11 +129,10 @@
             deleteAccount = false
             removebuyerAccount()
           "
-          >确 定</el-button
-        >
+        >确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="同步订单" :visible.sync="sycnOrderVisible" width="800px" v-if="sycnOrderVisible">
+    <el-dialog v-if="sycnOrderVisible" title="同步订单" :visible.sync="sycnOrderVisible" width="800px">
       <div class="sync-order-dialog">
         <storeChoose :is-all="true" :span-width="'80px'" :input-width="'160px'" :source="'orderCenter'" @changeMallList="changeMallList" />
         <div class="row-style">
@@ -153,7 +145,7 @@
           </div>
           <div class="tool-item">
             <span>同步天数：</span>
-            <el-input-number v-model="syncDays" :min="1" :max="30" size="mini" label="描述文字"></el-input-number>
+            <el-input-number v-model="syncDays" :min="1" :max="30" size="mini" label="描述文字" />
           </div>
         </div>
       </div>
@@ -183,7 +175,7 @@ export default {
     // },
     upData: {
       type: String,
-      default: 'buyerAccountList',
+      default: 'buyerAccountList'
     },
     operation: {
       type: Object,
@@ -191,14 +183,14 @@ export default {
         return {
           url: {
             getAccount: {
-              path: '/api/buyerAccount/',
+              path: '/api/buyerAccount/'
             },
             upAccount: {
-              path: '/api/buyerAccount/store',
+              path: '/api/buyerAccount/store'
             },
             removeAccount: {
-              path: '/api/buyerAccount/destroy',
-            },
+              path: '/api/buyerAccount/destroy'
+            }
           },
           upData: 'buyerAccountList',
           left: [{ title: '登录买手号', type: 'primary', key: 1 }],
@@ -209,50 +201,50 @@ export default {
             { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
             { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
             { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
-            { title: '天猫淘宝海外账号', platform: 13, centerTitle: '刷新天猫淘宝海外平台账号' },
+            { title: '天猫淘宝海外账号', platform: 13, centerTitle: '刷新天猫淘宝海外平台账号' }
             // { title: '京东账号', platform: 4 }
           ],
           right: [
             // { title: '拼多多优惠券', key: 2 },
             // { title: '下载账号信息', key: 3 }
-          ],
+          ]
         }
-      },
-    },
+      }
+    }
   },
-  data () {
+  data() {
     return {
       syncStatusList: syncStatusAll,
-      syncDays: 3,//同步天数
-      syncOrderStatus: ['all'],//同步状态
-      selectMallList: [],//同步订单店铺选择
-      sycnOrderVisible: false,//同步订单弹窗
+      syncDays: 3, // 同步天数
+      syncOrderStatus: ['all'], // 同步状态
+      selectMallList: [], // 同步订单店铺选择
+      sycnOrderVisible: false, // 同步订单弹窗
       siteCode: 'TH',
       siteList: [
         {
           value: 'TH',
-          label: '泰国站',
+          label: '泰国站'
         },
         {
           value: 'MY',
-          label: '马来站',
+          label: '马来站'
         },
         {
           value: 'VN',
-          label: '越南站',
+          label: '越南站'
         },
         {
           value: 'ID',
-          label: '印尼站',
+          label: '印尼站'
         },
         {
           value: 'PH',
-          label: '菲律宾站',
+          label: '菲律宾站'
         },
         {
           value: 'SG',
-          label: '新加坡站',
-        },
+          label: '新加坡站'
+        }
       ],
       selectAccount: {
         accountpdd: '',
@@ -261,7 +253,7 @@ export default {
         accountjx: '',
         accountlazada: '',
         accountshopee: '',
-        accountCrossBorder: '',
+        accountCrossBorder: ''
       },
       platformValue: {
         1: 'accountpdd',
@@ -270,7 +262,7 @@ export default {
         10: 'accountjx',
         9: 'accountlazada',
         11: 'accountshopee',
-        13: 'accountCrossBorder',
+        13: 'accountCrossBorder'
       },
       activeAccount: null,
       loginAccount: false,
@@ -278,51 +270,51 @@ export default {
       deleteAccount: false,
       proxyType: '',
       proxyList: [],
-      isOrderSelectAllMall: true, //是否全店同步
-      isCheckOrderShip: false, //勾选订单同步物流
+      isOrderSelectAllMall: true, // 是否全店同步
+      isCheckOrderShip: false, // 勾选订单同步物流
       buyerAccountList: [],
-      buyerAccountListGlobal: [],
+      buyerAccountListGlobal: []
     }
   },
   computed: {
-    pddAccount () {
+    pddAccount() {
       return this.buyerAccountList.filter((item) => item.type == 1)
     },
-    tbAccount () {
+    tbAccount() {
       return this.buyerAccountList.filter((item) => item.type == 2)
     },
-    albbAccount () {
+    albbAccount() {
       return this.buyerAccountList.filter((item) => item.type == 8)
     },
-    jxAccount () {
+    jxAccount() {
       return this.buyerAccountList.filter((item) => item.type == 10)
     },
-    lazadaAccount () {
+    lazadaAccount() {
       return this.buyerAccountList.filter((item) => item.type == 9)
     },
-    shopeeAccount () {
+    shopeeAccount() {
       return this.buyerAccountList.filter((item) => item.type == 11)
     },
-    globalAccount () {
+    globalAccount() {
       return this.buyerAccountList.filter((item) => item.type == 13)
-    },
+    }
   },
   watch: {
     'buyerAccountList.length': {
-      handler (newValue, oldValue) {
+      handler(newValue, oldValue) {
         if (newValue !== oldValue) {
           this.defaultSelect()
         }
-      },
-    },
+      }
+    }
   },
-  async mounted () {
+  async mounted() {
     await this.buyerAccount()
     await this.getGlobalAccount()
     this.defaultSelect()
   },
   methods: {
-    changeSelect (val, key, baseData) {
+    changeSelect(val, key, baseData) {
       if (!val.includes('') && val.length === baseData.length) {
         // this.formData.sysMallId.unshift('全选')
       } else if (val.includes('') && val.length - 1 < baseData.length) {
@@ -332,7 +324,7 @@ export default {
       }
     },
     // 全选
-    selectAll (key, baseData) {
+    selectAll(key, baseData) {
       if (this[key].length < baseData.length) {
         this[key] = []
         baseData.map((item) => {
@@ -342,51 +334,51 @@ export default {
         this[key] = []
       }
     },
-    changeMallList (val) {
+    changeMallList(val) {
       this.selectMallList = val.mallList
     },
-    //刷新天猫淘宝海外平台账号
-    async reFreshGlobal () {
-      this.buyerAccountListGlobal.forEach(async (item) => {
-        let params = {
-          userId: item.user_id,
+    // 刷新天猫淘宝海外平台账号
+    async reFreshGlobal() {
+      this.buyerAccountListGlobal.forEach(async(item) => {
+        const params = {
+          userId: item.user_id
         }
         await this.$shopeemanService.postChineseLaiZan('http://api.laizand.com/api/open/refreshAccessToken', params, {
           // options
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         })
       })
       await this.getGlobalAccount()
       this.$message.success('刷新成功!')
     },
-    //获取天猫淘宝海外账号
-    async getGlobalAccount () {
+    // 获取天猫淘宝海外账号
+    async getGlobalAccount() {
       const userInfo = await this.$appConfig.getUserInfo()
-      let params = {
+      const params = {
         uid: userInfo.muid,
         uuid: '0',
         account: '',
         accountAliasName: '',
-        app_key: 'KYsyQGFviz2i0uQF',
+        app_key: 'KYsyQGFviz2i0uQF'
       }
-      let res = await this.$shopeemanService.getChineseLaiZan('http://api.laizand.com/api/open/getTbGlobalUser?', params, {
+      const res = await this.$shopeemanService.getChineseLaiZan('http://api.laizand.com/api/open/getTbGlobalUser?', params, {
         // options
         headers: {
           Accept: 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
           'Accept-Encoding': ' gzip, deflate',
-          'User-Agent': 'RestSharp/106.3.1.0',
-        },
+          'User-Agent': 'RestSharp/106.3.1.0'
+        }
       })
       const data = JSON.parse(res)
       const des = data && JSON.parse(data.data)
       if (des && des.code === 200) {
-        let arr = des.data.data || []
+        const arr = des.data.data || []
         arr.forEach((item) => {
           item.type = 13
         })
-        let sortData = arr.sort(function (a, b) {
+        const sortData = arr.sort(function(a, b) {
           var x = a['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
           var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
           return x < y ? 1 : x > y ? -1 : 0
@@ -396,8 +388,8 @@ export default {
         this.defaultSelect()
       }
     },
-    //同步物流单号
-    async syncLogistics (isLog) {
+    // 同步物流单号
+    async syncLogistics(isLog) {
       const service = new LogisticeSyncService()
       if (!this.buyerAccountList.length) {
         this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
@@ -407,22 +399,22 @@ export default {
         if (!this.$parent.multipleSelection.length) {
           return this.$message.warning('请先选择订单数据！')
         }
-        this.$parent.showConsole = isLog ? isLog : false //打开日志
+        this.$parent.showConsole = isLog || false // 打开日志
         this.$parent.$refs.Logs.consoleMsg = ''
         this.$parent.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
         service.start(this, this.buyerAccountList, this.$parent.$refs.Logs.writeLog, this.$parent.multipleSelection)
       } else {
-        this.$parent.showConsole = isLog ? isLog : false //打开日志
+        this.$parent.showConsole = isLog || false // 打开日志
         this.$parent.$refs.Logs.consoleMsg = ''
         this.$parent.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
         service.start(this, this.buyerAccountList, this.$parent.$refs.Logs.writeLog)
       }
       console.log(this.buyerAccountList)
     },
-    //同步
-    async saveSyncOrder () {
+    // 同步
+    async saveSyncOrder() {
       this.sycnOrderVisible = false
-      this.$parent.showConsole = false //打开日志
+      this.$parent.showConsole = false // 打开日志
       if (!this.selectMallList.length) {
         this.$parent.$refs.Logs.writeLog('店铺数据为空，同步操作已取消!', false)
       }
@@ -431,17 +423,17 @@ export default {
       }
       this.$parent.$refs.Logs.writeLog(`开始同步订单，请耐心等待!`, true)
       for (let mI = 0; mI < this.selectMallList.length; mI++) {
-        let mall = this.selectMallList[mI]
+        const mall = this.selectMallList[mI]
         for (let i = 0; i < this.syncOrderStatus.length; i++) {
-          //同步状态
+          // 同步状态
           let statusObj = {}
           if (this.syncOrderStatus[i] === 'all') {
             statusObj = {
               label: '全部',
               value: 'all'
             }
-          }else{
-            statusObj  = this.syncStatusList.find(n => { return n.value === this.syncOrderStatus[i] })
+          } else {
+            statusObj = this.syncStatusList.find(n => { return n.value === this.syncOrderStatus[i] })
           }
           const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
           await orderService.start(`${mI + 1}/${this.selectMallList.length}`, 'manual', this.syncDays)
@@ -449,15 +441,15 @@ export default {
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)
     },
-    //同步订单按钮
-    async SyncOrder () {
+    // 同步订单按钮
+    async SyncOrder() {
       this.sycnOrderVisible = true
       return
       this.$parent.$refs.Logs.consoleMsg = ''
       if (this.isOrderSelectAllMall) {
-        //全店同步
-        let res = await this.$appConfig.getGlobalCacheInfo('allMallInfo', 'key')
-        let mallObject = res && JSON.parse(res)
+        // 全店同步
+        const res = await this.$appConfig.getGlobalCacheInfo('allMallInfo', 'key')
+        const mallObject = res && JSON.parse(res)
         if (mallObject) {
           for (const key in mallObject) {
             mallList.push(mallObject[key])
@@ -473,29 +465,29 @@ export default {
       }
       this.$parent.$refs.Logs.writeLog(`开始同步订单，请耐心等待!`, true)
       for (let mI = 0; mI < mallList.length; mI++) {
-        let mall = mallList[mI]
+        const mall = mallList[mI]
         for (let i = 0; i < syncStatus.length; i++) {
-          //同步状态
-          let statusObj = syncStatus[i]
+          // 同步状态
+          const statusObj = syncStatus[i]
           const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
           await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60)
         }
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)
     },
-    //获取代理主体
-    async getProxy () {
-      let params = {}
+    // 获取代理主体
+    async getProxy() {
+      const params = {}
       const userInfo = await this.$appConfig.getUserInfo()
       params.uid = userInfo.muid
       const res = await this.$YipService.GetIpList(JSON.stringify(params))
       // console.log(res,JSON.stringify(params))
-      let resObj = JSON.parse(res)
+      const resObj = JSON.parse(res)
       this.proxyList = (resObj && resObj.data) || []
       console.log('getProxy', resObj)
     },
     // 获取买手登录cookie
-    getBuyerLoginCookies (login_info) {
+    getBuyerLoginCookies(login_info) {
       try {
         const result = JSON.parse(login_info)
         return result
@@ -510,7 +502,7 @@ export default {
             if (name && value) {
               loginCookies.push({
                 Name: name,
-                Value: value,
+                Value: value
               })
             }
           })
@@ -519,51 +511,51 @@ export default {
       }
     },
     // 公共按钮
-    handelBtn (key, clickEvent, params) {
+    handelBtn(key, clickEvent, params) {
       switch (key) {
-        case 1: //登录买手号
+        case 1: // 登录买手号
           this.loginAccount = true
           this.getProxy()
           return
-        case 2: //同步订单
+        case 2: // 同步订单
           this.SyncOrder()
           return
-        case 3: //同步物流
+        case 3: // 同步物流
           this.syncLogistics()
           return
-        case 4: //批量拍单
+        case 4: // 批量拍单
           console.log(this.$parent)
           this.$parent[clickEvent]()
           return
-        case 5: //配置列
+        case 5: // 配置列
           this.$parent['columnVisible'] = true
           return
-        case 6: //上传买手号
+        case 6: // 上传买手号
           this.batchUpBuyer(1)
           return
-        case 7: //下载买手号
+        case 7: // 下载买手号
           this.buyerAccount(1)
           return
-        case 8: //同步数据至仓库
+        case 8: // 同步数据至仓库
           if (!this.$parent['multipleSelection'].length) {
             return this.$message.warning('请先选择商品！')
           }
           this.$parent['pushOrderToStoreVisible'] = true
           return
-        case 9: //颜色标识
+        case 9: // 颜色标识
           if (!this.$parent['multipleSelection'].length) {
             return this.$message.warning('请先选择需要标记的商品！')
           }
           this.$parent['colorVisible'] = true
           this.$parent[clickEvent]()
           return
-        case 10: //批量标记海外商品
+        case 10: // 批量标记海外商品
           if (!this.$parent['multipleSelection'].length) {
             return this.$message.warning('请先选择需要标记的商品！')
           }
           this.$parent['abroadVisible'] = true
           return
-        case 11: //设置采购信息
+        case 11: // 设置采购信息
           this.$parent[clickEvent]()
           // if (!this.$parent['multipleSelection'].length) {
           //   return this.$message.warning('请先选择商品！')
@@ -581,7 +573,7 @@ export default {
       }
     },
     // 公共账号列表
-    publicAccount (id) {
+    publicAccount(id) {
       switch (id) {
         case 1:
           // console.log(this.pddAccount, 'pddAccount')
@@ -604,7 +596,7 @@ export default {
       }
     },
     // 公共个人中心
-    publicCenter (id, platform) {
+    publicCenter(id, platform) {
       console.log(id, 'id')
       switch (platform) {
         case 1:
@@ -629,9 +621,9 @@ export default {
           break
       }
     },
-    //更新买手号列表(自动上传)
-    async upBuyerAccountMedia (account, type) {
-      let params = {
+    // 更新买手号列表(自动上传)
+    async upBuyerAccountMedia(account, type) {
+      const params = {
         UserNameCache: account.cache_path,
         Password: '',
         shotOrderPlatform: type,
@@ -641,13 +633,13 @@ export default {
         AccountType: account.type,
         Ua: account.ua,
         Country: account.country || '',
-        proxyId: this.proxyType,
+        proxyId: this.proxyType
       }
       const key = params.AccountType + params.UserName
       await this.$appConfig.UpdateCacheInfo('buyerInfo', key, params)
     },
-    //转换拍单平台type
-    changeType (type) {
+    // 转换拍单平台type
+    changeType(type) {
       switch (type) {
         case 1:
           return shotOrderPlatform.PinDuoduo
@@ -670,9 +662,9 @@ export default {
           return shotOrderPlatform.PinDuoduo
       }
     },
-    //转换参数为壳需要
-    changeAccountParams (account) {
-      let params = {
+    // 转换参数为壳需要
+    changeAccountParams(account) {
+      const params = {
         UserNameCache: account.cache_path,
         Password: '',
         shotOrderPlatform: this.changeType(account.type),
@@ -681,12 +673,12 @@ export default {
         Cookiestr: JSON.stringify(account.login_info),
         AccountType: account.type,
         Ua: account.ua,
-        Country: account.site || '',
+        Country: account.site || ''
       }
       return params
     },
     // 拼多多买手号登录
-    async pddLoginHandler () {
+    async pddLoginHandler() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.pddLogin()
         console.log(account, 'pddLoginHandler')
@@ -695,15 +687,15 @@ export default {
         }
       }
     },
-    async pddUserCenterHandler (id) {
+    async pddUserCenterHandler(id) {
       const serives = this.gotouser(id)
       if (serives) {
-        let account = this.changeAccountParams(serives)
+        const account = this.changeAccountParams(serives)
         await this.$buyerAccountService.pddUserCenter(account)
       }
     },
     // 淘宝登录
-    async taobaoLogin () {
+    async taobaoLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.taobaoLogin()
         if (account) {
@@ -711,15 +703,15 @@ export default {
         }
       }
     },
-    async taobaoUserCenter (id) {
+    async taobaoUserCenter(id) {
       const serives = this.gotouser(id)
       if (serives) {
-        let account = this.changeAccountParams(serives)
+        const account = this.changeAccountParams(serives)
         await this.$buyerAccountService.taobaoUserCenter(account)
       }
     },
     // 京喜登录
-    async jingxiLogin () {
+    async jingxiLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.jingxiLogin()
         if (account) {
@@ -728,15 +720,15 @@ export default {
       }
     },
     // 京喜个人中心
-    async jingxiUserCenter (id) {
+    async jingxiUserCenter(id) {
       const serives = this.gotouser(id)
       if (serives) {
-        let account = this.changeAccountParams(serives)
+        const account = this.changeAccountParams(serives)
         await this.$buyerAccountService.jingxiUserCenter(account)
       }
     },
     // 1688登录
-    async AlibabaLogin () {
+    async AlibabaLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.alibabaLogin()
         if (account) {
@@ -744,15 +736,15 @@ export default {
         }
       }
     },
-    async AlibabaUserCenter (id) {
+    async AlibabaUserCenter(id) {
       const serives = this.gotouser(id)
       if (serives) {
-        let account = this.changeAccountParams(serives)
+        const account = this.changeAccountParams(serives)
         await this.$buyerAccountService.AlibabaUserCenter(account)
       }
     },
-    //lazada登录
-    async lazadaLogin () {
+    // lazada登录
+    async lazadaLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.lazadaLogin(this.siteCode)
         console.log('lazadaLogin', account, account.loginCookies.length)
@@ -761,16 +753,16 @@ export default {
         }
       }
     },
-    async lazadaUserCenter (id) {
+    async lazadaUserCenter(id) {
       const serives = this.gotouser(id)
       console.log(serives, 1)
       if (serives) {
-        let account = this.changeAccountParams(serives)
+        const account = this.changeAccountParams(serives)
         await this.$buyerAccountService.lazadaUserCenter(this.siteCode, account)
       }
     },
-    //shopee登录
-    async shopeeLogin () {
+    // shopee登录
+    async shopeeLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.shopeeLogin(this.siteCode)
         console.log('shopee', account)
@@ -779,15 +771,15 @@ export default {
         }
       }
     },
-    async shopeeUserCenter (id) {
+    async shopeeUserCenter(id) {
       const serives = this.gotouser(id)
       if (serives) {
-        let account = this.changeAccountParams(serives)
+        const account = this.changeAccountParams(serives)
         await this.$buyerAccountService.shopeeUserCenter(this.siteCode, account)
       }
     },
     // 个人中心
-    gotouser (id) {
+    gotouser(id) {
       let userInfo = null
       if (id) {
         this.buyerAccountList.forEach((item) => {
@@ -800,21 +792,21 @@ export default {
         return this.$message.error(`请选择账户`)
       }
     },
-    //上传买手号
-    async batchUpBuyer () {
+    // 上传买手号
+    async batchUpBuyer() {
       console.log('上传')
       for (let i = 0; i < this.buyerAccountList.length; i++) {
-        let account = this.buyerAccountList[i]
+        const account = this.buyerAccountList[i]
         account['login_info'] = JSON.stringify(account['login_info'])
         this.upBuyerAccountList(account)
       }
-      this.$message.success("上传买手号成功!")
+      this.$message.success('上传买手号成功!')
     },
     // 更新买手号列表(自动上传)服务端
-    async upBuyerAccountList (account, isLogis) {
+    async upBuyerAccountList(account, isLogis) {
       try {
         console.log(account, '============')
-        let params = {
+        const params = {
           name: account.name,
           password: '',
           type: account.type,
@@ -823,7 +815,7 @@ export default {
           loginInfo: account.login_info,
           ua: account.ua,
           cachePath: account.cache_path,
-          proxyId: Number(this.proxyType) || 0,
+          proxyId: Number(this.proxyType) || 0
         }
         const { data } = await this.$api.upLoadBuyAccount(params)
         console.log(account, data, '5656896898============')
@@ -834,16 +826,16 @@ export default {
             this.syncLogistics(true)
           }
         } else {
-          this.$message.warning("账户上传失败,请联系客服人员!")
+          this.$message.warning('账户上传失败,请联系客服人员!')
         }
       } catch (error) {
-        this.$message.warning("账户上传失败,请联系客服人员!")
+        this.$message.warning('账户上传失败,请联系客服人员!')
         console.log(error)
       }
     },
     // 更新买手号列表(前端本地)
-    updataBuyInfoWeb (params) {
-      let index = this.buyerAccountList.findIndex(n => n.type == params.type && n.name == params.name)
+    updataBuyInfoWeb(params) {
+      const index = this.buyerAccountList.findIndex(n => n.type == params.type && n.name == params.name)
       console.log(params, index)
       if (index > -1) {
         this.buyerAccountList[index].login_info = JSON.parse(params.loginInfo)
@@ -854,12 +846,12 @@ export default {
       console.log(this.buyerAccountList[index])
     },
     // 更新买手号列表(获取买手号列表)
-    async buyerAccount (i) {
+    async buyerAccount(i) {
       const { data } = await this.$api.getBuyerList()
       let sortData = null
       if (data.code === 200) {
         // 根据时间排序
-        sortData = data.data.sort(function (a, b) {
+        sortData = data.data.sort(function(a, b) {
           var x = a['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
           var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
           return x < y ? 1 : x > y ? -1 : 0
@@ -875,7 +867,7 @@ export default {
       console.log(this.buyerAccountList)
     },
     // 默认选中第一个账户信息
-    defaultSelect () {
+    defaultSelect() {
       this.selectAccount.accountpdd = this.$parent[this.upData].filter((item) => {
         return item.type === 1
       })[0]
@@ -922,11 +914,11 @@ export default {
       this.accountChange()
     },
     // 删除买手号
-    async removebuyerAccount () {
+    async removebuyerAccount() {
       const Account = {
         type: this.activeAccount.type,
         name: this.activeAccount.name,
-        site: this.activeAccount.site,
+        site: this.activeAccount.site
       }
       const { data } = await this.$api.deleteBuyAccount(Account)
       if (data.code === 200) {
@@ -941,11 +933,11 @@ export default {
       }
     },
     // uincode转义
-    decode (s) {
+    decode(s) {
       return unescape(s.replace(/\\(u[0-9a-fA-F]{4})/gm, '%$1'))
     },
     // 拼多多优惠券
-    async getPddCoupon () {
+    async getPddCoupon() {
       const pddAccountList = []
       this.buyerAccountList.forEach((item) => {
         if (item.type === 1) {
@@ -958,7 +950,7 @@ export default {
       const account = await this.$buyerAccountService.pddCouponWindow(pddAccountList)
       console.log(account)
     },
-    accountChange () {
+    accountChange() {
       this.$parent.accountpdd = this.selectAccount.accountpdd
       this.$parent.accounttaobao = this.selectAccount.accounttaobao
       this.$parent.account1688 = this.selectAccount.account1688
@@ -973,10 +965,10 @@ export default {
         accountjx: this.selectAccount.accountjx,
         accountlazada: this.selectAccount.accountlazada,
         accountshopee: this.selectAccount.accountshopee,
-        accountCrossBorder: this.selectAccount.accountCrossBorder,
+        accountCrossBorder: this.selectAccount.accountCrossBorder
       }
-    },
-  },
+    }
+  }
 }
 </script>
 

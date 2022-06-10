@@ -7,69 +7,91 @@
             <li>
               <span>站点：</span>
               <el-select
-                  v-model="countryVal"
-                  placeholder=""
-                  size="mini"
-                  filterable
-                  class="unnormal2"
-                  @change="
+                v-model="countryVal"
+                placeholder=""
+                size="mini"
+                filterable
+                class="unnormal2"
+                @change="
                   groupId = ''
                   getGroup
                 "
               >
-                <el-option label="全部" :value="''"/>
-                <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value"/>
+                <el-option label="全部" :value="''" />
+                <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <li>
               <span>店铺状态：</span>
               <el-select v-model="mallStausVal" placeholder="" size="mini" filterable class="unnormal2">
-                <el-option label="全部" :value="''"/>
-                <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value"/>
+                <el-option label="全部" :value="''" />
+                <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <li>
               <span>店铺分组：</span>
               <el-select v-model="groupId" placeholder="" size="mini" filterable class="unnormal2">
-                <el-option label="全部" :value="''"/>
-                <el-option label="无分组" :value="-1"/>
-                <el-option v-for="(item, index) in groupList" :key="index" :label="item.label" :value="item.value"/>
+                <el-option label="全部" :value="''" />
+                <el-option label="无分组" :value="-1" />
+                <el-option v-for="(item, index) in groupList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <li>
               <el-select v-model="mallSearchConditionVal" class="unnormal" placeholder="" size="mini">
-                <el-option v-for="(item, index) in mallSearchCondition" :key="index" :label="item.label"
-                           :value="item.value"/>
+                <el-option
+                  v-for="(item, index) in mallSearchCondition"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                />
               </el-select>
-              <el-input v-model="mallSearchConditionInputVal" class="unnormal2" placeholder="" size="mini"/>
+              <el-input v-model="mallSearchConditionInputVal" class="unnormal2" placeholder="" size="mini" />
             </li>
           </ul>
         </el-col>
         <el-col :span="20" class="header-rht">
           <el-row class="btn-row">
             <el-checkbox v-model="forceLogin">强制登录</el-checkbox>
-            <el-button type="primary" size="mini" :loading="buttonStatus.login" :disabled="buttonStatus.refresh"
-                       @click="alotOfLogined(null)">一键登录
+            <el-button
+              type="primary"
+              size="mini"
+              :loading="buttonStatus.login"
+              :disabled="buttonStatus.refresh"
+              @click="alotOfLogined(null)"
+            >一键登录
             </el-button>
             <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
             <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
             <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
             <el-button type="primary" size="mini" @click="editWaterMall('edit')">修改店铺水印文字</el-button>
-            <el-button type="primary" size="mini" :loading="buttonStatus.updateBK"
-                       @click="handlerSelectTableOperating('openMallBKSetting')">设置店铺封面
+            <el-button
+              type="primary"
+              size="mini"
+              :loading="buttonStatus.updateBK"
+              @click="handlerSelectTableOperating('openMallBKSetting')"
+            >设置店铺封面
             </el-button>
           </el-row>
           <el-row class="btn-row">
-            <el-button type="primary" size="mini" :loading="buttonStatus.refresh" :disabled="buttonStatus.login"
-                       @click="refreshStatus">刷新登录状态
-            </el-button>
-            <el-button type="primary" size="mini" :loading="buttonStatus.async"
-                       @click="handlerSelectTableOperating('asyncMallData')">同步店铺信息
+            <el-button
+              type="primary"
+              size="mini"
+              :loading="buttonStatus.refresh"
+              :disabled="buttonStatus.login"
+              @click="refreshStatus"
+            >刷新登录状态
             </el-button>
             <el-button
-                type="primary"
-                size="mini"
-                @click="
+              type="primary"
+              size="mini"
+              :loading="buttonStatus.async"
+              @click="handlerSelectTableOperating('asyncMallData')"
+            >同步店铺信息
+            </el-button>
+            <el-button
+              type="primary"
+              size="mini"
+              @click="
                 codeDialogVisible = true
                 getMallCodeData()
               "
@@ -77,16 +99,30 @@
               更新浏览器识别码
             </el-button>
             <el-button type="primary" size="mini" @click="openDeleteMallDialog">一键解绑店铺</el-button>
-            <el-button type="primary" size="mini" :loading="buttonStatus.openVacation"
-                       :disabled="buttonStatus.closeVacation" @click="closeOrOpenMallVacation(true)">开启店铺休假模式
+            <el-button
+              type="primary"
+              size="mini"
+              :loading="buttonStatus.openVacation"
+              :disabled="buttonStatus.closeVacation"
+              @click="closeOrOpenMallVacation(true)"
+            >开启店铺休假模式
             </el-button>
-            <el-button type="primary" size="mini" :loading="buttonStatus.closeVacation"
-                       :disabled="buttonStatus.openVacation" @click="closeOrOpenMallVacation(false)">关闭店铺休假模式
+            <el-button
+              type="primary"
+              size="mini"
+              :loading="buttonStatus.closeVacation"
+              :disabled="buttonStatus.openVacation"
+              @click="closeOrOpenMallVacation(false)"
+            >关闭店铺休假模式
             </el-button>
           </el-row>
           <el-row class="btn-row">
-            <el-button type="primary" size="mini" :disabled="buttonStatus.refresh || buttonStatus.login"
-                       @click="getMallList">查询
+            <el-button
+              type="primary"
+              size="mini"
+              :disabled="buttonStatus.refresh || buttonStatus.login"
+              @click="getMallList"
+            >查询
             </el-button>
             <el-button type="primary" size="mini" @click="openUpdateExpressdialog">批量修改物流方式</el-button>
             <el-button type="primary" size="mini" :disabled="!countryVal" @click="addressDialog = true">批量设置店铺地址
@@ -94,31 +130,39 @@
 
             <el-checkbox v-model="hideConsole">隐藏日志</el-checkbox>
             <li style="display: inline-block">
-              <el-progress v-show="isShowProgress" style="width: 200px" :text-inside="true" :stroke-width="16"
-                           :percentage="percentage" status="success"/>
+              <el-progress
+                v-show="isShowProgress"
+                style="width: 200px"
+                :text-inside="true"
+                :stroke-width="16"
+                :percentage="percentage"
+                status="success"
+              />
             </li>
             <li style="display: inline-block;margin-left: 10px;color: red;cursor: pointer">
-              <p @click="updateTableHeight" style="margin-right: 10px;">适配表格高度<i class="el-icon-refresh"/></p></li>
+              <p style="margin-right: 10px;" @click="updateTableHeight">适配表格高度<i class="el-icon-refresh" /></p></li>
           </el-row>
           <span class="res-text">温馨提示：导入新加披站点店铺时，若账号为手机号时，填写模板时请填写完整(带有国家区号)的手机号，否则登录失败</span>
         </el-col>
       </div>
     </el-row>
-    <el-row id="article" v-show="Height > 0">
+    <el-row v-show="Height > 0" id="article">
       <!-- @table-body-scroll="tableScroll" -->
-      <u-table ref="plTable"
-               v-loading="buttonStatus.mallList"
-               :row-height="rowHeight"
-               :height="Height"
-               use-virtual
-               :big-data-checkbox="true"
-               :data-changes-scroll-top="false"
-               :header-cell-style="{backgroundColor: '#f5f7fa'}"
-               row-key="id"
-               :row-style="{color: 'black',height: '50px',}"
-               :border="false"
-               @selection-change="handleSelectionChange">
-        <u-table-column align="center" type="selection" width="50"/>
+      <u-table
+        ref="plTable"
+        v-loading="buttonStatus.mallList"
+        :row-height="rowHeight"
+        :height="Height"
+        use-virtual
+        :big-data-checkbox="true"
+        :data-changes-scroll-top="false"
+        :header-cell-style="{backgroundColor: '#f5f7fa'}"
+        row-key="id"
+        :row-style="{color: 'black',height: '50px',}"
+        :border="false"
+        @selection-change="handleSelectionChange"
+      >
+        <u-table-column align="center" type="selection" width="50" />
         <u-table-column align="center" type="index" label="序号" width="60">
           <template v-slot="{ $index }">
             {{ (currentPage - 1) * pageSize + $index + 1 }}
@@ -140,7 +184,7 @@
             <p style="white-space: normal">{{ row.platform_mall_name }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="platform_mall_id" label="店铺ID"/>
+        <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
         <u-table-column align="center" prop="good_mall_status" label="是否优质店铺">
           <template v-slot="{ row }">
             {{ row.good_mall_status === '-1' ? '否' : '是' }}
@@ -154,38 +198,38 @@
         <u-table-column align="center" prop="watermark" label="店铺水印文字" width="150">
           <template v-slot="{ row }">
             <el-input
-                v-model="row.watermark"
+              v-model="row.watermark"
+              size="mini"
+              type="textarea"
+              resize="none"
+              :autosize="{ minRows: 3, maxRows: 4 }"
+              placeholder=""
+              :spellcheck="false"
+              @keyup.enter.native="updateWateMark($event, row)"
+            />
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="item_limit" label="店铺额度" />
+        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" width="150" sortable>
+          <template v-slot="{ row }">
+            <div>
+              <el-input
+                v-model="row.mall_alias_name"
                 size="mini"
                 type="textarea"
                 resize="none"
                 :autosize="{ minRows: 3, maxRows: 4 }"
                 placeholder=""
                 :spellcheck="false"
-                @keyup.enter.native="updateWateMark($event, row)"
-            />
-          </template>
-        </u-table-column>
-        <u-table-column align="center" prop="item_limit" label="店铺额度"/>
-        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" width="150" sortable>
-          <template v-slot="{ row }">
-            <div>
-              <el-input
-                  v-model="row.mall_alias_name"
-                  size="mini"
-                  type="textarea"
-                  resize="none"
-                  :autosize="{ minRows: 3, maxRows: 4 }"
-                  placeholder=""
-                  :spellcheck="false"
-                  @keyup.enter.native="updateMallAliasName($event, row)"
+                @keyup.enter.native="updateMallAliasName($event, row)"
               />
             </div>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="LoginInfo" label="登录状态" show-overflow-tooltip sortable>
           <template v-slot="{ row }">
-            <span v-html="row.LoginInfo"/>
-            <span class="copyIcon" @click="copy(row.LoginInfo)"><i class="el-icon-document-copy"/></span>
+            <span v-html="row.LoginInfo" />
+            <span class="copyIcon" @click="copy(row.LoginInfo)"><i class="el-icon-document-copy" /></span>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="mall_status" label="店铺状态">
@@ -193,53 +237,59 @@
             {{ row.mall_status === 1 ? '正常' : '冻结' }}
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px"/>
+        <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
       </u-table>
       <div class="pagination">
         <el-pagination
-            background
-            layout="total, sizes, prev, pager, next"
-            :total="total"
-            :current-page="currentPage"
-            :page-sizes="[500,1000,2000]"
-            :page-size="pageSize"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
+          background
+          layout="total, sizes, prev, pager, next"
+          :total="total"
+          :current-page="currentPage"
+          :page-sizes="[10,500,1000,2000]"
+          :page-size="pageSize"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
         />
       </div>
     </el-row>
 
     <!-- 修改店铺水印弹框 -->
     <el-dialog
-        class="water-dialog"
-        :title="importType === 'edit' ? '修改店铺水印文字' : '修改账号登录密码'"
-        :visible.sync="waterDialogVisible"
-        width="612px"
-        :before-close="handleClose"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      class="water-dialog"
+      :title="importType === 'edit' ? '修改店铺水印文字' : '修改账号登录密码'"
+      :visible.sync="waterDialogVisible"
+      width="612px"
+      :before-close="handleClose"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <div class="header-opt">
-        <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/"
-                   :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+        <el-upload
+          ref="importRef"
+          accept=".xls, .xlsx"
+          action="https://jsonplaceholder.typicode.com/posts/"
+          :on-change="importTemplateEvent"
+          :show-file-list="false"
+          :auto-upload="false"
+        >
           <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入</el-button>
         </el-upload>
         <el-button type="primary" size="mini" @click="downloadTemplate">下载模板</el-button>
       </div>
       <p class="text-label">导入信息:</p>
       <div class="text-log">
-        <div class="text-log-content" v-html="consoleMsg"/>
+        <div class="text-log-content" v-html="consoleMsg" />
       </div>
     </el-dialog>
     <!-- 导入店铺弹框 -->
     <el-dialog
-        class="import-mall-dialog"
-        title="店铺导入"
-        :visible.sync="importMallDialogVisible"
-        width="1184px"
-        :before-close="handleClose2"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      class="import-mall-dialog"
+      title="店铺导入"
+      :visible.sync="importMallDialogVisible"
+      width="1184px"
+      :before-close="handleClose2"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <el-row>
         <div class="header-dialog">
@@ -248,8 +298,14 @@
         </div>
 
         <div class="opt-dialog">
-          <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/"
-                     :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+          <el-upload
+            ref="importRef"
+            accept=".xls, .xlsx"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-change="importTemplateEvent"
+            :show-file-list="false"
+            :auto-upload="false"
+          >
             <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入
             </el-button>
           </el-upload>
@@ -261,7 +317,7 @@
         <div class="container-dialog">
           <div>
             <div class="text-log">
-              <div class="text-log-content" v-html="consoleMsg"/>
+              <div class="text-log-content" v-html="consoleMsg" />
             </div>
             <div class="text-btn">
               <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="mallAuthorization">店铺授权
@@ -269,24 +325,24 @@
             </div>
           </div>
           <el-table
-              ref="plTable2"
-              height="calc(100vh - 430px)"
-              :data="importMallListData"
-              :header-cell-style="{
+            ref="plTable2"
+            height="calc(100vh - 430px)"
+            :data="importMallListData"
+            :header-cell-style="{
               backgroundColor: '#f5f7fa',
             }"
-              @selection-change="handleSelectionChange2"
+            @selection-change="handleSelectionChange2"
           >
-            <el-table-column align="center" type="selection" width="50"/>
-            <el-table-column align="center" type="index" label="序号"/>
-            <el-table-column align="center" prop="group_name" label="分组"/>
+            <el-table-column align="center" type="selection" width="50" />
+            <el-table-column align="center" type="index" label="序号" />
+            <el-table-column align="center" prop="group_name" label="分组" />
             <el-table-column align="center" prop="" label="站点">
               <template v-slot="{ row }">
                 {{ row.country | chineseSite }}
               </template>
             </el-table-column>
-            <el-table-column align="center" prop="userRealName" label="店铺真实名称"/>
-            <el-table-column align="center" prop="platform_mall_name" label="店铺账号"/>
+            <el-table-column align="center" prop="userRealName" label="店铺真实名称" />
+            <el-table-column align="center" prop="platform_mall_name" label="店铺账号" />
             <!-- <el-table-column align="center" prop="watermark" label="店铺水印文字" /> -->
             <el-table-column align="center" prop="mall_alias_name" label="店铺别名">
               <template v-slot="{ row }">
@@ -297,10 +353,10 @@
               <template v-slot="{ row }">
                 <div>
                   <p>SPC_EC :
-                    <el-input v-model="row.SPC_EC" size="mini"/>
+                    <el-input v-model="row.SPC_EC" size="mini" />
                   </p>
                   <p>SPC_SC_TK :
-                    <el-input v-model="row.SPC_SC_TK" size="mini"/>
+                    <el-input v-model="row.SPC_SC_TK" size="mini" />
                   </p>
                 </div>
               </template>
@@ -311,14 +367,14 @@
     </el-dialog>
     <!-- 解绑店铺弹框 -->
     <el-dialog
-        class="del-mall-dialog"
-        title="解绑店铺"
-        :show-close="false"
-        :visible.sync="delMallDialog"
-        width="410px"
-        :before-close="handleClose2"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      class="del-mall-dialog"
+      title="解绑店铺"
+      :show-close="false"
+      :visible.sync="delMallDialog"
+      width="410px"
+      :before-close="handleClose2"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <div class="contanier-dialog">
         <h3>温馨提示</h3>
@@ -333,7 +389,7 @@
           </li>
           <li>
             <p>确认信息：</p>
-            <el-input v-model="comfirmText" size="mini" placeholder="删除店铺，后果自负"/>
+            <el-input v-model="comfirmText" size="mini" placeholder="删除店铺，后果自负" />
           </li>
           <div class="text2">
             删除店铺的同时通知仓库订单作废
@@ -351,35 +407,52 @@
     </el-dialog>
     <!-- 更新浏览器识别码弹窗 -->
     <el-dialog
-        class="code-mall-dialog"
-        title="批量更新浏览器识别码"
-        :visible.sync="codeDialogVisible"
-        width="1010px"
-        :before-close="handleClose4"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      class="code-mall-dialog"
+      title="批量更新浏览器识别码"
+      :visible.sync="codeDialogVisible"
+      width="1010px"
+      :before-close="handleClose4"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <span class="tip">温馨提示：1、浏览器识别码，用户防止店铺频繁接收手机验证码，需区分站点&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2、每个店铺的SPC_EC与SPC_SC_TK数据都不一样，请注意区分</span>
       <ul>
         <li>
           <span style="width: 54px">站点：</span>
-          <el-select v-model="codeCountryVal" :disabled="isUpdateCode" placeholder="" size="mini" filterable
-                     @change="queryMallCode">
-            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value"/>
+          <el-select
+            v-model="codeCountryVal"
+            :disabled="isUpdateCode"
+            placeholder=""
+            size="mini"
+            filterable
+            @change="queryMallCode"
+          >
+            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
         <li>
           <span style="width: 50px">店铺ID：</span>
-          <el-input v-model="mallCodeIdVal" style="width: 118px" oninput="value=value.replace(/\s/g,'')" size="mini"
-                    clearable :disabled="isUpdateCode"/>
+          <el-input
+            v-model="mallCodeIdVal"
+            style="width: 118px"
+            oninput="value=value.replace(/\s/g,'')"
+            size="mini"
+            clearable
+            :disabled="isUpdateCode"
+          />
         </li>
         <li>
           <el-button :disabled="isUpdateCode" type="primary" size="mini" @click="queryMallCode">查 询</el-button>
         </li>
         <li>
           <span style="width: 120px">游览器识别码：</span>
-          <el-input v-model="browserCodeVal" :disabled="isUpdateCode" oninput="value=value.replace(/\s/g,'')"
-                    size="mini" clearable/>
+          <el-input
+            v-model="browserCodeVal"
+            :disabled="isUpdateCode"
+            oninput="value=value.replace(/\s/g,'')"
+            size="mini"
+            clearable
+          />
         </li>
         <li>
           <el-button :disabled="isUpdateCode" type="primary" size="mini" @click="batchUpdateList">批量更新列表</el-button>
@@ -387,19 +460,19 @@
         </li>
       </ul>
       <el-table
-          v-loading="isLoading"
-          height="420"
-          :data="mallCodeData"
-          :header-cell-style="{
+        v-loading="isLoading"
+        height="420"
+        :data="mallCodeData"
+        :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
-          :row-style="{
+        :row-style="{
           color: 'black',
           height: '50px',
         }"
-          @selection-change="handleSelectionChange"
+        @selection-change="handleSelectionChange"
       >
-        <el-table-column width="40" align="center" type="index" label="序号"/>
+        <el-table-column width="40" align="center" type="index" label="序号" />
         <el-table-column width="70" align="center" label="站点">
           <template slot-scope="{ row }">
             {{ row.country | chineseSite }}
@@ -410,8 +483,8 @@
             <p style="white-space: normal">{{ row.mall_account_info.username }}</p>
           </template>
         </el-table-column>
-        <el-table-column width="150" align="center" prop="platform_mall_name" label="店铺名称"/>
-        <el-table-column width="100" align="center" prop="platform_mall_id" label="店铺ID"/>
+        <el-table-column width="150" align="center" prop="platform_mall_name" label="店铺名称" />
+        <el-table-column width="100" align="center" prop="platform_mall_id" label="店铺ID" />
         <el-table-column width="90" align="center" prop="" label="更新时间">
           <template slot-scope="{ row }">
             {{ row.web_login_info.spcf_update_time }}
@@ -421,13 +494,13 @@
           <template slot-scope="{ row }">
             <el-form label-position="right" label-width="80px">
               <el-form-item label="SPC_F:">
-                <el-input v-model="row.web_login_info.SPC_F" type="textarea" resize="none" size="mini" :rows="1"/>
+                <el-input v-model="row.web_login_info.SPC_F" type="textarea" resize="none" size="mini" :rows="1" />
               </el-form-item>
               <el-form-item label="SPC_EC:">
-                <el-input v-model="row.web_login_info.SPC_EC" type="textarea" resize="none" size="mini" :rows="1"/>
+                <el-input v-model="row.web_login_info.SPC_EC" type="textarea" resize="none" size="mini" :rows="1" />
               </el-form-item>
               <el-form-item label="SPC_SC_TK:">
-                <el-input v-model="row.web_login_info.SPC_SC_TK" type="textarea" resize="none" size="mini" :rows="1"/>
+                <el-input v-model="row.web_login_info.SPC_SC_TK" type="textarea" resize="none" size="mini" :rows="1" />
               </el-form-item>
             </el-form>
           </template>
@@ -448,17 +521,17 @@
         </el-button>
       </div>
     </el-dialog>
-    <Logs ref="Logs" v-model="hideConsole" clear/>
+    <Logs ref="Logs" v-model="hideConsole" clear />
     <!-- 店铺封面设置弹框 -->
     <el-dialog
-        class="mall-BK-Setting-Dialog"
-        title="店铺封面设置"
-        :visible.sync="mallBKSettingDialog"
-        width="500px"
-        :before-close="handleClose3"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        center
+      class="mall-BK-Setting-Dialog"
+      title="店铺封面设置"
+      :visible.sync="mallBKSettingDialog"
+      width="500px"
+      :before-close="handleClose3"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      center
     >
       <ul>
         <li>
@@ -475,10 +548,16 @@
             <el-radio label="4">英文版</el-radio>
           </el-radio-group>
         </li>
-        <el-upload v-if="imageOrigin === '2'" class="avatar-uploader" :show-file-list="false" action=""
-                   :on-error="imgSaveToUrl2" :before-upload="beforeAvatarUpload2">
+        <el-upload
+          v-if="imageOrigin === '2'"
+          class="avatar-uploader"
+          :show-file-list="false"
+          action=""
+          :on-error="imgSaveToUrl2"
+          :before-upload="beforeAvatarUpload2"
+        >
           <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px">
-          <i v-else class="el-icon-plus avatar-uploader-icon"/>
+          <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
         <img v-else :src="imageUrl" style="width: 460px; height: 450px">
       </ul>
@@ -489,13 +568,13 @@
     </el-dialog>
     <!-- 批量更改物流弹框 -->
     <el-dialog
-        class="mall-express-Dialog"
-        title="批量修改物流方式"
-        :visible.sync="batchExpressDialog"
-        width="500px"
-        :before-close="handleClose5"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      class="mall-express-Dialog"
+      title="批量修改物流方式"
+      :visible.sync="batchExpressDialog"
+      width="500px"
+      :before-close="handleClose5"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <div class="container">
         <el-collapse v-model="activeNames" accordion>
@@ -505,7 +584,7 @@
                 {{ item2.name }}
               </div>
               <div class="sub2-class">
-                <el-checkbox v-model="item2.isChecked"/>
+                <el-checkbox v-model="item2.isChecked" />
               </div>
             </div>
           </el-collapse-item>
@@ -513,8 +592,12 @@
       </div>
 
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" size="mini" :loading="buttonStatus.getExpress2"
-                   @click="BatchUpdateMallExpress">确 定</el-button>
+        <el-button
+          type="primary"
+          size="mini"
+          :loading="buttonStatus.getExpress2"
+          @click="BatchUpdateMallExpress"
+        >确 定</el-button>
         <el-button size="mini" @click="cancel4">取 消</el-button>
       </span>
     </el-dialog>
@@ -525,13 +608,13 @@
           <div class="dialog_item">
             <div class="item_name">全名</div>
             <div class="item_content">
-              <el-input v-model="addressQuery.name" size="mini"/>
+              <el-input v-model="addressQuery.name" size="mini" />
             </div>
           </div>
           <div class="dialog_item">
             <div class="item_name">电话号码</div>
             <div class="item_content">
-              <el-input v-model="addressQuery.phone" size="mini"/>
+              <el-input v-model="addressQuery.phone" size="mini" />
             </div>
           </div>
           <h2 style="margin: 10px 0">地址</h2>
@@ -547,39 +630,78 @@
               <el-tabs v-model="addressQuery.mask" type="card">
                 <el-tab-pane label="州/省" name="0" @click="">
                   <div class="mask">
-                    <span style="margin-left: 10px; display: inline-block"/>
-                    <el-button v-for="item in addressList[0]" :key="item.id" type="text" style="margin-top: 5px"
-                               size="mini" @click="addressLevel = item">
+                    <span style="margin-left: 10px; display: inline-block" />
+                    <el-button
+                      v-for="item in addressList[0]"
+                      :key="item.id"
+                      type="text"
+                      style="margin-top: 5px"
+                      size="mini"
+                      @click="addressLevel = item"
+                    >
                       {{ (isChineseShow && item.chineseName) || item.name }}
                     </el-button>
                   </div>
                 </el-tab-pane>
-                <el-tab-pane v-if="maskNumber > 1" label="城市" name="1"
-                             :disabled="!(addressQuery.mask >= 1 || addressQuery.city.length > 1)">
+                <el-tab-pane
+                  v-if="maskNumber > 1"
+                  label="城市"
+                  name="1"
+                  :disabled="!(addressQuery.mask >= 1 || addressQuery.city.length > 1)"
+                >
                   <div class="mask">
-                    <span style="margin-left: 10px; display: inline-block"/>
-                    <el-button v-for="item in addressList[1]" v-if="addressList[1]" :key="item.id" type="text"
-                               style="margin-top: 5px" size="mini" @click="addressLevel = item">
+                    <span style="margin-left: 10px; display: inline-block" />
+                    <el-button
+                      v-for="item in addressList[1]"
+                      v-if="addressList[1]"
+                      :key="item.id"
+                      type="text"
+                      style="margin-top: 5px"
+                      size="mini"
+                      @click="addressLevel = item"
+                    >
                       {{ (isChineseShow && item.chineseName) || item.name }}
                     </el-button>
                   </div>
                 </el-tab-pane>
-                <el-tab-pane v-if="maskNumber > 2" label="区" name="2"
-                             :disabled="!(addressQuery.mask >= 2 || addressQuery.city.length > 2)">
+                <el-tab-pane
+                  v-if="maskNumber > 2"
+                  label="区"
+                  name="2"
+                  :disabled="!(addressQuery.mask >= 2 || addressQuery.city.length > 2)"
+                >
                   <div class="mask">
-                    <span style="margin-left: 10px; display: inline-block"/>
-                    <el-button v-for="item in addressList[2]" v-if="addressList[2]" :key="item.id" type="text"
-                               style="margin-top: 5px" size="mini" @click="addressLevel = item">
+                    <span style="margin-left: 10px; display: inline-block" />
+                    <el-button
+                      v-for="item in addressList[2]"
+                      v-if="addressList[2]"
+                      :key="item.id"
+                      type="text"
+                      style="margin-top: 5px"
+                      size="mini"
+                      @click="addressLevel = item"
+                    >
                       {{ (isChineseShow && item.chineseName) || item.name }}
                     </el-button>
                   </div>
                 </el-tab-pane>
-                <el-tab-pane v-if="maskNumber > 3" label="镇" name="3"
-                             :disabled="!(addressQuery.mask >= 3 || addressQuery.city.length > 3)">
+                <el-tab-pane
+                  v-if="maskNumber > 3"
+                  label="镇"
+                  name="3"
+                  :disabled="!(addressQuery.mask >= 3 || addressQuery.city.length > 3)"
+                >
                   <div class="mask">
-                    <span style="margin-left: 10px; display: inline-block"/>
-                    <el-button v-for="item in addressList[3]" v-if="addressList[3]" :key="item.id" type="text"
-                               style="margin-top: 5px" size="mini" @click="addressLevel = item">
+                    <span style="margin-left: 10px; display: inline-block" />
+                    <el-button
+                      v-for="item in addressList[3]"
+                      v-if="addressList[3]"
+                      :key="item.id"
+                      type="text"
+                      style="margin-top: 5px"
+                      size="mini"
+                      @click="addressLevel = item"
+                    >
                       {{ (isChineseShow && item.chineseName) || item.name }}
                     </el-button>
                   </div>
@@ -590,24 +712,31 @@
           <div class="dialog_item">
             <div class="item_name">详细地址</div>
             <div class="item_content">
-              <el-input v-model="addressQuery.address" size="mini" type="textarea" resize="none" rows="3"/>
+              <el-input v-model="addressQuery.address" size="mini" type="textarea" resize="none" rows="3" />
             </div>
           </div>
           <div class="dialog_item">
             <div class="item_name">邮编号码</div>
             <div class="item_content">
-              <el-select v-model="addressQuery.zip_code" size="mini" allow-create filterable default-first-option
-                         style="width: 100%" placeholder="请选择邮编号码">
-                <el-option v-for="(item, index) in addressQueryNumber" :key="index" :label="item" :value="item"/>
+              <el-select
+                v-model="addressQuery.zip_code"
+                size="mini"
+                allow-create
+                filterable
+                default-first-option
+                style="width: 100%"
+                placeholder="请选择邮编号码"
+              >
+                <el-option v-for="(item, index) in addressQueryNumber" :key="index" :label="item" :value="item" />
               </el-select>
             </div>
           </div>
           <div class="dialog_item">
-            <el-checkbox v-model="addressQuery.default" style="margin: 5px 0" label="设为默认地址"/>
+            <el-checkbox v-model="addressQuery.default" style="margin: 5px 0" label="设为默认地址" />
             <br>
-            <el-checkbox v-model="addressQuery.take" style="margin: 5px 0" label="设为取件地址"/>
+            <el-checkbox v-model="addressQuery.take" style="margin: 5px 0" label="设为取件地址" />
             <br>
-            <el-checkbox v-model="addressQuery.backMail" style="margin: 5px 0" label="设为回邮地址"/>
+            <el-checkbox v-model="addressQuery.backMail" style="margin: 5px 0" label="设为回邮地址" />
           </div>
           <div class="dialog_item">
             <el-button size="mini" @click="cancelAddresses">取消</el-button>
@@ -618,33 +747,36 @@
     </div>
     <!-- 手机验证码 -->
     <el-dialog
-        class="phone_code_dialog"
-        title="手机短信验证码"
-        center
-        :visible.sync="phoneCodeVisiable"
-        width="500px"
-        :before-close="handleClose6"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      class="phone_code_dialog"
+      title="手机短信验证码"
+      center
+      :visible.sync="phoneCodeVisiable"
+      width="500px"
+      :before-close="handleClose6"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <ul class="container">
         <li>
           <p class="li_1_lf" style="">当前账号：{{ phoneInfo_accountName }}</p>
           <div class="li_1_rt">
-            <span class="copyIcon" @click="copy(phoneInfo_accountName)"><i class="el-icon-document-copy"/></span>
+            <span class="copyIcon" @click="copy(phoneInfo_accountName)"><i class="el-icon-document-copy" /></span>
             <el-button type="primary" size="mini" @click="stopOperation">中断操作</el-button>
           </div>
         </li>
         <li>
-          <el-input v-model.trim="phoneInfo_message_code" placeholder="请输入手机验证码"
-                    oninput="value=value.replace(/[^\d]/g,'')"/>
+          <el-input
+            v-model.trim="phoneInfo_message_code"
+            placeholder="请输入手机验证码"
+            oninput="value=value.replace(/[^\d]/g,'')"
+          />
         </li>
       </ul>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="closePhoneCodeDialog">确 定</el-button>
         <el-button size="mini" style="width: 140px" :disabled="sendMessageStaus" @click="sendMessage">{{
-            sendMessageText
-          }}</el-button>
+          sendMessageText
+        }}</el-button>
         <!--  重新发送短信验证码 -->
       </span>
     </el-dialog>
@@ -791,11 +923,11 @@ export default {
 
       userInfo: null,
       flat: 1, // 1 一键登录  2 导入店铺
-      addressesSuccess:{
-        addCount:0,
-        defaultCount:0,
-        takeCount:0,
-      },
+      addressesSuccess: {
+        addCount: 0,
+        defaultCount: 0,
+        takeCount: 0
+      }
     }
   },
   computed: {},
@@ -830,7 +962,7 @@ export default {
         }
         this.addressQuery.city.push(data)
       }
-      let cityName = this.addressQuery.city.map(son => this.isChineseShow && son.chineseName || son.name)
+      const cityName = this.addressQuery.city.map(son => this.isChineseShow && son.chineseName || son.name)
       this.addressQuery.cityName = cityName.join('/')
       this.addressQuery.mask = (++mask) + ''
       if (mask < this.maskNumber) {
@@ -842,7 +974,7 @@ export default {
       }
     },
     isChineseShow() {
-      let cityName = this.addressQuery.city.map(son => this.isChineseShow && son.chineseName || son.name)
+      const cityName = this.addressQuery.city.map(son => this.isChineseShow && son.chineseName || son.name)
       this.addressQuery.cityName = cityName.join('/')
     }
   },
@@ -852,7 +984,7 @@ export default {
   },
   async mounted() {
     try {
-      let height = document.body.offsetHeight - 270
+      const height = document.body.offsetHeight - 270
       this.Height = height > 200 && height || 200
       this.$IpcMain.on('needIvs', e => { // 点听
         console.log('needIvs-e', e)
@@ -981,17 +1113,17 @@ export default {
         this.$message.error('请选择店铺')
         return
       }
-      let countryList = [...new Set([...this.multipleSelection.map(son=>son.country)])] || []
+      const countryList = [...new Set([...this.multipleSelection.map(son => son.country)])] || []
       if (countryList.length !== 1 || countryList.toString() !== this.countryVal) {
         this.addressDialog = false
         return this.$message.error('批量修改地址方式只支持选择单个站点, 请重新选择')
       }
-      if (this.multipleSelection.find(son=> son.loginStatus !== 'success')) {
+      if (this.multipleSelection.find(son => son.loginStatus !== 'success')) {
         this.addressDialog = false
         return this.$message.error('选择店铺中有店铺未登录')
       }
-      const action = this.multipleSelection.filter(i => i.LoginInfo.includes('成功')&& i.country === this.countryVal)
-      let mask = this.addressQuery.mask
+      const action = this.multipleSelection.filter(i => i.LoginInfo.includes('成功') && i.country === this.countryVal)
+      const mask = this.addressQuery.mask
       if (action.length) {
         const param = {
           mallId: action[0].platform_mall_id,
@@ -1020,21 +1152,21 @@ export default {
           const nextLevelAddressesData = JSON.parse(nextLevelAddressesRes.data)
           const list = JSON.parse(JSON.stringify(this.addressList))
           const tempList = nextLevelAddressesData.data.list
-          let word = (tempList.map(son=>son.name)).join('<><>') || ''
+          const word = (tempList.map(son => son.name)).join('<><>') || ''
           list[mask] = tempList
           this.addressList = list
-          console.log('word',word)
+          console.log('word', word)
           let chineseStr = ''
           let translationNum = 3
-          do{
+          do {
             chineseStr = await this.$BaseUtilService.getLocalTranslationThesaurus(word)
-            console.log('chineseStr',chineseStr)
-            if(!chineseStr){
+            console.log('chineseStr', chineseStr)
+            if (!chineseStr) {
               await delay(3000)
             }
-          --translationNum
-          }while (!chineseStr && translationNum > 0)
-          if(chineseStr){
+            --translationNum
+          } while (!chineseStr && translationNum > 0)
+          if (chineseStr) {
             chineseStr = chineseStr.replaceAll('> <', '><')
             chineseStr = chineseStr.replaceAll('< ><', '<><')
             chineseStr = chineseStr.replaceAll('>< >', '><>')
@@ -1096,7 +1228,7 @@ export default {
       }
     },
     async confirmAddresses() {
-      let addressDate = JSON.parse(JSON.stringify(this.addressQuery))
+      const addressDate = JSON.parse(JSON.stringify(this.addressQuery))
       this.hideConsole = false
       const nameList = addressDate.city.map(son => son.name)
       const phone = this.$shopeemanService.getTelephoneNumberIsTrue(this.countryVal, addressDate.phone)
@@ -1116,28 +1248,28 @@ export default {
       const data = []
       this.multipleSelection.forEach(item => {
         if (item.country === param.country) {
-          let temp = {...param,...{
-              mallId: item.platform_mall_id,
-              platform_mall_name: item.platform_mall_name,
-              mall_alias_name: item.mall_alias_name,
-              default: addressDate.default,
-              take: addressDate.take,
-              backMail: addressDate.backMail
-            }}
+          const temp = { ...param, ...{
+            mallId: item.platform_mall_id,
+            platform_mall_name: item.platform_mall_name,
+            mall_alias_name: item.mall_alias_name,
+            default: addressDate.default,
+            take: addressDate.take,
+            backMail: addressDate.backMail
+          }}
           data.push(temp)
         }
       })
       this.addressesSuccess = {
-        addCount:0,
-        defaultCount:0,
-        takeCount:0,
+        addCount: 0,
+        defaultCount: 0,
+        takeCount: 0
       }
       await batchOperation(data, this.setAddresses)
       this.$refs.Logs.writeLog(`店铺地址添加成功率为${this.addressesSuccess.addCount}/${data.length}`, true)
-      if(addressDate.default){
+      if (addressDate.default) {
         this.$refs.Logs.writeLog(`店铺默认地址设置成功率为${this.addressesSuccess.defaultCount}/${data.length}`, true)
       }
-      if(addressDate.take || addressDate.backMail){
+      if (addressDate.take || addressDate.backMail) {
         this.$refs.Logs.writeLog(`店铺取件(回邮)地址设置成功率为${this.addressesSuccess.takeCount}/${data.length}`, true)
       }
     },
@@ -1176,7 +1308,7 @@ export default {
           this.$refs.Logs.writeLog(`店铺【${name}】添加地址失败，无法设置,请重新尝试`, false)
           return
         }
-        if(address_id){
+        if (address_id) {
           if (isDefault) {
             const param = {
               mallId: item.mallId,
@@ -1343,7 +1475,7 @@ export default {
         data: {
           dataURL: dataURL,
           // type: 'image/' + ext,
-          ext:'png'
+          ext: 'png'
         }
       }
     },
@@ -1359,11 +1491,10 @@ export default {
           resolve({ code: 200, data: base64File.data })
         }
 
-        image.onerror = async ()=> {
-          let base64Value = await that.$BaseUtilService.imageToBase64String(this.imageUrl)
-          let base64 = 'data:image/png;base64,' + base64Value
+        image.onerror = async() => {
+          const base64Value = await that.$BaseUtilService.imageToBase64String(this.imageUrl)
+          const base64 = 'data:image/png;base64,' + base64Value
           image.src = base64
-
         }
       })
     },
@@ -1375,7 +1506,7 @@ export default {
       if (this.imageOrigin === '1') { // 如果为默认图需要将url->base64—> blob
         res = await this.getUrlToBolb()
       } else { // 使用用户上传  base64 -> blob 少了url那步
-        res = { code: 200, data: { dataURL: this.imageUrl, ext: this.imageType } }
+        res = { code: 200, data: { dataURL: this.imageUrl, ext: this.imageType }}
       }
       if (res.code !== 200) {
         this.$message.error('转换背景图失败')
@@ -1425,11 +1556,11 @@ export default {
         this.$message.error('请选择店铺')
         return
       }
-      let countryList = [...new Set([...this.multipleSelection.map(son=>son.country)])] || []
+      const countryList = [...new Set([...this.multipleSelection.map(son => son.country)])] || []
       if (countryList.length !== 1 || countryList.toString() !== this.countryVal) {
         return this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
       }
-      if (this.multipleSelection.find(son=> son.loginStatus !== 'success')) {
+      if (this.multipleSelection.find(son => son.loginStatus !== 'success')) {
         return this.$message.error('选择店铺中有店铺未登录')
       }
 
@@ -1510,13 +1641,13 @@ export default {
     },
     getIP() {
       this.$BaseUtilService
-          .getAddressIP()
-          .then((res) => {
-            this.IPVal = res
-          })
-          .catch((e) => {
-            console.log('getIP', e)
-          })
+        .getAddressIP()
+        .then((res) => {
+          this.IPVal = res
+        })
+        .catch((e) => {
+          console.log('getIP', e)
+        })
     },
     async chekedDelMall() {
       const text = this.comfirmText.replace(/,/, '，').trim() === '删除店铺，后果自负'
@@ -1591,8 +1722,8 @@ export default {
       if (!this.multipleSelection2.length) {
         return this.$message.error('请勾选店铺')
       }
-      let messageStr = this.isIPType && '您选择了使用IP主体，如出现问题请检查您所填写IP主体信息与已有IP主体信息！'
-          || '您选择了不使用IP主体，请注意您所填写的IP信息将不会生效！'
+      const messageStr = this.isIPType && '您选择了使用IP主体，如出现问题请检查您所填写IP主体信息与已有IP主体信息！' ||
+          '您选择了不使用IP主体，请注意您所填写的IP信息将不会生效！'
       this.$confirm(messageStr, '授权提示', {
         confirmButtonText: '确定',
         type: 'warning'
@@ -1604,7 +1735,6 @@ export default {
           message: '已取消'
         })
       })
-
     },
     editWaterMall(val) {
       this.importType = val
@@ -1691,7 +1821,7 @@ export default {
           return
         }
         const data = res3[0].data
-        //mallStatus
+        // mallStatus
         console.log(data)
         const params = {
           'sysMallId': item.id,
@@ -1828,7 +1958,7 @@ export default {
             } else {
               item.loginStatus = 'fail'
               if (this.flat === 1) {
-                let errorMag = handleResult.data || errorStr
+                const errorMag = handleResult.data || errorStr
                 item.LoginInfo = `<p style="color: red">登录失败：${errorMag}</p>`
               } else {
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data || '失败状态：2，请联系客服'}`, false)
@@ -1952,7 +2082,7 @@ export default {
           }
           successNum++
           this.flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>')
-              : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
+            : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
           item.loginStatus = 'success'
           this.$nextTick(() => {
             this.$refs.plTable.toggleRowSelection([
@@ -1980,7 +2110,7 @@ export default {
         } catch (error) {
           console.log('error', error)
           this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${error}</p>`)
-              : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error || '失败状态：5，请联系客服'}`, false)
+            : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error || '失败状态：5，请联系客服'}`, false)
           continue
         }
       }
@@ -2736,7 +2866,7 @@ export default {
     updateTableHeight() {
       this.Height = 0
       setTimeout(() => {
-        let height = document.body.offsetHeight - 270
+        const height = document.body.offsetHeight - 270
         this.Height = height > 200 && height || 200
       }, 200)
     }
