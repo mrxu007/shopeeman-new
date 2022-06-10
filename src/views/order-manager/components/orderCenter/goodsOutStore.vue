@@ -11,8 +11,8 @@
     <div class="out-header">
       <span>{{ clickNum }}/{{ chooseData.length }}</span>
       <el-button type="primary" size="mini" @click="goNext">{{
-          clickNum == chooseData.length ? '关闭' : '匹配下一单'
-        }}
+        clickNum == chooseData.length ? '关闭' : '匹配下一单'
+      }}
       </el-button>
       <el-button v-if="outStoreType === '3' || outStoreType === '4'" type="primary" size="mini" @click="getSheetInfo">
         获取面单信息
@@ -28,31 +28,32 @@
           <span class="order-title">订单商品信息</span>
           <div class="order-item">
             <el-table ref="muliTbale" :data="orderList" tooltip-effect="dark" style="width: 100%" height="200">
-              <el-table-column align="center" type="index" label="序号" min-width="50px"/>
-              <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center"/>
+              <el-table-column align="center" type="index" label="序号" min-width="50px" />
+              <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center" />
               <el-table-column width="80px" label="订单状态" prop="order_status" align="center">
                 <template v-if="scope.row.order_status" slot-scope="scope">
                   {{ changeOrderStatus(scope.row.order_status) }}
                 </template>
               </el-table-column>
-              <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip/>
-              <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip/>
+              <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
+              <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip />
               <el-table-column min-width="120px" label="商品规格" prop="variation_sku" align="center" show-overflow-tooltip>
                 <template slot-scope="scope">{{ scope.row.variation_sku || scope.row.variation_name }}</template>
               </el-table-column>
-              <el-table-column align="center" prop="goods_count" label="商品数量" width="80"/>
+              <el-table-column align="center" prop="goods_count" label="商品数量" width="80" />
               <el-table-column align="center" prop="ori_platform_id" label="商品图片" width="80">
                 <template slot-scope="scope">
                   <el-tooltip
-                      effect="light"
-                      placement="right-end"
-                      :visible-arrow="false"
-                      :enterable="false"
-                      style="width: 56px; height: 56px; display: inline-block">
+                    effect="light"
+                    placement="right-end"
+                    :visible-arrow="false"
+                    :enterable="false"
+                    style="width: 56px; height: 56px; display: inline-block"
+                  >
                     <div slot="content">
-                      <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px"/>
+                      <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
                     </div>
-                    <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px"/>
+                    <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -63,9 +64,9 @@
                 <template slot-scope="scope">
                   <div style="display: flex; justify-content: center">
                     <el-button
-                        type="primary"
-                        size="mini"
-                        @click="
+                      type="primary"
+                      size="mini"
+                      @click="
                         isGift = false
                         selfGoodsStoreVisible = true
                         addGiftAbroad = ''
@@ -75,10 +76,10 @@
                     >匹配商品
                     </el-button>
                     <el-button
-                        v-if="outStoreType == '3' || outStoreType == '4'"
-                        type="primary"
-                        size="mini"
-                        @click="
+                      v-if="outStoreType == '3' || outStoreType == '4'"
+                      type="primary"
+                      size="mini"
+                      @click="
                         isGift = true
                         selfGoodsStoreVisible = true
                         addGiftAbroad = 'gift'
@@ -96,21 +97,21 @@
           <span class="order-title">匹配商品信息</span>
           <div class="order-item">
             <el-table ref="muliTbale2" :data="matchOrderList" tooltip-effect="dark" style="width: 100%" height="300">
-              <el-table-column align="center" type="index" label="序号" min-width="50px"/>
-              <el-table-column width="140px" label="匹配订单号" prop="orderSn" align="center"/>
-              <el-table-column width="120px" label="商品编号" prop="sku_id" align="center" show-overflow-tooltip/>
-              <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip/>
-              <el-table-column width="80px" label="商品规格" prop="sku_name" align="center"/>
-              <el-table-column align="center" prop="stock_num" label="可用库存" width="80"/>
+              <el-table-column align="center" type="index" label="序号" min-width="50px" />
+              <el-table-column width="140px" label="匹配订单号" prop="orderSn" align="center" />
+              <el-table-column width="120px" label="商品编号" prop="sku_id" align="center" show-overflow-tooltip />
+              <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
+              <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
+              <el-table-column align="center" prop="stock_num" label="可用库存" width="80" />
               <el-table-column align="center" prop="outStock" label="出库数量" min-width="80">
                 <template slot-scope="scope">
-                  <el-input v-model="outStock[scope.$index]" size="mini" @input="setOutStock(scope.row, scope.$index)"/>
+                  <el-input v-model="outStock[scope.$index]" size="mini" @input="setOutStock(scope.row, scope.$index)" />
                 </template>
               </el-table-column>
-              <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center"/>
+              <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center" />
               <el-table-column label="商品图片" width="80">
                 <template slot-scope="scope">
-                  <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px"/>
+                  <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
                 </template>
               </el-table-column>
               <el-table-column align="center" prop="ori_platform_id" label="是否赠品" width="80">
@@ -132,10 +133,10 @@
           <span class="mar-right">出库总价</span>
           <span class="mar-right activeColor">{{ outTotalPrice }}{{ orderInfo.country | siteCoin }}</span>
           <el-button
-              size="mini"
-              type="primary"
-              :disabled="!matchOrderList.length || (clickNum === chooseData.length && flagText === '出库成功')"
-              @click="outStore"
+            size="mini"
+            type="primary"
+            :disabled="!matchOrderList.length || (clickNum === chooseData.length && flagText === '出库成功')"
+            @click="outStore"
           >立即下单
           </el-button>
         </div>
@@ -191,16 +192,23 @@
         </div>
       </div>
     </div>
-    <el-dialog v-if="selfGoodsStoreVisible"
-        :visible.sync="selfGoodsStoreVisible"
-        width="1200px" append-to-body top="5vh">
+    <el-dialog
+      v-if="selfGoodsStoreVisible"
+      :visible.sync="selfGoodsStoreVisible"
+      width="1200px"
+      append-to-body
+      top="5vh"
+    >
       <div slot="title">{{ title[Number(outStoreType)] }}</div>
       <div class="go-out-store">
-        <self-goods-store v-if="outStoreType === '1'" @getChooseData="getChooseData"/>
-        <product-goods-store v-if="outStoreType === '2'" @getChooseData="getChooseData"/>
-        <abroad-goods-store v-if="outStoreType === '3'" :add-gift-abroad="addGiftAbroad"
-                            @getChooseData="getChooseData"/>
-        <inLand-goods-store v-if="outStoreType === '4'" @getChooseData="getChooseData"/>
+        <self-goods-store v-if="outStoreType === '1'" @getChooseData="getChooseData" />
+        <product-goods-store v-if="outStoreType === '2'" @getChooseData="getChooseData" />
+        <abroad-goods-store
+          v-if="outStoreType === '3'"
+          :add-gift-abroad="addGiftAbroad"
+          @getChooseData="getChooseData"
+        />
+        <inLand-goods-store v-if="outStoreType === '4'" @getChooseData="getChooseData" />
       </div>
     </el-dialog>
   </div>
@@ -290,7 +298,7 @@ export default {
       this.outTotalStock = numberS
       this.outTotalPriceRmb = price.toFixed(2)
       this.outTotalPrice = (price / Number(this.rateList[this.orderInfo.country])).toFixed(2)
-      console.log(this.incomeRmb,this.outTotalPriceRmb)
+      console.log(this.incomeRmb, this.outTotalPriceRmb)
       this.grossProfit = (this.incomeRmb - this.outTotalPriceRmb).toFixed(2)
       this.interestRate = this.outTotalPriceRmb ? (Math.round((this.grossProfit / this.outTotalPriceRmb) * 100).toFixed(2)) : 100
 
@@ -362,13 +370,13 @@ export default {
         return this.$message.warning('请先选择商品！')
       }
       const arr = this.matchOrderList.filter(item => Number(item.outStock) > 0) || []
-      if (!arr.length || this.matchOrderList.length>arr.length) {
+      if (!arr.length || this.matchOrderList.length > arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
       const list = []
       const widInfo = {}
-      let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
-      let express_pdf = this.sheetInfo.url
+      const orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
+      const express_pdf = this.sheetInfo.url
       arr.forEach((item) => {
         console.log('item', item)
         widInfo[item.wid] = item.wid
@@ -400,9 +408,9 @@ export default {
         country: orderInfo.country,
         sku_list: list
       }
-      console.log('outOfStockAbroad',JSON.stringify(params))
+      console.log('outOfStockAbroad', JSON.stringify(params))
       const res = await this.$api.outOfStockAbroad(params)
-      console.log('res',res)
+      console.log('res', res)
       await this.saveStockSkuId()
       if (res.data.code === 200) {
         const main_order_sn = this.orderInfo.main_order_sn
@@ -436,7 +444,7 @@ export default {
       const itemF = this.matchOrderList[0]
       const lists = []
       const widInfo = {}
-      let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
+      const orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
       this.matchOrderList.forEach((item) => {
         widInfo[item.wid] = item.wid
         const obj = {
@@ -454,7 +462,7 @@ export default {
         lists.push(obj)
       })
       if (Object.keys(widInfo).length > 1) {
-        return this.$message.warning('只能出库同一个仓库的商品！')
+        return this.$message.warning('只能出库同一个仓库的商品')
       }
       const params = {
         wid: itemF.wid,
@@ -491,7 +499,7 @@ export default {
         return this.$message.warning('出库数量不能为零！！！')
       }
       console.log(arr, 'arr')
-      let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
+      const orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
       const paramsList = []
       arr.forEach((item) => {
         const obj = {
@@ -526,7 +534,7 @@ export default {
       if (!arr.length) {
         return this.$message.warning('出库数量不能为零！！！！')
       }
-      let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
+      const orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
       const paramsList = []
       arr.forEach((item) => {
         const obj = {
@@ -600,7 +608,7 @@ export default {
       }
       const { data } = await this.$api.getDetail(params)
       if (data.code === 200) {
-        let orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
+        const orderInfo = JSON.parse(JSON.stringify(this.orderInfo))
         this.orderList = data.data.orderInfos
         this.income = 0
         this.orderList.forEach((item) => {
@@ -658,14 +666,14 @@ export default {
             const matchOrder = stockSkuIdData.data && stockSkuIdData.data[0]
             const order = this.orderList.find(son => son.variation_id === item.variation_id)
             if (matchOrder && order) {
-              this.matchOrderList.push(Object.assign(matchOrder, { orderSn: order.order_sn,stock_num:matchOrder.stock_num - matchOrder.frozen_num }))
+              this.matchOrderList.push(Object.assign(matchOrder, { orderSn: order.order_sn, stock_num: matchOrder.stock_num - matchOrder.frozen_num }))
             }
           }
         }
       }
     },
     async saveStockSkuId() {
-      console.log('matchOrderList', this.matchOrderList,this.orderList)
+      console.log('matchOrderList', this.matchOrderList, this.orderList)
       for (const item of this.matchOrderList) {
         if (!item.shared_id && !item.isGift) {
           const index = this.orderList.findIndex(son => son.order_sn === item.orderSn)

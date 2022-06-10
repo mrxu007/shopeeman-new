@@ -39,7 +39,7 @@
       </div>
       <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" height="500">
+    <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" height="500" :default-sort="{prop: 'sku_name',order: 'descending'}">
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
@@ -51,7 +51,7 @@
       <el-table-column width="120px" label="系统商品编号" prop="sys_sku_id" align="center" />
       <el-table-column width="130px" label="SKUID" prop="sku_id" align="center" />
       <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
-      <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
+      <el-table-column width="100px" sortable label="商品规格" prop="sku_name" align="center" />
       <el-table-column width="80px" label="库存数量" prop="shared_num" align="center" />
       <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center" />
       <el-table-column min-width="80" label="商品链接" prop="goods_url" align="center" show-overflow-tooltip>
@@ -184,7 +184,7 @@ export default {
           const obj = item.stock
           item = { ...obj,
             shared_id: id,
-            sku_price: ( item?.stock?.sku_price) / 100,
+            sku_price: (item?.stock?.sku_price) / 100
           }
           this.tableData.push(item)
         })
@@ -221,7 +221,7 @@ export default {
           this.tableData = arr.filter(n => n.stock_num > 0)
         }
       }
-      console.log('xzy.stock.index',this.tableData)
+      console.log('xzy.stock.index', this.tableData)
       this.tableLoading = false
     },
     // 列表

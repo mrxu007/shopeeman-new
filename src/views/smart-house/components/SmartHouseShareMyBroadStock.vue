@@ -52,6 +52,7 @@
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
+        :default-sort="{prop: 's_sku_name',order: 'descending'}"
       >
         <el-table-column
           align="center"
@@ -95,6 +96,8 @@
           align="center"
           min-width="140"
           show-overflow-tooltip
+          sortable
+          prop="s_sku_name"
         >
           <template slot-scope="{row}">
             {{ row.stock && row.stock.sku_name?row.stock.sku_name:'' }}
@@ -138,7 +141,7 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.stock.sku_image"
+              v-if="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -148,14 +151,14 @@
               <div slot="content">
                 <el-image
                   style="width: 400px; height: 400px"
-                  :src="row.stock.sku_image"
+                  :src="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
                 >
                   <div slot="error" class="image-slot" />
                 </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.stock.sku_image"
+                :src="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
               >
                 <div slot="error" class="image-slot" />
               </el-image>
@@ -169,7 +172,7 @@
         >
           <template slot-scope="{row}">
             <el-button
-              v-if="row.stock.sku_url"
+              v-if="row.stock && row.stock.sku_url"
               type="primary"
               size="mini"
               @click="openUrl(row.stock.sku_url)"
@@ -245,6 +248,7 @@ export default {
         this.total = res.data.total
         for (let index = 0; index < this.tableData.length; index++) {
           const element = this.tableData[index]
+          element.s_sku_name = element?.stock?.sku_name ?? ''
           // 获取海外仓库中文名
           const resName = await this.ShareMyBroadStock.overseasWh(element.wid)
           if (resName.code === 200) {

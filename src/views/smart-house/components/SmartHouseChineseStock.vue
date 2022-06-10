@@ -50,6 +50,7 @@
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
+        :default-sort="{prop: 'sku_name',order: 'descending'}"
       >
         <el-table-column
           align="center"
@@ -82,6 +83,7 @@
           min-width="150"
           prop="sku_name"
           show-overflow-tooltip
+          sortable
         />
         <el-table-column
           label="采购数量"

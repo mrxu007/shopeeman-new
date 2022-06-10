@@ -30,21 +30,21 @@
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
-      <el-button type="primary" size="mini" @click="searchTableList" style="margin-left: 10px">搜 索</el-button>
+      <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500" v-loading="tableLoading">
+    <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" max-height="500" :default-sort="{prop: 'sku_name',order: 'descending'}">>
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
       <el-table-column align="center" type="index" label="站点" width="80">
         <template slot-scope="scope">
-          <span>{{ scope.row.country | chineseSite}}</span>
+          <span>{{ scope.row.country | chineseSite }}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" label="商品ID" prop="goods_id_id" align="center" />
       <el-table-column width="120px" label="SKUID" prop="sku_id" align="center" />
       <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
-      <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
+      <el-table-column width="100px" label="商品规格" prop="sku_name" align="center" sortable />
       <el-table-column width="80px" label="库存数量" prop="stock_num" align="center" />
       <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center" />
       <el-table-column min-width="80" label="商品链接" prop="goods_url" align="center" show-overflow-tooltip>
@@ -55,13 +55,13 @@
         </template>
       </el-table-column>
       <el-table-column label="商品图片" width="80">
-        <template slot-scope="scope" v-if="scope.row.sku_image">
-           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
-              <div slot="content">
-                <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" ></el-image>
-              </div>
-              <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" ></el-image>
-            </el-tooltip>
+        <template v-if="scope.row.sku_image" slot-scope="scope">
+          <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+            <div slot="content">
+              <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" />
+            </div>
+            <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" />
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="60px">
@@ -93,7 +93,7 @@ export default {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       tableData: [],
       total: 0,
@@ -102,7 +102,7 @@ export default {
       countries: this.$filters.countries_option,
       countryVal: '',
       searchTime: [],
-      tableLoading:false
+      tableLoading: false
     }
   },
   mounted() {
@@ -110,7 +110,7 @@ export default {
     this.searchTableList()
   },
   methods: {
-    //添加到出库单
+    // 添加到出库单
     async addTo(row) {
       this.$emit('getChooseData', row)
     },
@@ -119,11 +119,11 @@ export default {
       this.tableData = []
       const params = {
         country: this.countryVal,
-        createTime: '',
+        createTime: ''
       }
-      if (this.searchTime.length){
+      if (this.searchTime.length) {
         params['createTime'] = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
-      }else {
+      } else {
         params['createTime'] = ''
       }
       params['page'] = this.currentPage
@@ -132,14 +132,14 @@ export default {
       const res = await this.$api.getUserStore(params)
       if (res && res.data.code === 200) {
         this.total = res.data.data.total
-        let array = res.data.data.data
+        const array = res.data.data.data
         array.forEach((item) => {
           item.user_stocks_skus.forEach((subItem) => {
             let obj = {
               goods_id: item.id,
               goods_name: item.goods_name,
               goods_url: item.goods_url,
-              country:item.country,
+              country: item.country,
               goods_id_id: item.goods_id
             }
             obj = Object.assign(obj, subItem)
@@ -168,8 +168,8 @@ export default {
     handleSizeChange(size) {
       this.pageSize = size
       this.searchTableList()
-    },
-  },
+    }
+  }
 }
 </script>
 

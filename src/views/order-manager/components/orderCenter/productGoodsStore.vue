@@ -24,24 +24,24 @@
         />
       </div>
       <div class="item-box">
-        <span >商品名称:</span>
+        <span>商品名称:</span>
         <el-input v-model="goodsName" size="mini" clearable class="inputBox" />
       </div>
-       <div class="item-box">
-        <span >商品ID:</span>
+      <div class="item-box">
+        <span>商品ID:</span>
         <el-input v-model="goodsCode" size="mini" clearable class="inputBox" />
       </div>
-       <div class="item-box">
-        <span >SKUID:</span>
+      <div class="item-box">
+        <span>SKUID:</span>
         <el-input v-model="skuCode" size="mini" clearable class="inputBox" />
       </div>
       <el-button type="primary" size="mini" style="margin-left:10px;" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" height="500" v-loading="tableLoading">
+    <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" height="500" :default-sort="{prop: 'sku_name',order: 'descending'}">>
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
-       <el-table-column align="center" type="index" label="站点" width="80">
+      <el-table-column align="center" type="index" label="站点" width="80">
         <template slot-scope="scope">
           <span>产品中心</span>
         </template>
@@ -49,7 +49,7 @@
       <el-table-column width="120px" label="商品ID" prop="product_id" align="center" />
       <el-table-column width="130px" label="SKUID" prop="sku_id" align="center" />
       <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
-      <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
+      <el-table-column width="100px" label="商品规格" prop="sku_name" align="center" sortable />
       <el-table-column width="80px" label="库存数量" prop="stock_num" align="center" />
       <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center" />
       <el-table-column min-width="80" label="商品链接" prop="goods_url" align="center" show-overflow-tooltip>
@@ -60,13 +60,13 @@
         </template>
       </el-table-column>
       <el-table-column label="商品图片" width="80">
-        <template slot-scope="scope" v-if="scope.row.sku_image">
-           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
-              <div slot="content">
-                <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" ></el-image>
-              </div>
-              <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" ></el-image>
-            </el-tooltip>
+        <template v-if="scope.row.sku_image" slot-scope="scope">
+          <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+            <div slot="content">
+              <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" />
+            </div>
+            <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" />
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="60px">
@@ -98,17 +98,17 @@ export default {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
-      tableData:[],
+      tableData: [],
       total: 0,
       pageSize: 20,
       currentPage: 1,
-      searchTime:[],
-      goodsName:'',//商品名称
-      goodsCode:'',
-      skuCode:'',
-      tableLoading:false,
+      searchTime: [],
+      goodsName: '', // 商品名称
+      goodsCode: '',
+      skuCode: '',
+      tableLoading: false
     }
   },
   mounted() {
@@ -116,18 +116,18 @@ export default {
     this.searchTableList()
   },
   methods: {
-      //添加到出库单
-    async addTo(row){
-        this.$emit('getChooseData',row)
+    // 添加到出库单
+    async addTo(row) {
+      this.$emit('getChooseData', row)
     },
     // 列表
     async searchTableList() {
       this.tableData = []
       // 获取产品中心列表数据
-      let params = {
-        ProductName : this.goodsName,
-        ProductId : this.goodsCode,
-        SkuId : this.skuCode,
+      const params = {
+        ProductName: this.goodsName,
+        ProductId: this.goodsCode,
+        SkuId: this.skuCode,
         CateId: 0,
         Status: '-1'
       }
@@ -135,26 +135,26 @@ export default {
       params['pageSize'] = this.pageSize
       this.tableLoading = true
       const res = await this.$commodityService.getProductList(params)
-      let resObj = res&&JSON.parse(res)
-      console.log(resObj,"4")
-     if(resObj.status_code === 200){
-       this.total = resObj.data.total
-       let arr = resObj.data.data
-       arr.forEach(async item=>{
-         await this.getProductSkuList(item)
-       })
-     }
-     this.tableLoading = false
+      const resObj = res && JSON.parse(res)
+      console.log(resObj, '4')
+      if (resObj.status_code === 200) {
+        this.total = resObj.data.total
+        const arr = resObj.data.data
+        arr.forEach(async item => {
+          await this.getProductSkuList(item)
+        })
+      }
+      this.tableLoading = false
       console.log(this.tableData)
     },
     // SKU详情
     async getProductSkuList(row) {
       const res = await this.$commodityService.getProductSkuList(row.product_id)
-      let resObj = res&&JSON.parse(res)
+      const resObj = res && JSON.parse(res)
       console.log('skuDetailsData', resObj)
-      if(resObj.status_code === 200){
-        let skuDetailsData = resObj.data
-        skuDetailsData.forEach(item=>{
+      if (resObj.status_code === 200) {
+        const skuDetailsData = resObj.data
+        skuDetailsData.forEach(item => {
           item.goods_name = row.product_name
           item.stock_num = item.stock
           item.sku_price = item.price
@@ -180,8 +180,8 @@ export default {
     handleSizeChange(size) {
       this.pageSize = size
       this.searchTableList()
-    },
-  },
+    }
+  }
 }
 </script>
 

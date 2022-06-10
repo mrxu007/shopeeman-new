@@ -67,6 +67,7 @@
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
+        :default-sort="{prop: 's_sku_name',order: 'descending'}"
         @selection-change="handleSelectionChange"
       >
         <el-table-column
@@ -115,7 +116,9 @@
           label="商品规格"
           align="center"
           min-width="140"
+          prop="s_sku_name"
           show-overflow-tooltip
+          sortable
         >
           <template slot-scope="{row}">
             {{ row.stock && row.stock.sku_name?row.stock.sku_name:'' }}
@@ -628,6 +631,7 @@ export default {
         this.total = res.data.total
         for (let index = 0; index < this.tableData.length; index++) {
           const element = this.tableData[index]
+          element.s_sku_name = element?.stock?.sku_name ?? ''
           // 获取海外仓库中文名
           const resName = await this.ShareBroadStock.overseasWh(element.wid)
           if (resName.code === 200) {

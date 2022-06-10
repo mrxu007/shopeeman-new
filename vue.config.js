@@ -51,14 +51,15 @@ module.exports = {
     //     return assetFilename.endsWith('.js')
     //   }
     // }
-  },
+  }
   // devServer: {
 
-  // public: '172.16.11.50:8080',
+  //   public: '172.15.252.138',
 
   //   hot: true,
 
   //   disableHostCheck: true
 
   // }
+
 }

@@ -52,6 +52,7 @@
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
+        :default-sort="{prop: 'sku_name',order: 'descending'}"
         @selection-change="handleSelectionChange"
       >
         <!-- <el-table-column align="center" type="selection" width="50" fixed /> -->
@@ -60,7 +61,7 @@
         <el-table-column align="center" prop="sys_sku_id" label="系统商品编号" min-width="130px" />
         <el-table-column prop="sku_id" label="商品编号（SkuId）" min-width="140px" align="center" />
         <el-table-column prop="goods_name" label="商品名称" min-width="150px" align="center" show-overflow-tooltip />
-        <el-table-column prop="sku_name" label="商品规格" min-width="150px" align="center" show-overflow-tooltip />
+        <el-table-column prop="sku_name" sortable label="商品规格" min-width="150px" align="center" show-overflow-tooltip />
         <el-table-column prop="stock_num" label="可用库存" min-width="100px" align="center" />
         <el-table-column prop="shared_num" label="共享库存" min-width="110px" align="center" />
         <el-table-column prop="frozen_num" label="占用库存" min-width="110px" align="center" />
