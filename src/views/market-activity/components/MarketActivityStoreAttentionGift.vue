@@ -86,12 +86,12 @@
 
         <el-form-item label="当前站点">
           <!-- {{ rowx.goods_name }} -->
-          {{  this.country | chineseSite }}
+          {{ this.country | chineseSite }}
         </el-form-item>
 
         <el-form-item label="币种" style="color:red">
           <!-- selectMallList[0].country | siteCoin -->
-          {{  this.country | siteCoin }}(优惠劵活动使用的是当地币种)
+          {{ this.country | siteCoin }}(优惠劵活动使用的是当地币种)
           <!-- <el-input v-model="rowx.sku_name" size="mini" disabled/> -->
         </el-form-item>
 
@@ -209,7 +209,7 @@
 
         <el-form-item>
           <el-button size="mini" type="primary" @click="mallCouponFun">创建关注礼活动</el-button>
-<!--          <el-button size="mini" type="primary">取消</el-button>-->
+          <!--          <el-button size="mini" type="primary">取消</el-button>-->
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -272,12 +272,12 @@ export default {
       stoptoping: false,
       mallTableSelect: [],
       getTable: [],
-      country:'TH',
+      country: 'TH'
     }
   },
   computed: {
     contentDes() {
-      const coinType = this.$filters.siteCoin( this.country)
+      const coinType = this.$filters.siteCoin(this.country)
       return `Shopee币交换规则，${coinType}100=100 Shopee币`
     }
   },
@@ -632,7 +632,7 @@ export default {
         } else { // 虾皮折扣
           coin_cash_back = {
             percentage: Number(this.discountNum),
-            cap: this.limitPrice === '0' ? 0 : Number(this.maxPrice)
+            cap: this.limitPrice === '0' ? null : Number(this.maxPrice)
           }
         }
 
@@ -658,7 +658,7 @@ export default {
           if (result.message === 'param err') {
             message = '输入参数有误'
           }
-          if (result.message === 'quota error:') {
+          if (result.message === 'quota error:' || /start time min error/.test(result.message)) {
             message = '所选时间有误'
           }
           if (result.message === 'campaign overlap') {
@@ -666,6 +666,9 @@ export default {
           }
           if (result.message === 'token not found') {
             message = '店铺未登录'
+          }
+          if (/price check failed/.test(result.message)) {
+            message = '价格设置有误'
           }
           this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${result.message}:${message}`, false)
         } else {

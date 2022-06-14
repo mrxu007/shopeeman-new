@@ -1,3 +1,5 @@
+import { isJsonString } from '@/util/util'
+
 export default class MarketManagerAPI {
   constructor(that) {
     this._this = that
@@ -288,12 +290,11 @@ export default class MarketManagerAPI {
           referer: '/portal/marketing/follow-prize/create'
         }
       })
-
-      const des = JSON.parse(res)
-      const data = JSON.parse(des.data)
+      const des = isJsonString(res)
+      const data = isJsonString(des.data)
       const ecode = data.errcode || data.code
       const message = data.message
-      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      // console.log('followPrizeCreate', res, des, data)
       return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `followPrizeCreate-catch: ${error}` }
@@ -360,7 +361,7 @@ export default class MarketManagerAPI {
       const params = {
         mallId: mallId,
         status: datainfo.status,
-        tiers: [{...datainfo.tiers[0],discount_type: 1}],
+        tiers: [{ ...datainfo.tiers[0], discount_type: 1 }],
         channel_ids: datainfo.channel_ids,
         start_time: datainfo.start_time,
         end_time: datainfo.end_time,
@@ -373,7 +374,7 @@ export default class MarketManagerAPI {
         },
         expire_now: true
       }
-      console.log('logistics_promotion-stop',params,datainfo)
+      console.log('logistics_promotion-stop', params, datainfo)
       const res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v3/logistics_promotion/?', params, {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
@@ -398,7 +399,7 @@ export default class MarketManagerAPI {
       const params = {
         mallId: mallId,
         status: datainfo.status,
-        tiers: [{...datainfo.tiers[0],discount_type: 1}],
+        tiers: [{ ...datainfo.tiers[0], discount_type: 1 }],
         channel_ids: datainfo.channel_ids,
         start_time: datainfo.start_time,
         end_time: datainfo.end_time,
@@ -411,7 +412,7 @@ export default class MarketManagerAPI {
         },
         expire_now: true
       }
-      console.log('logistics_promotion-del',params)
+      console.log('logistics_promotion-del', params)
       const res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v3/logistics_promotion/?', params, {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
