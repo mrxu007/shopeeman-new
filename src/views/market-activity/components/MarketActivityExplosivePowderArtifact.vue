@@ -3,7 +3,7 @@
     <ul>
       <!-- row1 -->
       <li>
-        <storeChoose style="margin-left:-2px" @changeMallList="changeMallList"/>
+        <storeChoose style="margin-left:-2px" @changeMallList="changeMallList" />
         <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
         <el-button type="primary" size="mini" @click="setQurey">参数设置</el-button>
         <!-- <el-button @click="test">aa</el-button> -->
@@ -19,10 +19,14 @@
               <!-- row2.1 -->
               <li style="align-items: center;margin-bottom: 5px;">
                 <label style="width: 128px;">店铺ID信息：</label>
-                <el-input v-model="mallIDinfo" type="textarea" resize="none" :rows="3" placeholder="请输入内容"/>
+                <el-input v-model="mallIDinfo" type="textarea" resize="none" :rows="3" placeholder="请输入内容" />
                 <div>
-                  <el-button type="primary" size="mini" style="margin-left: 10px;margin-bottom: 5px;"
-                             @click="addCancerMall">添加关注店铺
+                  <el-button
+                    type="primary"
+                    size="mini"
+                    style="margin-left: 10px;margin-bottom: 5px;"
+                    @click="addCancerMall"
+                  >添加关注店铺
                   </el-button>
                   <el-button type="primary" size="mini" @click="clearMallIDinfo">清空店铺信息</el-button>
                 </div>
@@ -35,7 +39,7 @@
             </ul>
           </el-col>
           <el-col :span="9">
-            <div class="grid-content bg-purple"/>
+            <div class="grid-content bg-purple" />
             <ul>
               <!-- row2.1 -->
               <li>
@@ -47,7 +51,7 @@
                 <el-button type="primary" size="mini" @click="Unfollower(0)">取关所有用户</el-button>
                 <el-button type="primary" size="mini" @click="canCerFollowUnFollowMe">取关未关注我的用户</el-button>
               </li>
-              <li style="height:30px"/>
+              <li style="height:30px" />
             </ul>
           </el-col>
         </el-row>
@@ -57,12 +61,12 @@
       <!-- row4 -->
       <li>
         <el-table
-            :header-cell-style="{ background: '#f7fafa' }"
-            :data="tableList"
-            :row-style="{ height: '50px' }"
-            height="calc(100vh - 220px)"
+          :header-cell-style="{ background: '#f7fafa' }"
+          :data="tableList"
+          :row-style="{ height: '50px' }"
+          height="calc(100vh - 220px)"
         >
-          <el-table-column type="index" label="序列号" min-width="100px" align="center"/>
+          <el-table-column type="index" label="序列号" min-width="100px" align="center" />
           <el-table-column prop="" label="站点" min-width="150px" align="center">
             <template v-slot="{row}">{{ row.country | chineseSite }}</template>
           </el-table-column>
@@ -81,69 +85,75 @@
           <el-table-column prop="cancerFollow" label="取关数量" min-width="150px" align="center">
             <template v-slot="{row}">{{ Number(row.cancerFollow) ? Number(row.cancerFollow) : '-' }}</template>
           </el-table-column>
-          <el-table-column prop="state" label="操作状态" min-width="150px" align="center"/>
+          <el-table-column prop="state" label="操作状态" min-width="150px" align="center" />
         </el-table>
       </li>
     </ul>
     <div class="dialog_shell">
       <el-dialog
-          title="店铺搜索"
-          :visible.sync="dialog_mallSearch"
-          width="1000px"
-          :close-on-click-modal="false"
-          :close-on-press-escape="false"
-          class="dialog_mall">
+        title="店铺搜索"
+        :visible.sync="dialog_mallSearch"
+        width="1000px"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        class="dialog_mall"
+      >
         <ul>
           <!-- row1 -->
           <li>
             <label>关键词</label>
-            <el-input v-model="keyword" size="mini" style="width:100px" clearable/>
+            <el-input v-model="keyword" size="mini" style="width:100px" clearable />
             <label>评论数</label>
-            <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
             -
-            <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
             <label>点赞数</label>
-            <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
             -
-            <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
           </li>
           <!-- row3 -->
           <li>
             <label>评分数</label>
-            <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
             -
-            <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
             <label style="margin-left:50px">店铺数</label>
-            <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini"/>
+            <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d.]/g,0)" style="width:80px" size="mini" />
             <el-button type="primary" size="mini" style="margin-left:30px" @click="searchMall">搜索</el-button>
             <el-button type="primary" size="mini" @click="addTargetMall">添加勾选店铺</el-button>
           </li>
           <!-- row2 -->
           <li>
             <el-table
-                :header-cell-style="{ background: '#f7fafa' }"
-                :data="mallSearchList"
-                :row-style="{ height: '50px' }"
-                max-height="400"
-                @selection-change="handleSelectionChange"
+              :header-cell-style="{ background: '#f7fafa' }"
+              :data="mallSearchList"
+              :row-style="{ height: '50px' }"
+              max-height="400"
+              @selection-change="handleSelectionChange"
             >
-              <el-table-column align="center" width="50" type="selection"/>
-              <el-table-column align="center" label="序号" width="55" type="index"/>
-              <el-table-column prop="shopid" label="店铺ID" width="120px" align="center"/>
-              <el-table-column prop="name" label="产品标题" min-width="150px" align="center" show-overflow-tooltip/>
+              <el-table-column align="center" width="50" type="selection" />
+              <el-table-column align="center" label="序号" width="55" type="index" />
+              <el-table-column prop="shopid" label="店铺ID" width="120px" align="center" />
+              <el-table-column prop="name" label="产品标题" min-width="150px" align="center" show-overflow-tooltip />
               <el-table-column prop="" label="主图" width="80px" align="center" fixed="right">
                 <template v-slot="{row}">
-                  <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
-                              style="width: 50px; height: 50px; display: inline-block">
+                  <el-tooltip
+                    effect="light"
+                    placement="right-end"
+                    :visible-arrow="false"
+                    :enterable="false"
+                    style="width: 50px; height: 50px; display: inline-block"
+                  >
                     <div slot="content">
-                      <el-image :src="[row.image] | imageRender" style="width: 400px; height: 400px"/>
+                      <el-image :src="[row.image] | imageRender" style="width: 400px; height: 400px" />
                     </div>
-                    <el-image :src="[row.image, true] | imageRender" style="width: 50px; height: 50px"/>
+                    <el-image :src="[row.image, true] | imageRender" style="width: 50px; height: 50px" />
                   </el-tooltip>
                 </template>
               </el-table-column>
-              <el-table-column prop="liked_count" label="点赞数" width="100px" align="center" fixed="right"/>
-              <el-table-column prop="totalRate" label="评论数" width="100px" align="center" fixed="right"/>
+              <el-table-column prop="liked_count" label="点赞数" width="100px" align="center" fixed="right" />
+              <el-table-column prop="totalRate" label="评论数" width="100px" align="center" fixed="right" />
               <el-table-column prop="rating_star" label="产品评分" width="80px" align="center" fixed="right">
                 <template v-slot="{row}">{{ row.item_rating.rating_star.toFixed(2) }}</template>
               </el-table-column>
@@ -160,17 +170,17 @@
       </el-dialog>
       <!-- 用户设置 -->
       <el-dialog
-          title="用户设置"
-          :visible.sync="dialog_userInfo"
-          width="700px"
-          :close-on-click-modal="false"
-          :close-on-press-escape="false"
-          class="dialog_mall"
+        title="用户设置"
+        :visible.sync="dialog_userInfo"
+        width="700px"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        class="dialog_mall"
       >
-        <autoFollow :user-info="userInfo" :mall="selmallList" @isSave="setSave"/>
+        <autoFollow :user-info="userInfo" :mall="selmallList" @isSave="setSave" />
       </el-dialog>
     </div>
-    <Logs ref="Logs" v-model="showlog" clear/>
+    <Logs ref="Logs" v-model="showlog" clear />
   </div>
 </template>
 
@@ -277,8 +287,8 @@ export default {
           return
         }
         const resMall = await this.getHomeMallData(mall)
-        this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
-        this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
+        this.$set(mall, 'following', resMall?.user?.following_count ?? 0)
+        this.$set(mall, 'fence', resMall?.shop?.follower_count ?? 0)
         if (!resMall) {
           this.$refs.Logs.writeLog(`店铺暂无数据`)
           return
@@ -417,8 +427,8 @@ export default {
         }
         // 获取店铺数据
         const resMall = await this.getHomeMallData(mall)
-        this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
-        this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
+        this.$set(mall, 'following', resMall?.user?.following_count ?? 0)
+        this.$set(mall, 'fence', resMall?.shop?.follower_count ?? 0)
         if (!resMall) {
           this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`)
           return
@@ -533,8 +543,6 @@ export default {
       params['mallId'] = mall.platform_mall_id
       const resUser = await this.MallAPIInstance.UserProfile(params) // 获取userName
       if (resUser.code === 200) {
-        const userName = resUser.data.username
-        params['username'] = userName
         const resMall = await this.MallAPIInstance.getHomeMallinfo(params)
         if (resMall.code === 200) {
           return resMall.data
@@ -617,7 +625,7 @@ export default {
     // 添加关注店铺--弹窗
     addCancerMall() {
       if (!this.tableList.length) {
-        this.$message.warning('请先设置参数')
+        this.$message.warning('请先选择店铺')
         return
       }
       this.dialog_mallSearch = true
@@ -781,9 +789,9 @@ export default {
         }
         // 获取HOME店铺数据
         const resMall = await this.getHomeMallData(mall)
-        this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
-        this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
-        console.log('111111', resMall.account.following_count, resMall.follower_count)
+        this.$set(mall, 'following', resMall?.user?.following_count ?? 0)
+        this.$set(mall, 'fence', resMall?.shop?.follower_count ?? 0)
+        console.log('111111', resMall?.user?.following_count, resMall?.shop?.follower_count)
         if (!resMall) {
           this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`, true)
           this.$set(mall, 'state', '店铺数据请求失败')

@@ -1,4 +1,5 @@
 import GUID from '@/util/guid'
+import { isJsonString } from '@/util/util'
 export default class GoodsDiscount {
   constructor(that) {
     this._this = that
@@ -115,7 +116,7 @@ export default class GoodsDiscount {
       console.log('buyerFollow - item', item)
       const params = {}
       params['mallId'] = item.mallId
-      params['userid'] =  item.userShopid
+      params['userid'] = item.userShopid
       params['isAddCsrfToken'] = true
       params['userShopid'] = item.userShopid
       // params['ShopId'] = item.ShopId
@@ -156,7 +157,7 @@ export default class GoodsDiscount {
         }
       })
       const data = JSON.parse(res)
-      console.log('postChineseBuyer - res',data)
+      console.log('postChineseBuyer - res', data)
       if (data.status === 200) {
         if (JSON.parse(data.data).success) {
           return { code: 200, data: true }
@@ -405,21 +406,21 @@ export default class GoodsDiscount {
       return { code: -2, data: [], message: `获取评论 ${error}` }
     }
   }
-  // 获取主要店铺信息
+  // 获取主要店铺信息 748466927
   async getHomeMallinfo(val) {
     try {
       const item = val
       const params = {}
       params['mallId'] = item.mallId
-      params['username'] = item.username
-      const res = await this._this.$shopeemanService.getChinese(item.country, `/api/v4/shop/get_shop_detail?`, params, {
+      const res = await this._this.$shopeemanService.getChinese(item.country, `/api/marketing/v4/shop/profile/get`, params, {
         headers: {
-          'X-API-SOURCE': 'pc',
-          'Content-Type': 'application/xml',
-          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
-          'Accept-Encoding': 'gzip, deflate'
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
+          'referer': '/portal/settings/shop/profile',
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Encoding': 'gzip, deflate, br'
         }
       })
+      console.log(isJsonString(res), 'getHomeMallinfo')
       const data = JSON.parse(JSON.parse(res).data)
       if (!data.error) {
         return { code: 200, data: data.data }
@@ -427,6 +428,7 @@ export default class GoodsDiscount {
         return { code: 201, data: [], message: data.error }
       }
     } catch (error) {
+      console.log('getHomeMallinfo-cathc', error)
       return { code: -2, data: [], message: `主要店铺信息 ${error}` }
     }
   }
@@ -442,6 +444,7 @@ export default class GoodsDiscount {
         }
       })
       const data = JSON.parse(JSON.parse(res).data)
+      console.log(data, 'UserProfile')
       if (data.error) {
         return { code: 201, data: '', message: data.error_msg }
       } else {
@@ -502,6 +505,7 @@ export default class GoodsDiscount {
       })
       const data = JSON.parse(JSON.parse(res).data)
       // console.log(data)
+      console.log(data, 'isLogin')
       if (data.errcode) {
         return { code: 200, data: false, message: '店铺未登录' }
       } else {

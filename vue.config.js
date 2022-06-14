@@ -51,15 +51,14 @@ module.exports = {
     //     return assetFilename.endsWith('.js')
     //   }
     // }
+  },
+  devServer: {
+
+    public: '172.15.252.138',
+    port: '8088',
+    hot: true,
+    disableHostCheck: true
+
   }
-  // devServer: {
-
-  //   public: '172.15.252.138',
-
-  //   hot: true,
-
-  //   disableHostCheck: true
-
-  // }
 
 }
