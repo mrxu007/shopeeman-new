@@ -933,7 +933,8 @@ export default class CommodityService {
   getGoodsEncryptRelation(data) {
     return this.nativeService.callFunction('GetGoodsEncryptRelation', JSON.stringify(data))
   }
-
-
-
+  // 云IP获取区域列表
+  getCloudIPAreaListV2() {
+    return this.nativeService.callCloudIpFunction('GetCloudIPAreaListV2')
+  }
 }
