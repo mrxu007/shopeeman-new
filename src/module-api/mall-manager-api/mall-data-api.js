@@ -424,6 +424,7 @@ class MallDataApi {
       }
       console.log('同步上报数据', params)
       const res = await this._this.$api.mallStatisticsSave(params)
+      console.log('mallStatisticsSave', res)
       if (res.status === 200) {
         return {
           code: 200,

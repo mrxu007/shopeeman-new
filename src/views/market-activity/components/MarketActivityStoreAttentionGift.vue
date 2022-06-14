@@ -86,12 +86,12 @@
 
         <el-form-item label="当前站点">
           <!-- {{ rowx.goods_name }} -->
-          {{ this.country | chineseSite }}
+          {{ country | chineseSite }}
         </el-form-item>
 
         <el-form-item label="币种" style="color:red">
           <!-- selectMallList[0].country | siteCoin -->
-          {{ this.country | siteCoin }}(优惠劵活动使用的是当地币种)
+          {{ country | siteCoin }}(优惠劵活动使用的是当地币种)
           <!-- <el-input v-model="rowx.sku_name" size="mini" disabled/> -->
         </el-form-item>
 
