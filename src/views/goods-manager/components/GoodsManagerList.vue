@@ -3273,30 +3273,27 @@ export default {
             (this.goodsMin > 0 && this.goodsMin < 99999999) ||
             (this.soldMin > 0 && this.soldMin < 99999999) ||
             (this.soldMax < 99999999 && this.soldMax >= 0) ||
-            this.categoryName ||
-            this.queryType === 1) {
-          if ((this.queryType === 100 || this.queryType === 200)) {
-            res = await this.GoodsList.getMpskuList(params) // 无条件搜索
-          } else {
-            if (this.keyword) {
-              params['searchType'] = this.searchType
-              params['keyword'] = this.keyword.trim()
-            }
-            if (this.categoryName) {
-              params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
-            }
-            // 商品数量
-            params['goodsMin'] = this.goodsMin == 0 ? undefined : this.goodsMin
-            params['goodsMax'] = this.goodsMax == 99999999 ? undefined : this.goodsMax
-            // }
-            // 销售量
-            params['soldMin'] = this.soldMin == 0 ? undefined : this.soldMin
-            params['soldMax'] = this.soldMax == 99999999 ? undefined : this.soldMax
-            if (mItem.cursor) {
-              params['cursor'] = mItem.cursor
-            }
-            res = await this.GoodsList.searchProductList(params) // 有条件搜索
+            this.categoryName &&
+            !(this.queryType === 100 || this.queryType === 100)
+        ) {
+          if (this.keyword) {
+            params['searchType'] = this.searchType
+            params['keyword'] = this.keyword.trim()
           }
+          if (this.categoryName) {
+            params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
+          }
+          // 商品数量
+          params['goodsMin'] = this.goodsMin == 0 ? undefined : this.goodsMin
+          params['goodsMax'] = this.goodsMax == 99999999 ? undefined : this.goodsMax
+          // }
+          // 销售量
+          params['soldMin'] = this.soldMin == 0 ? undefined : this.soldMin
+          params['soldMax'] = this.soldMax == 99999999 ? undefined : this.soldMax
+          if (mItem.cursor) {
+            params['cursor'] = mItem.cursor
+          }
+          res = await this.GoodsList.searchProductList(params) // 有条件搜索
         } else {
           res = await this.GoodsList.getMpskuList(params) // 无条件搜索
         }
