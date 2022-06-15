@@ -95,8 +95,8 @@
                         collapse-tags
                         @change="changeSelect($event, 'source')"
                       >
-                        <el-option :value="0" label="全部" @click.native="selectAll('source', sourceList)"/>
-                        <el-option v-for="(item,index) in sourceList" :key="index" :value="item.value" :label="item.label"/>
+                        <el-option :value="0" label="全部" @click.native="selectAll('source', sourceList)" />
+                        <el-option v-for="(item,index) in sourceList" :key="index" :value="item.value" :label="item.label" />
                       </el-select>
                     </el-form-item>
                     <el-form-item label="更新时间：">
@@ -1027,10 +1027,10 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, waitStart, imageCompressionUpload, delay, sleep } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, waitStart, delay, sleep } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
-import { goodsSourceList,goodsSourceNameList } from '@/views/order-manager/components/orderCenter/orderCenter'
+import { goodsSourceList, goodsSourceNameList } from '@/views/order-manager/components/orderCenter/orderCenter'
 export default {
   components: {
     StoreChoose,
@@ -2633,7 +2633,7 @@ export default {
         // 获取商家后台的物流方式
         let res = await this.$shopeemanService.getChinese(item.country, '/api/v3/logistics/get_channel_list/?', params)
         res = JSON.parse(JSON.parse(res).data)
-        console.log('get_channel_list',res)
+        console.log('get_channel_list', res)
         if (res?.data?.list) {
           idDatas = res.data.list
         }
@@ -2652,7 +2652,7 @@ export default {
         obj.parent_channel_id = Number(logistics.parent_channel_id)
         logModelList.push(obj)
       }
-      console.log('getLogisticsInfo',logModelList)
+      console.log('getLogisticsInfo', logModelList)
       return logModelList
     },
     // 过滤无效物流
@@ -2901,8 +2901,8 @@ export default {
         }
         const res = await this.$shopeemanService.handleGoodsDelete(item.country, params)
         if (res.code === 200) {
-          if(item.platform === 16 || item.platform === 17){
-            let goodsEncryptRelation = await this.$commodityService.deleteGoodsEncryptRelation({platform:item.platform,goodsId:item.id})
+          if (item.platform === 16 || item.platform === 17) {
+            const goodsEncryptRelation = await this.$commodityService.deleteGoodsEncryptRelation({ platform: item.platform, goodsId: item.id })
             console.log('goodsEncryptRelation', goodsEncryptRelation)
           }
           if (this.isRefurbishProduct) {
@@ -3243,7 +3243,9 @@ export default {
       }
       // 限流
       this.isResTime = false
-      setTimeout(() => { this.isResTime = true }, 10000)
+      // setTimeout(() => { this.isResTime = true }, 10000)
+      await delay(10000)
+      this.isResTime = true
     },
     // 获取数据
     async getTableData(mItem, count = { count: 1 }) {
@@ -3284,19 +3286,18 @@ export default {
               params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
             }
             // 商品数量
-            params['goodsMin'] = this.goodsMin
-            params['goodsMax'] = this.goodsMax
+            params['goodsMin'] = this.goodsMin == 0 ? undefined : this.goodsMin
+            params['goodsMax'] = this.goodsMax == 99999999 ? undefined : this.goodsMax
             // }
             // 销售量
-            params['soldMin'] = this.soldMin
-            params['soldMax'] = this.soldMax
+            params['soldMin'] = this.soldMin == 0 ? undefined : this.soldMin
+            params['soldMax'] = this.soldMax == 99999999 ? undefined : this.soldMax
             if (mItem.cursor) {
               params['cursor'] = mItem.cursor
             }
             res = await this.GoodsList.searchProductList(params) // 有条件搜索
           }
-        }
-        else {
+        } else {
           res = await this.GoodsList.getMpskuList(params) // 无条件搜索
         }
         if (res.code === 200) {
@@ -3304,7 +3305,7 @@ export default {
           if (res.data.list?.length) {
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
-            console.log('filterData',res.data.list)
+            console.log('filterData', res.data.list)
             // 过滤数据
             const { fData, len } = this.filterData(res.data.list)
             if (!this.productNumChecked) {
@@ -3477,7 +3478,7 @@ export default {
         item.status = status
         // 获取上家类型,链接,id
         await this.getPlatformData(item.parent_sku)
-        console.log(item,JSON.stringify(this.platformData))
+        console.log(item, JSON.stringify(this.platformData))
         item.platformTypeStr = this.platformData['platformTypeStr'] || ''
         item.productId = this.platformData['productId'] || ''
         item.url = this.platformData['url'] || ''
@@ -3529,14 +3530,14 @@ export default {
             continue
           }
           // 过滤更新时间
-          if (this.modifyTime?.length && item.modify_time < this.formatTime(this.modifyTime[0],0)) {
+          if (this.modifyTime?.length && item.modify_time < this.formatTime(this.modifyTime[0], 0)) {
             continue
           }
-          if (this.modifyTime?.length && item.modify_time > this.formatTime(this.modifyTime[1],1)) {
+          if (this.modifyTime?.length && item.modify_time > this.formatTime(this.modifyTime[1], 1)) {
             continue
           }
-          if(item.create_time > 1652284800000 || item.modify_time > 1652284800000){
-            console.log('create_time modify_time ',item)
+          if (item.create_time > 1652284800000 || item.modify_time > 1652284800000) {
+            console.log('create_time modify_time ', item)
           }
           // 过滤创建时间
           if (this.createTime?.length && item.create_time < this.formatTime(this.createTime[0], 0)) {
@@ -3566,8 +3567,7 @@ export default {
           if (!(Number(item.like_count) <= Number(this.likeMax))) {
             continue
           }
-        }
-        else{
+        } else {
           // 过滤粉丝量
           if (Number(item.like_count) > Number(0)) {
             continue
@@ -3654,10 +3654,9 @@ export default {
               this.platformData['productId'] = itemSku
             }
           }
-        }
-        else {
+        } else {
           const res = await this.$BaseUtilService.decGoodCode(itemSku)
-          console.log('decGoodCode',res,itemSku)
+          console.log('decGoodCode', res, itemSku)
           if (res.indexOf('-') > -1) {
             const arr = res.split('-')
             this.getPlatformSimpleStr(arr[0], arr)
@@ -3683,7 +3682,7 @@ export default {
         } else if (name.toLocaleLowerCase() === 'tm') {
           this.platformData['platform'] = 3
           this.platformData['productId'] = id
-        }  else if (name.toLocaleLowerCase() === 'own') {
+        } else if (name.toLocaleLowerCase() === 'own') {
           this.platformData['platform'] = 5
           this.platformData['productId'] = id
         } else if (name.toLocaleLowerCase() === 'ghpt') {
@@ -3721,10 +3720,10 @@ export default {
           this.platformData['platform'] = 13
           this.platformData['productId'] = id
           this.platformData['userId'] = arr.Length > 2 ? arr[2] : ''
-        }else if (name.toLocaleLowerCase() === 'tokopedia') {
+        } else if (name.toLocaleLowerCase() === 'tokopedia') {
           this.platformData['platform'] = 16
           this.platformData['productId'] = id
-        }else if (name.toLocaleLowerCase() === 'bukalapak') {
+        } else if (name.toLocaleLowerCase() === 'bukalapak') {
           this.platformData['platform'] = 17
           this.platformData['productId'] = id
         }
@@ -3783,8 +3782,8 @@ export default {
     },
     // 打开外部链接
     async openUrl(row, type) {
-      console.log('openUrl',row,type)
-       if (type === 1) {
+      console.log('openUrl', row, type)
+      if (type === 1) {
         try {
           const url = this.$filters.countryShopeebuyCom(row.country)
           this.$BaseUtilService.openUrl(`${url}/product/${row.platform_mall_id}/${row.id}`)
@@ -3792,16 +3791,16 @@ export default {
           this.$message.error(`打开失败`)
         }
       } else if (type === 2) {
-         if(row.platform === 16 || row.platform === 17){
-           let goodsEncryptRelationRes = await this.$commodityService.getGoodsEncryptRelation({platform:row.platform,goodsId:row.id})
-           let res = JSON.parse(goodsEncryptRelationRes)
-           let data = res.data
-           if(data?.length){
-             this.$BaseUtilService.openUrl(data[0].original)
-           }
-         }else{
-           this.$BaseUtilService.openUrl(row.url)
-         }
+        if (row.platform === 16 || row.platform === 17) {
+          const goodsEncryptRelationRes = await this.$commodityService.getGoodsEncryptRelation({ platform: row.platform, goodsId: row.id })
+          const res = JSON.parse(goodsEncryptRelationRes)
+          const data = res.data
+          if (data?.length) {
+            this.$BaseUtilService.openUrl(data[0].original)
+          }
+        } else {
+          this.$BaseUtilService.openUrl(row.url)
+        }
       } else {
         this.$BaseUtilService.openUrl(row)
       }
