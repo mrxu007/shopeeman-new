@@ -463,7 +463,7 @@ export function terminateThread(method) {
  */
 
 export function batchTask(object, method) {
-  let data = JSON.parse(JSON.stringify(object))
+  const data = JSON.parse(JSON.stringify(object))
   let dataList = []
   let total = 0
   return new Promise(async resolve => {
@@ -483,7 +483,7 @@ export function batchTask(object, method) {
     await perform(count)
 
     async function perform(count, page = 0) {
-      let start = page * count || 0
+      const start = page * count || 0
       let i = 0
       for (; i < count && (start + i) < total; i++) {
         if (Object.prototype.toString.call(data) === '[object Object]') {
@@ -735,6 +735,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
         }
       }
       shopeeGoodsInfo = shopeeGoods.data
+      console.log('shopeeGoodsInfo', shopeeGoodsInfo)
       shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
       const params = {
         GoodsId: oriGoodsId,
@@ -860,6 +861,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           brand_id: shopeeGoodsInfo.brand_id,
           images: shopeeGoodsInfo.images,
           description: shopeeGoodsInfo.description,
+          description_type: shopeeGoodsInfo.description_type,
           model_list: dealWithSkuList, // sku
           category_path: shopeeGoodsInfo.category_path,
           attributes: shopeeGoodsInfo.attributes,
@@ -1121,7 +1123,7 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
           resolve(base64)
         }
         image.onerror = async function() {
-          let base64Value = await instance.$BaseUtilService.imageToBase64String(url)
+          const base64Value = await instance.$BaseUtilService.imageToBase64String(url)
           base64 = 'data:image/png;base64,' + base64Value
           const base64Size = showSize(base64)
           if (base64Size > 1024) {
@@ -1356,11 +1358,11 @@ export function getGoodLinkModel(link) {
 }
 
 export function accountPermissions(type = -1, callback) {
-  let accountType = Number(instance.$userInfo.AccountType)
+  const accountType = Number(instance.$userInfo.AccountType)
   let success = true
   if (type > -1 && (accountType === 1 || accountType === 4 || accountType === 5)) {
     success = false
-    let payProjectInfo = instance.$payProjectInfo
+    const payProjectInfo = instance.$payProjectInfo
     if (payProjectInfo.length && (payProjectInfo.includes(Number(type)) || payProjectInfo.includes((type + '')))) {
       success = true
     }
@@ -1399,7 +1401,7 @@ export function copyText(attr) {
  * 获取随机符号
  */
 export function getRandSymbol() {
-  let symbolList = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+', '?', '<', '>', ',', '.', ';', ':', '[', ']', '{', '}', '|']
-  let index = Math.random() * symbolList.length
+  const symbolList = ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+', '?', '<', '>', ',', '.', ';', ':', '[', ']', '{', '}', '|']
+  const index = Math.random() * symbolList.length
   return symbolList[Math.floor(index)]
 }
